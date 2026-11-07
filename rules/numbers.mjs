@@ -1,6 +1,6 @@
 // Numbers: never open with one, never let one stand without its meaning.
 const NUMBER_WORD = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|fifty|hundred|thousand|million|dozens?|hundreds|thousands|millions";
-const OPENER = new RegExp(`^[\\s"'(\\[]*(?:\\$|USD |EUR |€)?(?:\\d[\\d,.]*\\s*(?:%|x|k|m|ms|s)?|(?:${NUMBER_WORD}))\\b`, "i");
+const OPENER = new RegExp(`^[\\s"'(\\[]*(?:\\$|USD |EUR |\u20ac)?(?:\\d[\\d,.]*\\s*(?:%|x|k|m|ms|s)?|(?:${NUMBER_WORD}))\\b`, "i");
 
 export default [
   {

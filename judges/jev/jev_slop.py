@@ -44,7 +44,7 @@ DOCS_QUESTIONS = {
 
 # Literal bans (case-insensitive). Pattern -> reason.
 REGEX_BANS = [
-    (r"—", "em dash (house rule: never)"),
+    ("\u2014", "em dash (house rule: never)"),
     (r"\bhonest(ly)?\b|\bthe honest\b", "'honest/honestly' as framing (writing-rules 2026-08-02)"),
     (r"\bhinges on\b", "'hinges on' (banned)"),
     (r"\bload[- ]bearing\b", "'load-bearing' (banned)"),

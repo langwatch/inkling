@@ -29,7 +29,7 @@ export function mask(text) {
   out = out.replace(/<\/?[a-zA-Z][^>]*>/g, blank);
   out = out.replace(/\bhttps?:\/\/\S+/g, blank);
   out = out.replace(/"[^"\n]*"/g, blank);
-  out = out.replace(/“[^”\n]*”/g, blank);
+  out = out.replace(/\u201c[^\u201d\n]*\u201d/g, blank);
   out = out.replace(/\*\*|__/g, "  ");
   out = out.replace(/(^|[\s(])[*_](?=\S)/g, (m) => m.replace(/[*_]/, " "));
   out = out.replace(/(?<=\S)[*_](?=[\s).,;:!?]|$)/g, " ");
@@ -81,7 +81,7 @@ function splitSentences(block) {
   const clean = mask(raw);
   const out = [];
   let start = 0;
-  const end = /[.!?]+["”')\]]*(?=\s|$)/g;
+  const end = /[.!?]+["\u201d')\]]*(?=\s|$)/g;
   for (const m of clean.matchAll(end)) {
     const stop = m.index + m[0].length;
     const before = clean.slice(start, m.index).match(/([A-Za-z.]+)$/)?.[1]?.toLowerCase();
@@ -193,6 +193,15 @@ export function parse(text) {
     }
     const q = line.match(QUOTE);
     if (q) {
+      const item = q[2].match(LIST_ITEM);
+      if (item) {
+        open("list-item", { ordered: /\d/.test(item[2]), quoted: true }).add(item[3], n, q[1].length + item[1].length + item[2].length + 1);
+        continue;
+      }
+      if (current?.quoted && q[2].trim()) {
+        current.add(q[2].trim(), n, q[1].length + q[2].search(/\S/));
+        continue;
+      }
       if (!current || current.type !== "quote") open("quote");
       current.add(q[2], n, q[1].length);
       continue;

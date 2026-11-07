@@ -111,13 +111,13 @@ export default [
   },
   {
     id: "rule-of-three",
-    pattern: /\b(too|more|less|fewer|zero|no)\s+[^,.;]{1,30},\s+\1\s+[^,.;]{1,30},?\s+(?:and\s+)?\1\b/i,
+    pattern: /\b(too|more|less|fewer|zero)\s+[^,.;]{1,30},\s+\1\s+[^,.;]{1,30},?\s+(?:and\s+)?\1\b/i,
     message: "Rule-of-three anaphora as a punchline.",
     fix: "Keep the one item that carries the point, or make each item distinct.",
     source: "Nexus writing-rules, Rule-of-three anaphora",
     examples: {
       fail: ["Too much overhead, too many handoffs, too much silent failure."],
-      pass: ["Handoffs failed silently, so tickets sat for days."],
+      pass: ["Handoffs failed silently, so tickets sat for days.", "No heavy gradients, no 3D kitsch, no glowing neon."],
     },
   },
 ];

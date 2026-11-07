@@ -137,7 +137,7 @@ export default [
   {
     id: "legal-vague-amount",
     modes: ["legal"],
-    pattern: /\b(?:approximately|roughly|around|about) (?:\d|EUR|USD|\$|€)/i,
+    pattern: /\b(?:approximately|roughly|around|about) (?:\d|EUR|USD|\$|\u20ac)/i,
     message: "Approximate amount in a contract.",
     fix: "Write the exact figure, or the formula that produces it.",
     source: "Legal mode starting rules",

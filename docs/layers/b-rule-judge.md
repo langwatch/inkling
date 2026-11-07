@@ -1,0 +1,34 @@
+# Layer (b): rule judge
+
+`proof judge` asks Jev, the decision model from TypeSafe, one yes or no question per rule and per paragraph, and flags any answer above the threshold. It catches the shapes a regex cannot see: a negation reframe written in new words, a staccato run, a narrator sentence with no fixed phrase.
+
+```sh
+export TYPESAFE_API_KEY=...        # or JEV_SLOP_API_KEY
+proof judge draft.md --mode post --audience "engineers on Hacker News" --context "a two-person startup, linked from a comment"
+proof judge titles.md --mode ads --audience "founders who searched for an agent sandbox"
+```
+
+Without a key, `proof judge` prints that it skipped and exits 0. Layer (a) needs no key.
+
+## What it runs
+
+`judges/jev/jev_slop_v2.py` is a copy of the Content agent's `jev-slop` tool (credits in [credits.md](../credits.md)). proof calls it with `--checks jev`, so every question goes to Jev and no other model:
+
+- `--mode ads` and `--mode deck` turn on copy checks, one flag per point of the analysis in [origin.md](../origin.md): unsurprising, concedes or hedges, writer side, formula shape, crammed claims, wrong register.
+- `--mode docs` adds the docs questions: indefinite event openers, artifacts with thinking verbs, statement stacks.
+- `--audience` and `--context` are joined and passed as the reader Jev judges as. The same line passes for the reader it was written for and fails for a lawyer or a VC.
+
+## Cost and trust
+
+Jev costs 0.042 USD per million input tokens, about 0.0003 USD per paragraph. It is the only paid call in proof.
+
+What the Content agent measured on its labelled sets:
+
+| Signal | Use |
+| --- | --- |
+| Tic questions at 0.5 | 25 approved paragraphs: none flagged, mean 0.19. 25 model paragraphs: 16 flagged, mean 0.58 |
+| Copy checks | thresholds 0.75 for unsurprising and writer side, 0.8 for wrong register, 0.7 for the rest |
+| Overall `ai_sounding` | noise: it scored an approved human draft 0.89, worse than a rejected model draft. Off by default |
+| Run to run | scores drift by about 0.03 |
+
+Jev matches quoted examples literally: putting a concrete fragment of the failing shape in a question moved one rule from 0.59 to 0.9. Write judge questions with real examples in them.
