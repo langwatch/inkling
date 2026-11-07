@@ -58,17 +58,35 @@ const blocksOf = (md) => md.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean
 const firstSentence = (b) => b.split(/(?<=[.!?])\s+/)[0];
 const SKIP = ["```", "[Image", ">", "1.", "- ", "<"];
 
+/** Render the HTML a GitHub README uses as the reader sees it: headings, text and image alt text. */
+export function asRendered(md) {
+  return md
+    .replace(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, n, t) => `${"#".repeat(Number(n))} ${t.trim()}`)
+    .replace(/<img[^>]*?alt="([^"]*)"[^>]*>/gi, (_, alt) => `[Image: ${alt}]`)
+    .replace(/<img[^>]*>/gi, "[Image with no alt text]")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/?(?:p|div|sub|sup|picture|source)[^>]*>/gi, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/^[ \t]+/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 /** What a skimmer sees: the title, the subtitle, the headings and each section's first sentence. */
 export function skimView(md) {
-  const blocks = blocksOf(md);
+  const blocks = blocksOf(asRendered(md));
   const out = [];
   let wantFirst = false;
+  let subtitle = -1;
   blocks.forEach((b, i) => {
     if (b.startsWith("# ")) {
       out.push(b);
-      if (blocks[i + 1] && !blocks[i + 1].startsWith("#")) out.push(blocks[i + 1]);
+      if (blocks[i + 1] && !blocks[i + 1].startsWith("#") && !SKIP.some((s) => blocks[i + 1].startsWith(s))) {
+        out.push(blocks[i + 1]);
+        subtitle = i + 1;
+      }
       wantFirst = true;
-    } else if (i === 1 && blocks[0].startsWith("# ")) {
+    } else if (i === subtitle) {
       // subtitle, already shown
     } else if (b.startsWith("## ") || b.startsWith("### ")) {
       out.push(b);
@@ -82,7 +100,7 @@ export function skimView(md) {
 }
 
 export function textParts(md) {
-  const blocks = blocksOf(md);
+  const blocks = blocksOf(asRendered(md));
   const parts = { title: [], subtitle: [], headings: [], openers: [], all: blocks };
   blocks.forEach((b, i) => {
     if (b.startsWith("# ")) {
@@ -110,7 +128,7 @@ export function runTextChecks(md, expectations) {
 }
 
 export function readerPrompt({ persona, text, questions, context }) {
-  const view = persona.view === "skim" ? skimView(text) : text;
+  const view = persona.view === "skim" ? skimView(text) : asRendered(text);
   const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings and the first sentence of each section). Judge only from it." : "";
   return [
     `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${skimNote}`,

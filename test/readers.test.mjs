@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { writePrompts, grade, skimView, readReadersFile } from "../src/readers.mjs";
+import { writePrompts, grade, skimView, readReadersFile, asRendered } from "../src/readers.mjs";
 import { paidKeys, refuseIfPaid } from "../src/subscription.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
@@ -36,6 +36,12 @@ test("prompts are self-contained, one per persona", () => {
   assert.match(skimmer, /Where you came from: a post shared on X/);
   assert.doesNotMatch(skimmer, /sleeps when idle/, "the skimmer sees only first sentences");
   assert.deepEqual(textChecks.map((c) => [c.id, c.pass]), [["no_hedge_headline", true]]);
+});
+
+test("README HTML renders as the reader sees it", () => {
+  const md = '<p align="center">\n  <img src="i.png" alt="a sloth at a desk">\n</p>\n\n<h1 align="center">Inkling</h1>\n\n<p align="center">\n  Inkling: a writing framework.<br>\n  Second line.\n</p>\n\nAgents write bad copy. More here.\n\n## Why\n\nBecause.';
+  assert.equal(skimView(md), "# Inkling\n\nInkling: a writing framework.\nSecond line.\n\nAgents write bad copy.\n\n## Why\n\nBecause.");
+  assert.match(asRendered(md), /^\[Image: a sloth at a desk\]/);
 });
 
 test("skim view keeps title, subtitle, headings and first sentences", () => {
