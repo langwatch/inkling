@@ -66,3 +66,10 @@ test("every mode has rules and the rule count is stable", () => {
   for (const mode of MODE_NAMES) assert.ok(RULES.some((r) => !r.modes || r.modes.includes(mode)));
   assert.ok(RULES.length >= 80);
 });
+
+test("a Founder decision comment exempts its sentence and only that sentence", () => {
+  const text = "# Scenario\n\nScenario is a seamless agent testing framework. {/* Founder decision: search indexing */} Setup is seamless.\n\n{/* Founder decision: kept for search */} It is a powerful tool.\n";
+  const found = lint({ text, mode: "docs", rules: RULES }).filter((f) => f.rule.endsWith("marketing-hype"));
+  assert.equal(found.length, 1);
+  assert.match(found[0].excerpt, /Setup is seamless/);
+});

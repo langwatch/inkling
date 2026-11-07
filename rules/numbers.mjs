@@ -1,4 +1,5 @@
 // Numbers: never open with one, never let one stand without its meaning.
+import { isPastAction } from "../src/verbs.mjs";
 const NUMBER_WORD = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|fifty|hundred|thousand|million|dozens?|hundreds|thousands|millions";
 const OPENER = new RegExp(`^[\\s"'(\\[]*(?:\\$|USD |EUR |\u20ac)?(?:\\d[\\d,.]*\\s*(?:%|x|k|m|ms|s)?|(?:${NUMBER_WORD}))\\b`, "i");
 
@@ -8,14 +9,18 @@ export default [
     check: (unit) => {
       if (unit.block.type === "cell") return [];
       const m = unit.clean.match(OPENER);
-      return m ? [{ index: 0, match: m[0] }] : [];
+      if (!m) return [];
+      // "One lived 10.7 hours": "one" as a pronoun doing something is not a count.
+      const next = unit.clean.slice(m.index + m[0].length).match(/^\s+([a-z]+)/)?.[1];
+      if (/^\s*one$/i.test(m[0]) && next && (isPastAction(next) || /^[a-z]{3,}s$/.test(next))) return [];
+      return [{ index: 0, match: m[0] }];
     },
     message: "Opens with a number. A count as the first thing read is a status flex, not a reason to care.",
     fix: "Lead with the value to the reader, and put the number after it with its comparison.",
     source: "Rejected line, \"Dashboards come with 77 ready-made questions\"; founder note 2026-10-31",
     examples: {
       fail: ["77 ready-made questions come with every dashboard.", "# 10 ways to cut your agent bill", "Three of the four measurements agree."],
-      pass: ["Every dashboard starts with the questions teams ask most often, 77 of them."],
+      pass: ["Every dashboard starts with the questions teams ask most often, 77 of them.", "Neither stopped. One lived 10.7 hours and made 1,301 API calls."],
     },
   },
   {

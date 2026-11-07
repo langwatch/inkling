@@ -72,6 +72,20 @@ export function ruleApplies(rule, mode) {
   return !rule.modes || modeFamily(mode).some((m) => rule.modes.includes(m));
 }
 
+const FOUNDER = /\{\/\*\s*Founder decision\b/;
+
+// A sentence carrying a {/* Founder decision: ... */} comment keeps its wording on purpose
+// (docs-writing-rules rule 3), so no rule reports it. The comment may sit inside the sentence or right after it.
+function founderDecision(block, at) {
+  const list = block.sentences ?? [];
+  const i = list.findIndex((x) => at >= x.start && at < x.end);
+  if (i < 0) return false;
+  const text = block.text ?? "";
+  const after = text.slice(list[i].end, list[i + 1]?.start ?? text.length);
+  const before = i === 0 ? text.slice(0, list[i].start) : "";
+  return FOUNDER.test(list[i].raw) || FOUNDER.test(after) || FOUNDER.test(before);
+}
+
 /** Lint one document. Returns findings sorted by position. */
 export function lint({ text, file = "-", mode = "post", rules, audience }) {
   if (!MODES[mode]) throw new Error(`unknown mode ${mode}; one of ${Object.keys(MODES).join(", ")}`);
@@ -96,6 +110,7 @@ export function lint({ text, file = "-", mode = "post", rules, audience }) {
       for (const hit of hits) {
         const block = hit.block ?? unit.block;
         const at = block ? (hit.block ? hit.index : unit.start + hit.index) : 0;
+        if (block && founderDecision(block, at)) continue;
         const pos = block ? block.pos(at) : { line: 1, col: 1 };
         const base = hit.block ? { block, sentences: block.sentences, start: 0 } : unit;
         findings.push({

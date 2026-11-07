@@ -22,6 +22,7 @@ function blank(text) {
 export function mask(text) {
   let out = text;
   out = out.replace(/<!--[\s\S]*?-->/g, blank);
+  out = out.replace(/\{\/\*[\s\S]*?\*\/\}/g, blank);
   out = out.replace(/`[^`\n]*`/g, blank);
   out = out.replace(/!\[([^\]]*)\]\([^)]*\)/g, (m) => blank(m));
   out = out.replace(/\]\([^)]*\)/g, blank);

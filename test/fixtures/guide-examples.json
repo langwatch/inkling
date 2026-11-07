@@ -1,0 +1,38 @@
+{
+  "source": "Nexus writing-rules and docs-writing-rules, examples the guides mark as approved or rejected, unquoted so the rules see them",
+  "approved": [
+    { "mode": "post", "text": "We shipped a support bot, and within a week it confidently told a customer they'd get a refund we don't give." },
+    { "mode": "post", "text": "The 500 error from the billing webhook took the checkout down." },
+    { "mode": "post", "text": "It worked, kind of." },
+    { "mode": "post", "text": "Their briefing told them to execute one directive and stop, but they never did! One lived 10.7 hours and made 1,301 API calls." },
+    { "mode": "post", "text": "Andrew, one of our engineers, eventually got annoyed and gave up, too much overhead, handoffs kept failing silently." },
+    { "mode": "post", "text": "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me: three customers told their invoices were already paid." },
+    { "mode": "post", "text": "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me." },
+    { "mode": "post", "text": "This setup would have caught the bug. Not the subtle ones, though, the judge still misses those." },
+    { "mode": "post", "text": "The retrieval span showed contexts: []" },
+    { "mode": "post", "text": "The LLM call looked normal. The retrieval span above it: contexts: []." },
+    { "mode": "post", "text": "We started calling these silent-context bugs: retrieval returns nothing, the model fills the gap confidently, and no error ever fires." },
+    { "mode": "post", "text": "The handler caught the exception and returned an empty list instead of raising, so every query silently retrieved nothing and the model answered from its own guesses. For eighteen hours." },
+    { "mode": "ads", "text": "# You don't need an agent sandbox" },
+    { "mode": "ads", "text": "# Laptop shut? It still works" },
+    { "mode": "docs", "text": "This will open LangWatch for you to sign in, then start your agent with all telemetry already set up. Check out the quickstart for next steps." },
+    { "mode": "docs", "text": "Connect your agent to LangWatch." },
+    { "mode": "docs", "text": "The tunnel URL is public." },
+    { "mode": "docs", "text": "Send your developer the Connect your agent guide." },
+    { "mode": "docs", "text": "Scenario is the most advanced agent testing framework available. {/* Founder decision: kept for search indexing */}" },
+    { "mode": "docs", "text": "Scenario is the most powerful agent testing framework available. {/* Founder decision: kept for search indexing */}" }
+  ],
+  "contested": [
+    { "mode": "post", "rule": "numbers/number-opener", "text": "137 questions, which took the support lead most of a day to answer by hand, and that day was the actual cost.", "why": "writing-rules approves it; the founder's later note (2026-10-31) bans any sentence that starts with a number" }
+  ],
+  "rejected": [
+    { "mode": "post", "rule": "structure/staccato", "text": "Andrew gave up on it first. Overhead was high. Handoffs failed silently." },
+    { "mode": "post", "rule": "narrator/undefined-subject", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
+    { "mode": "post", "rule": "narrator/invented-scene", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
+    { "mode": "post", "rule": "narrator/invented-scene", "text": "Sooner or later a director stops by with a screenshot." },
+    { "mode": "docs", "rule": "docs/indefinite-event-opener", "text": "A developer connects the agent to the platform." },
+    { "mode": "post", "rule": "narrator/undefined-subject", "text": "A developer connects the agent to the platform." },
+    { "mode": "post", "rule": "narrator/vague-attribution", "text": "Many companies already run their agents this way." },
+    { "mode": "docs", "rule": "banned-words/marketing-hype", "text": "Scenario is the most powerful agent testing framework available." }
+  ]
+}

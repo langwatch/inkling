@@ -1,5 +1,6 @@
 // Shape of paragraphs and sentences: walls of text, barrages, staccato, gravitas closers.
 import { words } from "../src/markdown.mjs";
+import { TIME_MARKER, isPastAction } from "../src/verbs.mjs";
 
 const SHORT = 6;
 
@@ -49,7 +50,11 @@ export default [
     check: (unit) => {
       const s = unit.sentences;
       for (let i = 0; i + 2 < s.length; i++) {
-        if ([s[i], s[i + 1], s[i + 2]].every((x) => words(x.clean).length <= SHORT)) return [{ index: s[i].start - unit.start }];
+        const run = [s[i], s[i + 1], s[i + 2]];
+        if (!run.every((x) => words(x.clean).length <= SHORT)) continue;
+        // Narrative sequence: every short sentence lands a new event or moves the clock.
+        if (run.every((x) => TIME_MARKER.test(x.clean) || words(x.clean).some((w) => isPastAction(w.replace(/[^a-z]/gi, ""))))) continue;
+        return [{ index: s[i].start - unit.start }];
       }
       return [];
     },
@@ -57,8 +62,12 @@ export default [
     fix: "Join the beats with commas, \"and\", \"so\" or \"because\". Keep short sentences only when time moves forward between them.",
     source: "Nexus writing-rules, Staccato rhythm within a paragraph",
     examples: {
-      fail: ["Andrew gave up on it first. Overhead was high. Handoffs failed silently."],
-      pass: ["Andrew, one of our engineers, gave up on it first: overhead was high and handoffs kept failing silently."],
+      fail: ["Andrew gave up on it first. Overhead was high. Handoffs failed silently.", "It works. It scales. It ships."],
+      pass: [
+        "Andrew, one of our engineers, gave up on it first: overhead was high and handoffs kept failing silently.",
+        "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me.",
+        "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me: three customers told their invoices were already paid.",
+      ],
     },
   },
   {
@@ -70,6 +79,8 @@ export default [
       if (s.length < 2) return [];
       const last = words(s.at(-1).clean).length;
       const before = words(s.at(-2).clean).length;
+      // A long sentence that builds, then a short one that lands a concrete time or number, is the approved move.
+      if (before >= 20 && (TIME_MARKER.test(s.at(-1).clean) || /\d/.test(s.at(-1).clean))) return [];
       return last <= 3 && before >= 8 ? [{ index: s.at(-1).start - unit.start }] : [];
     },
     message: "Short gravitas closer at the end of a paragraph.",
@@ -77,7 +88,7 @@ export default [
     source: "Nexus writing-rules, Watch the short gravitas closer",
     examples: {
       fail: ["Most setups throw the context away after every task and start again. Ours stays."],
-      pass: ["The context stays between tasks, so the agent remembers last week's fix."],
+      pass: ["The context stays between tasks, so the agent remembers last week's fix.", "The handler caught the exception and returned an empty list instead of raising, so every query silently retrieved nothing and the model answered from its own guesses. For eighteen hours."],
     },
   },
   {

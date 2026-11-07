@@ -19,6 +19,6 @@ To silence a rule for one block, put `<!-- inkling-ignore <rule ids>: <reason> -
 
 ## Jev
 
-- **Drift.** The same line scores about 0.03 apart between runs. Inkling reruns any score within 0.05 of its threshold and reports a split as advisory. On the sandbox titles, "Dashboards come with 77 ready-made questions" scored 0.75 then 0.73 on `unsurprising`, against a 0.75 threshold.
+- **Drift.** The same line scores about 0.03 apart between runs. Inkling reruns any score within 0.05 of its threshold and reports a split as advisory. On the sandbox titles, "Dashboards come with 77 ready-made questions" scored 0.74 then 0.77 on `unsurprising`, against a 0.75 threshold.
 - **The overall `ai_sounding` score** rated an approved human draft 0.89, worse than a rejected model draft. Inkling never reads it.
 - **Tic questions on titles** misfire on one-line copy, so copy modes (`ads`, `deck`, `x`) turn them off and use the copy flags.

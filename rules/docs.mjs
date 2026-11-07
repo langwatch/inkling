@@ -43,13 +43,16 @@ export default [
   {
     id: "future-tense-behaviour",
     modes: DOCS,
-    pattern: /\b(?:it|this|the [a-z]+) will (?:open|create|send|run|return|show|start|store|read|write)\b/i,
+    pattern: /\b(?:it|this|the [a-z]+) will (?:open|create|send|run|return|show|start|store|read|write)\b(?![^.]*\byou\b)/i,
     message: "Describe behaviour in the present tense.",
     fix: "\"Langy opens a pull request\", not \"will open\".",
-    source: "Nexus docs-writing-rules rule 4",
+    source: "Nexus docs-writing-rules rule 4; rule 25 allows what the reader will see happen",
     examples: {
       fail: [{ text: "The CLI will open a browser.", mode: "docs" }],
-      pass: [{ text: "The CLI opens a browser.", mode: "docs" }],
+      pass: [
+        { text: "The CLI opens a browser.", mode: "docs" },
+        { text: "This will open LangWatch for you to sign in, then start your agent.", mode: "docs" },
+      ],
     },
   },
   {

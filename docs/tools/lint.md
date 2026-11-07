@@ -20,6 +20,8 @@ To skip one block on purpose, put a comment above it with the reason:
 
 `<!-- inkling-ignore-file <rule or family> -->` turns a rule off for the whole file.
 
+In `.mdx` docs, a sentence carrying a `{/* Founder decision: <reason> */}` comment keeps its wording on purpose (docs-writing-rules rule 3), and no rule reports it. Put the comment inside the sentence or right after it; it exempts that sentence only.
+
 ## Rule families
 
 | Family | What it catches |
@@ -30,8 +32,8 @@ To skip one block on purpose, put a comment above it with the reason:
 | hedges | softeners such as `almost` and `fairly`, casual hedges outside posts, modal hedges such as `can help` |
 | contrast | `not X, but Y`, `it wasn't X. It was Y.`, `X, not Y` closers, mirrored pairs, rule-of-three anaphora |
 | numbers | sentences and titles that open with a number, over-precise figures |
-| narrator | signposts, fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` |
-| structure | long paragraphs, one-line barrages, staccato, gravitas closers, unintroduced names |
+| narrator | signposts, fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` or `Teams ship...`, invented office scenes |
+| structure | long paragraphs, one-line barrages, staccato (short sentences that move time forward pass), gravitas closers, unintroduced names |
 | docs | rollout flags, future tense, artifacts as subjects of thinking verbs, title rules |
 | deck | slide titles, bullet counts and lengths, prose on slides |
 | pitch | headlines from the writer's side, concessions, worry lines, crammed headlines, investor and legal precision |

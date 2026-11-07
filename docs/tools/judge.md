@@ -37,7 +37,7 @@ Drafts pass only when no named flag is over its threshold: 0.7 by default, 0.75 
 
 Scores drift by about 0.03 between runs, so when any score lands within 0.05 of its threshold, Inkling runs Jev a second time. If both runs agree, the verdict stands; if one run is over and the other under, the flag is reported as advisory and does not fail the draft.
 
-A real run on [the sandbox titles](../../examples/sandbox-titles/judge-output.txt) shows both cases: eight flags over threshold on the three rejected titles, one split on "Dashboards come with 77 ready-made questions" (0.75, then 0.73), and no flag on "You don't need an agent sandbox".
+A real run on [the sandbox titles](../../examples/sandbox-titles/judge-output.txt) shows both cases: eight flags over threshold on the three rejected titles, one split on "Dashboards come with 77 ready-made questions" (0.74, then 0.77), and no flag on "You don't need an agent sandbox".
 
 ## Rewrite instructions
 

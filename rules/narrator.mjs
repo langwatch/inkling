@@ -1,7 +1,9 @@
 // Sentences about the text instead of the subject, and openers that wind up instead of saying it.
 import { ALL_BUT_LEGAL } from "../src/modes.mjs";
+import { COPULA, PERSON_NOUN, isPastAction } from "../src/verbs.mjs";
 
-const PAST = /^(?:[a-z]+ed|wrote|said|told|came|ran|sent|built|made|found|took|gave|went|saw|got|left|paid|lost|won|bought|sold|thought|knew|felt|put|kept|brought|began|chose|drove|fell|held|led|meant|met|spoke|spent|stood|taught|threw|understood|woke)$/;
+const NOT_VERB = /^(?:in|on|at|of|for|with|from|to|and|or|but|that|who|which|like|than|the|a|an|our|your|their|across|around|without|using)$/;
+
 
 // The text a reader has seen before this sentence: earlier blocks plus the start of its own block.
 function textBefore(unit, doc) {
@@ -133,13 +135,13 @@ export default [
   },
   {
     id: "vague-majority",
-    pattern: /(?<!\b(?:the|at)\s)\bmost\b(?!\s+(?:likely|recent|recently|important|common|commonly|often|of the time)\b)|\beveryone knows\b/i,
+    pattern: /(?<!\b(?:the|at)\s)\bmost\b(?!\s+(?:likely|recent|recently|important|common|commonly|often|of the time|of (?:a|an|the) (?:day|week|month|year|morning|afternoon|evening|night|hour))\b)|\beveryone knows\b/i,
     message: "\"Most\" as a vague majority. Sounds measured without measuring anything.",
     fix: "State the direct claim, or give the real quantity.",
     source: "Nexus writing-rules, banned words 2026-08-12",
     examples: {
       fail: ["Most teams skip evals."],
-      pass: ["Of the 40 teams we asked, 31 had no evals.", "The most common failure is a timeout.", "It retries at most twice."],
+      pass: ["Of the 40 teams we asked, 31 had no evals.", "The most common failure is a timeout.", "It retries at most twice.", "It took the support lead most of a day."],
     },
   },
   {
@@ -181,26 +183,55 @@ export default [
     modes: ALL_BUT_LEGAL,
     scope: "body-sentence",
     check: (unit, { doc }) => {
-      const vague = unit.clean.match(/^\s*(Someone|Somebody|One of (?:them|our|their|the) [a-z]+)\s+[a-z]+/);
+      const t = unit.clean;
+      const vague = t.match(/^\s*(Someone|Somebody|One of (?:them|our|their|the) [a-z]+)\s+[a-z]+/);
       if (vague) return [{ index: 0, match: vague[1] }];
-      const short = unit.clean.match(/^\s*(?:A|An|One)\s+()([a-z][\w-]*)\s+([a-z]+)\b/);
-      const long = unit.clean.match(/^\s*(?:A|An|One)\s+([a-z][\w-]*)\s+([a-z][\w-]*)\s+([a-z]+)\b/);
-      const m = [short, long].find((x) => x && PAST.test(x[3]));
-      if (!m) return [];
-      const [whole, adj, noun] = m;
-      if (/^\s+[a-z]+\s+[a-z]+s\b/.test(unit.clean.slice(m.index + whole.length))) return [];
-      if (new RegExp("\\b" + noun.toLowerCase() + "s?\\b").test(textBefore(unit, doc))) return [];
-      return [{ index: 0, match: whole.trim().split(/\s+/).slice(0, -1).join(" ") }];
+      const known = (noun) => {
+        const stem = noun.toLowerCase().replace(/ies$/, "y").replace(/(?<=[a-z]{3})s$/, "");
+        return new RegExp("\\b" + stem.replace(/y$/, "(?:y|ies)") + "s?\\b").test(textBefore(unit, doc));
+      };
+      const hit = (match) => [{ index: 0, match }];
+      // "A founder rejected...", "A developer connects...": a singular indefinite subject doing something.
+      const sing = t.match(/^\s*(A|An|One)\s+([a-z][\w-]*)(?:\s+([a-z][\w-]*))?(?:\s+([a-z][\w-]*))?/);
+      if (sing) {
+        const [, det, w1, w2, w3] = sing;
+        for (const [adj, noun, verb] of [[null, w1, w2], [w1, w2, w3]]) {
+          if (!noun || !verb || COPULA.test(verb)) continue;
+          const person = PERSON_NOUN.test(noun);
+          const acts = person ? isPastAction(verb) || /^[a-z]{3,}s$/.test(verb) : isPastAction(verb);
+          if (!acts) continue;
+          const rest = t.trimStart().slice([det, adj, noun, verb].filter(Boolean).join(" ").length);
+          if (!person && /^\s+[a-z]+\s+[a-z]+s\b/.test(rest)) continue;
+          if (known(noun)) return [];
+          return hit([det, adj, noun].filter(Boolean).join(" "));
+        }
+      }
+      // "Teams ship...", "Small companies switch...": a bare plural of people with no referent.
+      const pw = t.match(/^\s*([A-Z][a-z]+)\s+([a-z]+)(?:\s+([a-z]+))?/);
+      if (pw) {
+        const [, first, second, third] = pw;
+        const isPeople = (w) => w && /(?:s|people|folks)$/i.test(w) && PERSON_NOUN.test(w);
+        const verbOk = (w) => w && !COPULA.test(w) && !NOT_VERB.test(w);
+        const DET = /^(?:The|Our|Your|Their|His|Her|Its|These|Those|This|That|Most|Many|Some|All|Few|Both|Such|Other)$/;
+        if (isPeople(first) && verbOk(second) && !known(first)) return hit(first);
+        if (!DET.test(first) && !PERSON_NOUN.test(first) && isPeople(second) && verbOk(third) && !known(second)) return hit(`${first} ${second}`);
+      }
+      return [];
     },
-    message: "Undefined subject: \"A founder\" or \"Someone\" does something, and the reader never learns who.",
+    message: "Undefined subject: \"A founder\", \"Someone\" or \"Teams\" does something, and the reader never learns who.",
     fix: "Name who it was, or make the reader or the product the subject.",
-    source: "Founder review 2026-11-07 (\"A founder rejected...\"); Nexus writing-rules, vague attribution",
+    source: "Nexus writing-rules, Prefer specifics over summaries and Vague attribution; docs-writing-rules rule 26; founder review 2026-11-07",
     examples: {
       fail: [
         "A founder rejected this landing page title from his agent.",
         "Someone asked us for a dark mode.",
         "One customer told us the export was slow.",
         "A big team switched last month.",
+        "A founder asks the agent for a launch post.",
+        "A developer connects the agent once.",
+        "Teams ship faster when they review traces.",
+        "Companies switch to self-hosting after the first audit.",
+        "Small startups adopt it in a week.",
       ],
       pass: [
         "Our founder rejected this landing page title from his agent.",
@@ -209,6 +240,43 @@ export default [
         "A run parameter is a named value.",
         "A small paid model answers one question per line.",
         "A model left alone writes the most likely words.",
+        "A developer is anyone with a project key.",
+        "Developers are the main audience of these docs.",
+        "Agents stop once copy is accurate.",
+        "The teams that ship fastest review traces daily.",
+        "Our customers in Europe run it on their own servers. Customers there ask for audit logs.",
+      ],
+    },
+  },
+  {
+    id: "invented-scene",
+    modes: ALL_BUT_LEGAL,
+    scope: "body-sentence",
+    check: (unit) => {
+      const t = unit.clean;
+      const scene =
+        /\b(?:in|at|during|after) (?:the|a|your|our) (?:monday|tuesday|wednesday|thursday|friday|weekly|daily|morning|sprint|team|all-hands|quarterly|board|planning) ?(?:meeting|standup|stand-up|sync|review|call|retro|demo)?\b|\bstops by (?:your|my|the|our) desk\b|\bwalks (?:in|over|up to you)\b|\bleans over\b|\bpings you\b|\bslacks you\b|\bshows up at your desk\b|\bmessages you\b/i;
+      const opener = /^\s*(?:sooner or later|picture this|imagine (?:a|an|your|that)|one day|it'?s (?:monday|tuesday|wednesday|thursday|friday) (?:morning|afternoon))\b/i;
+      const actor = /^\s*(?:someone|somebody|a (?:[a-z]+ )?(?:director|manager|colleague|teammate|customer|developer|engineer|founder|lead|user|pm|cto|ceo|vp|boss|stakeholder)|your (?:boss|cto|ceo|manager|director|pm|lead|team|colleague|teammate))\b/i;
+      const m = t.match(opener);
+      if (m) return [{ index: 0, match: m[0].trim() }];
+      const s = t.match(scene);
+      return s && actor.test(t) ? [{ index: s.index, match: s[0] }] : [];
+    },
+    message: "Invented office scene: an unnamed person in a made-up meeting is a fabricated specific.",
+    fix: "Use a real case with the person named, or ask the plain question the reader would ask.",
+    source: "Nexus writing-rules changelog 2026-09-19 (invented office scenes) and 2026-08-12 (generic-actor scene opener)",
+    examples: {
+      fail: [
+        "Someone asks in the Monday meeting how often the agent gives up after a failed tool call.",
+        "Sooner or later a director stops by with a screenshot.",
+        "Your CTO pings you about the bill.",
+        "Picture this: the deploy is red and support is calling.",
+      ],
+      pass: [
+        "How often does the agent give up after a failed tool call?",
+        "In the Monday meeting on 3 November, Sergio, our billing lead, asked how often the agent gives up.",
+        "The weekly review shows every failed tool call.",
       ],
     },
   },
