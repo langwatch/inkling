@@ -1,0 +1,161 @@
+// Sentences about the text instead of the subject, and openers that wind up instead of saying it.
+export default [
+  {
+    id: "signpost",
+    pattern: /\bhere'?s (?:what|the thing|why|how|the honest|the catch|the kicker)\b|\bhere is (?:what|why|the thing)\b|\blet'?s dive\b|\blet'?s (?:break it down|unpack)\b/i,
+    message: "Signpost that announces a point instead of making it.",
+    fix: "Delete the announcement and start with the content.",
+    source: "Nexus writing-rules, conspiratorial hooks and narrator sentences",
+    examples: {
+      fail: ["Here's what happened to us.", "Let's dive in."],
+      pass: ["The deploy failed at 3 a.m."],
+    },
+  },
+  {
+    id: "fake-epiphany",
+    pattern: /\bthat'?s when (?:we|i|they) (?:realized|realised|knew|saw)\b|\bwhat became clear\b|\bthe real (?:lesson|unlock|insight)\b|\band that'?s the real\b|\bthat shift is\b/i,
+    message: "Fake epiphany marker. Labels a revelation the prose has not earned.",
+    fix: "Show the detail that flipped it and let the reader see it.",
+    source: "Nexus writing-rules, Fake-epiphany markers; Enact the turn, do not announce it",
+    examples: {
+      fail: ["That's when we realized retrieval was broken.", "What became clear was the cache."],
+      pass: ["The retrieval span above it showed contexts: []."],
+    },
+  },
+  {
+    id: "pseudo-precision",
+    pattern: /\bnot metaphorically\b|\byes, this (?:actually|really) happened\b|\bthat is deliberate\b|\bthis is by design\b/i,
+    message: "Pseudo-precision emphasis. Insists on authenticity instead of showing it.",
+    fix: "Cut it; the fact carries itself.",
+    source: "Nexus writing-rules, Pseudo-precision emphasis",
+    examples: {
+      fail: ["Not metaphorically, literally."],
+      pass: ["The agent ran for 10.7 hours."],
+    },
+  },
+  {
+    id: "brand-closer",
+    pattern: /^(?:[Tt]hat'?s|[Tt]his is|[Aa]nd that'?s) (?:the [\w-]+|[A-Z][\w-]+)\s*[.!]?\s*$/,
+    message: "Declarative brand closer: names what was just described.",
+    fix: "End on the concrete consequence instead.",
+    source: "Nexus writing-rules, Declarative brand closers",
+    examples: {
+      fail: ["That's the workflow.", "That's Laze."],
+      pass: ["The ticket closed itself an hour later."],
+    },
+  },
+  {
+    id: "imperative-signoff",
+    scope: "block",
+    pattern: /\bStop [\w-]+(?:ing)?\.\s+Start [\w-]+(?:ing)?\b|\b(?:Agree|Thoughts)\?\s*$/,
+    message: "Influencer sign-off.",
+    fix: "End on the last real point.",
+    source: "Nexus writing-rules, Arrow CTAs and imperative signoffs; jev_slop engagement_bait",
+    examples: {
+      fail: ["Stop waiting. Start building.", "Every team will run agents soon. Thoughts?"],
+      pass: ["The code is on GitHub."],
+    },
+  },
+  {
+    id: "second-order-abstraction",
+    pattern: /\bthe (?:shape|nature|reality|dynamics|anatomy) of\b/i,
+    message: "Second-order abstraction. Hedges without committing to the concrete thing.",
+    fix: "Name the concrete thing: describe the workflow instead of its shape.",
+    source: "Nexus writing-rules, Second-order abstractions",
+    examples: {
+      fail: ["The shape of the workflow changed."],
+      pass: ["We review every PR within an hour now."],
+    },
+  },
+  {
+    id: "stating-priors",
+    pattern: /\bI went in expecting\b|\bI expected to (?:write|find)\b|\bI set out to (?:prove|show)\b/i,
+    message: "Stating your priors. The reader wants the finding.",
+    fix: "State the finding.",
+    source: "Nexus writing-rules, Stating your priors",
+    examples: {
+      fail: ["I went in expecting the cache to win."],
+      pass: ["The cache lost: it saved 2% and cost a day of work."],
+    },
+  },
+  {
+    id: "self-answered-bridge",
+    pattern: /\bwhich leaves the obvious question\b|\bwe wanted to know that too\b|\bthe question is\b|\bthe answer is simple\b/i,
+    message: "Self-answered rhetorical bridge.",
+    fix: "Use a plain heading and start the section on the substance.",
+    source: "Nexus writing-rules changelog 2026-09-22",
+    examples: {
+      fail: ["Which leaves the obvious question: can you trust it?"],
+      pass: ["## How accurate is the judge"],
+    },
+  },
+  {
+    id: "narrated-flow",
+    modes: ["post", "ads", "deck"],
+    pattern: /\bwhat comes back\b|\byou type (?:a|your|in)\b|\byou ask (?:it|in chat)\b[^.]*\band it\b/i,
+    message: "Narrated user flow: walks the reader through the UI as a story.",
+    fix: "Say what the product is and give the number; show the real input and output.",
+    source: "Nexus writing-rules changelog 2026-09-22",
+    examples: {
+      fail: ["You type a question in plain words, and what comes back is a chart."],
+      pass: ["Instant Evals judges 10,000 conversations in about a minute."],
+    },
+  },
+  {
+    id: "guide-preamble",
+    modes: ["docs"],
+    pattern: /\bin this (?:guide|post|article|page|tutorial),? (?:we|you|I)(?:'ll| will) (?:explore|dive|look|learn|discuss|cover)\b|^learn how to\b|\bis a powerful\b/i,
+    message: "Contentless announcement instead of the answer.",
+    fix: "State what the page builds or what the thing does, in one sentence.",
+    source: "Nexus docs-writing-rules rule 1",
+    examples: {
+      fail: [{ text: "In this guide we will explore the concepts of simulations.", mode: "docs" }, { text: "Learn how to track user interactions.", mode: "docs" }],
+      pass: [{ text: "This guide builds an evaluation pipeline for a conversational agent.", mode: "docs" }],
+    },
+  },
+  {
+    id: "vague-majority",
+    pattern: /(?<!\b(?:the|at)\s)\bmost\b(?!\s+(?:likely|recent|recently|important|common|commonly|often|of the time)\b)|\beveryone knows\b/i,
+    message: "\"Most\" as a vague majority. Sounds measured without measuring anything.",
+    fix: "State the direct claim, or give the real quantity.",
+    source: "Nexus writing-rules, banned words 2026-08-12",
+    examples: {
+      fail: ["Most teams skip evals."],
+      pass: ["Of the 40 teams we asked, 31 had no evals.", "The most common failure is a timeout.", "It retries at most twice."],
+    },
+  },
+  {
+    id: "vague-attribution",
+    pattern: /\bsome experts\b|\bmany (?:companies|teams|people|users|engineers|developers)\b|\ba lot of people\b|\bsome people\b|\bstudies show\b/i,
+    message: "Vague attribution.",
+    fix: "Name who, or cut.",
+    source: "Nexus writing-rules, General prose failure modes",
+    examples: {
+      fail: ["Many companies already do this."],
+      pass: ["Two of our customers already do this."],
+    },
+  },
+  {
+    id: "dramatic-section-title",
+    scope: "heading",
+    pattern: /^the [\w\s-]+ (?:you|we|they) (?:could(?:n'?t| not)|can'?t|never|did(?:n'?t| not))\b/i,
+    message: "Dramatic section title of the shape \"The X you could not Y\".",
+    fix: "Title the section plainly, or drop the heading.",
+    source: "Nexus writing-rules changelog 2026-09-19",
+    examples: {
+      fail: ["## The questions you could not afford to ask"],
+      pass: ["## Questions about every conversation"],
+    },
+  },
+  {
+    id: "personified-abstraction",
+    pattern: /\b(?:answers? to no one|answers? to nobody|who does (?:your|the) [\w\s]+ answer to)\b/i,
+    message: "Personified abstraction as the punchline.",
+    fix: "Make the person the subject: \"no one owns the AI spend\".",
+    source: "Nexus writing-rules, Personified abstractions",
+    examples: {
+      fail: ["Who does your AI spend answer to?"],
+      pass: ["Half these seats have no owner."],
+    },
+  },
+];

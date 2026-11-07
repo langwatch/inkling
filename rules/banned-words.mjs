@@ -1,0 +1,183 @@
+// Words and phrases banned outright, each from a review where a reader tripped on it.
+import { ALL_BUT_LEGAL } from "../src/modes.mjs";
+
+export default [
+  {
+    id: "mannered-words",
+    pattern: /\bload[- ]bearing\b|\bseams?\b|\bharvest(?:s|ed|ing)?\b|\bloud(?:ly|er|est)?\b|\bhonest(?:ly|y)?\b|\bnobody\b/i,
+    message: "Mannered word. The reader has to translate it back into the plain thing.",
+    fix: "Write the plain thing: the part that does the work, the join, collect, obvious, true, no one by name.",
+    source: "House word ban (load-bearing, seam, harvest, loud, honest, nobody); Nexus writing-rules 2026-08-02",
+    examples: {
+      fail: ["The load-bearing part of the context is the memory.", "Honestly, it worked.", "Nobody reads the docs."],
+      pass: ["The memory is the part of the context the agent uses most.", "It worked."],
+    },
+  },
+  {
+    id: "borrowed-metaphor",
+    pattern: /\bimpedance mismatch\b|\bsurface area\b|\bfirst-order\b|\bforcing function\b/i,
+    message: "Borrowed engineering metaphor, there for tone.",
+    fix: "Write the plain claim. Keep the term only when it is the precise technical one.",
+    source: "Nexus writing-rules, Load-bearing and other borrowed structural metaphors",
+    examples: {
+      fail: ["The API has a large surface area."],
+      pass: ["The API has 40 endpoints."],
+    },
+  },
+  {
+    id: "mystery-framing",
+    pattern: /\bhinges? on\b|\b(?:nobody|no one) (?:can|tells you|talks about)\b|\bshows up nowhere\b|\bthe (?:metric|thing|part) no one\b/i,
+    message: "Mystery framing. Pretends to let the reader in on a secret.",
+    fix: "State the fact and who measured it.",
+    source: "Nexus writing-rules, banned words 2026-08-02; conspiratorial hooks",
+    examples: {
+      fail: ["The answer hinges on one number.", "Here is the part no one can measure."],
+      pass: ["The answer depends on the compaction threshold."],
+    },
+  },
+  {
+    id: "interesting-narrator",
+    pattern: /\bis the interesting one\b|\bthe interesting (?:part|bit|thing) is\b|\bthis is where it gets interesting\b/i,
+    message: "Says the thing is interesting instead of saying the thing.",
+    fix: "Delete the announcement and state the finding.",
+    source: "Nexus writing-rules, banned strings 2026-08-12",
+    examples: {
+      fail: ["The interesting part is the cache."],
+      pass: ["The cache cut the bill in half."],
+    },
+  },
+  {
+    id: "vibe-phrase",
+    pattern: /\bfelt like the future\b|\bwild when it works\b|\bthe real unlock\b|\bzero friction\b|\bgame[- ]changer\b|\bnext level\b|\bsupercharge[sd]?\b|\bat scale\b(?! of)/i,
+    message: "Vibe phrase you have seen in ten other posts this month.",
+    fix: "Say what changed, with a number or a name.",
+    source: "Nexus writing-rules, Vibe phrases; jev_slop vibe_phrase",
+    examples: {
+      fail: ["Zero friction from idea to deploy.", "It is a game changer for support."],
+      pass: ["A deploy takes 40 seconds from merge."],
+    },
+  },
+  {
+    id: "magic-reframe",
+    pattern: /\b(?:not|isn'?t|less about) magic\b/i,
+    message: "Magic/not-magic reframe. A template.",
+    fix: "Delete it and describe the mechanism.",
+    source: "Nexus writing-rules, Magic/not-magic reframe",
+    examples: {
+      fail: ["It's not magic, it's just a cron job."],
+      pass: ["A cron job runs it every hour."],
+    },
+  },
+  {
+    id: "price-as-verb",
+    pattern: /\bpriced (?:before|the|every|each|at run)|\bpric(?:es|ing) (?:the|a|an|each|every|it|them|your|context|runs?)\b|\bto price (?:the|a|each|every|it)\b/i,
+    message: "\"Price\" as a verb. No one talks like that.",
+    fix: "Write \"shows the cost\" or \"estimates the cost\".",
+    source: "Nexus writing-rules, 2026-09-18",
+    examples: {
+      fail: ["Langy prices the run before it starts."],
+      pass: ["Langy shows the cost before the run starts.", "The plan is priced at 20 USD."],
+    },
+  },
+  {
+    id: "rides",
+    pattern: /\brides?\b|\briding\b/i,
+    message: "\"Rides\" for data in a field. A posture verb on a thing.",
+    fix: "Put the subject back: \"put the image in an image_url part\".",
+    source: "Nexus docs-writing-rules rule 17",
+    examples: {
+      fail: ["The image rides an image_url part."],
+      pass: ["Put the image in an image_url part."],
+    },
+  },
+  {
+    id: "it-matters-because",
+    pattern: /\bit matters because\b|\bwhy (?:this|it) matters\b/i,
+    message: "AI-coded windup.",
+    fix: "Go straight to the reason.",
+    source: "Nexus docs-writing-rules changelog 2026-09-04",
+    examples: {
+      fail: ["It matters because the cache expires."],
+      pass: ["The cache expires after 5 minutes, so the next call pays full price."],
+    },
+  },
+  {
+    id: "internal-vocabulary",
+    pattern: /\breceipts\b|\bwedge\b|\bthe pond\b/i,
+    message: "Internal strategy vocabulary in public copy.",
+    fix: "Say the plain thing: the PR link, the green CI run.",
+    source: "Nexus writing-rules changelog 2026-07-20",
+    examples: {
+      fail: ["Here are the receipts."],
+      pass: ["Here is the PR link."],
+    },
+  },
+  {
+    id: "interface-internals",
+    pattern: /\bunfolds?\b|\bunfolded\b|\bunfolding\b|\bfolds? (?:back|into|up)\b/i,
+    message: "Interface-internals vocabulary. The reader does not know the codebase's verbs.",
+    fix: "Say what the reader does or sees: expand, open, click into.",
+    source: "Nexus writing-rules changelog 2026-07-26",
+    examples: {
+      fail: ["Repeated calls unfold into each one."],
+      pass: ["Repeated calls group together; click to expand them."],
+    },
+  },
+  {
+    id: "generic-provider-brand",
+    pattern: /\b(?:GPT|Claude)(?: or (?:GPT|Claude))? APIs?\b|\bthe (?:GPT|Claude) API\b/,
+    message: "Model brand used for the provider in general.",
+    fix: "Write \"the OpenAI or Anthropic APIs\". Claude stays fine for Claude Code or a named model.",
+    source: "Nexus writing-rules changelog 2026-07-05",
+    examples: {
+      fail: ["A chatbot built on the GPT or Claude APIs."],
+      pass: ["A chatbot built on the OpenAI or Anthropic APIs."],
+    },
+  },
+  {
+    id: "marketing-hype",
+    modes: ALL_BUT_LEGAL,
+    pattern: /\bpowerful\b|\bseamless(?:ly)?\b|\brobust\b|\beffortless(?:ly)?\b|\bcutting[- ]edge\b|\bunlock(?:s|ed|ing)?\b|\bleverag(?:e|es|ed|ing)\b|\bblazing[- ]fast\b|\benterprise-grade\b|\bworld[- ]class\b|\brevolutionary\b|\bstate[- ]of[- ]the[- ]art\b|\bbest[- ]in[- ]class\b/i,
+    message: "Marketing word. It adds nothing and costs trust.",
+    fix: "If it is fast, give the number. If it is simple, the short steps prove it.",
+    source: "Nexus docs-writing-rules rule 3; jev_slop marketing/vibe words",
+    examples: {
+      fail: ["A powerful platform for agents.", "Leverage your traces."],
+      pass: ["The trace list loads in 200 ms."],
+    },
+  },
+  {
+    id: "simply-easily",
+    modes: ["docs", "ads", "deck"],
+    pattern: /\bsimply\b|\beasily\b|\bjust (?:run|add|click|set)\b/i,
+    message: "\"Simply\" and \"easily\" tell the reader it is easy instead of showing it.",
+    fix: "Cut the word. Short steps prove simplicity.",
+    source: "Nexus docs-writing-rules rule 3",
+    examples: {
+      fail: [{ text: "Simply run the migration.", mode: "docs" }],
+      pass: [{ text: "Run the migration.", mode: "docs" }],
+    },
+  },
+  {
+    id: "fan-voice",
+    pattern: /\bthe feature that sold me\b|\bI'?m obsessed with\b|\bblew my mind\b/i,
+    message: "Fan voice. Reads as an ad pretending to be a post.",
+    fix: "Say what the feature did for you, with the number.",
+    source: "jev_slop regex bans",
+    examples: {
+      fail: ["The feature that sold me is the cache."],
+      pass: ["The cache cut our bill from 900 to 300 USD a month."],
+    },
+  },
+  {
+    id: "olhando",
+    pattern: /\bolhando\b/i,
+    message: "\"Olhando\" says nothing in a business message.",
+    fix: "Ask about agents \"em desenvolvimento e no roadmap\".",
+    source: "House rule for Portuguese outreach",
+    examples: {
+      fail: ["Vocês estão olhando para agentes?"],
+      pass: ["Vocês têm agentes em desenvolvimento ou no roadmap?"],
+    },
+  },
+];
