@@ -62,9 +62,9 @@ export default [
     fix: "Join the beats with commas, \"and\", \"so\" or \"because\". Keep short sentences only when time moves forward between them.",
     source: "Nexus writing-rules, Staccato rhythm within a paragraph",
     examples: {
-      fail: ["Andrew gave up on it first. Overhead was high. Handoffs failed silently.", "It works. It scales. It ships."],
+      fail: ["Sam gave up on it first. Overhead was high. Handoffs failed silently.", "It works. It scales. It ships."],
       pass: [
-        "Andrew, one of our engineers, gave up on it first: overhead was high and handoffs kept failing silently.",
+        "Sam, one of our engineers, gave up on it first: overhead was high and handoffs kept failing silently.",
         "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me.",
         "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me: three customers told their invoices were already paid.",
       ],
@@ -109,11 +109,11 @@ export default [
       return hits;
     },
     message: "First name with no introduction. The reader does not know who this is.",
-    fix: "Add a short appositive the first time: \"Andrew, one of our engineers\".",
+    fix: "Add a short appositive the first time: \"Sam, one of our engineers\".",
     source: "Nexus writing-rules, Unintroduced first names",
     examples: {
-      fail: ["Andrew said the queue was full."],
-      pass: ["Andrew, one of our engineers, saw it first. Andrew said the queue was full."],
+      fail: ["Sam said the queue was full."],
+      pass: ["Sam, one of our engineers, saw it first. Sam said the queue was full."],
     },
   },
 ];

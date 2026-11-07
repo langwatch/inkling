@@ -275,7 +275,7 @@ export default [
       ],
       pass: [
         "How often does the agent give up after a failed tool call?",
-        "In the Monday meeting on 3 November, Sergio, our billing lead, asked how often the agent gives up.",
+        "In the Monday meeting on 3 November, Priya, our billing lead, asked how often the agent gives up.",
         "The weekly review shows every failed tool call.",
       ],
     },

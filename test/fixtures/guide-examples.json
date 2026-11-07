@@ -5,7 +5,7 @@
     { "mode": "post", "text": "The 500 error from the billing webhook took the checkout down." },
     { "mode": "post", "text": "It worked, kind of." },
     { "mode": "post", "text": "Their briefing told them to execute one directive and stop, but they never did! One lived 10.7 hours and made 1,301 API calls." },
-    { "mode": "post", "text": "Andrew, one of our engineers, eventually got annoyed and gave up, too much overhead, handoffs kept failing silently." },
+    { "mode": "post", "text": "Sam, one of our engineers, eventually got annoyed and gave up, too much overhead, handoffs kept failing silently." },
     { "mode": "post", "text": "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me: three customers told their invoices were already paid." },
     { "mode": "post", "text": "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me." },
     { "mode": "post", "text": "This setup would have caught the bug. Not the subtle ones, though, the judge still misses those." },
@@ -26,7 +26,7 @@
     { "mode": "post", "rule": "numbers/number-opener", "text": "137 questions, which took the support lead most of a day to answer by hand, and that day was the actual cost.", "why": "writing-rules approves it; the founder's later note (2026-10-31) bans any sentence that starts with a number" }
   ],
   "rejected": [
-    { "mode": "post", "rule": "structure/staccato", "text": "Andrew gave up on it first. Overhead was high. Handoffs failed silently." },
+    { "mode": "post", "rule": "structure/staccato", "text": "Sam gave up on it first. Overhead was high. Handoffs failed silently." },
     { "mode": "post", "rule": "narrator/undefined-subject", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
     { "mode": "post", "rule": "narrator/invented-scene", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
     { "mode": "post", "rule": "narrator/invented-scene", "text": "Sooner or later a director stops by with a screenshot." },
