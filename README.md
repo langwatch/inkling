@@ -10,20 +10,7 @@
 
 Agents are great at writing code now, but still terrible at copy. This framework gets you and your agent to treat writing text like writing code: which tests can validate it? What would the audience reading it think? What is the goal we are trying to convey?
 
-You get a writing process your agent follows, tools it can pick up along the way, and the research behind both.
-
-## Before and after
-
-Agents stop once copy is accurate, because no test fails on it, and they reach for stock shapes such as "doesn't need X. It needs Y." A founder rejected this landing page title from his agent:
-
-<!-- inkling-ignore doesnt-need-needs: the rejected example -->
-> Your agent doesn't need a sandbox. It needs a team.
-
-Then he wrote this one himself in minutes:
-
-> You don't need an agent sandbox
-
-Inkling's rules flag the first as a contrast formula and pass the second.
+Agents stop once copy is accurate, because no test fails on it. You get a writing process your agent follows, tools it can pick up along the way, and the research behind both.
 
 ## The process
 

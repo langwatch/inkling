@@ -30,7 +30,7 @@ To skip one block on purpose, put a comment above it with the reason:
 | hedges | softeners such as `almost` and `fairly`, casual hedges outside posts, modal hedges such as `can help` |
 | contrast | `not X, but Y`, `it wasn't X. It was Y.`, `X, not Y` closers, mirrored pairs, rule-of-three anaphora |
 | numbers | sentences and titles that open with a number, over-precise figures |
-| narrator | signposts, fake epiphanies, brand closers, vague majorities, vague attribution |
+| narrator | signposts, fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` |
 | structure | long paragraphs, one-line barrages, staccato, gravitas closers, unintroduced names |
 | docs | rollout flags, future tense, artifacts as subjects of thinking verbs, title rules |
 | deck | slide titles, bullet counts and lengths, prose on slides |

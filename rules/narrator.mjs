@@ -1,4 +1,22 @@
 // Sentences about the text instead of the subject, and openers that wind up instead of saying it.
+import { ALL_BUT_LEGAL } from "../src/modes.mjs";
+
+const PAST = /^(?:[a-z]+ed|wrote|said|told|came|ran|sent|built|made|found|took|gave|went|saw|got|left|paid|lost|won|bought|sold|thought|knew|felt|put|kept|brought|began|chose|drove|fell|held|led|meant|met|spoke|spent|stood|taught|threw|understood|woke)$/;
+
+// The text a reader has seen before this sentence: earlier blocks plus the start of its own block.
+function textBefore(unit, doc) {
+  const out = [];
+  for (const b of new Set([doc.title, doc.subtitle, ...doc.blocks].filter(Boolean))) {
+    if (b === unit.block) break;
+    out.push((b.sentences ?? []).map((x) => x.clean).join(" "));
+  }
+  for (const x of unit.block.sentences ?? []) {
+    if (x.start >= unit.start) break;
+    out.push(x.clean);
+  }
+  return out.join(" ").toLowerCase();
+}
+
 export default [
   {
     id: "signpost",
@@ -156,6 +174,42 @@ export default [
     examples: {
       fail: ["Who does your AI spend answer to?"],
       pass: ["Half these seats have no owner."],
+    },
+  },
+  {
+    id: "undefined-subject",
+    modes: ALL_BUT_LEGAL,
+    scope: "body-sentence",
+    check: (unit, { doc }) => {
+      const vague = unit.clean.match(/^\s*(Someone|Somebody|One of (?:them|our|their|the) [a-z]+)\s+[a-z]+/);
+      if (vague) return [{ index: 0, match: vague[1] }];
+      const short = unit.clean.match(/^\s*(?:A|An|One)\s+()([a-z][\w-]*)\s+([a-z]+)\b/);
+      const long = unit.clean.match(/^\s*(?:A|An|One)\s+([a-z][\w-]*)\s+([a-z][\w-]*)\s+([a-z]+)\b/);
+      const m = [short, long].find((x) => x && PAST.test(x[3]));
+      if (!m) return [];
+      const [whole, adj, noun] = m;
+      if (/^\s+[a-z]+\s+[a-z]+s\b/.test(unit.clean.slice(m.index + whole.length))) return [];
+      if (new RegExp("\\b" + noun.toLowerCase() + "s?\\b").test(textBefore(unit, doc))) return [];
+      return [{ index: 0, match: whole.trim().split(/\s+/).slice(0, -1).join(" ") }];
+    },
+    message: "Undefined subject: \"A founder\" or \"Someone\" does something, and the reader never learns who.",
+    fix: "Name who it was, or make the reader or the product the subject.",
+    source: "Founder review 2026-11-07 (\"A founder rejected...\"); Nexus writing-rules, vague attribution",
+    examples: {
+      fail: [
+        "A founder rejected this landing page title from his agent.",
+        "Someone asked us for a dark mode.",
+        "One customer told us the export was slow.",
+        "A big team switched last month.",
+      ],
+      pass: [
+        "Our founder rejected this landing page title from his agent.",
+        "A rule blocks a draft only after calibration.",
+        "We met a founder at the conference. A founder rejected the first title there.",
+        "A run parameter is a named value.",
+        "A small paid model answers one question per line.",
+        "A model left alone writes the most likely words.",
+      ],
     },
   },
 ];

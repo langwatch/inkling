@@ -1,6 +1,6 @@
 # Why agents write bad copy
 
-A founder rejected his agent's landing page titles over and over, then wrote a better one himself in minutes: "You don't need an agent sandbox". He asked the agent why it was so bad at titles. He approved six points of its answer and added two more. The ninth comes from a study of model judges.
+LangWatch's founder rejected his agent's landing page titles over and over, then wrote a better one himself in minutes: "You don't need an agent sandbox". He asked the agent why it was so bad at titles. He approved six points of its answer and added two more. The ninth comes from a study of model judges.
 
 1. **No test fails on copy.** Coding agents got good by training on tasks with a checkable answer: the tests pass or they don't. Copy has no such check, so how an agent writes is a side effect of the rest of its training. The same holds at work: when a test fails or a screenshot looks wrong, the agent fixes it on its own. A title has no failing test, so the agent stops at "accurate and complete", which is not the same as "a stranger would click".
 2. **Likely words are bland words.** A model predicts the likely next words. Good copy surprises the reader, and a surprise is by definition unlikely. Left alone, an agent drifts to the average of all marketing copy.
