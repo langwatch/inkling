@@ -291,6 +291,7 @@ def checks_copy_jev(units, key, audience=None):
         res = list(ex.map(one, units))
     out = [dict() for _ in units]
     for i, u in enumerate(units):
+        out[i]["_probs"] = res[i][0]  # raw probabilities, so a caller can rerun lines near a threshold
         for k, pr in res[i][0].items():
             if pr >= COPY_THRESHOLDS.get(k, COPY_THRESHOLD):
                 out[i][k] = {"p": 1.0, "quote": f"point {COPY_POINT[k]}: {COPY_REASONS[k]} (Jev {pr:.2f})", "fix": ""}
@@ -476,7 +477,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
         report.append({"n": i + 1, "text": u["text"], "cue": u["cue"],
                        "role": "copy" if copy else "opening" if i in op else "ending" if i == end else "body",
                        "checks": {k: v for k, v in named[i].items() if not k.startswith("_")},
-                       "extract": named[i].get("_extract"),
+                       "extract": named[i].get("_extract"), "probs": named[i].get("_probs"),
                        "tics": tics[i], "regex": v1.regex_hits(u["text"])})
     names = COPY if copy else NAMED
     if copy:  # per line: 10 minus 2 per copy flag, so lines can be ranked against each other
