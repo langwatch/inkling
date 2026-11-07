@@ -14,7 +14,7 @@ You get a writing process your agent follows, tools it can pick up along the way
 
 ## Before and after
 
-A founder rejected this landing page title from his agent:
+Agents stop once copy is accurate, because no test fails on it, and they reach for stock shapes such as "doesn't need X. It needs Y." A founder rejected this landing page title from his agent:
 
 <!-- inkling-ignore doesnt-need-needs: the rejected example -->
 > Your agent doesn't need a sandbox. It needs a team.
@@ -40,7 +40,7 @@ When your agent writes something people will read, it goes through eight steps:
 
 ## Start
 
-Point your agent at this repo. In Claude Code, or any coding agent, paste:
+Point your agent at this repo. In Claude Code or another coding agent, paste this line. In a chat app such as Claude or ChatGPT, paste it with your draft and turn on web access so it can read the repo:
 
 ```text
 Follow the writing process at https://github.com/langwatch/inkling to write <what you are writing> for <who reads it>.

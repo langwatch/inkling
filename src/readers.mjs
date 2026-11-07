@@ -55,12 +55,17 @@ export function readReadersFile(path) {
 }
 
 const blocksOf = (md) => md.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
-const firstSentence = (b) => b.split(/(?<=[.!?])\s+/)[0];
+const firstSentence = (b) => {
+  const hidden = b.replace(/"[^"\n]*"|\u201c[^\u201d\n]*\u201d/g, (q) => "x".repeat(q.length - 1) + (/[.!?]$/.test(q.slice(0, -1)) ? "." : "x"));
+  const m = hidden.match(/[.!?](?=\s)/);
+  return m ? b.slice(0, m.index + 1) : b;
+};
 const SKIP = ["```", "[Image", ">", "1.", "- ", "<"];
 
 /** Render the HTML a GitHub README uses as the reader sees it: headings, text and image alt text. */
 export function asRendered(md) {
   return md
+    .replace(/<!--[\s\S]*?-->\n?/g, "")
     .replace(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, n, t) => `${"#".repeat(Number(n))} ${t.trim()}`)
     .replace(/<img[^>]*?alt="([^"]*)"[^>]*>/gi, (_, alt) => `[Image: ${alt}]`)
     .replace(/<img[^>]*>/gi, "[Image with no alt text]")

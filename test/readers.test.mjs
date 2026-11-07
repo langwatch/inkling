@@ -118,3 +118,15 @@ test("the CLI refuses readers and prefer with a paid key set", () => {
     assert.match(r.stderr, /subscription only/);
   }
 });
+
+test("asRendered hides HTML comments the way GitHub does", () => {
+  const out = asRendered("Intro\n\n<!-- inkling-ignore x: reason -->\n> Quote");
+  assert.ok(!out.includes("inkling-ignore"));
+  assert.ok(out.includes("> Quote"));
+});
+
+test("skimView keeps a quoted sentence inside the first sentence", () => {
+  const out = skimView(`# T\n\nSub\n\n## H\n\nAgents reach for shapes such as "doesn't need X. It needs Y." A founder rejected one.`);
+  assert.ok(out.includes(`"doesn't need X. It needs Y."`));
+  assert.ok(!out.includes("A founder"));
+});
