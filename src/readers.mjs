@@ -8,23 +8,35 @@ import { homedir } from "node:os";
 import { parseYaml } from "./yaml.mjs";
 import { ClaudeCli, hasClaudeLogin } from "./subscription.mjs";
 
+// No question primes fault-finding: readers say what they would do and whether anything made them stop.
 export const DEFAULT_QUESTIONS = [
-  "From this text only, what is this about, and what is the product or idea in one line?",
-  "What did the text make you feel?",
-  "What would you do next? Did you get curious about anything?",
-  "What did you understand about the subject?",
-  "What doubts or eyebrow-raisers did you have?",
-  "How did reading feel: too long or boring, or hooking and concrete?",
-  "Where would you stop reading or start skimming, and what did you grasp by then?",
+  "From this text only, what is this about, and what is offered, in one line?",
+  "What did you take away from it?",
+  "What would you do next?",
+  "Did anything make you stop reading or want to leave? If so, what and why. If nothing did, say so.",
+  "How did reading feel: worth your time, or too long?",
+  "Where would you start skimming, and what had you grasped by then?",
 ];
 
+/** Every reason a reader gives for stopping or questioning gets one class; only trust_breaking fails by default. */
 export const DOUBT_CLASSES = {
-  trust_breaking: "the reader stops believing the authors, reads it as an ad pretending to be something else, or would leave",
-  skepticism: "normal skepticism: wants more data, asks how it was measured, a fair question a careful reader asks",
-  content_gap: "a doubt only evidence we do not have yet would answer (a benchmark, a customer number, a public proof)",
+  trust_breaking: "it would make this reader stop or leave: they stop believing the authors, read it as an ad pretending to be something else, or lose the thread",
+  skepticism: "normal skepticism: wants more data or asks how something was measured, and keeps reading",
+  content_gap: "a question only evidence we do not have yet would answer (a benchmark, a customer number, a public proof)",
 };
 
-const READER_RULES = `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. Do not guess what the company or product is beyond what the text says, and do not be polite on the author's behalf. React the way this person really would, including boredom, confusion or distrust.`;
+const READER_RULES = `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. Read the way this person really reads: busy, mostly generous, with the attention described, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
+
+function contextLines({ context = {}, persona }) {
+  const lines = [];
+  if (context.author) lines.push(`Who wrote it: ${context.author}`);
+  if (context.size) lines.push(`How big they are: ${context.size}`);
+  const from = persona.arrived_from ?? context.arrived_from;
+  if (from) lines.push(`Where you came from: ${from}`);
+  const attention = persona.attention ?? context.attention;
+  if (attention) lines.push(`Your attention right now: ${attention}`);
+  return lines.length ? `What you know before reading:\n${lines.join("\n")}` : "";
+}
 
 const ANSWER_FORMAT = `Answer each question in first person, plainly, in two to five sentences, numbered like the questions. Write nothing before answer 1 and nothing after the last answer.`;
 
@@ -97,28 +109,32 @@ export function runTextChecks(md, expectations) {
     });
 }
 
-export function readerPrompt({ persona, text, questions }) {
+export function readerPrompt({ persona, text, questions, context }) {
   const view = persona.view === "skim" ? skimView(text) : text;
   const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings and the first sentence of each section). Judge only from it." : "";
   return [
     `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${skimNote}`,
+    contextLines({ context, persona }),
     `Here is what you read:\n\n<text>\n${view}\n</text>`,
     READER_RULES,
     `Questions:\n${questions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`,
     ANSWER_FORMAT,
-  ].join("\n\n");
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
-export function judgePrompt({ persona, questions, expectations, answers }) {
+export function judgePrompt({ persona, questions, expectations, answers, context }) {
   const exps = expectations.filter((e) => !e.forbid && (!e.applies_to || e.applies_to.includes(persona.id)));
   const classes = Object.entries(DOUBT_CLASSES).map(([k, v]) => `- ${k}: ${v}`).join("\n");
   return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. Do not read files or research; use only what is below.
 
-Then list every doubt or eyebrow-raiser the reader named, each with one class:
+Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.
 ${classes}
 
 Persona:
 ${persona.background.trim()}
+${contextLines({ context, persona })}
 
 Expectations:
 ${JSON.stringify(exps, null, 1)}
@@ -145,7 +161,7 @@ export function parseVerdict(text) {
 /** Grade one run directory. Returns { pending, report, failed }. */
 export function grade(dir) {
   const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
-  const { personas, expectations, questions, failOn = ["trust_breaking"] } = manifest;
+  const { personas, expectations, questions, context, failOn = ["trust_breaking"] } = manifest;
   const missingAnswers = personas.filter((p) => !existsSync(join(dir, `${p.id}.answer.md`)));
   if (missingAnswers.length)
     return { pending: missingAnswers.map((p) => join(dir, `${p.id}.prompt.md`)), stage: "answers" };
@@ -155,18 +171,21 @@ export function grade(dir) {
     if (existsSync(verdict)) continue;
     const answers = readFileSync(join(dir, `${p.id}.answer.md`), "utf8");
     const prompt = join(dir, `${p.id}.judge.prompt.md`);
-    writeFileSync(prompt, judgePrompt({ persona: p, questions, expectations, answers }));
+    writeFileSync(prompt, judgePrompt({ persona: p, questions, expectations, answers, context }));
     pendingJudge.push(prompt);
   }
   if (pendingJudge.length) return { pending: pendingJudge, stage: "verdicts" };
 
   const lines = ["# reader test report", ""];
   let failed = 0;
+  const core = new Set(expectations.filter((e) => e.core).map((e) => e.id));
+  let coreFailed = 0;
   const checks = manifest.textChecks ?? [];
   if (checks.length) {
     lines.push("## text checks (no model)");
     for (const c of checks) {
       failed += !c.pass;
+      if (!c.pass && (!core.size || core.has(c.id))) coreFailed += 1;
       lines.push(`- ${c.pass ? "PASS" : "FAIL"} ${c.id}${c.evidence ? `: ${c.evidence}` : ""}`);
     }
     lines.push("");
@@ -178,6 +197,7 @@ export function grade(dir) {
     lines.push(`## ${p.id}`);
     for (const g of v.grades) {
       failed += !g.pass;
+      if (!g.pass && (!core.size || core.has(g.id))) coreFailed += 1;
       lines.push(`- ${g.pass ? "PASS" : "FAIL"} ${g.id}: ${g.note ?? ""}${g.evidence ? ` ("${g.evidence}")` : ""}`);
     }
     for (const d of v.doubts) {
@@ -185,6 +205,7 @@ export function grade(dir) {
       counts[cls] += 1;
       if (failOn.includes(cls)) {
         failed += 1;
+        coreFailed += 1;
         lines.push(`- FAIL doubt (${cls}): "${d.quote}" ${d.note ?? ""}`);
       } else if (cls === "content_gap") gaps.push(`${p.id}: "${d.quote}"`);
       else lines.push(`- note doubt (${cls}): "${d.quote}"`);
@@ -194,9 +215,10 @@ export function grade(dir) {
   lines.push(`doubts: ${counts.trust_breaking} trust-breaking, ${counts.skepticism} skepticism, ${counts.content_gap} content gaps`);
   if (gaps.length) lines.push("", "## content gaps (evidence to collect, not draft failures)", ...gaps.map((g) => `- ${g}`));
   lines.push("", failed ? `${failed} FAILED` : "ALL PASS");
+  if (!coreFailed) lines.push("core expectations pass: stop editing. More rounds of fixes past this point push copy back toward the average.");
   const report = lines.join("\n") + "\n";
   writeFileSync(join(dir, "report.md"), report);
-  return { report, failed };
+  return { report, failed, coreFailed };
 }
 
 /** Write one self-contained prompt per persona plus the manifest the grader reads. */
@@ -212,12 +234,13 @@ export function writePrompts({ draft, readersFile, out }) {
     questions: spec.questions,
     expectations: spec.expectations,
     failOn: spec.doubts?.fail_on ?? ["trust_breaking"],
+    context: spec.context ?? {},
     textChecks,
   };
   writeFileSync(join(out, "manifest.json"), JSON.stringify(manifest, null, 1));
   const prompts = spec.personas.map((persona) => {
     const file = join(out, `${persona.id}.prompt.md`);
-    writeFileSync(file, readerPrompt({ persona, text, questions: spec.questions }));
+    writeFileSync(file, readerPrompt({ persona, text, questions: spec.questions, context: spec.context }));
     return file;
   });
   return { prompts, textChecks };

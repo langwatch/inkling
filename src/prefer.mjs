@@ -29,19 +29,21 @@ export function preferPrompt({ comparison, first, second, shots }) {
   const examples = shots
     .map((p) => `- Brief: ${p.brief}\n  Approved: ${JSON.stringify(p.approved)}\n  Rejected: ${JSON.stringify(p.rejected)}\n  Why: ${p.reason}`)
     .join("\n");
+  const c = comparison.context ?? {};
+  const ctx = [c.author && `\nWho writes it: ${c.author}`, c.size && `\nHow big they are: ${c.size}`, c.channel && `\nWhere the reader meets it: ${c.channel}`].filter(Boolean).join("");
   return `You predict how the owner of this brand reacts to copy. The owner approves lines that say one thing this reader did not expect, from where the reader starts, and rejects lines that concede, hedge, start from the writer's side, use stock contrast shapes, cram claims, or take the wrong voice for the reader. Do not read files or research; use only what is below.
 
 Past verdicts from the owner:
 ${examples || "(none yet)"}
 
 Brief: ${comparison.brief}
-Reader: ${comparison.audience}
+Reader: ${comparison.audience}${ctx}
 Mode: ${comparison.mode ?? "ads"}
 
 Line A: ${JSON.stringify(first)}
 Line B: ${JSON.stringify(second)}
 
-Which line would the owner approve for this reader? Reply with JSON only:
+Which line would the owner approve for this reader? Judge it the way a real reader in that moment meets it: busy and mostly generous, so the line that makes them stop scrolling wins. Reply with JSON only:
 {"winner": "A" or "B", "reason": "one plain sentence quoting the words that decide it"}`;
 }
 

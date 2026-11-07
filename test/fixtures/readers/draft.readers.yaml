@@ -1,4 +1,9 @@
 # Written before the draft was tested.
+context:
+  author: a two-person startup that builds a team workspace for AI agents
+  size: small, launched this year, no famous customers yet
+  arrived_from: a link in a Hacker News comment
+  attention: a few minutes between tasks
 personas:
   - id: engineer
     view: full
@@ -6,14 +11,21 @@ personas:
       A senior engineer who builds agents and reads Hacker News.
   - id: skimmer
     view: skim
+    arrived_from: a post shared on X
+    attention: under a minute while scrolling
     background: An engineer scrolling between meetings.
 expectations:
   - id: what_is_it
+    core: true
     expect: The reader can say in one line what is offered.
   - id: next_action
+    core: true
     expect: The reader names a next action.
     applies_to: [engineer]
+  - id: favourite_line
+    expect: The reader quotes a line they liked.
   - id: no_hedge_headline
+    core: true
     expect: Headings carry no hedge words.
     forbid: '\b(almost|mostly|maybe|probably)\b'
     scope: [title, headings]

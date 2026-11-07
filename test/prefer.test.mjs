@@ -21,7 +21,8 @@ test("both orders are emitted, few-shot from the train split", () => {
   const ba = readFileSync(prompts[1], "utf8");
   assert.match(ab, /Line A: "Laptop shut\? It still works"/);
   assert.match(ba, /Line B: "Laptop shut\? It still works"/);
-  assert.match(ab, /You don't need an agent sandbox/);
+  assert.match(ab, /You don.t need an agent sandbox/);
+  assert.match(ab, /Where the reader meets it: a LinkedIn ad in the feed/);
 });
 
 test("agreeing orders pick a winner, disagreeing orders tie", () => {

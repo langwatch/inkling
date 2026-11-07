@@ -11,16 +11,18 @@ export function jevKey(env = process.env) {
   return env.TYPESAFE_API_KEY || env.JEV_SLOP_API_KEY || env.JEV_API_KEY || "";
 }
 
-export function judgeArgs({ file, mode, audience, json }) {
+/** Jev judges as the reader described, so who wrote it and where the reader meets it go in too. */
+export function judgeArgs({ file, mode, audience, context, json }) {
   const args = [SCRIPT, file, "--checks", "jev"];
   if (mode === "ads" || mode === "deck") args.push("--copy");
   if (mode === "docs") args.push("--docs");
-  if (audience) args.push("--audience", audience);
+  const who = [audience, context && `context: ${context}`].filter(Boolean).join("; ");
+  if (who) args.push("--audience", who);
   if (json) args.push("--json");
   return args;
 }
 
-export function runJudge({ file, mode, audience, json, stdin }) {
+export function runJudge({ file, mode, audience, context, json, stdin }) {
   const key = jevKey();
   if (!key) {
     process.stderr.write(
@@ -29,7 +31,7 @@ export function runJudge({ file, mode, audience, json, stdin }) {
     );
     return 0;
   }
-  const args = judgeArgs({ file, mode, audience, json });
+  const args = judgeArgs({ file, mode, audience, context, json });
   const r = spawnSync("python3", args, {
     input: file === "-" ? stdin() : undefined,
     env: { ...process.env, TYPESAFE_API_KEY: key },

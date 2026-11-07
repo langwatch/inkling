@@ -12,7 +12,7 @@ const USAGE = `proof: a test suite for writing
 
   proof check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
       layer (a): deterministic lints with file:line, rule, why and fix; exit 1 on findings
-  proof judge <file|-> --mode <mode> --audience "<who reads>" [--json]
+  proof judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--json]
       layer (b): Jev rule judge; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
   proof readers prompts <draft> <readers.yaml> --out <dir>
   proof readers grade <dir>
@@ -49,6 +49,7 @@ export function main(argv) {
     options: {
       mode: { type: "string" },
       audience: { type: "string" },
+      context: { type: "string" },
       json: { type: "boolean" },
       house: { type: "string", multiple: true },
       only: { type: "string" },
@@ -78,7 +79,7 @@ export function main(argv) {
       });
     case "judge":
       if (!positionals[0]) return usage("proof judge needs a file or -");
-      return runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, json: values.json, stdin });
+      return runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin });
     case "readers":
       return readers(positionals, values);
     case "prefer":

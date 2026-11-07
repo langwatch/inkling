@@ -35,6 +35,7 @@ test("judge skips with a clear message without a Jev key", () => {
 test("judge maps modes onto jev_slop flags", () => {
   assert.deepEqual(judgeArgs({ file: "a.md", mode: "ads", audience: "VCs" }).slice(1), ["a.md", "--checks", "jev", "--copy", "--audience", "VCs"]);
   assert.ok(judgeArgs({ file: "a.md", mode: "docs" }).includes("--docs"));
+  assert.equal(judgeArgs({ file: "a.md", mode: "post", audience: "HN engineers", context: "a two-person startup" }).at(-1), "HN engineers; context: a two-person startup");
 });
 
 test("yaml subset: block scalars, flow lists, lists of maps", () => {

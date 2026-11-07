@@ -4,3 +4,7 @@ mode: ads
 candidates:
   - Laptop shut? It still works
   - Our hosted computers keep your agents running around the clock
+context:
+  author: a small startup that builds a team workspace for AI agents
+  size: two founders, launched this year
+  channel: a LinkedIn ad in the feed

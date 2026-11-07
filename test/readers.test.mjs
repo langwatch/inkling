@@ -15,7 +15,8 @@ const fresh = () => mkdtempSync(join(tmpdir(), "proof-readers-"));
 test("readers file parses from YAML", () => {
   const spec = readReadersFile(file);
   assert.deepEqual(spec.personas.map((p) => p.id), ["engineer", "skimmer"]);
-  assert.equal(spec.expectations.length, 3);
+  assert.equal(spec.expectations.length, 4);
+  assert.equal(spec.context.arrived_from, "a link in a Hacker News comment");
   assert.ok(spec.questions.length >= 5);
 });
 
@@ -28,7 +29,11 @@ test("prompts are self-contained, one per persona", () => {
   assert.match(engineer, /Each agent gets its own small VM/);
   assert.match(engineer, /Do not read files, search or research/);
   assert.match(engineer, /numbered like the questions/);
+  assert.match(engineer, /Who wrote it: a two-person startup/);
+  assert.match(engineer, /Where you came from: a link in a Hacker News comment/);
+  assert.doesNotMatch(engineer, /doubts|eyebrow/i, "no question primes fault-finding");
   const skimmer = readFileSync(join(out, "skimmer.prompt.md"), "utf8");
+  assert.match(skimmer, /Where you came from: a post shared on X/);
   assert.doesNotMatch(skimmer, /sleeps when idle/, "the skimmer sees only first sentences");
   assert.deepEqual(textChecks.map((c) => [c.id, c.pass]), [["no_hedge_headline", true]]);
 });
@@ -64,6 +69,20 @@ test("grade asks for answers, then verdicts, then reports with doubt classes", (
   assert.match(state.report, /0 trust-breaking, 1 skepticism, 1 content gaps/);
   assert.match(state.report, /content gaps \(evidence to collect, not draft failures\)/);
   assert.match(state.report, /ALL PASS/);
+  assert.match(state.report, /core expectations pass: stop editing/);
+});
+
+test("a missed nice-to-have still says stop editing when core passes", () => {
+  const out = fresh();
+  writePrompts({ draft, readersFile: file, out });
+  for (const id of ["engineer", "skimmer"]) {
+    writeFileSync(join(out, `${id}.answer.md`), "1. A VM per agent.");
+    writeFileSync(join(out, `${id}.verdict.json`), JSON.stringify({ grades: [{ id: "what_is_it", pass: true }, { id: "favourite_line", pass: false }], doubts: [] }));
+  }
+  const state = grade(out);
+  assert.equal(state.failed, 2);
+  assert.equal(state.coreFailed, 0);
+  assert.match(state.report, /core expectations pass: stop editing/);
 });
 
 test("a trust-breaking doubt fails the run", () => {
@@ -76,6 +95,7 @@ test("a trust-breaking doubt fails the run", () => {
   const state = grade(out);
   assert.equal(state.failed, 1);
   assert.match(state.report, /FAIL doubt \(trust_breaking\)/);
+  assert.doesNotMatch(state.report, /stop editing/);
 });
 
 test("paid API keys are detected and refused", () => {
