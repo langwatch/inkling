@@ -64,5 +64,6 @@ Every example runs as a unit test: `npm test` fails when a rule misses a fail ex
 2. Write the smallest pattern that flags the first and passes the second. Prefer a `check` function when a regex would need lookarounds to stay quiet.
 3. Name the source: the review, the guide section or the rejected line.
 4. Run `npm test`, then `proof check docs/ README.md --mode docs` to see what the new rule does to text that already passed.
+5. Add the rejected line and its approved fix to `calibration/regression.jsonl`, and run `proof eval calibration/regression.jsonl`. It prints, per rule, how many rejected lines it caught and how many approved lines it flagged. A rule gates only once it caught two or more rejected lines and flagged no approved one; until then it is advisory in the calibration report. See [calibration.md](../calibration.md).
 
-When a rule needs judgement a regex cannot give, write it as a question for layer (b) instead.
+When a rule needs judgement a regex cannot give, write it as a question for layer (b) instead. Put a concrete fragment of the failing shape inside the question: Jev matches quoted examples literally, and quoting the fragment moved one question from 0.59 to 0.9 on the shape it was meant to catch.

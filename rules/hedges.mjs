@@ -16,13 +16,13 @@ export default [
   {
     id: "casual-hedge",
     modes: ["docs", "ads", "deck", "investor", "legal"],
-    pattern: /\b(?:probably|maybe|kind of|sort of|a bit|a little|I think|we think|we believe)\b/i,
+    pattern: /\b(?:probably|maybe|(?<!\b(?:the|a|this|that|what|which|each|any|every|one|some|same) )(?:kind|sort) of|a bit|a little|I think|we think|we believe)\b/i,
     message: "Casual hedge. Fine in a story told at a bar, not here.",
     fix: "State the fact, or the measured uncertainty.",
     source: "Nexus writing-rules (hedge colloquially in posts only); docs-writing-rules rule 6",
     examples: {
       fail: [{ text: "The import is probably done in a minute.", mode: "docs" }, { text: "We believe the market is large.", mode: "investor" }],
-      pass: [{ text: "The import takes about a minute for 10,000 rows.", mode: "docs" }, { text: "It worked, kind of.", mode: "post" }],
+      pass: [{ text: "The import takes about a minute for 10,000 rows.", mode: "docs" }, { text: "It worked, kind of.", mode: "post" }, { text: "Modes are presets for the kind of writing.", mode: "docs" }],
     },
   },
   {

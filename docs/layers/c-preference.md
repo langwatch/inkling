@@ -27,7 +27,9 @@ candidates:
   - Our hosted computers keep your agents running around the clock
 ```
 
-The judge is a simulator: the prompt asks it to predict the owner's reaction, with up to six approved and rejected pairs from `calibration/pairs.jsonl` as examples. The Content agent tested this shape against an XAR rubric judge and the simulator won: it picked approved text over rejected drafts 81% of the time on openings and 76% on full posts, where the optimised rubric held at about 75% on validation and did not generalise past it.
+The judge is a simulator: the prompt asks it to predict the owner's reaction, with up to six approved and rejected pairs from `calibration/pairs.jsonl` as examples.
+
+The Content agent tested this shape against an XAR rubric judge and the simulator won: it picked approved text over rejected drafts 81% of the time on openings and 76% on full posts, where the optimised rubric held at about 75% on validation and did not generalise past it. Those numbers come from small sets; read them as a direction, and where a page here says calibration flipped a verdict, that rests on one run over two pairs.
 
 The judge also gets the context a real reader has: who wrote the line, how big they are, where the reader meets it. It runs on a Claude subscription only, as fresh subagents or through `claude -p`, and refuses to start when a paid API key or base URL is set.
 

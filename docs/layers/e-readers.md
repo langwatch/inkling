@@ -50,6 +50,28 @@ Readers are busy and generous, and one real source earns their trust. A reader p
 - The grader puts every stop reason in one class: `trust_breaking` (the reader would stop or leave, or reads it as an ad), `skepticism` (a fair question, and they keep reading) or `content_gap` (only evidence we do not have yet would answer it). Only `trust_breaking` fails the run. Skepticism is counted, and content gaps are listed as evidence to collect.
 - When every core expectation passes, the report ends with "core expectations pass: stop editing".
 
+## The panel loop
+
+The default loop for a piece that matters keeps the same readers across rounds, then checks the result once with fresh ones.
+
+```sh
+proof readers panel start draft.md draft.readers.yaml --out runs/launch
+proof readers grade runs/launch/round-1            # run the prompts as subagents, as below
+# edit draft.md
+proof readers panel round runs/launch              # A/B prompts for round 2
+proof readers grade runs/launch/round-2
+proof readers panel status runs/launch
+proof readers holdout runs/launch --draft draft.md # fresh readers, once
+proof readers grade runs/launch/holdout
+```
+
+- **Persistent readers.** From round 2, each reader's prompt carries what that reader said in earlier rounds, and asks whether what stopped them is still there.
+- **Shuffled A/B.** A reader shown a changed text is primed to praise the change. So each round shows the old and the new version as A and B in random order, with no labels, and asks which one they would keep reading. proof records the mapping in `panel.json` and unshuffles: `panel status` prints which version each reader kept, and warns when a reader kept the old one.
+- **Shrinking edits.** Round 2 may change whole sections, round 3 paragraphs (at most two, headings untouched), round 4 and later only lines (at most three sentences, no paragraphs added or removed). `panel round` measures the diff and refuses an edit over the allowed size unless you pass `--force`.
+- **Clean eyes once.** `readers holdout` gives the current version to fresh readers with no memory, once. If core passes, stop. Otherwise make one small adjustment and stop; a second holdout would tune the draft to those readers too.
+
+Every round directory is an ordinary run directory, so `proof readers grade` and both backends work on it. Time budgets decide how many rounds run; see [budgets.md](../budgets.md).
+
 ## Backends, both on the subscription
 
 Reader tests never use a paid API model. `proof readers` refuses to start when `ANTHROPIC_API_KEY`, `ANTHROPIC_BASE_URL` or another provider key or base URL is set, and prints the `env -u` line to run it without them.
@@ -82,6 +104,6 @@ Each prompt is self-contained: persona, context, the full text, the questions, t
 - Readers cannot see images. They get the alt text, so an SVG diagram with no alt text is invisible, and the alt text gets tested like any other line.
 - A post from a vendor about its own category triggers a trust check: readers ask who is behind the study and whether the post is partly an ad. Name the source and the method early.
 - The isolated `claude -p` reader still sees the login's account email in its system prompt. Read the answers before pasting them anywhere public.
-- Cap it at three rounds. After that, the writer's judgement wins.
+- Stop at the budget. After three rounds the writer's judgement wins over another panel.
 
 The tool started as the Content agent's reader-sim; see [credits.md](../credits.md).

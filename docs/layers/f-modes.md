@@ -16,8 +16,11 @@ Write the audience as one line: who reads, from where, knowing what, deciding wh
 | `deck` | slides | 30 words | titles of six words or fewer, three bullets of two to four words, narrative in the speaker notes |
 | `legal` | order forms and terms | 120 words | exact periods and amounts, no "and/or" or "etc.", permissive "may" allowed |
 | `investor` | investor updates and decks | 60 words | every number with its comparison, no hype words, no "we believe" |
+| `x` | posts and replies on X | 50 words | the copy rules plus the post rules, and the first line counts as the title |
 
 `.mdx` files default to `docs` and everything else to `post`. `proof modes` prints the list.
+
+A mode can carry a calibration folder, `modes/<mode>/`, with a reference set of approved and rejected lines and the venue's readers. A mode is uncalibrated until `proof calibrate <mode>` passes on that set, and the quick budget refuses uncalibrated modes. `x` is the first one; see [calibration.md](../calibration.md).
 
 ## Speaker notes in deck mode
 

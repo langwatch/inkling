@@ -32,9 +32,9 @@ const NAMED = new Set(["unsurprising", "concedes_or_hedges", "writer_side", "for
 /** How to rewrite a line each flag hit. Shown as the fix under every Jev finding. */
 export const REWRITES = {
   unsurprising: "Find the one thing this reader does not expect and lead with it. If nothing surprises, the piece has no claim yet.",
-  concedes_or_hedges: "Take a side. Cut the half that grants the other option its case, and any 'can', 'may' or 'mostly' that softens the claim.",
+  concedes_or_hedges: "Take a side. Cut the half that grants the other option its case, and any \"can\", \"may\" or \"mostly\" that softens the claim.",
   writer_side: "Start where the reader is: their task, their search, their problem. Move what we built to the second line or out.",
-  formula_shape: "Say the claim plainly in one sentence. Drop the 'X does A. Y does B.' or 'not X, but Y' frame and the number opener.",
+  formula_shape: "Say the claim plainly in one sentence. Drop the \"X does A. Y does B.\" or \"not X, but Y\" frame and the number opener.",
   crammed_claims: "Keep one claim. Move the others to the body or cut them.",
   wrong_register: "Rewrite in the mind this audience reads with: a buyer's value, an engineer's mechanism, a lawyer's precision.",
   numbers_no_takeaway: "Attach the number to its consequence: compared with what, and what the reader can do with it.",
