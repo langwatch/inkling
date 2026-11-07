@@ -18,7 +18,7 @@ These estimates are initial. `inkling timings` prints what real runs took, and t
 
 ## Quick needs a calibrated mode
 
-Quick runs only the lints and Jev, with no reader in the loop. That is safe only for a mode whose lints already passed on a reference set of approved and rejected lines, so `inkling plan --budget quick` refuses an uncalibrated mode and says why. See [calibration](../reference/calibration.md).
+Quick runs only the lints and Jev, with no reader in the loop. That is safe only for a mode whose lints already passed on a reference set of approved and rejected lines, so `inkling plan --budget quick` refuses an uncalibrated mode and says why. See [calibration](calibration.md).
 
 ## When the budget runs out
 
@@ -33,4 +33,4 @@ still open:
 
 The best version is the latest one no round rejected: when more readers in a round kept the old text than the new, the version before that round wins. `inkling readers panel stop <run>` prints the same list when you choose to stop.
 
-Timings and topic lessons are recorded when the run stops; see [ship](8-ship.md).
+Timings and topic lessons are recorded when the run stops; see [panel](panel.md#topics).

@@ -4,7 +4,7 @@ The panel is a small group of simulated readers built from the readers file. The
 
 ## The panel loop
 
-The loop keeps the same readers across rounds. Step 8 then checks the result once with fresh readers.
+The loop keeps the same readers across rounds. The clean-eyes round below then checks the result once with fresh readers.
 
 ```sh
 inkling readers panel start draft.md draft.readers.yaml --out runs/launch
@@ -19,7 +19,7 @@ inkling readers panel status runs/launch
 - **Shuffled A/B.** A reader shown a changed text is primed to praise the change. So each round shows the old and the new version as A and B in random order, with no labels, and asks which one they would keep reading. Inkling records the mapping in `panel.json` and unshuffles: `panel status` prints which version each reader kept, and warns when a reader kept the old one.
 - **Shrinking edits.** Round 2 may change whole sections, round 3 paragraphs (at most two, headings untouched), round 4 and later only lines (at most three sentences, no paragraphs added or removed). `panel round` measures the diff and refuses an edit over the allowed size unless you pass `--force`.
 
-Every round directory is an ordinary run directory, so `inkling readers grade` and both backends work on it. The budget from [step 3](3-budget.md) sets how many rounds you get, and [step 8](8-ship.md) covers the clean-eyes round.
+Every round directory is an ordinary run directory, so `inkling readers grade` and both backends work on it. The [budget](budget.md) sets how many rounds you get.
 
 ## Backends, both on the subscription
 
@@ -56,3 +56,28 @@ Each prompt is self-contained: persona, context, the full text, the questions, t
 - Stop at the budget. After three rounds the writer's judgement wins over another panel.
 
 The tool started as the Content agent's reader-sim; see [credits.md](../credits.md).
+
+## Clean eyes
+
+```sh
+inkling readers holdout runs/launch --draft draft.md
+inkling readers grade runs/launch/holdout
+```
+
+`readers holdout` gives the current version to fresh readers with no memory of earlier rounds, once. If the core expectations pass, stop. Otherwise make one small adjustment and stop: a second holdout would tune the draft to those readers as well.
+
+## Topics
+
+A second piece on the same topic starts further along. A topic folder keeps the readers file and a lessons page:
+
+```sh
+inkling topic init agent-vms --from draft.readers.yaml
+inkling plan --budget deep --mode post --out runs/second --topic agent-vms
+inkling readers panel start second.md --out runs/second --topic agent-vms
+```
+
+`inkling plan --topic` prints the lessons so far, and `panel start --topic` takes the readers file from the topic. When a run with a topic stops, its open items are appended to `topics/<topic>/lessons.md` with the date and the version.
+
+## Timings
+
+Every timed step appends a line to `<run>/timings.jsonl`. Panel rounds and the holdout are timed from the moment Inkling writes the prompts to the moment their report exists, which covers the subagents' work, and `check` and `judge` are timed when they get `--run <run>`. `inkling timings runs` compares the real minutes per step with the estimates in [budget](budget.md), and the estimates get recalibrated from those numbers.

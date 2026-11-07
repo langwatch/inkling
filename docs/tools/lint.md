@@ -65,6 +65,23 @@ Every example runs as a unit test: `npm test` fails when a rule misses a fail ex
 2. Write the smallest pattern that flags the first and passes the second. Prefer a `check` function when a regex would need lookarounds to stay quiet.
 3. Name the source: the review, the guide section or the rejected line.
 4. Run `npm test`, then `inkling check docs/ README.md --mode docs` to see what the new rule does to text that already passed.
-5. Add the rejected line and its approved fix to `calibration/regression.jsonl`, and run `inkling eval calibration/regression.jsonl`. It prints, per rule, how many rejected lines it caught and how many approved lines it flagged. Inkling lets a rule block a draft only in a mode that passed `inkling calibrate`, and only after the rule caught at least two rejected lines and flagged no approved line; until then its findings are advisory. See [calibration](../reference/calibration.md).
+5. Add the rejected line and its approved fix to `calibration/regression.jsonl`, and run `inkling eval calibration/regression.jsonl`. It prints, per rule, how many rejected lines it caught and how many approved lines it flagged. Inkling lets a rule block a draft only in a mode that passed `inkling calibrate`, and only after the rule caught at least two rejected lines and flagged no approved line; until then its findings are advisory. See [calibration](calibration.md).
 
-When a rule needs judgement a regex cannot give, write it as a question for the judge step instead. Put a concrete fragment of the failing shape inside the question: Jev matches quoted examples literally, and quoting the fragment moved one question from 0.59 to 0.9 on the shape it was meant to catch.
+When a rule needs judgement a regex cannot give, write it as a question for the judge instead. Put a concrete fragment of the failing shape inside the question: Jev matches quoted examples literally, and quoting the fragment moved one question from 0.59 to 0.9 on the shape it was meant to catch.
+
+## Speaker notes in deck mode
+
+Slides split at `---` lines, or at `#` and `##` headings when the file has no `---`. A paragraph that starts with `Notes:` begins the speaker notes, and the slide rules skip everything after it on that slide.
+
+```md
+# Share the agent
+
+- One workspace
+- Every teammate asks it
+
+Notes: when one person builds an agent, the rest of the team has to ask that person to use it.
+```
+
+## Modes
+
+`--mode` picks the preset described in [which mind](../process/2-which-mind.md). `.mdx` files default to `docs` and everything else to `post`. `inkling modes` prints the list.

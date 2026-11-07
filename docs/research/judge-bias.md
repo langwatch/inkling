@@ -34,7 +34,7 @@ Results that matter for Inkling:
 | [Chakrabarty et al. 2025, AI-Slop to AI-Polish (WQRM)](https://arxiv.org/abs/2504.07532) | Reward models trained on expert edits of AI drafts (edited beats original) | 74% on the Writing Quality benchmark (4,729 judgements), above GPT-4o and o1; writers preferred its picks 66% of the time, 72% when the reward gap was over one point |
 | [Fein et al. 2025, LitBench](https://arxiv.org/abs/2507.00769) | Creative writing judges against 2,480 human-labelled story pairs | Best zero-shot judge 73% agreement; trained reward models 78%; length must be debiased or the model prefers longer stories |
 
-Wataoka et al. connect this page to [surprise.md](surprise.md): a judge that prefers familiar text prefers predictable text. A calibrated judge and a surprise metric push in the same direction.
+Wataoka et al. connect this page to [surprise.md](surprise-study.md): a judge that prefers familiar text prefers predictable text. A calibrated judge and a surprise metric push in the same direction.
 
 ## What we measured before Inkling
 

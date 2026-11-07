@@ -20,7 +20,7 @@ His two additions:
 
 Each point maps to a check a draft can fail.
 
-| Point | Failure | Step |
+| Point | Failure | Where Inkling answers it |
 | --- | --- | --- |
 | 1 | no verifier, so the writer stops at accurate | all of Inkling: drafts fail checks and get rerun, like code |
 | 2 | the likely line | the surprise check against what every model writes for the brief |

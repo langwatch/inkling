@@ -1,6 +1,6 @@
 # Draft
 
-Write the draft against the claim and the audience from step 1, with the readers file from step 2 open next to it. The checks in steps 5 to 8 catch what slips through, and they work better on a draft that already tried to pass them.
+Write the draft against the reader, the mind and the claim from steps 1 to 3, with the readers file from step 4 open next to it. The checks in steps 6 to 8 catch what slips through, and they work better on a draft that already tried to pass them.
 
 ## Before the first line
 
@@ -13,7 +13,7 @@ Answer four questions in the draft's notes:
 
 ## While writing
 
-[lessons.md](../lessons.md) collects the review notes every rule came from. These are the notes reviewers repeat:
+[lessons.md](../research/lessons.md) collects the review notes every rule came from. These are the notes reviewers repeat:
 
 - Open on the concrete thing. For a piece about a product, the first sentence names it and says what it is.
 - Describe the mechanism before the meaning, and attach every number to its consequence.
@@ -23,4 +23,4 @@ Answer four questions in the draft's notes:
 
 ## Images
 
-Words inside a generated image follow the same rules as prose. Write the image prompt as precisely as the copy: [images](../reference/images.md) has the prompt pattern and real prompts.
+Words inside a generated image follow the same rules as prose. Write the image prompt as precisely as the copy: [images](../tools/images.md) has the prompt pattern and real prompts.

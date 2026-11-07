@@ -83,7 +83,7 @@ export function gradePrefer(dir) {
     const verdict = winAb === winBa ? `prefers ${JSON.stringify(c.candidates[winAb])}` : "tie (the two orders disagree)";
     lines.push(`- ${c.id}: ${verdict}`, `  ab: ${ab.reason}`, `  ba: ${ba.reason}`);
   }
-  lines.push("", "Advisory: the preference judge never fails a draft until calibration passes (docs/reference/preference.md).");
+  lines.push("", "Advisory: the preference judge never fails a draft until calibration passes (docs/tools/preference.md).");
   const report = lines.join("\n") + "\n";
   writeFileSync(join(dir, "report.md"), report);
   return { report };

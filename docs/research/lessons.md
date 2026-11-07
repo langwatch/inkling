@@ -66,7 +66,7 @@ These are the review notes Inkling's rules came from, distilled. Each one was a 
 
 ## Images
 
-- Generated, never drawn by hand in SVG or HTML. A precise prompt is the whole game; see [images](reference/images.md).
+- Generated, never drawn by hand in SVG or HTML. A precise prompt is the whole game; see [images](../tools/images.md).
 - Words inside an image follow every prose rule.
 
 ## Judges and checkers

@@ -1,6 +1,6 @@
 # Surprise
 
-Good copy says something the reader did not expect, and a model left alone writes the likely line. The surprise check measures how close a candidate line is to the lines every competitor would write for the same brief. The measurement work, the prototype and its numbers are in [research/surprise.md](../research/surprise.md).
+Good copy says something the reader did not expect, and a model left alone writes the likely line. The surprise check measures how close a candidate line is to the lines every competitor would write for the same brief. The measurement work, the prototype and its numbers are in [research/surprise.md](../research/surprise-study.md).
 
 ## Design
 

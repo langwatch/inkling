@@ -2,7 +2,7 @@
 
 A reader test checks whether a stranger gets what the writer meant. You write it before the draft, in a readers file: who reads, where they come from, what each of them must take away. In step 7, simulated readers with no context read the draft, and a grader checks their answers against these expectations.
 
-You write the test first so it checks the goal from step 1, because a test written after the draft ends up describing the draft.
+You write the test first so it checks the reader and the claim from steps 1 to 3, because a test written after the draft ends up describing the draft.
 
 ## The readers file
 

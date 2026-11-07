@@ -3,7 +3,7 @@
 Inkling checks its own README and docs with its own lint step, and a person reads every line against the LangWatch writing guides by hand. This page records both passes from 7 November 2026.
 
 ```sh
-inkling check README.md docs/*.md docs/steps docs/reference modes/x/README.md --mode docs
+inkling check README.md docs/*.md docs/process docs/tools docs/research/why.md docs/research/lessons.md docs/research/origin.md modes/x/README.md --mode docs
 ```
 
 ## What the lints missed
@@ -42,7 +42,7 @@ inkling check: 20 files, mode docs (product documentation: strictly technical, s
 clean: no findings.
 ```
 
-`docs/research/` belongs to the research helper and is left as written. It has 12 findings from 7 rules: number openers on list lead-ins, "mostly" as a softener, and two false positives listed in [known false positives](reference/known-false-positives.md).
+`docs/research/` belongs to the research helper and is left as written. It has 12 findings from 7 rules: number openers on list lead-ins, "mostly" as a softener, and two false positives listed in [known false positives](tools/known-false-positives.md).
 
 ## Regression set
 

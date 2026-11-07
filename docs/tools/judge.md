@@ -8,13 +8,13 @@ inkling judge draft.md --mode post --audience "engineers on Hacker News" --conte
 inkling judge titles.md --mode ads --audience "founders who searched for an agent sandbox"
 ```
 
-Without a key, `inkling judge` prints that it skipped and exits 0. The lint step needs no key.
+Without a key, `inkling judge` prints that it skipped and exits 0. The lint tool needs no key.
 
 ## What it runs
 
 `judges/jev/jev_slop_v2.py` is a copy of the Content agent's `jev-slop` tool (credits in [credits.md](../credits.md)). Inkling calls it with `--checks jev`, so every question goes to Jev and no other model:
 
-- `--mode ads`, `--mode deck` and `--mode x` turn on copy checks, one flag per point of the analysis in [origin.md](../origin.md): unsurprising, concedes or hedges, writer side, formula shape, crammed claims, wrong register.
+- `--mode ads`, `--mode deck` and `--mode x` turn on copy checks, one flag per point of the analysis in [origin.md](../research/origin.md): unsurprising, concedes or hedges, writer side, formula shape, crammed claims, wrong register.
 - `--mode docs` adds the docs questions: indefinite event openers, artifacts with thinking verbs, statement stacks.
 - `--audience` and `--context` are joined and passed as the reader Jev judges as. A line can pass for the reader it was written for and fail for a lawyer or an investor, because questions such as wrong register are judged against that reader.
 

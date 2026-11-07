@@ -10,7 +10,7 @@
 
 Agents are great at writing code now, but still terrible at copy. This framework gets you and your agent to treat writing text like writing code: which tests can validate it? What would the audience reading it think? What is the goal we are trying to convey?
 
-You get rules, checks and simulated readers that your agent runs on every draft.
+You get a writing process your agent follows, tools it can pick up along the way, and the research behind both.
 
 ## Before and after
 
@@ -23,46 +23,52 @@ Then he wrote this one himself in minutes:
 
 > You don't need an agent sandbox
 
-`inkling check` flags the first as a contrast formula and passes the second.
+Inkling's rules flag the first as a contrast formula and pass the second.
 
-## Try it on a draft
+## The process
 
-Paste this into Claude Code, or any coding agent:
+When your agent writes something people will read, it goes through eight steps:
+
+1. **[Who reads.](docs/process/1-who-reads.md)** A line on the reader: who they are, where they come from, what they know, what they are deciding.
+2. **[Which mind.](docs/process/2-which-mind.md)** Pick the mind the reader needs: a seller, an engineer, a lawyer, an investor, or more than one.
+3. **[The claim.](docs/process/3-one-claim.md)** The one thing the piece has to land, and what this reader would not expect.
+4. **[Reader tests first.](docs/process/4-reader-tests.md)** Before any draft, write what each reader must take away.
+5. **[Draft.](docs/process/5-draft.md)** Write against the reader, the mind and the claim.
+6. **[Check.](docs/process/6-check.md)** Look for the phrasing reviewers rejected before: hedges, slogans, contrast formulas, crammed headlines.
+7. **[Reader test.](docs/process/7-reader-test.md)** Simulated readers read the draft and say what they would do next and where they would stop. Fix what stopped them.
+8. **[Stop.](docs/process/8-stop.md)** Stop when the readers pass, or when the time you set runs out, and keep what readers still asked for the next piece.
+
+## Start
+
+Point your agent at this repo. In Claude Code, or any coding agent, paste:
 
 ```text
-Run `npx -y github:langwatch/inkling check draft.md` and fix every finding it prints.
+Follow the writing process at https://github.com/langwatch/inkling to write <what you are writing> for <who reads it>.
 ```
 
-Or run it yourself. It needs Node 22 or newer:
+## Tools
+
+The agent can pick these up at any step. None of them is required to follow the process.
+
+| Tool | What it does | Cost |
+| --- | --- | --- |
+| [Lint](docs/tools/lint.md) | flags the phrasing reviewers rejected, with line, reason and fix | free, under a second |
+| [Judge](docs/tools/judge.md) | asks Jev, a small paid model, one yes or no question per rule and line, for problems a pattern cannot see | about 0.0003 USD a paragraph, needs an application programming interface (API) key |
+| [Reader panel](docs/tools/panel.md) | runs simulated readers from your reader tests, grades their answers, compares versions unlabelled, then one clean-eyes round | Claude subscription |
+| [Budget](docs/tools/budget.md) | sets the time, stops at the best version, lists what is open | free |
+| [Calibration](docs/tools/calibration.md) | measures the rules on lines people already approved and rejected | free |
+
+Run them from any folder. They need Node 22 or newer:
 
 ```sh
-npx -y github:langwatch/inkling check draft.md
+npx -y github:langwatch/inkling check draft.md --mode ads --audience "founders who just searched for an agent sandbox"
+npx -y github:langwatch/inkling judge draft.md --mode ads        # needs TYPESAFE_API_KEY and Python 3
+npx -y github:langwatch/inkling readers panel start draft.md draft.readers.yaml --out runs/launch
 ```
 
-## Why agents write bad copy
+The reader panel runs on a Claude subscription, through Claude Code subagents or `claude -p`, and refuses to start when a paid model provider key is set. The judge is the only tool that needs a paid key. For a local install: `git clone https://github.com/langwatch/inkling && cd inkling && npm link`, then `inkling --help`.
 
-- No test fails on bad copy, so the agent stops once the text is accurate and complete.
-- The agent writes from its own side: what was built, instead of what the reader needs to hear.
-- A large language model (LLM) asked to grade text prefers text written by a model, so an LLM judge is no test until it agrees with people.
-
-The [nine reasons in full](docs/why.md) come from an agent explaining its own rejected titles.
-
-## From brief to shipped text
-
-You and your agent go from brief to shipped text in eight steps. In steps 1 to 4 you write files: the goal, the reader tests and the draft. Steps 5 to 8 are checks your agent runs, and each one passes or names the line to fix. For a quick pass of about 5 minutes, you skip the reader panel and the clean-eyes read.
-
-1. **Set the goal.** Write the one claim the piece has to land and who reads it: from where, knowing what, deciding what. See [goal and audience](docs/steps/1-goal.md).
-2. **Write the reader tests first.** Before any draft, a readers file names the readers, what they know before reading, and what each must take away. See [reader tests](docs/steps/2-reader-tests.md).
-3. **Pick a time budget.** Quick (about 5 min), standard (about 15 min) or deep (30 to 60 min). When the time runs out, you ship the best version so far with a list of what is still open. See [budget](docs/steps/3-budget.md).
-4. **Draft.** Write against the [lessons](docs/lessons.md) the rules came from. See [draft](docs/steps/4-draft.md).
-5. **Catch the rejected shapes.** `inkling check` flags phrasing that reviewers rejected before, with file, line, reason and fix, in under a second. See [lint](docs/steps/5-lint.md).
-6. **Ask a second model.** `inkling judge` asks Jev, a small paid model, one yes or no question per rule and line, for problems a pattern cannot see. It needs an application programming interface (API) key and costs about 0.0003 USD per paragraph; without a key, the step is skipped. See [judge](docs/steps/6-judge.md).
-7. **Test it on simulated readers.** Simulated readers read the draft and say what they would do next and where they would stop. In later rounds they compare the old and new versions without knowing which is which. See [panel](docs/steps/7-panel.md).
-8. **Read it once with fresh readers, then ship.** New readers read the result once. When the core expectations pass, you stop editing, and what readers still asked goes into the topic's lessons for the next piece. See [ship](docs/steps/8-ship.md).
-
-## An example run
-
-These are four titles from the same review. A reviewer rejected the first three:
+A reviewer rejected the first three of these four titles:
 
 ```sh
 inkling check examples/sandbox-titles/titles.md --mode ads \
@@ -95,36 +101,16 @@ examples/sandbox-titles/titles.md:5:24  numbers/number-in-title
 
 The fourth title, "You don't need an agent sandbox", gets no finding. The full output is in [output.txt](examples/sandbox-titles/output.txt), and the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).
 
-## Install the command line tool
+More tools: [preference judge](docs/tools/preference.md), [surprise](docs/tools/surprise.md), [images](docs/tools/images.md), [known false positives](docs/tools/known-false-positives.md).
 
-```sh
-git clone https://github.com/langwatch/inkling && cd inkling
-npm link
-inkling check README.md --mode docs
-```
+## Research
 
-It needs Node 22 or newer and has no dependencies. The judge step needs Python 3 and a Jev key. The reader panel needs a Claude subscription, through Claude Code subagents or `claude -p`; it refuses to run on a paid API key.
-
-## Commands and rules
-
-Each step, its command, what it costs and how long it takes:
-
-| Step | Command | Cost | Time |
-| --- | --- | --- | --- |
-| Lint | `inkling check <files> --mode <mode> --audience "<who reads>"` | free | under a second |
-| Judge | `inkling judge <file> --mode <mode> --audience "<who reads>"` | about 0.0003 USD a paragraph | under a minute |
-| Reader panel | `inkling readers panel start\|round\|status\|stop`, `inkling readers grade` | Claude subscription | about 5 min a round |
-| Clean eyes | `inkling readers holdout` | Claude subscription | about 4 min |
-| Budget | `inkling plan --budget quick\|standard\|deep --mode <mode>` | free | |
-| Calibration | `inkling calibrate <mode>`, `inkling eval <labelled.jsonl>` | free | seconds |
-
-The times are first estimates; `inkling timings` prints what real runs took.
-
-- **Rules.** The lint step has 95 rules in 13 families, from banned words and contrast formulas to slogans, docs and slide rules. Each rule is data with a source and a failing and a passing example, and the examples run as tests. See [lint](docs/steps/5-lint.md) to add one.
-- **Modes.** `docs`, `post`, `ads`, `deck`, `legal`, `investor` and `x` choose which rules apply and the paragraph limit. They are presets; the audience is free text.
-- **Calibration.** A check fails drafts only after it passed on lines a person already judged. See [calibration](docs/reference/calibration.md).
-- **More.** [Preference judge](docs/reference/preference.md), [surprise](docs/reference/surprise.md), [images](docs/reference/images.md), [known false positives](docs/reference/known-false-positives.md), [origin](docs/origin.md), [the self-check](docs/dogfood.md), [roadmap](docs/roadmap.md), [credits](docs/credits.md), and research on [judge bias](docs/research/judge-bias.md) and [surprise](docs/research/surprise.md).
+- **[Why agents write bad copy](docs/research/why.md).** The nine reasons, from an agent explaining its own rejected titles and a study showing that a large language model (LLM) asked to grade text prefers text a model wrote.
+- **[Patterns](docs/research/lessons.md).** The review notes every rule came from.
+- **Examples.** [Approved and rejected lines](calibration/regression.jsonl), [pairs for the preference judge](calibration/pairs.jsonl) and [the sandbox titles](examples/sandbox-titles/).
+- **Studies.** [Judge bias](docs/research/judge-bias.md), with the [Meta study](https://facebookresearch.github.io/RAM/blogs/unslop/) and [paper](https://arxiv.org/abs/2610.38882), and [surprise](docs/research/surprise-study.md).
+- **[Origin](docs/research/origin.md).** The conversation that started Inkling.
 
 ## What works today
 
-The lint, judge, reader panel, budgets and calibration steps work and have tests (`npm test`). The preference judge is advisory until its pair set reaches 30 held-out pairs. Surprise is a design with a prototype. No mode is calibrated yet, so `inkling plan` refuses the quick budget until the first reference set passes.
+The lint, judge, reader panel, budget and calibration tools work and have tests (`npm test`). The preference judge is advisory until its pair set reaches 30 held-out pairs. Surprise is a design with a prototype. No preset is calibrated yet. The [self-check](docs/dogfood.md) records Inkling run on its own docs; see also the [roadmap](docs/roadmap.md) and [credits](docs/credits.md).

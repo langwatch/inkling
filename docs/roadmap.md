@@ -1,8 +1,8 @@
 # Roadmap
 
-Status per step, and what comes next.
+Status per tool, and what comes next.
 
-| Step | Status | Next |
+| Tool | Status | Next |
 | --- | --- | --- |
 | goal and modes | shipped: seven modes, audience as free text, `x` set up for calibration | per-mode limits from real reviews (title length for ads, bullet words for decks) |
 | reader tests and panel | shipped: subagent and `claude -p` backends, doubt classes, stop rule, panel rounds with A/B and shrinking edits, one holdout | a page extractor for live URLs |
