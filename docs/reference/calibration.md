@@ -19,7 +19,7 @@ rejected lines no rule caught (rule ideas):
   plain-words-rejected: vague line, sells nothing concrete
 ```
 
-Rules gate once they caught at least 2 rejected lines and flagged no approved one. Every other rule is advisory in the report. The set is small, so for now every rule is advisory; each new review adds lines.
+Inkling lets a rule block a draft only in a mode that passed `inkling calibrate`, and only after the rule caught at least two rejected lines and flagged no approved line; until then its findings are advisory. The set is small, so for now every rule is advisory; each new review adds lines.
 
 Label only lines a person approved or rejected with a reason, or that a venue approved with real engagement. A line a model liked is not a label.
 

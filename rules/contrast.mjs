@@ -90,9 +90,9 @@ export default [
     check: (unit) => mirroredPairs(unit),
     message: "\"X does A. Y does B.\" mirrored pair: one idea dressed as two.",
     fix: "Keep the one claim the reader did not expect.",
-    source: "Rejected title, \"A sandbox runs your agent. Laze puts it to work for your team\"; aphorism pairs",
+    source: "Rejected title, \"A sandbox runs your agent. ACME puts it to work for your team\"; aphorism pairs",
     examples: {
-      fail: ["# A sandbox runs your agent. Laze puts it to work for your team", "# Policies attest. Evidence proves."],
+      fail: ["# A sandbox runs your agent. ACME puts it to work for your team", "# Policies attest. Evidence proves."],
       pass: ["# Laptop shut? It still works", "# You don't need an agent sandbox"],
     },
   },

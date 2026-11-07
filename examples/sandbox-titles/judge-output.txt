@@ -2,19 +2,19 @@ $ inkling judge titles.txt --mode ads --audience "founders who just searched age
 inkling judge: Jev, mode ads; reran for 1 score(s) within 0.05 of a threshold
 
 line 1  jev/unsurprising  0.86 (threshold 0.75)
-  > A sandbox runs your agent. Laze puts it to work for your team
+  > A sandbox runs your agent. ACME puts it to work for your team
   fix: Find the one thing this reader does not expect and lead with it. If nothing surprises, the piece has no claim yet.
 line 1  jev/concedes_or_hedges  0.76 (threshold 0.7)
-  > A sandbox runs your agent. Laze puts it to work for your team
+  > A sandbox runs your agent. ACME puts it to work for your team
   fix: Take a side. Cut the half that grants the other option its case, and any 'can', 'may' or 'mostly' that softens the claim.
 line 1  jev/writer_side  0.87 (threshold 0.75)
-  > A sandbox runs your agent. Laze puts it to work for your team
+  > A sandbox runs your agent. ACME puts it to work for your team
   fix: Start where the reader is: their task, their search, their problem. Move what we built to the second line or out.
 line 1  jev/formula_shape  0.93 (threshold 0.7)
-  > A sandbox runs your agent. Laze puts it to work for your team
+  > A sandbox runs your agent. ACME puts it to work for your team
   fix: Say the claim plainly in one sentence. Drop the 'X does A. Y does B.' or 'not X, but Y' frame and the number opener.
 line 1  jev/crammed_claims  0.76 (threshold 0.7)
-  > A sandbox runs your agent. Laze puts it to work for your team
+  > A sandbox runs your agent. ACME puts it to work for your team
   fix: Keep one claim. Move the others to the body or cut them.
 line 2  jev/formula_shape  0.97 (threshold 0.7)
   > Your agent doesn't need a sandbox. It needs a team.

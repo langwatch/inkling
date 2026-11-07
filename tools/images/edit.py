@@ -1,6 +1,6 @@
 """Draws a picture with OpenAI image edits through the LangWatch AI Gateway (docs/layers/g-images.md).
 
-Copied from the Laze repo (tools/mascot/edit.py), unchanged apart from this docstring.
+Copied from an internal mascot tool, unchanged apart from this docstring.
 
 Usage: edit.py <out-prefix> "<prompt>" <n> <style-ref.png> [<composition-ref.png> ...]
 The key is a gateway virtual key: MASCOT_API_KEY, else LANGWATCH_GATEWAY_OXVK from the vault.

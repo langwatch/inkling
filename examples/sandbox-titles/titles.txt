@@ -1,4 +1,4 @@
-A sandbox runs your agent. Laze puts it to work for your team
+A sandbox runs your agent. ACME puts it to work for your team
 
 Your agent doesn't need a sandbox. It needs a team.
 

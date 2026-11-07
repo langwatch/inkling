@@ -1,0 +1,15 @@
+# Why agents write bad copy
+
+A founder rejected his agent's landing page titles over and over, then wrote a better one himself in minutes: "You don't need an agent sandbox". He asked the agent why it was so bad at titles. He approved six points of its answer and added two more. The ninth comes from a study of model judges.
+
+1. **No test fails on copy.** Coding agents got good by training on tasks with a checkable answer: the tests pass or they don't. Copy has no such check, so how an agent writes is a side effect of the rest of its training. The same holds at work: when a test fails or a screenshot looks wrong, the agent fixes it on its own. A title has no failing test, so the agent stops at "accurate and complete", which is not the same as "a stranger would click".
+2. **Likely words are bland words.** A model predicts the likely next words. Good copy surprises the reader, and a surprise is by definition unlikely. Left alone, an agent drifts to the average of all marketing copy.
+3. **Training rewarded being fair and safe.** So the agent concedes ("a sandbox runs your agent"), adds balance and hedges. An ad has to take a side, and that cuts against the habit.
+4. **The reader is missing.** An agent can imagine its reader, but it doesn't unless the task forces it. Its context is full of design notes and features, so it writes about what was built. A person starts from someone typing "agent sandbox" into Google and asks what would stop them.
+5. **Punchy became a set of shapes.** The agent reaches for "X does A. Y does B." and "not X, but Y" over and over. People learn what lands from other people reacting.
+6. **Everything gets in.** A good title cuts to one claim. "You don't need an agent sandbox" works because it says one thing the searcher didn't expect.
+7. **Writing from the middle of the thread.** The reader has none of the conversation the agent had, so the first line has to tell a newcomer where they are and why they should care.
+8. **The same voice for every audience.** The audience picks the mind, often more than one: seller and engineer for a brochure on a technical product, lawyer for an order form, investor for a pitch deck.
+9. **Model judges prefer model text.** Ask a model which of two versions is better, and it picks the one a model wrote more often. In [a study from Meta's AI research lab](https://facebookresearch.github.io/RAM/blogs/unslop/) ([paper](https://arxiv.org/abs/2610.38882)), model judges comparing two versions preferred model-written sections of papers over the expert human originals in 63.5% to 84.6% of pairs. A model judge is no test until it agrees with lines people already approved and rejected. See [judge bias](research/judge-bias.md).
+
+Inkling turns each point into a step: tests written before the draft for 1 and 4, rules for 2, 3, 5 and 6, a goal with one claim and a named reader for 6, 7 and 8, and calibration against human verdicts for 9. See the [process](../README.md#from-brief-to-shipped-text).

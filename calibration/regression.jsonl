@@ -1,6 +1,6 @@
 // Lines a person approved or rejected with a reason. `inkling eval calibration/regression.jsonl` scores every rule on them.
 {"id": "sandbox-approved", "mode": "ads", "text": "# You don't need an agent sandbox", "label": "approved", "source": "founder rewrite, 2026-11"}
-{"id": "sandbox-rejected-1", "mode": "ads", "text": "# A sandbox runs your agent. Laze puts it to work for your team", "label": "rejected", "reason": "opens with the competitor's category, concedes it works, X does A. Y does B.", "source": "founder review, 2026-11"}
+{"id": "sandbox-rejected-1", "mode": "ads", "text": "# A sandbox runs your agent. ACME puts it to work for your team", "label": "rejected", "reason": "opens with the competitor's category, concedes it works, X does A. Y does B.", "source": "founder review, 2026-11"}
 {"id": "sandbox-rejected-2", "mode": "ads", "text": "# Your agent doesn't need a sandbox. It needs a team.", "label": "rejected", "reason": "doesn't need X, it needs Y formula", "source": "founder review, 2026-11"}
 {"id": "dashboards-rejected", "mode": "ads", "text": "# Dashboards come with 77 ready-made questions", "label": "rejected", "reason": "opens with a number, a count as headline", "source": "founder note, 2026-10-31"}
 {"id": "dashboards-approved", "mode": "ads", "text": "# Ask your traces anything", "label": "approved", "source": "seed pair dashboards-01"}

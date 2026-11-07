@@ -4,7 +4,7 @@ The first step of a piece is two lines: the one claim it has to land, and who re
 
 ## Write the one claim
 
-Write the claim before the draft, in a sentence a stranger would repeat. "You don't need an agent sandbox" is a claim. "Laze puts agents to work for your team, with compute, a vault and approvals" is a feature list with three claims in it, and a reader keeps none of them.
+Write the claim before the draft, in a sentence a stranger would repeat. "You don't need an agent sandbox" is a claim. "ACME puts agents to work for your team, with compute, a vault and approvals" is a feature list with three claims in it, and a reader keeps none of them.
 
 ## Write the audience
 

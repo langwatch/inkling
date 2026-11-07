@@ -63,7 +63,7 @@ Two lessons. First, in our data the plain judge was already on the human side, b
 `calibration/pairs.jsonl`, one pair per line:
 
 ```json
-{"id": "sandbox-title-01", "brief": "Landing page title for founders who just searched 'agent sandbox', deciding whether to click", "mode": "marketing", "audience": "founders searching for an agent sandbox", "approved": "You don't need an agent sandbox", "rejected": "A sandbox runs your agent. Laze puts it to work for your team", "reason": "opens with the competitor's category, concedes it works, X does A. Y does B. formula", "kind": "edit", "split": "train"}
+{"id": "sandbox-title-01", "brief": "Landing page title for founders who just searched 'agent sandbox', deciding whether to click", "mode": "marketing", "audience": "founders searching for an agent sandbox", "approved": "You don't need an agent sandbox", "rejected": "A sandbox runs your agent. ACME puts it to work for your team", "reason": "opens with the competitor's category, concedes it works, X does A. Y does B. formula", "kind": "edit", "split": "train"}
 ```
 
 - `kind`: `edit` (a rejected draft and its approved replacement for the same brief) or `xar` (an approved line and a fresh model line for the same brief, written with no house rules in the prompt).

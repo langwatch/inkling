@@ -21,7 +21,7 @@ test("check exits 0 on clean text and 2 on a bad mode", () => {
 });
 
 test("check --json is machine readable", () => {
-  const r = run(["check", "-", "--mode", "ads", "--json"], "# Introducing Laze\n");
+  const r = run(["check", "-", "--mode", "ads", "--json"], "# Introducing ACME\n");
   const out = JSON.parse(r.stdout);
   assert.equal(out.findings[0].rule, "pitch/writer-side-headline");
 });

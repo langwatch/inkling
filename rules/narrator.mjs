@@ -40,7 +40,7 @@ export default [
     fix: "End on the concrete consequence instead.",
     source: "Nexus writing-rules, Declarative brand closers",
     examples: {
-      fail: ["That's the workflow.", "That's Laze."],
+      fail: ["That's the workflow.", "That's ACME."],
       pass: ["The ticket closed itself an hour later."],
     },
   },

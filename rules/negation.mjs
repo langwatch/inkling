@@ -25,8 +25,8 @@ export default [
     fix: "Say what it is.",
     source: "reader-sim no_negation_or_hedge check; approved analysis point 5",
     examples: {
-      fail: ["# Laze is not a sandbox", "## Memory isn't just a file"],
-      pass: ["# Laze runs your agent for the whole team", "# You don't need an agent sandbox"],
+      fail: ["# ACME is not a sandbox", "## Memory isn't just a file"],
+      pass: ["# ACME runs your agent for the whole team", "# You don't need an agent sandbox"],
     },
   },
   {

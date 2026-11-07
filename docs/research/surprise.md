@@ -37,7 +37,7 @@ Two points carry over to inkling. Model prose is low-surprisal by construction, 
 | Line | Verdict | bits (with brief) | free (no brief) | pmi | max sim to alternatives |
 | --- | --- | --- | --- | --- | --- |
 | You don't need an agent sandbox | approved | 3.51 | 8.12 | 4.60 | 0.79 |
-| A sandbox runs your agent. Laze puts it to work for your team | rejected | 7.11 | 7.78 | 0.67 | 0.84 |
+| A sandbox runs your agent. ACME puts it to work for your team | rejected | 7.11 | 7.78 | 0.67 | 0.84 |
 | Your agent doesn't need a sandbox. It needs a team. | rejected | 4.59 | 6.35 | 1.77 | 0.79 |
 | Laptop shut? It still works | approved, other brief | 11.27 | 10.77 | -0.50 | 0.51 |
 | Stop being a meat-proxy, let your colleagues talk directly to your agent | approved, other brief | 7.89 | 8.91 | 1.02 | 0.73 |

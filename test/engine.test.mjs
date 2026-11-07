@@ -29,7 +29,7 @@ test("approved lines pass as ads", () => {
 });
 
 test("rejected lines fail as ads", () => {
-  assert.ok(ids("# A sandbox runs your agent. Laze puts it to work for your team", "ads").includes("contrast/mirrored-pair"));
+  assert.ok(ids("# A sandbox runs your agent. ACME puts it to work for your team", "ads").includes("contrast/mirrored-pair"));
   assert.ok(ids("# Your agent doesn't need a sandbox. It needs a team.", "ads").includes("contrast/doesnt-need-needs"));
   assert.ok(ids("# Dashboards come with 77 ready-made questions", "ads").includes("numbers/number-in-title"));
 });

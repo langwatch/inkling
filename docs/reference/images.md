@@ -15,7 +15,7 @@ Words inside images follow the same rules as prose: no aphorism pairs, no hook t
 
 ## The call
 
-`tools/images/edit.py` (copied from the Laze mascot tool) calls the OpenAI images edit endpoint through the LangWatch AI Gateway with a gateway virtual key:
+`tools/images/edit.py` (copied from an internal mascot tool) calls the OpenAI images edit endpoint through the LangWatch AI Gateway with a gateway virtual key:
 
 ```sh
 python3 tools/images/edit.py out/logo "<prompt>" 2 style-reference.png [composition-reference.png]

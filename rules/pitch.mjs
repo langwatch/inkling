@@ -11,7 +11,7 @@ export default [
     fix: "Start from what the reader was doing or wants: \"Laptop shut? It still works\".",
     source: "Approved analysis point 4 (theory of mind)",
     examples: {
-      fail: [{ text: "# Our compaction engine keeps context for weeks", mode: "ads" }, { text: "# Introducing Laze", mode: "ads" }],
+      fail: [{ text: "# Our compaction engine keeps context for weeks", mode: "ads" }, { text: "# Introducing ACME", mode: "ads" }],
       pass: [{ text: "# Laptop shut? It still works", mode: "ads" }],
     },
   },

@@ -191,7 +191,7 @@ Problems:
 {defs}
 
 Examples he judged:
-- REJECTED "A sandbox runs your agent. Laze puts it to work for your team": concedes the competitor's category works,
+- REJECTED "A sandbox runs your agent. ACME puts it to work for your team": concedes the competitor's category works,
   "X does A. Y does B." shape, product as hero, vague outcome.
 - REJECTED "Your agent doesn't need a sandbox. It needs a team.": "doesn't need X, needs Y" shape.
 - REJECTED "Dashboards come with 77 ready-made questions": opens with a count.
