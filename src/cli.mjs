@@ -7,6 +7,10 @@ import { RULES, FAMILIES } from "../rules/index.mjs";
 import { refuseIfPaid } from "./subscription.mjs";
 import { writePrompts, grade, runWithClaude } from "./readers.mjs";
 import { writePreferPrompts, gradePrefer } from "./prefer.mjs";
+import { panelStart, panelRound, panelStatus, holdout, stopRun } from "./panel.mjs";
+import { BUDGETS, BUDGET_NAMES, describeBudgets, startPlan, recordTiming, timingsSummary, topicPaths, topicInit } from "./budget.mjs";
+import { calibrate, evaluate, formatEval, readReference, uncalibrated } from "./calibrate.mjs";
+import { existsSync } from "node:fs";
 
 const USAGE = `proof: a test suite for writing
 
@@ -20,6 +24,20 @@ const USAGE = `proof: a test suite for writing
       subagent and saves <dir>/<persona>.answer.md; grade writes judge prompts the same way
   proof readers run <draft> <readers.yaml> --out <dir> [--reader sonnet] [--judge opus]
       layer (e), claude -p backend on the subscription, isolated config, tools off
+  proof readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]
+  proof readers panel round <run> [--draft <file>] [--force]
+  proof readers panel status|stop <run>
+  proof readers holdout <run> [--draft <file>]
+      the default reader loop: a panel that stays across rounds, old and new shown as A/B,
+      edits shrinking from sections to paragraphs to lines, then one clean-eyes holdout
+  proof plan --budget <quick|standard|deep> --mode <mode> [--out <run>] [--topic <topic>]
+      pick a time budget up front; quick needs a calibrated mode
+  proof timings [<run dirs>...]        real minutes per layer against the estimates
+  proof calibrate <mode>               score the lints on modes/<mode>/reference.jsonl
+  proof eval <labelled.jsonl> [--mode <mode>]
+                                       recall and false positives per rule on labelled lines
+  proof topic init <topic> --from <readers.yaml>
+      personas, expectations and lessons that carry over to the next piece on a topic
   proof prefer prompts <comparisons.yaml> --out <dir>
   proof prefer grade <dir>
       layer (c), advisory: two lines for one brief, judged in both orders
@@ -58,6 +76,13 @@ export function main(argv) {
       reader: { type: "string" },
       judge: { type: "string" },
       color: { type: "boolean" },
+      budget: { type: "string" },
+      topic: { type: "string" },
+      "topics-dir": { type: "string" },
+      draft: { type: "string" },
+      from: { type: "string" },
+      force: { type: "boolean" },
+      run: { type: "string" },
     },
   });
   if (values.mode && !MODES[values.mode]) {
@@ -66,7 +91,7 @@ export function main(argv) {
   }
   switch (command) {
     case "check":
-      return runCheck({
+      return timed(values.run, "check", () => runCheck({
         paths: positionals,
         mode: values.mode,
         audience: values.audience,
@@ -76,10 +101,34 @@ export function main(argv) {
         json: values.json,
         stdin,
         color: values.color ?? (process.stdout.isTTY && !process.env.NO_COLOR),
-      });
+      }));
     case "judge":
       if (!positionals[0]) return usage("proof judge needs a file or -");
-      return runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin });
+      return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin }));
+    case "plan":
+      return plan(values);
+    case "timings":
+      process.stdout.write(timingsSummary(positionals.length ? positionals : ["runs"]).text + "\n");
+      return 0;
+    case "calibrate": {
+      if (!positionals[0]) return usage("proof calibrate <mode>");
+      const r = calibrate({ mode: positionals[0] });
+      process.stdout.write(`calibrate ${positionals[0]}: ` + formatEval(r));
+      return r.pass ? 0 : 1;
+    }
+    case "eval": {
+      if (!positionals[0]) return usage("proof eval <labelled.jsonl> [--mode <mode>]");
+      const r = evaluate({ items: readReference(positionals[0]), mode: values.mode ?? "post", house: values.house ?? [] });
+      process.stdout.write(formatEval(r));
+      return 0;
+    }
+    case "topic": {
+      const [sub, topic] = positionals;
+      if (sub !== "init" || !topic) return usage("proof topic init <topic> --from <readers.yaml>");
+      const p = topicInit({ topic, topicsDir: values["topics-dir"] ?? "topics", from: values.from });
+      process.stdout.write(`topic ${topic}: ${p.readers}${existsSync(p.readers) ? "" : " (missing: pass --from)"}, ${p.lessons}\n`);
+      return 0;
+    }
     case "readers":
       return readers(positionals, values);
     case "prefer":
@@ -100,6 +149,83 @@ export function main(argv) {
     default:
       return usage(`unknown command ${command}`);
   }
+}
+
+/** Run a step and, with --run <dir>, append its elapsed time to <dir>/timings.jsonl. */
+function timed(run, layer, fn) {
+  const t = performance.now();
+  const code = fn();
+  if (run) recordTiming({ out: run, layer, ms: performance.now() - t });
+  return code;
+}
+
+function plan(values) {
+  const budget = values.budget;
+  if (!budget || !BUDGETS[budget]) return usage(`proof plan --budget <${BUDGET_NAMES.join("|")}> --mode <mode>`);
+  if (!values.mode) return usage("proof plan needs --mode: quick is allowed only for a calibrated mode");
+  process.stdout.write(`budgets (estimates are initial; proof timings shows real runs):\n${describeBudgets(budget)}\n\n`);
+  const why = budget === "quick" ? uncalibrated(values.mode) : null;
+  if (why) {
+    process.stderr.write(`proof: quick needs a calibrated mode, and ${why}. Quick trusts the lints and Jev alone, which is safe only after they passed on the mode's reference set. Pick standard, or calibrate the mode first (modes/<mode>/README.md).\n`);
+    return 2;
+  }
+  const topicsDir = values["topics-dir"] ?? "topics";
+  if (values.topic) {
+    const p = topicPaths({ topic: values.topic, topicsDir });
+    if (existsSync(p.readers)) process.stdout.write(`topic ${values.topic}: readers from ${p.readers}\n`);
+    else process.stdout.write(`topic ${values.topic} is new: proof topic init ${values.topic} --from <readers.yaml> keeps the readers for next time\n`);
+    if (existsSync(p.lessons)) process.stdout.write(`lessons so far (${p.lessons}):\n${readFileSync(p.lessons, "utf8")}\n`);
+  }
+  if (values.out) {
+    const p = startPlan({ out: values.out, budget, topic: values.topic ?? null, topicsDir });
+    process.stdout.write(`plan saved in ${values.out}/plan.json; stop by ${new Date(p.deadline).toLocaleTimeString()}. Pass --run ${values.out} to check and judge so their time is recorded.\n`);
+  }
+  const b = BUDGETS[budget];
+  process.stdout.write(`steps: ${b.steps.join(" -> ")}\nwhen the time runs out: stop at the best version so far and list what is still open (proof readers panel stop <run>).\n`);
+  return 0;
+}
+
+function panel([sub, ...pos], values) {
+  try {
+    if (sub === "start") {
+      const [draft, file] = pos;
+      const readersFile = file ?? (values.topic ? topicPaths({ topic: values.topic, topicsDir: values["topics-dir"] ?? "topics" }).readers : null);
+      if (!draft || !readersFile || !values.out) return usage("proof readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]");
+      const { prompts, next } = panelStart({ draft, readersFile, out: values.out });
+      process.stdout.write(pendingMessage(prompts, "reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run proof readers grade ${values.out}/round-1. Next edit may change whole ${next}.`));
+      return 0;
+    }
+    if (sub === "round") {
+      if (!pos[0]) return usage("proof readers panel round <run> [--draft <file>] [--force]");
+      const r = panelRound({ out: pos[0], draft: values.draft, force: values.force });
+      if (r.refused) {
+        process.stderr.write(`proof: ${r.refused}\n`);
+        return 1;
+      }
+      if (r.stopped) {
+        process.stdout.write(r.stopped.text + "\n");
+        return 0;
+      }
+      if (r.warning) process.stdout.write(`warning (--force): ${r.warning}\n`);
+      process.stdout.write(`round edit size ${r.allowed}: ${r.size.headings} headings, ${r.size.paragraphs} paragraphs, ${r.size.sentences} sentences changed.\n`);
+      process.stdout.write(pendingMessage(r.prompts, "A/B reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run proof readers grade on that round directory. Next edit may change ${r.nextAllowed}.`));
+      return 0;
+    }
+    if (sub === "status") {
+      if (!pos[0]) return usage("proof readers panel status <run>");
+      process.stdout.write(panelStatus(pos[0]) + "\n");
+      return 0;
+    }
+    if (sub === "stop") {
+      if (!pos[0]) return usage("proof readers panel stop <run>");
+      process.stdout.write(stopRun({ out: pos[0], why: "stopped by the writer" }).text + "\n");
+      return 0;
+    }
+  } catch (e) {
+    process.stderr.write(`proof: ${e.message}\n`);
+    return 1;
+  }
+  return usage("proof readers panel start|round|status|stop");
 }
 
 function usage(msg) {
@@ -134,6 +260,18 @@ function readers([sub, ...pos], values) {
     process.stdout.write(state.report ?? "");
     return state.failed ? 1 : 0;
   }
+  if (sub === "panel") return panel(pos, values);
+  if (sub === "holdout") {
+    if (!pos[0]) return usage("proof readers holdout <run> [--draft <file>]");
+    try {
+      const { prompts, dir } = holdout({ out: pos[0], draft: values.draft });
+      process.stdout.write(pendingMessage(prompts, "clean-eyes prompts (fresh subagents, used once)", "<persona>.answer.md").replace("Then run grade again.", `Then run proof readers grade ${dir}. If core passes, stop. Otherwise make one small adjustment and stop.`));
+      return 0;
+    } catch (e) {
+      process.stderr.write(`proof: ${e.message}\n`);
+      return 1;
+    }
+  }
   if (sub === "grade") {
     if (!pos[0]) return usage("proof readers grade <dir>");
     const state = grade(pos[0]);
@@ -144,7 +282,7 @@ function readers([sub, ...pos], values) {
     process.stdout.write(state.report);
     return state.failed ? 1 : 0;
   }
-  return usage("proof readers prompts|grade|run");
+  return usage("proof readers prompts|grade|run|panel|holdout");
 }
 
 function prefer([sub, ...pos], values) {
