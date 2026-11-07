@@ -100,7 +100,7 @@ export default [
     id: "mirrored-pair-copy",
     modes: PITCH,
     scope: "block",
-    check: (unit) => mirroredPairs(unit),
+    check: (unit, { doc }) => (unit.block.type === "heading" || unit.block === doc.title || unit.block === doc.subtitle ? [] : mirroredPairs(unit)),
     message: "\"X does A. Y does B.\" mirrored pair in copy.",
     fix: "Keep the one claim the reader did not expect.",
     source: "Approved analysis point 5",

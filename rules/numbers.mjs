@@ -20,15 +20,15 @@ export default [
   },
   {
     id: "number-in-title",
-    scope: "title",
+    scope: "headline",
     modes: ["ads", "deck", "post"],
     pattern: /\b\d{2,}[\d,.]*\b(?!\s*(?:USD|EUR|%))/,
     message: "A bare count in the title reads as a listicle.",
     fix: "Title the claim; carry the count in the body with its comparison.",
     source: "Founder note 2026-10-31 (\"never start the sentence with a number\", counts as headlines)",
     examples: {
-      fail: ["# Dashboards come with 77 ready-made questions"],
-      pass: ["# Ask your traces anything"],
+      fail: ["# Dashboards come with 77 ready-made questions", "# Intro\n\n## Dashboards come with 77 ready-made questions"],
+      pass: ["# Ask your traces anything", "# Cut the bill by 40%"],
     },
   },
   {

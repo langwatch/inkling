@@ -56,6 +56,8 @@ function globalise(pattern) {
 
 function excerpt(unit, index) {
   if (!unit.block) return "";
+  const whole = unit.block.text.replace(/\s+/g, " ").trim();
+  if (unit.sentences && whole.length <= 140 && unit.block.type !== "paragraph") return whole;
   const sentence = (unit.sentences ?? [unit]).find((s) => index >= s.start && index <= s.end) ?? unit;
   const text = (sentence.raw ?? "").replace(/\s+/g, " ").trim();
   return text.length > 140 ? text.slice(0, 137) + "..." : text;
