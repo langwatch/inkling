@@ -1,0 +1,3 @@
+// One JSON object per line. Lines starting with // are comments. See README.md in this folder.
+// {"id": "viral-001", "text": "<the post, verbatim>", "label": "approved", "concept": "<idea it carries>", "likes": 1200, "source": "public post, url or date"}
+// {"id": "ours-004", "text": "<our draft>", "label": "rejected", "reason": "<what the reviewer said, in one line>", "source": "founder review 2026-11-04"}

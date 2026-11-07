@@ -1,0 +1,14 @@
+// Lines a person approved or rejected with a reason. `proof eval calibration/regression.jsonl` scores every rule on them.
+{"id": "sandbox-approved", "mode": "ads", "text": "# You don't need an agent sandbox", "label": "approved", "source": "founder rewrite, 2026-11"}
+{"id": "sandbox-rejected-1", "mode": "ads", "text": "# A sandbox runs your agent. Laze puts it to work for your team", "label": "rejected", "reason": "opens with the competitor's category, concedes it works, X does A. Y does B.", "source": "founder review, 2026-11"}
+{"id": "sandbox-rejected-2", "mode": "ads", "text": "# Your agent doesn't need a sandbox. It needs a team.", "label": "rejected", "reason": "doesn't need X, it needs Y formula", "source": "founder review, 2026-11"}
+{"id": "dashboards-rejected", "mode": "ads", "text": "# Dashboards come with 77 ready-made questions", "label": "rejected", "reason": "opens with a number, a count as headline", "source": "founder note, 2026-10-31"}
+{"id": "dashboards-approved", "mode": "ads", "text": "# Ask your traces anything", "label": "approved", "source": "seed pair dashboards-01"}
+{"id": "laptop-approved", "mode": "ads", "text": "Laptop shut? It still works.", "label": "approved", "source": "founder liked, 2026-11-03"}
+{"id": "airgapped-approved", "mode": "ads", "text": "You can run it airgapped.", "label": "approved", "source": "founder rewrite, 2026-11-02"}
+{"id": "analytics-rejected", "mode": "ads", "text": "We send all this analytics data, but you can disable it.", "label": "rejected", "reason": "sells the worry instead of the value", "source": "founder review, 2026-11-02"}
+{"id": "main-session-rejected", "mode": "docs", "text": "The agent's main session plans and talks to people, and does almost none of the work itself.", "label": "rejected", "reason": "defines by negation, hedges with almost", "source": "founder review"}
+{"id": "main-session-approved", "mode": "docs", "text": "The agent's main session plans and talks to people, and hands the heavy work to subagents.", "label": "approved", "source": "fixed version"}
+{"id": "meat-proxy-approved", "mode": "ads", "text": "Stop being a meat-proxy, let your colleagues talk directly to your agent.", "label": "approved", "source": "founder line, 2026-10-31"}
+{"id": "plain-words-rejected", "mode": "ads", "text": "They ask in plain words.", "label": "rejected", "reason": "vague line, sells nothing concrete", "source": "founder review, 2026-11-03"}
+{"id": "signup-rejected", "mode": "ads", "text": "Sign up for free", "label": "rejected", "reason": "developers smell the gimmick; plain Sign up", "source": "founder note, 2026-09-13"}

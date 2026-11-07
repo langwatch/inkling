@@ -83,6 +83,18 @@ export default [
     },
   },
   {
+    id: "free-cta",
+    modes: ["ads", "deck"],
+    pattern: /\b(?:sign up|start|try(?: it)?|get started|join)\s+(?:for\s+)?free\b/i,
+    message: "\"for free\" on a call to action reads as a gimmick to developers.",
+    fix: "Say the action alone: \"Sign up\", \"Start\". Put the free plan on the pricing page.",
+    source: "Founder note 2026-09-13 on README buttons",
+    examples: {
+      fail: [{ text: "Sign up for free", mode: "ads" }, { text: "Get started free today.", mode: "ads" }],
+      pass: [{ text: "Sign up", mode: "ads" }, { text: "The free plan covers two people.", mode: "ads" }],
+    },
+  },
+  {
     id: "investor-hype",
     modes: ["investor"],
     pattern: /\b(?:disrupt(?:s|ing|ive)?|unicorn|massive market|huge market|(?:trillion|billion)[- ]dollar (?:market|opportunity)|the next [A-Z]\w+|hockey[- ]stick)\b/i,

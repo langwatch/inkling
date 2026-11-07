@@ -25,9 +25,18 @@ export const MODES = {
     label: "investor updates and decks: numbers with comparisons, no hype",
     paragraphWords: 60,
   },
+  x: {
+    label: "posts and replies on X: one claim, the scroller's mind, copy rules plus post rules",
+    paragraphWords: 50,
+    like: ["ads", "post"],
+    firstBlockIsTitle: true,
+  },
 };
 
 export const MODE_NAMES = Object.keys(MODES);
+
+/** A rule written for a mode also binds every mode that is `like` it. */
+export const modeFamily = (mode) => [mode, ...(MODES[mode]?.like ?? [])];
 
 /** Modes that sell or pitch: the copy rules bind hardest here. */
 export const PITCH = ["ads", "deck", "investor"];

@@ -1,7 +1,7 @@
 // Runs rules over a parsed document. A rule is data: an id, a scope, and either a
 // `pattern` or a `check(unit, ctx)`; see docs/layers/a-lints.md for the shape.
 import { mask, parse, words } from "./markdown.mjs";
-import { MODES } from "./modes.mjs";
+import { MODES, modeFamily } from "./modes.mjs";
 
 const PROSE = new Set(["paragraph", "list-item", "quote", "cell", "heading"]);
 
@@ -69,13 +69,14 @@ function ignored(set, rule) {
 }
 
 export function ruleApplies(rule, mode) {
-  return !rule.modes || rule.modes.includes(mode);
+  return !rule.modes || modeFamily(mode).some((m) => rule.modes.includes(m));
 }
 
 /** Lint one document. Returns findings sorted by position. */
 export function lint({ text, file = "-", mode = "post", rules, audience }) {
   if (!MODES[mode]) throw new Error(`unknown mode ${mode}; one of ${Object.keys(MODES).join(", ")}`);
   const doc = parse(text);
+  if (MODES[mode].firstBlockIsTitle && !doc.title) doc.title = doc.blocks.find((b) => PROSE.has(b.type)) ?? null;
   const ctx = { doc, mode, audience, settings: MODES[mode], words };
   const findings = [];
   for (const rule of rules) {

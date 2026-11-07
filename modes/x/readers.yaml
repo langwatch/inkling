@@ -1,0 +1,37 @@
+# Venue readers for X. Context is filled per post; these are the people who see it.
+context:
+  author: a small company account or its founder, few followers
+  size: an early product, no famous customers
+  arrived_from: the For You timeline or a reply under a bigger account's post
+  attention: one or two seconds unless the first line stops them
+personas:
+  - id: scroller
+    view: skim
+    attention: under two seconds per post while scrolling
+    background: >
+      An engineer or founder scrolling tech X on a phone between tasks. Reads the
+      first line, maybe the second. Stops only for something they did not expect.
+  - id: replier
+    view: full
+    background: >
+      Someone who replies to posts in their field to be seen. Reads the whole post
+      looking for a point to agree with, add to or push back on.
+  - id: quote-tweeter
+    view: full
+    background: >
+      Someone with a following who quotes posts to their own audience. Shares a post
+      only when it says one sharp thing they would put their name next to.
+expectations:
+  - id: stops_scroll
+    core: true
+    expect: The reader stops on the first line and can say why.
+    applies_to: [scroller]
+  - id: one_claim
+    core: true
+    expect: The reader repeats the post's single claim in their own words.
+  - id: would_engage
+    expect: The reader names a reply, a like or a quote they would actually post.
+    applies_to: [replier, quote-tweeter]
+  - id: no_ad_smell
+    core: true
+    expect: The reader does not read it as an ad or a product plug.

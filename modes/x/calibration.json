@@ -1,0 +1,16 @@
+{
+ "mode": "x",
+ "at": "2026-11-07T22:46:11.492Z",
+ "approved": 0,
+ "rejected": 0,
+ "caught": 0,
+ "falsePositives": 0,
+ "recall": 0,
+ "fpRate": 0,
+ "pass": false,
+ "why": [
+  "0 approved lines, the bar is 20",
+  "0 rejected lines, the bar is 10"
+ ],
+ "gatingRules": []
+}
