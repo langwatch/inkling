@@ -12,7 +12,7 @@ Agents are great at writing code now, but still terrible at copy. This framework
 
 ## Why agents write bad copy
 
-An agent explained its own copy failures after a founder rejected its landing page titles over and over and then wrote a better one himself in minutes ("You don't need an agent sandbox"). The founder approved the first eight points; the ninth comes from research on LLM judges.
+Agents write bad copy because no test fails on it, they predict the likely words, and they write from their own side instead of the reader's. An agent listed the reasons below after a founder rejected its landing page titles over and over and then wrote a better one himself in minutes ("You don't need an agent sandbox"). The founder approved the first eight points; the ninth comes from research on LLM judges.
 
 1. **Code has a judge, copy doesn't.** Coding got good through training on verifiable rewards: the tests pass or they don't. Copy has no such reward, so how an agent writes is a side effect of the rest of its training. It is the same at work time: a test fails, a screenshot looks wrong, and the agent fixes it on its own. A title has no failing test, so the agent stops at "accurate and complete", which is not the same as "a stranger would click".
 2. **It predicts the likely next words.** Good copy is surprising, and surprising means unlikely. Left alone, an agent drifts to the average of all marketing copy, which is bland.
@@ -27,14 +27,14 @@ An agent explained its own copy failures after a founder rejected its landing pa
 
 ## The process
 
-Inkling is the whole process from the brief to the shipped text. In steps 1 to 4 you and your agent write files: the goal, the reader tests and the draft. Steps 5 to 8 are checks your agent runs, and each one passes or names the line to fix.
+Inkling is the whole process from the brief to the shipped text. In steps 1 to 4 you and your agent write files: the goal, the reader tests and the draft. Steps 5 to 8 are checks your agent runs, and each one passes or names the line to fix. For a quick pass of about 5 minutes, you skip the reader panel and the clean-eyes read.
 
 1. **Set the goal.** Write the one claim the piece has to land and who reads it: from where, knowing what, deciding what. See [goal and audience](docs/steps/1-goal.md).
 2. **Write the reader tests first.** Before any draft, a readers file names the readers, what they know before reading, and what each must take away. See [reader tests](docs/steps/2-reader-tests.md).
 3. **Pick a time budget.** Quick (about 5 min), standard (about 15 min) or deep (30 to 60 min). When the time runs out, you ship the best version so far with a list of what is still open. See [budget](docs/steps/3-budget.md).
 4. **Draft.** Write against the [lessons](docs/lessons.md) the rules came from. See [draft](docs/steps/4-draft.md).
 5. **Lint.** `inkling check` flags the shapes reviewers rejected, with file, line, reason and fix, in under a second. See [lint](docs/steps/5-lint.md).
-6. **Judge.** `inkling judge` asks Jev, a small decision model, one yes or no question per rule and line, for the shapes a pattern cannot see. See [judge](docs/steps/6-judge.md).
+6. **Judge.** `inkling judge` asks a small paid model, Jev, one yes or no question per rule and line, for the shapes a pattern cannot see. It needs an API key and costs about 0.0003 USD per paragraph; without a key the step is skipped. See [judge](docs/steps/6-judge.md).
 7. **Run the reader panel.** Simulated readers read the draft and say what they would do next and where they would stop. In later rounds they compare the old and new versions without knowing which is which. See [panel](docs/steps/7-panel.md).
 8. **Check with clean eyes and ship.** Fresh readers read the result once. When the core expectations pass, you stop editing, and what readers still asked goes into the topic's lessons for the next piece. See [ship](docs/steps/8-ship.md).
 
