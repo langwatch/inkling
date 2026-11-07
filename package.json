@@ -1,0 +1,18 @@
+{
+  "name": "proof",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A test suite for writing: deterministic lints, a rule judge and reader tests that fail a draft the way tests fail code.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "bin": {
+    "proof": "./bin/proof.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "proof": "node bin/proof.mjs"
+  }
+}
