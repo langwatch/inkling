@@ -1,0 +1,19 @@
+# Written before the draft was tested.
+personas:
+  - id: engineer
+    view: full
+    background: >
+      A senior engineer who builds agents and reads Hacker News.
+  - id: skimmer
+    view: skim
+    background: An engineer scrolling between meetings.
+expectations:
+  - id: what_is_it
+    expect: The reader can say in one line what is offered.
+  - id: next_action
+    expect: The reader names a next action.
+    applies_to: [engineer]
+  - id: no_hedge_headline
+    expect: Headings carry no hedge words.
+    forbid: '\b(almost|mostly|maybe|probably)\b'
+    scope: [title, headings]
