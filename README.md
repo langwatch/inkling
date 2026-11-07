@@ -1,24 +1,49 @@
 <p align="center">
-  <img src="docs/brand/proof-icon.png" width="180" alt="proof's icon: a plush sloth holding a red pen over a sheet of paper with a green tick, a yellow PROOF tag stitched to the page">
+  <img src="docs/brand/inkling-icon.png" width="180" alt="Inkling's icon: a plush sloth at a small wooden desk writing with a dip pen beside a blue inkwell, a yellow INKLING tag stitched to the desk">
 </p>
 
-<h1 align="center">proof</h1>
+<h1 align="center">Inkling</h1>
 
 <p align="center">
-  a test suite for writing.<br>
-  lints with a file and line for every finding, a judge for the shapes a regex misses, and simulated readers who say where they would stop.
+  Inkling: content writing framework for agents.
 </p>
 
-code has tests: it passes or it fails, and the failure says where. writing has a reviewer who sends the draft back. proof turns the reviews into checks, so the same comment does not have to be made twice.
+Agents are great at writing code now, but still terrible at copy. This framework gets you and your agent to treat writing text like writing code: which tests can validate it? What would the audience reading it think? What is the goal we are trying to convey?
 
-it runs on any markdown or text file: docs, posts, landing copy, slides, order forms, investor updates and posts on X.
+## Why agents write bad copy
 
-## what it catches
+An agent explained its own copy failures after a founder rejected its landing page titles over and over and then wrote a better one himself in minutes ("You don't need an agent sandbox"). The founder approved the first eight points; the ninth comes from research on LLM judges.
 
-here are titles for one landing page, written for founders who just searched for "agent sandbox". a reviewer rejected the first three and wrote the last one.
+1. **Code has a judge, copy doesn't.** Coding got good through training on verifiable rewards: the tests pass or they don't. Copy has no such reward, so how an agent writes is a side effect of the rest of its training. It is the same at work time: a test fails, a screenshot looks wrong, and the agent fixes it on its own. A title has no failing test, so the agent stops at "accurate and complete", which is not the same as "a stranger would click".
+2. **It predicts the likely next words.** Good copy is surprising, and surprising means unlikely. Left alone, an agent drifts to the average of all marketing copy, which is bland.
+3. **Training rewarded being fair and safe.** So the agent concedes ("a sandbox runs your agent"), adds balance and hedges. An ad has to take a side, and that cuts against the habit.
+4. **It writes from its own side.** Theory of mind is there, but the agent doesn't switch it on unless the task forces it. Its context is full of design records and features, so it writes about what was built, while a person starts from someone typing "agent sandbox" into Google and asks what would stop them.
+5. **It learned "punchy" as shapes.** It reaches for "X does A. Y does B." and "not X, but Y" over and over, where people learn punchy from other people reacting.
+6. **It fits everything in.** A good title cuts to one claim. "You don't need an agent sandbox" works because it says one thing the searcher didn't expect.
+7. **It writes from the middle of the thread.** The reader has none of that context, so the first line has to tell a newcomer where they are and why they should care.
+8. **It picks one mind for every audience.** The audience picks the mind, often more than one: seller and engineer for a brochure on a technical product, lawyer for an order form, investor for a pitch deck.
+
+9. **Model judges prefer model text.** Ask a model which version is better, and it picks the model's. A Meta FAIR study found pairwise LLM judges preferred model-written sections of papers over the expert human originals in 63.5% to 84.6% of cases, so a judge counts as a test only after it agrees with real human verdicts.
+
+## The process
+
+Inkling is the whole process from the brief to the shipped text. In steps 1 to 4 you and your agent write files: the goal, the reader tests and the draft. Steps 5 to 8 are checks your agent runs, and each one passes or names the line to fix.
+
+1. **Set the goal.** Write the one claim the piece has to land and who reads it: from where, knowing what, deciding what. See [goal and audience](docs/steps/1-goal.md).
+2. **Write the reader tests first.** Before any draft, a readers file names the readers, what they know before reading, and what each must take away. See [reader tests](docs/steps/2-reader-tests.md).
+3. **Pick a time budget.** Quick (about 5 min), standard (about 15 min) or deep (30 to 60 min). When the time runs out, you ship the best version so far with a list of what is still open. See [budget](docs/steps/3-budget.md).
+4. **Draft.** Write against the [lessons](docs/lessons.md) the rules came from. See [draft](docs/steps/4-draft.md).
+5. **Lint.** `inkling check` flags the shapes reviewers rejected, with file, line, reason and fix, in under a second. See [lint](docs/steps/5-lint.md).
+6. **Judge.** `inkling judge` asks Jev, a small decision model, one yes or no question per rule and line, for the shapes a pattern cannot see. See [judge](docs/steps/6-judge.md).
+7. **Run the reader panel.** Simulated readers read the draft and say what they would do next and where they would stop. In later rounds they compare the old and new versions without knowing which is which. See [panel](docs/steps/7-panel.md).
+8. **Check with clean eyes and ship.** Fresh readers read the result once. When the core expectations pass, you stop editing, and what readers still asked goes into the topic's lessons for the next piece. See [ship](docs/steps/8-ship.md).
+
+## An example run
+
+These are the four titles from the story above. A reviewer rejected the first three:
 
 ```sh
-proof check examples/sandbox-titles/titles.md --mode ads \
+inkling check examples/sandbox-titles/titles.md --mode ads \
   --audience "founders who just searched for an agent sandbox, deciding whether to click"
 ```
 
@@ -27,6 +52,11 @@ examples/sandbox-titles/titles.md:1:3  contrast/mirrored-pair
   > A sandbox runs your agent. Laze puts it to work for your team
   why: "X does A. Y does B." mirrored pair: one idea dressed as two.
   fix: Keep the one claim the reader did not expect.
+
+examples/sandbox-titles/titles.md:1:3  pitch/crammed-headline
+  > A sandbox runs your agent. Laze puts it to work for your team
+  why: Headline crams more than one claim. 13 words.
+  fix: Cut to the one claim this reader did not expect.
 
 examples/sandbox-titles/titles.md:3:14  contrast/doesnt-need-needs
   > Your agent doesn't need a sandbox. It needs a team.
@@ -41,101 +71,38 @@ examples/sandbox-titles/titles.md:5:24  numbers/number-in-title
 4 findings from 4 rules.
 ```
 
-"You don't need an agent sandbox" gets no finding. the full output, with the rule sources, is in [examples/sandbox-titles/output.txt](examples/sandbox-titles/output.txt); the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).
+The fourth title, "You don't need an agent sandbox", gets no finding. The full output is in [output.txt](examples/sandbox-titles/output.txt), and the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).
 
-## install
+## Install
 
 ```sh
-git clone https://github.com/langwatch/proof && cd proof
+git clone https://github.com/langwatch/inkling && cd inkling
 npm link
-proof check README.md --mode docs
+inkling check README.md --mode docs
 ```
 
-needs node 22 or newer and nothing else: no dependencies. the Jev judge needs python 3 and a Jev key. the reader tests need a Claude subscription, through Claude Code subagents or `claude -p`.
+It needs Node 22 or newer and has no dependencies. The judge step needs Python 3 and a Jev key. The reader panel needs a Claude subscription, through Claude Code subagents or `claude -p`; it refuses to run on a paid API key.
 
-## the layers
+## Reference
 
-each layer catches what the one before it cannot see, and costs more.
+Each step, its command, what it costs and how long it takes:
 
-| layer | command | what it does | cost | time |
-| --- | --- | --- | --- | --- |
-| (a) lints | `proof check` | 90 rules in 12 families: banned words, negation, hedges, contrast formulas, number openers, em dashes, docs and slide rules | free | under a second |
-| (b) rule judge | `proof judge` | Jev answers one yes or no question per rule and line; fails on any named flag over its threshold | about 0.0003 USD a paragraph | under a minute |
-| (c) preference | `proof prefer` | a judge picks between two lines for one brief, in both orders. advisory until calibrated | subscription | a few minutes |
-| (d) surprise | design only | does the piece say something the reader did not expect | | |
-| (e) readers | `proof readers` | strangers with a context read the draft and say what they would do next and where they would stop | subscription | 5 min a round |
-| (f) modes | `--mode`, `--audience` | presets for the kind of writing; the audience is free text | | |
-| (g) images | docs | the prompt pattern behind approved images | one image model call per candidate | about a minute |
+| Step | Command | Cost | Time |
+| --- | --- | --- | --- |
+| Lint | `inkling check <files> --mode <mode> --audience "<who reads>"` | free | under a second |
+| Judge | `inkling judge <file> --mode <mode> --audience "<who reads>"` | about 0.0003 USD a paragraph | under a minute |
+| Reader panel | `inkling readers panel start\|round\|status\|stop`, `inkling readers grade` | Claude subscription | about 5 min a round |
+| Clean eyes | `inkling readers holdout` | Claude subscription | about 4 min |
+| Budget | `inkling plan --budget quick\|standard\|deep --mode <mode>` | free | |
+| Calibration | `inkling calibrate <mode>`, `inkling eval <labelled.jsonl>` | free | seconds |
 
-the times are first estimates. `proof timings` prints what real runs took.
+The times are first estimates; `inkling timings` prints what real runs took.
 
-## pick a budget first
+- **Rules.** The lint step has 95 rules in 13 families, from banned words and contrast formulas to slogans, docs and slide rules. Each rule is data with a source and a failing and a passing example, and the examples run as tests. See [lint](docs/steps/5-lint.md) to add one.
+- **Modes.** `docs`, `post`, `ads`, `deck`, `legal`, `investor` and `x` choose which rules apply and the paragraph limit. They are presets; the audience is free text.
+- **Calibration.** A check fails drafts only after it passed on lines a person already judged. See [calibration](docs/reference/calibration.md).
+- **More.** [Preference judge](docs/reference/preference.md), [surprise](docs/reference/surprise.md), [images](docs/reference/images.md), [known false positives](docs/reference/known-false-positives.md), [origin](docs/origin.md), [the self-check](docs/dogfood.md), [roadmap](docs/roadmap.md), [credits](docs/credits.md), and research on [judge bias](docs/research/judge-bias.md) and [surprise](docs/research/surprise.md).
 
-```sh
-proof plan --budget standard --mode post --out runs/launch
-```
+## Status
 
-quick (about 5 min) runs the lints and Jev. standard (about 15 min) adds one panel read, one fix and a clean-eyes check. deep (30 to 60 min) adds up to two rounds where the panel compares old and new. when the time runs out, proof stops at the best version so far and lists what is still open. quick is allowed only for a mode whose lints passed on its reference set; see [docs/budgets.md](docs/budgets.md) and [docs/calibration.md](docs/calibration.md).
-
-## readers
-
-write the test before the draft: who reads, where they come from, what they must take away.
-
-```yaml
-context:
-  author: a two-person startup that builds a team workspace for AI agents
-  arrived_from: a link in a Hacker News comment
-personas:
-  - id: engineer
-    background: A senior engineer who builds agents and reads Hacker News.
-expectations:
-  - id: what_is_it
-    core: true
-    expect: The reader can say in one line what is offered.
-```
-
-```sh
-proof readers panel start draft.md draft.readers.yaml --out runs/launch
-```
-
-proof writes one prompt per reader. your agent runs each as a fresh subagent and saves the reply, and `proof readers grade` checks the replies. in later rounds the same readers see the old and new versions as an unlabelled A and B in random order, so a change has to read better to win. edits shrink each round, from sections to paragraphs to lines. a fresh panel reads the result once at the end.
-
-the readers stay real by three rules:
-
-- **subscription only.** reader tests and the preference judge refuse to start when a paid API key or base URL is set. Jev is the only paid call.
-- **busy, generous readers.** each reader is told who wrote it and where they came from. no question asks for doubts; a reader primed to find faults always finds some.
-- **stop when core passes.** the report says "core expectations pass: stop editing". more rounds past that push copy back toward the average.
-
-## modes
-
-`docs`, `post`, `ads`, `deck`, `legal`, `investor` and `x` set which rules apply and the paragraph limit. they are presets, not audiences: the audience is free text, one line on who reads, from where, knowing what, deciding what. see [docs/layers/f-modes.md](docs/layers/f-modes.md).
-
-## add a rule
-
-a rule is a few lines of data in `rules/<family>.mjs`: an id, a pattern or a check function, the message, the fix, the source, and a failing and a passing example. the examples run as tests.
-
-```js
-{
-  id: "free-cta",
-  modes: ["ads", "deck"],
-  pattern: /\b(?:sign up|start|try(?: it)?|get started|join)\s+(?:for\s+)?free\b/i,
-  message: "\"for free\" on a call to action reads as a gimmick to developers.",
-  fix: "Say the action alone: \"Sign up\", \"Start\". Put the free plan on the pricing page.",
-  source: "Founder note 2026-09-13 on README buttons",
-  examples: { fail: [{ text: "Sign up for free", mode: "ads" }], pass: [{ text: "Sign up", mode: "ads" }] },
-}
-```
-
-then add the rejected line to `calibration/regression.jsonl` and run `proof eval calibration/regression.jsonl` to see what it catches and what it wrongly flags. when a shape needs judgement, write it as a Jev question and quote a real fragment of the failing shape in it: Jev matches quoted examples literally. see [docs/layers/a-lints.md](docs/layers/a-lints.md).
-
-## docs
-
-- a page per layer: [lints](docs/layers/a-lints.md), [rule judge](docs/layers/b-rule-judge.md), [preference](docs/layers/c-preference.md), [surprise](docs/layers/d-surprise.md), [readers](docs/layers/e-readers.md), [modes](docs/layers/f-modes.md), [images](docs/layers/g-images.md)
-- [budgets](docs/budgets.md) and [calibration](docs/calibration.md)
-- [origin](docs/origin.md): why proof exists, and [lessons](docs/lessons.md): the review notes the rules came from
-- [known false positives](docs/known-false-positives.md), [the self-check](docs/dogfood.md), [roadmap](docs/roadmap.md), [credits](docs/credits.md)
-- research by the research helper: [judge bias](docs/research/judge-bias.md), [surprise](docs/research/surprise.md)
-
-## status
-
-the lints, the Jev judge, the reader tests, budgets and calibration work and have tests (`npm test`). the preference judge is advisory until its pair set reaches 30 held-out pairs. surprise is a design with a prototype. no mode is calibrated yet: the reference sets are being filled.
+The lint, judge, reader panel, budgets and calibration steps work and have tests (`npm test`). The preference judge is advisory until its pair set reaches 30 held-out pairs. Surprise is a design with a prototype. No mode is calibrated yet, so `inkling plan` refuses the quick budget until the first reference set passes.

@@ -1,4 +1,4 @@
-// Layer (e): reader tests. The writer writes the readers file first (personas, questions,
+// Reader tests and the panel. The writer writes the readers file first (personas, questions,
 // expectations), then zero-context readers answer and a grader checks the answers.
 // Two backends, both on a Claude subscription: fresh subagents of the calling agent
 // (`prompts` then `grade`), or `claude -p` with an isolated config (`run`).
@@ -22,7 +22,7 @@ export const DEFAULT_QUESTIONS = [
 export const DOUBT_CLASSES = {
   trust_breaking: "it would make this reader stop or leave: they stop believing the authors, read it as an ad pretending to be something else, or lose the thread",
   skepticism: "normal skepticism: wants more data or asks how something was measured, and keeps reading",
-  content_gap: "a question only evidence we do not have yet would answer (a benchmark, a customer number, a public proof)",
+  content_gap: "a question only evidence we do not have yet would answer (a benchmark, a customer number, a public inkling)",
 };
 
 const READER_RULES = `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. Read the way this person really reads: busy, mostly generous, with the attention described, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
@@ -248,8 +248,8 @@ export function writePrompts({ draft, readersFile, out }) {
 
 /** The claude -p backend: answer and judge every prompt in a run directory. */
 export function runWithClaude({ out, reader = "sonnet", judge = "opus" }) {
-  if (!hasClaudeLogin()) throw new Error("no claude login found for claude -p; use the subagent backend: proof readers prompts, then proof readers grade");
-  const base = join(homedir(), ".cache", "proof");
+  if (!hasClaudeLogin()) throw new Error("no claude login found for claude -p; use the subagent backend: inkling readers prompts, then inkling readers grade");
+  const base = join(homedir(), ".cache", "inkling");
   mkdirSync(base, { recursive: true });
   const workdir = mkdtempSync(join(base, "run-"));
   try {

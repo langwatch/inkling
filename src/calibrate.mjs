@@ -1,5 +1,5 @@
 // Calibration: run the lints on lines a person approved or rejected, and report recall and false
-// positives per rule. A mode is calibrated once proof passes on its reference set; until then the
+// positives per rule. A mode is calibrated once inkling passes on its reference set; until then the
 // quick budget refuses it, because a quick pass trusts the lints alone.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -92,7 +92,7 @@ export function calibrate({ mode, dir = MODES_DIR }) {
 export function uncalibrated(mode, dir = MODES_DIR) {
   const f = calibrationFile(mode, dir);
   if (!existsSync(join(dir, mode))) return `mode ${mode} has no reference set yet (modes/${mode}/)`;
-  if (!existsSync(f)) return `mode ${mode} was never calibrated: run proof calibrate ${mode}`;
+  if (!existsSync(f)) return `mode ${mode} was never calibrated: run inkling calibrate ${mode}`;
   const c = JSON.parse(readFileSync(f, "utf8"));
   return c.pass ? null : `mode ${mode} is below the calibration bar: ${c.why.join("; ")}`;
 }

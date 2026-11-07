@@ -1,4 +1,4 @@
-// `proof check`: layer (a), the deterministic lints.
+// `inkling check`: the lint step, deterministic rules.
 import { readFileSync, statSync, readdirSync } from "node:fs";
 import { join, extname } from "node:path";
 import { lint } from "./engine.mjs";
@@ -50,7 +50,7 @@ export function runCheck({ paths, mode, audience, house, only, skip, json, stdin
   if (json) {
     process.stdout.write(JSON.stringify({ mode, audience, findings: all }, null, 1) + "\n");
   } else {
-    const head = `proof check: ${files.length} file${files.length === 1 ? "" : "s"}, mode ${mode ?? "auto"} (${mode ? MODES[mode].label : ".mdx is docs, the rest post"})` +
+    const head = `inkling check: ${files.length} file${files.length === 1 ? "" : "s"}, mode ${mode ?? "auto"} (${mode ? MODES[mode].label : ".mdx is docs, the rest post"})` +
       (audience ? `\naudience: ${audience}` : "");
     const out = [head, ""];
     if (all.length) out.push(format(all, { color }), "");

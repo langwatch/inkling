@@ -1,26 +1,26 @@
-# Layer (b): rule judge
+# Judge
 
-`proof judge` asks Jev, the decision model from TypeSafe, one yes or no question per rule and per paragraph or line, and fails the draft when a named flag scores over its threshold. It catches the shapes a regex cannot see: a negation reframe written in new words, a staccato run, a narrator sentence with no fixed phrase.
+`inkling judge` asks Jev, the decision model from TypeSafe, one yes or no question per rule and per paragraph or line, and fails the draft when a named flag scores over its threshold. It catches the shapes a regex cannot see: a negation reframe written in new words, a staccato run, a narrator sentence with no fixed phrase.
 
 ```sh
 export TYPESAFE_API_KEY=...        # or JEV_SLOP_API_KEY
-proof judge draft.md --mode post --audience "engineers on Hacker News" --context "a two-person startup, linked from a comment"
-proof judge titles.md --mode ads --audience "founders who searched for an agent sandbox"
+inkling judge draft.md --mode post --audience "engineers on Hacker News" --context "a two-person startup, linked from a comment"
+inkling judge titles.md --mode ads --audience "founders who searched for an agent sandbox"
 ```
 
-Without a key, `proof judge` prints that it skipped and exits 0. Layer (a) needs no key.
+Without a key, `inkling judge` prints that it skipped and exits 0. The lint step needs no key.
 
 ## What it runs
 
-`judges/jev/jev_slop_v2.py` is a copy of the Content agent's `jev-slop` tool (credits in [credits.md](../credits.md)). proof calls it with `--checks jev`, so every question goes to Jev and no other model:
+`judges/jev/jev_slop_v2.py` is a copy of the Content agent's `jev-slop` tool (credits in [credits.md](../credits.md)). Inkling calls it with `--checks jev`, so every question goes to Jev and no other model:
 
 - `--mode ads`, `--mode deck` and `--mode x` turn on copy checks, one flag per point of the analysis in [origin.md](../origin.md): unsurprising, concedes or hedges, writer side, formula shape, crammed claims, wrong register.
 - `--mode docs` adds the docs questions: indefinite event openers, artifacts with thinking verbs, statement stacks.
-- `--audience` and `--context` are joined and passed as the reader Jev judges as. The same line passes for the reader it was written for and fails for a lawyer or a VC.
+- `--audience` and `--context` are joined and passed as the reader Jev judges as. A line can pass for the reader it was written for and fail for a lawyer or an investor, because questions such as wrong register are judged against that reader.
 
-## Cost and trust
+## Cost and accuracy
 
-Jev costs 0.042 USD per million input tokens, about 0.0003 USD per paragraph. It is the only paid call in proof.
+Jev costs 0.042 USD per million input tokens, about 0.0003 USD per paragraph. It is the only paid call in inkling.
 
 What the Content agent measured on its labelled sets:
 
@@ -35,9 +35,7 @@ What the Content agent measured on its labelled sets:
 
 Drafts pass only when no named flag is over its threshold: 0.7 by default, 0.75 for `unsurprising` and `writer_side`, 0.8 for `wrong_register`. There is no 0 to 10 score gate; one bad line fails the draft however clean the rest is. Tic questions stay advisory.
 
-Scores drift by about 0.03 between runs.
-
-When any score lands within 0.05 of its threshold, proof runs Jev a second time. If both runs agree, the verdict stands; if one run is over and the other under, the flag is reported as advisory and does not fail the draft.
+Scores drift by about 0.03 between runs, so when any score lands within 0.05 of its threshold, Inkling runs Jev a second time. If both runs agree, the verdict stands; if one run is over and the other under, the flag is reported as advisory and does not fail the draft.
 
 A real run on [the sandbox titles](../../examples/sandbox-titles/judge-output.txt) shows both cases: eight flags over threshold on the three rejected titles, one split on "Dashboards come with 77 ready-made questions" (0.75, then 0.73), and no flag on "You don't need an agent sandbox".
 

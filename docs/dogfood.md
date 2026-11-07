@@ -1,47 +1,57 @@
 # The self-check
 
-proof checks its own README and docs. This page records what it found on 7 November 2026 and what changed.
+Inkling checks its own README and docs with its own lint step, and a person reads every line against the LangWatch writing guides by hand. This page records both passes from 7 November 2026.
 
 ```sh
-proof check README.md docs/*.md docs/layers modes/x/README.md --mode docs
+inkling check README.md docs/*.md docs/steps docs/reference modes/x/README.md --mode docs
 ```
 
-## First run: 33 findings from 12 rules
+## What the lints missed
 
-The README draft and the new pages on budgets and calibration had findings, and these were real:
+The first README opened with "Fail your copy before your readers do". It passed every rule, and a reviewer rejected it on sight as a slogan. The README also opened with regexes and rule counts, which framed Inkling as a testing tool instead of a writing process.
 
-- **Number openers.** "four titles for the same landing page", "three rules keep the readers real", "One JSON object per line". Rewritten to lead with the subject.
-- **A contrast closer.** "so a change wins only when it reads better, not because it is new" became "so a change has to read better to win".
-- **Hedges.** "A reader shown a changed text tends to praise the change" became "is primed to praise the change".
-- **Long paragraphs.** Paragraphs over the 80-word docs limit were split.
-- **Quoted shapes.** The rewrite table quoted "not X, but Y" in single quotes, so the contrast and softener rules read it as a use. Double quotes mark it as a mention.
+The review led to two fixes. The slogan family now flags taglines, twist imperatives, chiasmus and clipped fragments, with "Fail your copy before your readers do" as a failing example. And the docs now follow the writing process from goal to ship, with the technical reference last.
 
-Some were false positives, listed in [known-false-positives.md](known-false-positives.md). A false positive also led to a rule fix: `casual-hedge` fired on "presets for the kind of writing", and now skips "kind of" after a determiner, with that line as a passing example.
+## Lint pass on the rewrite
 
-## After the fixes
+The rewritten pages had seven real findings:
+
+- "keeps the draft honest" (a banned word) and "tends to describe the draft" (a modal hedge) in the reader tests page.
+- "The ones that catch most drafts" and "does most of the work" (vague majorities) in the draft page.
+- "95 rules in 13 families" opening a sentence (a number opener) in the README.
+- "The reader is the subject." in the lessons (the new slogan rule: an equation tagline).
+- "the prompt decides what you get" (an artifact with a thinking verb) in the draft page.
+
+An eighth finding was inside a quoted image prompt, which is a mention, so that block has an ignore comment with the reason.
+
+## Hand pass against the guides
+
+The guides cover what no pattern sees: who the subject of a sentence is, whether a claim can be checked, and whether a page says each thing once. The hand pass changed, among others:
+
+- Every page with an abstraction as the actor ("Later steps hand the draft", "Time budgets decide", "The last step checks... then ships") now has a person or a component as the subject.
+- A claim in the README that every step has a command was false for the first four steps, so the README now splits them into files you write and checks your agent runs.
+- Timings, topics and the clean-eyes round each live on one page, linked from the others.
+- A private remark about a person's older posts was removed from the preference page.
+- The product name has one display form: Inkling in prose, `inkling` in code.
+
+## After both passes
 
 ```text
-proof check: 17 files, mode docs (product documentation: strictly technical, short paragraphs, no voice)
+inkling check: 20 files, mode docs (product documentation: strictly technical, short paragraphs, no voice)
 
 clean: no findings.
 ```
 
-## The research notes
-
-`docs/research/` belongs to the research helper and is left as written.
-
-proof finds 12 findings from 7 rules there: number openers on list lead-ins ("Two lessons."), "mostly" as a softener, "most" as an adverb, a rejected title quoted as an example, "Surprise is a property of the claim, not the tokens", and a minus sign in a formula.
-
-The quoted title and the formula are false positives; the rest are the house style of a research note, which the docs mode is stricter than.
+`docs/research/` belongs to the research helper and is left as written. It has 12 findings from 7 rules: number openers on list lead-ins, "mostly" as a softener, and two false positives listed in [known false positives](reference/known-false-positives.md).
 
 ## Regression set
 
 ```sh
-proof eval calibration/regression.jsonl
+inkling eval calibration/regression.jsonl
 ```
 
 ```text
 approved 6, rejected 7: recall 86% (6/7), false positives 0/6
 ```
 
-The one miss is "They ask in plain words.", rejected as vague. No regex sees vagueness; it is a question for the Jev judge or the readers.
+The one miss is "They ask in plain words.", rejected as vague. No regex sees vagueness, so that line is a question for the judge step or the reader panel.

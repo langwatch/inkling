@@ -10,7 +10,7 @@ const LIST_ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const TABLE_ROW = /^\s*\|.*\|\s*$/;
 const TABLE_SEP = /^\s*\|?[\s:|-]+\|?\s*$/;
 const QUOTE = /^(\s*>\s?)(.*)$/;
-const IGNORE = /<!--\s*proof-ignore(-file)?\s+([^:>]*?)\s*(?::[^>]*)?-->/;
+const IGNORE = /<!--\s*inkling-ignore(-file)?\s+([^:>]*?)\s*(?::[^>]*)?-->/;
 const ABBREVIATIONS = new Set(["e.g", "i.e", "etc", "vs", "mr", "mrs", "dr", "no", "fig", "cf", "approx"]);
 
 /** Replace a span with spaces, keeping newlines so line mapping still works. */

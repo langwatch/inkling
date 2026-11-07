@@ -14,7 +14,7 @@ test("seed pairs load and carry a split", () => {
 });
 
 test("both orders are emitted, few-shot from the train split", () => {
-  const out = mkdtempSync(join(tmpdir(), "proof-prefer-"));
+  const out = mkdtempSync(join(tmpdir(), "inkling-prefer-"));
   const prompts = writePreferPrompts({ file, out });
   assert.deepEqual(prompts.map((p) => p.split("/").pop()), ["c1.ab.prompt.md", "c1.ba.prompt.md"]);
   const ab = readFileSync(prompts[0], "utf8");
@@ -26,7 +26,7 @@ test("both orders are emitted, few-shot from the train split", () => {
 });
 
 test("agreeing orders pick a winner, disagreeing orders tie", () => {
-  const out = mkdtempSync(join(tmpdir(), "proof-prefer-"));
+  const out = mkdtempSync(join(tmpdir(), "inkling-prefer-"));
   writePreferPrompts({ file, out });
   assert.equal(gradePrefer(out).pending.length, 2);
   writeFileSync(join(out, "c1.ab.verdict.json"), '{"winner": "A", "reason": "the reader moment"}');

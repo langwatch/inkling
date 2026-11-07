@@ -1,4 +1,4 @@
-// Layer (c): preference judge, advisory. Compares two candidate lines for one brief and one
+// The preference judge, advisory. Compares two candidate lines for one brief and one
 // audience, judged in both orders by a reader simulator that predicts the owner's reaction,
 // few-shot on approved and rejected pairs. Subscription only. docs/layers/c-preference.md
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
@@ -83,7 +83,7 @@ export function gradePrefer(dir) {
     const verdict = winAb === winBa ? `prefers ${JSON.stringify(c.candidates[winAb])}` : "tie (the two orders disagree)";
     lines.push(`- ${c.id}: ${verdict}`, `  ab: ${ab.reason}`, `  ba: ${ba.reason}`);
   }
-  lines.push("", "Advisory: layer (c) never fails a draft until calibration passes (docs/layers/c-preference.md).");
+  lines.push("", "Advisory: the preference judge never fails a draft until calibration passes (docs/reference/preference.md).");
   const report = lines.join("\n") + "\n";
   writeFileSync(join(dir, "report.md"), report);
   return { report };

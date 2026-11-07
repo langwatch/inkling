@@ -1,5 +1,5 @@
-$ proof judge titles.txt --mode ads --audience "founders who just searched agent sandbox, deciding whether to click"
-proof judge: Jev, mode ads; reran for 1 score(s) within 0.05 of a threshold
+$ inkling judge titles.txt --mode ads --audience "founders who just searched agent sandbox, deciding whether to click"
+inkling judge: Jev, mode ads; reran for 1 score(s) within 0.05 of a threshold
 
 line 1  jev/unsurprising  0.86 (threshold 0.75)
   > A sandbox runs your agent. Laze puts it to work for your team

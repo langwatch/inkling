@@ -1,11 +1,11 @@
-# Layer (a): lints
+# Lint
 
-`proof check` runs deterministic rules over markdown and prints each finding with its position, the rule id, why the rule exists, the fix and where the rule came from. It makes no network calls and exits 1 on any finding, so it fits in CI and in an agent's edit loop.
+`inkling check` runs deterministic rules over markdown and prints each finding with its position, the rule id, why the rule exists, the fix and where the rule came from. It makes no network calls and exits 1 on any finding, so it fits in CI and in an agent's edit loop.
 
 ```sh
-proof check draft.md --mode post --audience "engineers on Hacker News who build agents"
-proof check docs/ --mode docs
-cat titles.md | proof check - --mode ads --json
+inkling check draft.md --mode post --audience "engineers on Hacker News who build agents"
+inkling check docs/ --mode docs
+cat titles.md | inkling check - --mode ads --json
 ```
 
 ## What it reads
@@ -15,10 +15,10 @@ The parser splits markdown into headings, paragraphs, list items, table cells an
 To skip one block on purpose, put a comment above it with the reason:
 
 ```md
-<!-- proof-ignore mannered-words: this paragraph quotes a rejected draft -->
+<!-- inkling-ignore mannered-words: this paragraph quotes a rejected draft -->
 ```
 
-`<!-- proof-ignore-file <rule or family> -->` turns a rule off for the whole file.
+`<!-- inkling-ignore-file <rule or family> -->` turns a rule off for the whole file.
 
 ## Rule families
 
@@ -35,9 +35,10 @@ To skip one block on purpose, put a comment above it with the reason:
 | docs | rollout flags, future tense, artifacts as subjects of thinking verbs, title rules |
 | deck | slide titles, bullet counts and lengths, prose on slides |
 | pitch | headlines from the writer's side, concessions, worry lines, crammed headlines, investor and legal precision |
+| slogan | taglines such as `Fail your copy before your readers do`, chiasmus, clipped fragments, `The X is the Y`, `more than a X` |
 | house-langwatch | LangWatch product names, only with `--house langwatch` |
 
-`proof rules --mode <mode>` lists every rule with its message.
+`inkling rules --mode <mode>` lists every rule with its message.
 
 ## How a rule is written
 
@@ -63,7 +64,7 @@ Every example runs as a unit test: `npm test` fails when a rule misses a fail ex
 1. Write the failing sentence a reviewer rejected, and its fixed version, as the rule's examples.
 2. Write the smallest pattern that flags the first and passes the second. Prefer a `check` function when a regex would need lookarounds to stay quiet.
 3. Name the source: the review, the guide section or the rejected line.
-4. Run `npm test`, then `proof check docs/ README.md --mode docs` to see what the new rule does to text that already passed.
-5. Add the rejected line and its approved fix to `calibration/regression.jsonl`, and run `proof eval calibration/regression.jsonl`. It prints, per rule, how many rejected lines it caught and how many approved lines it flagged. A rule gates only once it caught two or more rejected lines and flagged no approved one; until then it is advisory in the calibration report. See [calibration.md](../calibration.md).
+4. Run `npm test`, then `inkling check docs/ README.md --mode docs` to see what the new rule does to text that already passed.
+5. Add the rejected line and its approved fix to `calibration/regression.jsonl`, and run `inkling eval calibration/regression.jsonl`. It prints, per rule, how many rejected lines it caught and how many approved lines it flagged. A rule gates only once it caught two or more rejected lines and flagged no approved one; until then it is advisory in the calibration report. See [calibration](../reference/calibration.md).
 
-When a rule needs judgement a regex cannot give, write it as a question for layer (b) instead. Put a concrete fragment of the failing shape inside the question: Jev matches quoted examples literally, and quoting the fragment moved one question from 0.59 to 0.9 on the shape it was meant to catch.
+When a rule needs judgement a regex cannot give, write it as a question for the judge step instead. Put a concrete fragment of the failing shape inside the question: Jev matches quoted examples literally, and quoting the fragment moved one question from 0.59 to 0.9 on the shape it was meant to catch.

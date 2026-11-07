@@ -1,6 +1,6 @@
 # Mode x: posts and replies on X
 
-The `x` mode runs the copy rules (ads) and the post rules on a post, and reads its first line as the title. It stays uncalibrated, so `proof plan --budget quick --mode x` refuses, until `proof calibrate x` passes on the reference set in this folder.
+The `x` mode runs the copy rules (ads) and the post rules on a post, and reads its first line as the title. It stays uncalibrated, so `inkling plan --budget quick --mode x` refuses, until `inkling calibrate x` passes on the reference set in this folder.
 
 ## What goes in reference.jsonl
 
@@ -17,7 +17,7 @@ The set needs at least 20 approved and 10 rejected lines. Rules may flag at most
 
 ## Readers
 
-`readers.yaml` holds the venue readers: the scroller, the replier and the quote-tweeter. Copy it next to a draft, fill the `context` for that post, and run the panel.
+`readers.yaml` lists the venue readers: the scroller, the replier and the quote-tweeter. Copy it next to a draft, fill the `context` for that post, and run the panel.
 
 ## Status and plan
 
@@ -26,5 +26,5 @@ Status: uncalibrated. There is no map of viral posts and no reviewed tweets yet.
 1. The Content agent builds the map from public X posts in our space: top posts and their top replies, grouped by concept, with like counts.
 2. It drafts 20 to 30 candidate posts, and a reviewer gives each a yes or no with a one-line reason.
 3. Those verdicts, plus the mapped posts with 100 or more likes, become `reference.jsonl`.
-4. `proof calibrate x` runs; quick opens for x once it passes.
+4. Run `inkling calibrate x`. Once it passes, `inkling plan` accepts the quick budget for x.
 5. The readers get calibrated the same way: approved posts should pass the core expectations, rejected ones should not.

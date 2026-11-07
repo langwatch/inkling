@@ -1,5 +1,5 @@
 // Time budgets, run timings and topic memory.
-// The writer picks a budget up front; when it runs out, proof stops at the best version so far
+// The writer picks a budget up front; when it runs out, inkling stops at the best version so far
 // and lists what is still open. Estimates are initial and get recalibrated from timings.jsonl.
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, readdirSync, copyFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -32,7 +32,7 @@ export const BUDGETS = {
 };
 export const BUDGET_NAMES = Object.keys(BUDGETS);
 
-/** Initial per-layer estimates in minutes; `proof timings` shows how real runs compare. */
+/** Initial per-layer estimates in minutes; `inkling timings` shows how real runs compare. */
 export const ESTIMATES = { check: 0.1, judge: 1, "panel-round": 5, holdout: 4 };
 
 export function describeBudgets(chosen) {
@@ -110,7 +110,7 @@ export function topicInit({ topic, topicsDir, from }) {
   const p = topicPaths({ topic, topicsDir });
   mkdirSync(p.dir, { recursive: true });
   if (from) copyFileSync(from, p.readers);
-  if (!existsSync(p.lessons)) writeFileSync(p.lessons, `# Lessons: ${topic}\n\nWhat readers on this topic stopped at, and what fixed it. proof appends open items when a run stops.\n`);
+  if (!existsSync(p.lessons)) writeFileSync(p.lessons, `# Lessons: ${topic}\n\nWhat readers on this topic stopped at, and what fixed it. inkling appends open items when a run stops.\n`);
   return p;
 }
 

@@ -49,8 +49,8 @@ test("positions point at the match", () => {
   assert.equal(f.col, 8);
 });
 
-test("proof-ignore skips the next block for the named rule only", () => {
-  const text = "<!-- proof-ignore mannered-words: quoting the rule -->\nThe load-bearing part.\n\nThe load-bearing part.";
+test("inkling-ignore skips the next block for the named rule only", () => {
+  const text = "<!-- inkling-ignore mannered-words: quoting the rule -->\nThe load-bearing part.\n\nThe load-bearing part.";
   const found = lint({ text, mode: "post", rules });
   assert.equal(found.length, 1);
   assert.equal(found[0].line, 4);

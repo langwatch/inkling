@@ -1,6 +1,6 @@
-// Layer (b): Jev as a fast rule judge. Wraps the copied jev_slop_v2.py (judges/jev/), which asks
+// The judge step: Jev as a fast rule judge. Wraps the copied jev_slop_v2.py (judges/jev/), which asks
 // TypeSafe's Jev one yes/no question per banned shape, per paragraph or per line of copy.
-// Jev is the only paid call proof makes: about 0.0003 USD per paragraph.
+// Jev is the only paid call inkling makes: about 0.0003 USD per paragraph.
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -102,8 +102,8 @@ export function runJudge({ file, mode, audience, context, json, stdin }) {
   const key = jevKey();
   if (!key) {
     process.stderr.write(
-      "proof judge: skipped. Layer (b) needs a Jev key: set TYPESAFE_API_KEY or JEV_SLOP_API_KEY.\n" +
-        "Layer (a) needs no key: run proof check.\n",
+      "inkling judge: skipped. The judge step needs a Jev key: set TYPESAFE_API_KEY or JEV_SLOP_API_KEY.\n" +
+        "The lint step needs no key: run inkling check.\n",
     );
     return 0;
   }
@@ -116,6 +116,6 @@ export function runJudge({ file, mode, audience, context, json, stdin }) {
   if (two?.error) return two.error;
   const v = verdict(one.report, two?.report);
   if (json) process.stdout.write(JSON.stringify({ ...v, runs: [one.report, two?.report].filter(Boolean) }, null, 1) + "\n");
-  else process.stdout.write(`proof judge: Jev, mode ${mode}${near.length ? `; reran for ${near.length} score(s) within ${NEAR} of a threshold` : ""}\n\n` + formatVerdict(v));
+  else process.stdout.write(`inkling judge: Jev, mode ${mode}${near.length ? `; reran for ${near.length} score(s) within ${NEAR} of a threshold` : ""}\n\n` + formatVerdict(v));
   return v.pass ? 0 : 1;
 }

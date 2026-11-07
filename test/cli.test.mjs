@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { parseYaml } from "../src/yaml.mjs";
 import { judgeArgs } from "../src/judge.mjs";
 
-const bin = new URL("../bin/proof.mjs", import.meta.url).pathname;
+const bin = new URL("../bin/inkling.mjs", import.meta.url).pathname;
 const run = (args, input, env = {}) => spawnSync(process.execPath, [bin, ...args], { input, encoding: "utf8", env: { ...process.env, ...env } });
 
 test("check exits 1 with file:line, rule, why and fix", () => {

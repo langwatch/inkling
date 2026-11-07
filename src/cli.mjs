@@ -12,37 +12,37 @@ import { BUDGETS, BUDGET_NAMES, describeBudgets, startPlan, recordTiming, timing
 import { calibrate, evaluate, formatEval, readReference, uncalibrated } from "./calibrate.mjs";
 import { existsSync } from "node:fs";
 
-const USAGE = `proof: a test suite for writing
+const USAGE = `inkling: content writing framework for agents
 
-  proof check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
-      layer (a): deterministic lints with file:line, rule, why and fix; exit 1 on findings
-  proof judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--json]
-      layer (b): Jev rule judge; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
-  proof readers prompts <draft> <readers.yaml> --out <dir>
-  proof readers grade <dir>
-      layer (e), subagent backend: one prompt per persona, your agent runs each as a fresh
+  inkling check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
+      step 5, lint: deterministic rules with file:line, rule, why and fix; exit 1 on findings
+  inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--json]
+      step 6, judge: Jev; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
+  inkling readers prompts <draft> <readers.yaml> --out <dir>
+  inkling readers grade <dir>
+      step 7, reader panel, subagent backend: one prompt per persona, your agent runs each as a fresh
       subagent and saves <dir>/<persona>.answer.md; grade writes judge prompts the same way
-  proof readers run <draft> <readers.yaml> --out <dir> [--reader sonnet] [--judge opus]
-      layer (e), claude -p backend on the subscription, isolated config, tools off
-  proof readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]
-  proof readers panel round <run> [--draft <file>] [--force]
-  proof readers panel status|stop <run>
-  proof readers holdout <run> [--draft <file>]
+  inkling readers run <draft> <readers.yaml> --out <dir> [--reader sonnet] [--judge opus]
+      step 7, claude -p backend on the subscription, isolated config, tools off
+  inkling readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]
+  inkling readers panel round <run> [--draft <file>] [--force]
+  inkling readers panel status|stop <run>
+  inkling readers holdout <run> [--draft <file>]
       the default reader loop: a panel that stays across rounds, old and new shown as A/B,
       edits shrinking from sections to paragraphs to lines, then one clean-eyes holdout
-  proof plan --budget <quick|standard|deep> --mode <mode> [--out <run>] [--topic <topic>]
+  inkling plan --budget <quick|standard|deep> --mode <mode> [--out <run>] [--topic <topic>]
       pick a time budget up front; quick needs a calibrated mode
-  proof timings [<run dirs>...]        real minutes per layer against the estimates
-  proof calibrate <mode>               score the lints on modes/<mode>/reference.jsonl
-  proof eval <labelled.jsonl> [--mode <mode>]
+  inkling timings [<run dirs>...]        real minutes per layer against the estimates
+  inkling calibrate <mode>               score the lints on modes/<mode>/reference.jsonl
+  inkling eval <labelled.jsonl> [--mode <mode>]
                                        recall and false positives per rule on labelled lines
-  proof topic init <topic> --from <readers.yaml>
+  inkling topic init <topic> --from <readers.yaml>
       personas, expectations and lessons that carry over to the next piece on a topic
-  proof prefer prompts <comparisons.yaml> --out <dir>
-  proof prefer grade <dir>
-      layer (c), advisory: two lines for one brief, judged in both orders
-  proof rules [--mode <mode>]          list rules by family
-  proof modes                          list modes
+  inkling prefer prompts <comparisons.yaml> --out <dir>
+  inkling prefer grade <dir>
+      preference judge, advisory: two lines for one brief, judged in both orders
+  inkling rules [--mode <mode>]          list rules by family
+  inkling modes                          list modes
 
 modes: ${MODE_NAMES.join(", ")}. The audience is free text: who reads, from where, knowing what, deciding what.
 Reader tests and the preference judge run on a Claude subscription only and refuse to start when a paid
@@ -86,7 +86,7 @@ export function main(argv) {
     },
   });
   if (values.mode && !MODES[values.mode]) {
-    process.stderr.write(`proof: unknown mode ${values.mode}; one of ${MODE_NAMES.join(", ")}\n`);
+    process.stderr.write(`inkling: unknown mode ${values.mode}; one of ${MODE_NAMES.join(", ")}\n`);
     return 2;
   }
   switch (command) {
@@ -103,7 +103,7 @@ export function main(argv) {
         color: values.color ?? (process.stdout.isTTY && !process.env.NO_COLOR),
       }));
     case "judge":
-      if (!positionals[0]) return usage("proof judge needs a file or -");
+      if (!positionals[0]) return usage("inkling judge needs a file or -");
       return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin }));
     case "plan":
       return plan(values);
@@ -111,20 +111,20 @@ export function main(argv) {
       process.stdout.write(timingsSummary(positionals.length ? positionals : ["runs"]).text + "\n");
       return 0;
     case "calibrate": {
-      if (!positionals[0]) return usage("proof calibrate <mode>");
+      if (!positionals[0]) return usage("inkling calibrate <mode>");
       const r = calibrate({ mode: positionals[0] });
       process.stdout.write(`calibrate ${positionals[0]}: ` + formatEval(r));
       return r.pass ? 0 : 1;
     }
     case "eval": {
-      if (!positionals[0]) return usage("proof eval <labelled.jsonl> [--mode <mode>]");
+      if (!positionals[0]) return usage("inkling eval <labelled.jsonl> [--mode <mode>]");
       const r = evaluate({ items: readReference(positionals[0]), mode: values.mode ?? "post", house: values.house ?? [] });
       process.stdout.write(formatEval(r));
       return 0;
     }
     case "topic": {
       const [sub, topic] = positionals;
-      if (sub !== "init" || !topic) return usage("proof topic init <topic> --from <readers.yaml>");
+      if (sub !== "init" || !topic) return usage("inkling topic init <topic> --from <readers.yaml>");
       const p = topicInit({ topic, topicsDir: values["topics-dir"] ?? "topics", from: values.from });
       process.stdout.write(`topic ${topic}: ${p.readers}${existsSync(p.readers) ? "" : " (missing: pass --from)"}, ${p.lessons}\n`);
       return 0;
@@ -161,19 +161,19 @@ function timed(run, layer, fn) {
 
 function plan(values) {
   const budget = values.budget;
-  if (!budget || !BUDGETS[budget]) return usage(`proof plan --budget <${BUDGET_NAMES.join("|")}> --mode <mode>`);
-  if (!values.mode) return usage("proof plan needs --mode: quick is allowed only for a calibrated mode");
-  process.stdout.write(`budgets (estimates are initial; proof timings shows real runs):\n${describeBudgets(budget)}\n\n`);
+  if (!budget || !BUDGETS[budget]) return usage(`inkling plan --budget <${BUDGET_NAMES.join("|")}> --mode <mode>`);
+  if (!values.mode) return usage("inkling plan needs --mode: quick is allowed only for a calibrated mode");
+  process.stdout.write(`budgets (estimates are initial; inkling timings shows real runs):\n${describeBudgets(budget)}\n\n`);
   const why = budget === "quick" ? uncalibrated(values.mode) : null;
   if (why) {
-    process.stderr.write(`proof: quick needs a calibrated mode, and ${why}. Quick trusts the lints and Jev alone, which is safe only after they passed on the mode's reference set. Pick standard, or calibrate the mode first (modes/<mode>/README.md).\n`);
+    process.stderr.write(`inkling: quick needs a calibrated mode, and ${why}. Quick trusts the lints and Jev alone, which is safe only after they passed on the mode's reference set. Pick standard, or calibrate the mode first (modes/<mode>/README.md).\n`);
     return 2;
   }
   const topicsDir = values["topics-dir"] ?? "topics";
   if (values.topic) {
     const p = topicPaths({ topic: values.topic, topicsDir });
     if (existsSync(p.readers)) process.stdout.write(`topic ${values.topic}: readers from ${p.readers}\n`);
-    else process.stdout.write(`topic ${values.topic} is new: proof topic init ${values.topic} --from <readers.yaml> keeps the readers for next time\n`);
+    else process.stdout.write(`topic ${values.topic} is new: inkling topic init ${values.topic} --from <readers.yaml> keeps the readers for next time\n`);
     if (existsSync(p.lessons)) process.stdout.write(`lessons so far (${p.lessons}):\n${readFileSync(p.lessons, "utf8")}\n`);
   }
   if (values.out) {
@@ -181,7 +181,7 @@ function plan(values) {
     process.stdout.write(`plan saved in ${values.out}/plan.json; stop by ${new Date(p.deadline).toLocaleTimeString()}. Pass --run ${values.out} to check and judge so their time is recorded.\n`);
   }
   const b = BUDGETS[budget];
-  process.stdout.write(`steps: ${b.steps.join(" -> ")}\nwhen the time runs out: stop at the best version so far and list what is still open (proof readers panel stop <run>).\n`);
+  process.stdout.write(`steps: ${b.steps.join(" -> ")}\nwhen the time runs out: stop at the best version so far and list what is still open (inkling readers panel stop <run>).\n`);
   return 0;
 }
 
@@ -190,16 +190,16 @@ function panel([sub, ...pos], values) {
     if (sub === "start") {
       const [draft, file] = pos;
       const readersFile = file ?? (values.topic ? topicPaths({ topic: values.topic, topicsDir: values["topics-dir"] ?? "topics" }).readers : null);
-      if (!draft || !readersFile || !values.out) return usage("proof readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]");
+      if (!draft || !readersFile || !values.out) return usage("inkling readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]");
       const { prompts, next } = panelStart({ draft, readersFile, out: values.out });
-      process.stdout.write(pendingMessage(prompts, "reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run proof readers grade ${values.out}/round-1. Next edit may change whole ${next}.`));
+      process.stdout.write(pendingMessage(prompts, "reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade ${values.out}/round-1. Next edit may change whole ${next}.`));
       return 0;
     }
     if (sub === "round") {
-      if (!pos[0]) return usage("proof readers panel round <run> [--draft <file>] [--force]");
+      if (!pos[0]) return usage("inkling readers panel round <run> [--draft <file>] [--force]");
       const r = panelRound({ out: pos[0], draft: values.draft, force: values.force });
       if (r.refused) {
-        process.stderr.write(`proof: ${r.refused}\n`);
+        process.stderr.write(`inkling: ${r.refused}\n`);
         return 1;
       }
       if (r.stopped) {
@@ -208,28 +208,28 @@ function panel([sub, ...pos], values) {
       }
       if (r.warning) process.stdout.write(`warning (--force): ${r.warning}\n`);
       process.stdout.write(`round edit size ${r.allowed}: ${r.size.headings} headings, ${r.size.paragraphs} paragraphs, ${r.size.sentences} sentences changed.\n`);
-      process.stdout.write(pendingMessage(r.prompts, "A/B reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run proof readers grade on that round directory. Next edit may change ${r.nextAllowed}.`));
+      process.stdout.write(pendingMessage(r.prompts, "A/B reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade on that round directory. Next edit may change ${r.nextAllowed}.`));
       return 0;
     }
     if (sub === "status") {
-      if (!pos[0]) return usage("proof readers panel status <run>");
+      if (!pos[0]) return usage("inkling readers panel status <run>");
       process.stdout.write(panelStatus(pos[0]) + "\n");
       return 0;
     }
     if (sub === "stop") {
-      if (!pos[0]) return usage("proof readers panel stop <run>");
+      if (!pos[0]) return usage("inkling readers panel stop <run>");
       process.stdout.write(stopRun({ out: pos[0], why: "stopped by the writer" }).text + "\n");
       return 0;
     }
   } catch (e) {
-    process.stderr.write(`proof: ${e.message}\n`);
+    process.stderr.write(`inkling: ${e.message}\n`);
     return 1;
   }
-  return usage("proof readers panel start|round|status|stop");
+  return usage("inkling readers panel start|round|status|stop");
 }
 
 function usage(msg) {
-  process.stderr.write(`proof: ${msg}\n\n${USAGE}`);
+  process.stderr.write(`inkling: ${msg}\n\n${USAGE}`);
   return 2;
 }
 
@@ -249,7 +249,7 @@ function readers([sub, ...pos], values) {
   }
   if (sub === "prompts" || sub === "run") {
     const [draft, file] = pos;
-    if (!draft || !file || !values.out) return usage(`proof readers ${sub} <draft> <readers.yaml> --out <dir>`);
+    if (!draft || !file || !values.out) return usage(`inkling readers ${sub} <draft> <readers.yaml> --out <dir>`);
     const { prompts, textChecks } = writePrompts({ draft, readersFile: file, out: values.out });
     for (const c of textChecks) process.stdout.write(`${c.pass ? "PASS" : "FAIL"} ${c.id} (text check)${c.evidence ? `: ${c.evidence}` : ""}\n`);
     if (sub === "prompts") {
@@ -262,18 +262,18 @@ function readers([sub, ...pos], values) {
   }
   if (sub === "panel") return panel(pos, values);
   if (sub === "holdout") {
-    if (!pos[0]) return usage("proof readers holdout <run> [--draft <file>]");
+    if (!pos[0]) return usage("inkling readers holdout <run> [--draft <file>]");
     try {
       const { prompts, dir } = holdout({ out: pos[0], draft: values.draft });
-      process.stdout.write(pendingMessage(prompts, "clean-eyes prompts (fresh subagents, used once)", "<persona>.answer.md").replace("Then run grade again.", `Then run proof readers grade ${dir}. If core passes, stop. Otherwise make one small adjustment and stop.`));
+      process.stdout.write(pendingMessage(prompts, "clean-eyes prompts (fresh subagents, used once)", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade ${dir}. If core passes, stop. Otherwise make one small adjustment and stop.`));
       return 0;
     } catch (e) {
-      process.stderr.write(`proof: ${e.message}\n`);
+      process.stderr.write(`inkling: ${e.message}\n`);
       return 1;
     }
   }
   if (sub === "grade") {
-    if (!pos[0]) return usage("proof readers grade <dir>");
+    if (!pos[0]) return usage("inkling readers grade <dir>");
     const state = grade(pos[0]);
     if (state.pending) {
       process.stdout.write(pendingMessage(state.pending, state.stage === "answers" ? "reader prompts" : "judge prompts", state.stage === "answers" ? "<persona>.answer.md" : "<persona>.verdict.json"));
@@ -282,7 +282,7 @@ function readers([sub, ...pos], values) {
     process.stdout.write(state.report);
     return state.failed ? 1 : 0;
   }
-  return usage("proof readers prompts|grade|run|panel|holdout");
+  return usage("inkling readers prompts|grade|run|panel|holdout");
 }
 
 function prefer([sub, ...pos], values) {
@@ -292,13 +292,13 @@ function prefer([sub, ...pos], values) {
     return 2;
   }
   if (sub === "prompts") {
-    if (!pos[0] || !values.out) return usage("proof prefer prompts <comparisons.yaml> --out <dir>");
+    if (!pos[0] || !values.out) return usage("inkling prefer prompts <comparisons.yaml> --out <dir>");
     const prompts = writePreferPrompts({ file: pos[0], out: values.out });
     process.stdout.write(pendingMessage(prompts, "judge prompts", "<id>.<ab|ba>.verdict.json"));
     return 0;
   }
   if (sub === "grade") {
-    if (!pos[0]) return usage("proof prefer grade <dir>");
+    if (!pos[0]) return usage("inkling prefer grade <dir>");
     const state = gradePrefer(pos[0]);
     if (state.pending) {
       process.stdout.write(pendingMessage(state.pending, "judge prompts", "<id>.<ab|ba>.verdict.json"));
@@ -307,5 +307,5 @@ function prefer([sub, ...pos], values) {
     process.stdout.write(state.report);
     return 0;
   }
-  return usage("proof prefer prompts|grade");
+  return usage("inkling prefer prompts|grade");
 }

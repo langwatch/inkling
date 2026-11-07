@@ -10,9 +10,9 @@ import { startPlan, budgetStop, timingsSummary, topicInit, openItems } from "../
 import { evaluate, calibrate, uncalibrated } from "../src/calibrate.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
-const BIN = new URL("../bin/proof.mjs", import.meta.url).pathname;
+const BIN = new URL("../bin/inkling.mjs", import.meta.url).pathname;
 const readersFile = join(FIX, "draft.readers.yaml");
-const fresh = () => mkdtempSync(join(tmpdir(), "proof-panel-"));
+const fresh = () => mkdtempSync(join(tmpdir(), "inkling-panel-"));
 const DRAFT = readFileSync(join(FIX, "draft.md"), "utf8");
 
 /** Answer and judge every reader in a round directory, the way subagents would. */

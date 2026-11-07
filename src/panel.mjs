@@ -111,7 +111,7 @@ export function panelRound({ out, draft, force = false, random = Math.random }) 
   const state = loadState(out);
   if (state.holdout) throw new Error("the holdout already ran: no more panel rounds. Make one small adjustment at most, then stop.");
   const prev = grade(join(out, `round-${state.round}`));
-  if (prev.pending) throw new Error(`round ${state.round} is not graded yet: run proof readers grade ${join(out, `round-${state.round}`)}`);
+  if (prev.pending) throw new Error(`round ${state.round} is not graded yet: run inkling readers grade ${join(out, `round-${state.round}`)}`);
   settleTimings(out, state);
   const stop = budgetStop({ out, round: state.round + 1 });
   if (stop) return { stopped: stopRun({ out, state, why: stop }) };
@@ -174,7 +174,7 @@ export function panelStatus(out) {
   const plan = readPlan(out);
   if (plan) {
     const left = Math.round((plan.deadline - Date.now()) / 60_000);
-    lines.push(left > 0 ? `budget: ${plan.budget}, about ${left} min left` : `budget: ${plan.budget} spent: run proof readers panel stop ${out}`);
+    lines.push(left > 0 ? `budget: ${plan.budget}, about ${left} min left` : `budget: ${plan.budget} spent: run inkling readers panel stop ${out}`);
   }
   return lines.join("\n");
 }

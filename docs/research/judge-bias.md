@@ -1,6 +1,6 @@
 # Judge bias: LLM judges prefer AI-written text
 
-Layer (c) of proof is a preference judge. Out of the box, an LLM judge ranks model prose above expert human prose. This page collects the evidence, the size of the effect, the calibration methods with numbers behind them, and the recipe proof uses.
+The preference judge in Inkling compares two lines. Out of the box, an LLM judge ranks model prose above expert human prose. This page collects the evidence, the size of the effect, the calibration methods with numbers behind them, and the recipe Inkling uses.
 
 ## The main paper (Meta FAIR, 2026)
 
@@ -14,7 +14,7 @@ Setup: a model writes a held-out section of a real paper (abstract, introduction
 
 Their fix is XAR (eXpert-Aligned Rubrics). Take expert human texts, split each into context and continuation, generate model continuations from the same context, and treat each (human, model) pair as a case where the human should win. An optimiser LLM then rewrites a length-bounded meta-prompt (the prompt that writes rubrics) to widen the human minus model gap "for genuine-quality reasons, not superficial tells". The best version on validation is kept.
 
-Results that matter for proof:
+Results that matter for Inkling:
 
 - With 52 examples (8 training papers, 5 validation papers) and 7 iterations, the validation gap moved from -4.2 to +2.76 on a 0-10 scale and crossed zero at iteration 4. Human scores rose 3.4 to 5.0, model scores fell 7.6 to 2.7.
 - The learned rubrics reversed the pairwise result: 75 to 100% human wins on held-out papers.
@@ -36,7 +36,7 @@ Results that matter for proof:
 
 Wataoka et al. connect this page to [surprise.md](surprise.md): a judge that prefers familiar text prefers predictable text. A calibrated judge and a surprise metric push in the same direction.
 
-## What we measured before proof
+## What we measured before Inkling
 
 The Content workspace built an XAR-style judge on 30 pairs of approved human text versus earlier model drafts of the same piece (19 train, 11 validation, split by piece):
 
@@ -44,7 +44,7 @@ The Content workspace built an XAR-style judge on 30 pairs of approved human tex
 - XAR seed rubric (built from the house writing rules): 0.68. Optimised rubric: 0.75.
 - The Jev `ai_sounding` score: 0.09. It rated the human text as more AI-like.
 
-Two lessons. First, in our data the plain judge was already on the human side, because the human versions were mostly cut-down rewrites and the judge likes shorter, plainer text. The bias the paper reports shows up most when the human and model texts are of similar length and polish. Second, 11 validation pairs moved by up to 0.3 between reruns, so differences between rubric versions were within noise. proof needs more held-out pairs than that.
+Two lessons. First, in our data the plain judge was already on the human side, because the human versions were mostly cut-down rewrites and the judge likes shorter, plainer text. The bias the paper reports shows up most when the human and model texts are of similar length and polish. Second, 11 validation pairs moved by up to 0.3 between reruns, so differences between rubric versions were within noise. Inkling needs more held-out pairs than that.
 
 ## Calibration methods, ranked by evidence
 
@@ -54,7 +54,7 @@ Two lessons. First, in our data the plain judge was already on the human side, b
 4. **Position swapping.** Score each pair in both orders. If the two calls disagree, the result is a tie.
 5. **Blind and length-matched.** Never tell the judge which side is human. Compare lines of similar length, or penalise length explicitly.
 6. **Code checks for surface shape.** Sentence length variance, punctuation, opener shapes. Layer (a) already covers these, so the judge does not need to.
-7. **Fine-tuned preference model.** LitBench and WQRM show trained models beat zero-shot judges by about 5 points of accuracy, but they need thousands of pairs. Not worth it until proof has them.
+7. **Fine-tuned preference model.** LitBench and WQRM show trained models beat zero-shot judges by about 5 points of accuracy, but they need thousands of pairs. Not worth it until Inkling has them.
 
 ## Recipe for layer (c)
 

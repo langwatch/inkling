@@ -1,8 +1,8 @@
 # Lessons
 
-These are the review notes proof's rules came from, distilled. Each one was a draft that shipped to a reviewer and came back. The rules in `rules/` enforce the parts a pattern can see; the rest is for the writer and for layers (b) to (e).
+These are the review notes Inkling's rules came from, distilled. Each one was a draft that shipped to a reviewer and came back. The rules in `rules/` enforce the parts a pattern can see; the rest is for the writer, the judge and the readers.
 
-<!-- proof-ignore-file mannered-words: this page names the banned words -->
+<!-- inkling-ignore-file mannered-words: this page names the banned words -->
 
 ## Before the first line
 
@@ -21,6 +21,7 @@ These are the review notes proof's rules came from, distilled. Each one was a dr
 - Let a sentence turn with a conjunction instead of stopping and restating itself in the next one.
 - Short paragraphs: two to four sentences on a blog, 80 words at most in docs. Still prose: connect the facts with "so", "because" and "which means" instead of stacking bare statements.
 - Allow a single clever line per piece, and never as a section opener.
+- Leave out slogans: taglines, twist imperatives ("Fail your copy before your readers do" was rejected as a README opener), chiasmus and clipped fragments. A slogan passes every other rule and still reads as written by a model.
 - End modestly. When in doubt, cut the closer.
 - Paraphrasing a tic is keeping it. If a sentence existed only to do the banned move, cut it.
 
@@ -37,7 +38,7 @@ These are the review notes proof's rules came from, distilled. Each one was a dr
 
 - Sell the value, never the worry. "You can run it airgapped" sells; "we send analytics but you can disable it" raises a doubt the reader did not have.
 - Never concede the competitor's category, never apologise, never lead with limitations. Limits belong in the docs.
-- The reader is the subject. Copy that starts from what we built is written to ourselves.
+- Make the reader the subject of the sentence. Copy that starts from what we built is written to ourselves.
 - No counts as headlines. Lead with the value.
 - A button says "Sign up", not "Sign up for free"; developers smell the gimmick.
 - Long description lines under a control get cut to one line; say each thing once.
@@ -65,7 +66,7 @@ These are the review notes proof's rules came from, distilled. Each one was a dr
 
 ## Images
 
-- Generated, never drawn by hand in SVG or HTML. A precise prompt is the whole game; see [layers/g-images.md](layers/g-images.md).
+- Generated, never drawn by hand in SVG or HTML. A precise prompt is the whole game; see [images](reference/images.md).
 - Words inside an image follow every prose rule.
 
 ## Judges and checkers

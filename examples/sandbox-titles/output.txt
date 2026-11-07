@@ -1,4 +1,4 @@
-proof check: 1 file, mode ads (marketing, ads, landing copy, titles: a business mind, lead with strengths, never concede)
+inkling check: 1 file, mode ads (marketing, ads, landing copy, titles: a business mind, lead with strengths, never concede)
 audience: founders who just searched for an agent sandbox, deciding whether to click
 
 examples/sandbox-titles/titles.md:1:3  contrast/mirrored-pair

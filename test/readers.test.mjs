@@ -10,7 +10,7 @@ import { paidKeys, refuseIfPaid } from "../src/subscription.mjs";
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const draft = join(FIX, "draft.md");
 const file = join(FIX, "draft.readers.yaml");
-const fresh = () => mkdtempSync(join(tmpdir(), "proof-readers-"));
+const fresh = () => mkdtempSync(join(tmpdir(), "inkling-readers-"));
 
 test("readers file parses from YAML", () => {
   const spec = readReadersFile(file);
@@ -101,11 +101,11 @@ test("a trust-breaking doubt fails the run", () => {
 test("paid API keys are detected and refused", () => {
   assert.deepEqual(paidKeys({ ANTHROPIC_API_KEY: "x", HOME: "/h", OPENAI_BASE_URL: "u", TYPESAFE_API_KEY: "jev" }), ["ANTHROPIC_API_KEY", "OPENAI_BASE_URL"]);
   assert.equal(refuseIfPaid("readers", { HOME: "/h" }), null);
-  assert.match(refuseIfPaid("readers run", { ANTHROPIC_API_KEY: "x" }), /env -u ANTHROPIC_API_KEY proof readers run/);
+  assert.match(refuseIfPaid("readers run", { ANTHROPIC_API_KEY: "x" }), /env -u ANTHROPIC_API_KEY inkling readers run/);
 });
 
 test("the CLI refuses readers and prefer with a paid key set", () => {
-  const bin = new URL("../bin/proof.mjs", import.meta.url).pathname;
+  const bin = new URL("../bin/inkling.mjs", import.meta.url).pathname;
   for (const args of [["readers", "prompts", draft, file, "--out", fresh()], ["prefer", "grade", fresh()]]) {
     const r = spawnSync(process.execPath, [bin, ...args], { env: { ...process.env, ANTHROPIC_API_KEY: "sk-test" }, encoding: "utf8" });
     assert.equal(r.status, 2);

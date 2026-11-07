@@ -1,6 +1,6 @@
 # Surprise: measuring predictable prose
 
-Layer (d) of proof measures how predictable a line is. A model left alone writes the most likely words, and the most likely line for a brief is the one every competitor also writes. This page covers how to measure that with token log-probabilities, what the detection literature found, where the measure misleads, and the metric proof ships.
+The surprise check in Inkling measures how predictable a line is. A model left alone writes the most likely words, and the most likely line for a brief is the one every competitor also writes. This page covers how to measure that with token log-probabilities, what the detection literature found, where the measure misleads, and the metric Inkling ships.
 
 ## Surprisal in one paragraph
 
@@ -21,7 +21,7 @@ Hosted chat APIs mostly return log-probabilities only for tokens they generate, 
 | [Jiang et al. 2025, Artificial Hivemind](https://arxiv.org/abs/2510.22954) | On 26K open-ended prompts, different models give strikingly similar answers, and reward models and judges are least calibrated where human raters disagree |
 | [Wataoka et al. 2024, Self-Preference Bias](https://arxiv.org/abs/2410.21819) | LLM judges score low-perplexity text higher than human raters do. See [judge-bias.md](judge-bias.md) |
 
-Two points carry over to proof. Model prose is low-surprisal by construction, and alignment training makes it lower. Different models converge on the same lines, so "what a model would write for this brief" is a stable, measurable baseline.
+Two points carry over to inkling. Model prose is low-surprisal by construction, and alignment training makes it lower. Different models converge on the same lines, so "what a model would write for this brief" is a stable, measurable baseline.
 
 ## Where raw perplexity misleads
 
@@ -64,7 +64,7 @@ Unexpected words do not help. An unexpected claim that the reader can check does
 
 Clarity is checked by readers, not by the model: layer (e) runs zero-context reader personas and asks what they understood and what they would do. A line that scores as surprising and fails the reader test is noise.
 
-## Metric proof ships
+## Metric Inkling ships
 
 Per line, for a given brief:
 

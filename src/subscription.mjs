@@ -17,9 +17,9 @@ export function refuseIfPaid(command, env = process.env) {
   const keys = paidKeys(env);
   if (!keys.length) return null;
   return (
-    `proof ${command}: refused. Reader tests and the preference judge run on a Claude subscription only, never a paid API.\n` +
+    `inkling ${command}: refused. Reader tests and the preference judge run on a Claude subscription only, never a paid API.\n` +
     `Set now: ${keys.join(", ")}.\n` +
-    `Run it as: env ${keys.map((k) => `-u ${k}`).join(" ")} proof ${command} ...`
+    `Run it as: env ${keys.map((k) => `-u ${k}`).join(" ")} inkling ${command} ...`
   );
 }
 

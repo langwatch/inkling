@@ -1,4 +1,4 @@
-// A small YAML subset for readers files, so proof needs no dependencies:
+// A small YAML subset for readers files, so inkling needs no dependencies:
 // maps, lists, flow lists [a, b], quoted and plain scalars, `|` and `>` block scalars, # comments.
 // Anything fancier (anchors, multi-docs, nested flow maps) is out of scope; use JSON then.
 

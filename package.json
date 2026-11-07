@@ -1,18 +1,18 @@
 {
-  "name": "proof",
+  "name": "inkling",
   "version": "0.1.0",
   "private": true,
-  "description": "A test suite for writing: deterministic lints, a rule judge and reader tests that fail a draft the way tests fail code.",
+  "description": "Content writing framework for agents: goal and audience, reader tests written first, lints, a rule judge, a reader panel and clean eyes.",
   "license": "UNLICENSED",
   "type": "module",
   "bin": {
-    "proof": "./bin/proof.mjs"
+    "inkling": "./bin/inkling.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "proof": "node bin/proof.mjs"
+    "inkling": "node bin/inkling.mjs"
   }
 }
