@@ -57,3 +57,13 @@ test("fragments are labels with no subject and no verb", () => {
   for (const t of ["Trained to concede.", "Cramming.", "Poor theory of mind.", "Formula punch."]) assert.ok(isFragment(s(t)), t);
   for (const t of ["We tested it.", "Personas answer questions.", "Is it fast?", "The judge prefers machines."]) assert.ok(!isFragment(s(t)), t);
 });
+
+test("lint calibration: the lint owns the lines simulated listeners resolve too well", () => {
+  const spec = JSON.parse(readFileSync(new URL("../calibration/listen.json", import.meta.url), "utf8"));
+  assert.ok(spec.targets.find((t) => t.id === "v11-lost-at-c").info, "the listener C target is info only");
+  for (const t of spec.lint) {
+    const text = readFileSync(new URL(`../${t.script}`, import.meta.url), "utf8");
+    const f = check(text, { minutes: 3 });
+    assert.ok(at(f, t.rule, t.line), `${t.id}: ${t.rule} on "${t.line}"`);
+  }
+});

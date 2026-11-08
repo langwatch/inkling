@@ -27,7 +27,8 @@ At the end, from all their notes: explain each example and what it proved, and n
 
 ## When it fails
 
-- **Skip.** "Action: skip" before the last chunk fails. After the last chunk there is nothing left to skip, so it is a note. "Action: 2x" is a soft skip: a note, never a failure.
+- **Skip.** "Action: skip" before the last chunk fails. After the last chunk there is nothing left to skip, so it is a note. A single "Action: 2x" is a note.
+- **Drift.** "Action: 2x" on 2 or more middle chunks (not the first two, not the last) by one viewer fails like a skip, and the report lists those chunks.
 - **Lost.** An answer to question 1 or 2 that opens with "not sure", is wrong, or is too vague to place the part fails.
 - **Example.** An example fails when the viewer said what it showed neither right after hearing it nor at the end.
 
@@ -39,7 +40,7 @@ The default viewers are in `modes/script/readers.yaml`: a team lead with a meeti
 
 ## Calibration
 
-`inkling readers listen --calibrate` reruns the targets in `calibration/listen.json` on scripts a reviewer already judged, three runs per script. Runs are not deterministic, so a target holds when it holds in 2 of the 3 runs, and within a run it holds when at least one of the two viewers shows it. Once every target holds, stop tuning. [Listen calibration](../research/listen-calibration.md) records each attempt and what moved it.
+`inkling readers listen --calibrate` reruns the targets in `calibration/listen.json` on scripts a reviewer already judged, three runs per script. Runs are not deterministic, so a target holds when it holds in 2 of the 3 runs, and within a run it holds when at least one of the two viewers shows it. Info targets are reported and not required. Once every required target holds, stop tuning. [Listen calibration](../research/listen-calibration.md) records each attempt and what moved it.
 
 ## Backends
 

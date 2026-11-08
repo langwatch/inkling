@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
-import { listen, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain } from "../src/listen.mjs";
+import { listen, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf } from "../src/listen.mjs";
 import { checkTarget, chunkOf } from "../src/listen-calibrate.mjs";
 import { words } from "../src/markdown.mjs";
 
@@ -57,6 +57,7 @@ test("a viewer keeps only the plan and their last two notes, never earlier full 
 });
 
 function answerAll(out, { skipAt = -1, fastAt = -1, unsureAt = -1, explained = true, lost = [] } = {}) {
+  const fast = new Set([fastAt].flat());
   for (let i = 0; i < 40; i++) {
     const state = listen({ out });
     if (!state.pending) return state;
@@ -66,7 +67,7 @@ function answerAll(out, { skipAt = -1, fastAt = -1, unsureAt = -1, explained = t
         writeFileSync(p.replace(".judge.prompt.md", ".verdict.json"), JSON.stringify(v));
       } else {
         const k = Number(p.match(/chunk-(\d+)/)?.[1] ?? 0);
-        const action = k === skipAt ? "skip" : k === fastAt ? "2x" : "watching";
+        const action = k === skipAt ? "skip" : fast.has(k) ? "2x" : "watching";
         writeFileSync(p.replace(".prompt.md", ".answer.md"), `1. ${k === unsureAt ? "Not sure." : "Here."}\n2. That.\n3. Fine.\nAction: ${action}\nNote: ok\n`);
       }
     }
@@ -74,9 +75,9 @@ function answerAll(out, { skipAt = -1, fastAt = -1, unsureAt = -1, explained = t
   throw new Error("listen did not finish");
 }
 
-const run = (opts) => {
+const run = (opts, script = fixture) => {
   const out = tmp();
-  listen({ script: fixture, out });
+  listen({ script, out });
   const state = answerAll(out, opts);
   rmSync(out, { recursive: true, force: true });
   return state;
@@ -125,4 +126,24 @@ test("the CLI writes prompts and exits 3, and refuses with a paid key set", () =
   assert.equal(paid.status, 2);
   assert.match(paid.stderr, /subscription only/);
   rmSync(out, { recursive: true, force: true });
+});
+
+test("2x on two or more middle chunks is drift and fails; one 2x, or 2x on the first two or the last chunk, is a note", () => {
+  const long = new URL("./fixtures/script/v11.md", import.meta.url).pathname;
+  const drift = run({ fastAt: [5, 6], explained: true }, long);
+  assert.match(drift.report, /FAIL drift: 2x at chunks 5, 6/);
+  assert.doesNotMatch(run({ fastAt: [5] }, long).report, /drift/);
+  const rows = (fast, n = 6) => Array.from({ length: n }, (_x, k) => ({ chunk: k + 1, action: fast.includes(k + 1) ? "2x" : "watching" }));
+  assert.deepEqual(driftOf(rows([1, 2, 6])), []);
+  assert.deepEqual(driftOf(rows([3])), []);
+  assert.deepEqual(driftOf(rows([2, 3, 5])), [3, 5]);
+});
+
+test("drift in the window meets a skip target, and an info target is reported but not required", () => {
+  const chunks = ["a.", "b.", "With no judge, x.", "d.", "e.", "End."];
+  const table = { v: chunks.map((_c, k) => ({ chunk: k + 1, lost: false, action: k === 2 || k === 3 ? "2x" : "watching" })) };
+  const result = { failed: 1, chunks, table, drift: { v: driftOf(table.v) } };
+  const t = checkTarget({ skip_between: ["With no judge", "e."] }, result);
+  assert.ok(t.holds);
+  assert.match(t.why, /drifted/);
 });

@@ -19,6 +19,14 @@ export const CHUNK_WORDS = { min: 60, target: 75, max: 90 };
 export const NOTES_KEPT = 2;
 /** Whether chunks end at paragraph ends once past the minimum; see docs/research/listen-calibration.md. */
 export const PAUSES = true;
+/** 2x on this many middle chunks (not the first two, not the last) in one run is drift, a failure. */
+export const DRIFT_CHUNKS = 2;
+
+/** Middle chunks (1-based) where a viewer chose 2x, when there are enough of them to count as drift. */
+export function driftOf(rows) {
+  const fast = rows.filter((r, k) => k >= 2 && k < rows.length - 1 && r.action === "2x").map((r) => r.chunk);
+  return fast.length >= DRIFT_CHUNKS ? fast : [];
+}
 
 export const PROBES = ["What's this part about?", "What was the last point?", "Still watching, watching at 2x, or skipping ahead?"];
 export const FINAL = [
@@ -271,13 +279,18 @@ function report({ out, state }) {
         failed += 1;
         lines.push(`- FAIL lost at chunk ${k + 1}: ${lostBy.has(k + 1) ? `"${clip(lostBy.get(k + 1).quote)}" ${clip(lostBy.get(k + 1).note)}` : `"${clip(answer.split(/\n\s*3[.)]/)[0])}"`}`);
       }
-      // After the last chunk there is nothing left to skip; 2x is a soft skip, reported as a note.
+      // After the last chunk there is nothing left to skip; a single 2x is a note, repeated 2x is drift (below).
       if (action === "skip" && !last) {
         failed += 1;
         lines.push(`- FAIL skip at chunk ${k + 1}: ${clip(answer.match(/3[.)]\s*([^\n]*)/)?.[1])}`);
       } else if (action !== "watching") lines.push(`- note ${action} at chunk ${k + 1}${last ? " (last chunk)" : ""}: ${clip(answer.match(/3[.)]\s*([^\n]*)/)?.[1])}`);
       return { chunk: k + 1, lost, action };
     });
+    const drift = driftOf(table[p.id]);
+    if (drift.length) {
+      failed += 1;
+      lines.push(`- FAIL drift: 2x at chunks ${drift.join(", ")}`);
+    }
     for (const e of v.examples ?? []) {
       if (!e.explained) failed += 1;
       lines.push(`- ${e.explained ? "PASS" : "FAIL"} example: ${clip(e.example, 160)}${e.quote ? ` ("${clip(e.quote, 160)}")` : ""}`);
@@ -296,8 +309,9 @@ function report({ out, state }) {
   lines.push("", failed ? `${failed} FAILED` : "ALL PASS");
   const text = lines.join("\n") + "\n";
   writeFileSync(join(out, "report.md"), text);
-  writeFileSync(join(out, "result.json"), JSON.stringify({ failed, table, chunks: state.chunks }, null, 1));
-  return { report: text, failed, table, chunks: state.chunks };
+  const drift = Object.fromEntries(Object.entries(table).map(([id, rows]) => [id, driftOf(rows)]));
+  writeFileSync(join(out, "result.json"), JSON.stringify({ failed, table, drift, chunks: state.chunks }, null, 1));
+  return { report: text, failed, table, drift, chunks: state.chunks };
 }
 
 export const defaultListenOut = (script) => join("runs", `listen-${basename(script, extname(script))}`);

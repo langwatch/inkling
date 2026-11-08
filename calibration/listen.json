@@ -3,9 +3,48 @@
   "runs": 3,
   "need": 2,
   "targets": [
-    { "id": "v11-lost-at-c", "script": "test/fixtures/script/v11.md", "lost_in": "A smaller version is writing from the middle", "why": "\"a smaller version of WHAT?\"" },
-    { "id": "v11-skip-middle", "script": "test/fixtures/script/v11.md", "skip_between": ["With no judge, the model's writing habits", "If they get the main points, you stop."], "why": "the problems list, the tools and the two rounds ran on" },
-    { "id": "v11-opening-clean", "script": "test/fixtures/script/v11.md", "clean_through": "its answer explained the whole problem.", "why": "the opening and the headline story were approved" },
-    { "id": "pass-all-pass", "script": "test/fixtures/script/pass.md", "all_pass": true, "why": "written to the script-mode rules" }
+    {
+      "id": "v11-lost-at-c",
+      "script": "test/fixtures/script/v11.md",
+      "lost_in": "A smaller version is writing from the middle",
+      "why": "\"a smaller version of WHAT?\"; simulated listeners resolve back-references from context, so the lint target below owns it",
+      "info": true,
+      "owner": "lint owns it: script/dangling-back-reference"
+    },
+    {
+      "id": "v11-drift-or-skip-middle",
+      "script": "test/fixtures/script/v11.md",
+      "skip_between": [
+        "With no judge, the model's writing habits",
+        "If they get the main points, you stop."
+      ],
+      "why": "the founder felt like skipping in the problems list, the tools and the two rounds; 2x on 2 or more middle chunks is that feeling"
+    },
+    {
+      "id": "v11-opening-clean",
+      "script": "test/fixtures/script/v11.md",
+      "clean_through": "its answer explained the whole problem.",
+      "why": "the opening and the headline story were approved"
+    },
+    {
+      "id": "pass-all-pass",
+      "script": "test/fixtures/script/pass.md",
+      "all_pass": true,
+      "why": "written to the script-mode rules"
+    }
+  ],
+  "lint": [
+    {
+      "id": "v11-c-lint",
+      "script": "test/fixtures/script/v11.md",
+      "rule": "script/dangling-back-reference",
+      "line": "A smaller version is writing from the middle"
+    },
+    {
+      "id": "v11-rules-screen-lint",
+      "script": "test/fixtures/script/v11.md",
+      "rule": "script/writer-side-opener",
+      "line": "The rules fit on one screen."
+    }
   ]
 }

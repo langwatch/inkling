@@ -31,8 +31,10 @@ export function checkTarget(target, result) {
   }
   if (target.skip_between) {
     const [a, b] = target.skip_between.map((m) => chunkOf(result.chunks, m));
-    const holds = any(a, b, (c) => c.action === "skip");
-    return { holds, why: `${holds ? "a viewer skipped" : "no viewer skipped"} in chunks ${a + 1}-${b + 1}` };
+    const skip = any(a, b, (c) => c.action === "skip");
+    const drift = Object.values(result.drift ?? {}).some((chunks) => chunks.some((k) => k >= a + 1 && k <= b + 1));
+    const holds = skip || drift;
+    return { holds, why: `${skip ? "a viewer skipped" : drift ? "a viewer drifted (2x on 2+ chunks)" : "no viewer skipped or drifted"} in chunks ${a + 1}-${b + 1}` };
   }
   if (target.clean_through) {
     const i = chunkOf(result.chunks, target.clean_through);
@@ -63,12 +65,14 @@ export async function calibrateListen({ file = LISTEN_CALIBRATION, out, reader, 
     const checks = results[t.script].map((r) => checkTarget(t, r));
     const count = checks.filter((c) => c.holds).length;
     const holds = count >= spec.need;
-    held += holds;
-    lines.push(`- ${holds ? "HOLDS" : "MISSES"} ${t.id} (${count}/${spec.runs}): ${checks.map((c, i) => `run ${i + 1} ${c.why}`).join("; ")}`);
-    return { id: t.id, holds, count, checks };
+    if (!t.info) held += holds;
+    const tag = t.info ? "INFO" : holds ? "HOLDS" : "MISSES";
+    lines.push(`- ${tag} ${t.id} (${count}/${spec.runs}): ${checks.map((c, i) => `run ${i + 1} ${c.why}`).join("; ")}${t.info ? ` (reported, not required: ${t.owner ?? "info"})` : ""}`);
+    return { id: t.id, info: Boolean(t.info), holds, count, checks };
   });
-  const all = held === spec.targets.length;
-  lines.push("", all ? "all targets hold: stop tuning." : `${spec.targets.length - held} of ${spec.targets.length} targets miss.`);
+  const required = spec.targets.filter((t) => !t.info).length;
+  const all = held === required;
+  lines.push("", all ? "all required targets hold: stop tuning." : `${required - held} of ${required} required targets miss.`);
   const report = lines.join("\n") + "\n";
   writeFileSync(join(out, "calibration.md"), report);
   writeFileSync(join(out, "calibration.json"), JSON.stringify({ at: new Date().toISOString(), reader: reader ?? "sonnet", judge: judge ?? "opus", notesKept, targets, all }, null, 1));
