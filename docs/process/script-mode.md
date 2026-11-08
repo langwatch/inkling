@@ -2,6 +2,8 @@
 
 A script for a narrated lesson or video is heard once, in order. Your listener cannot see the headings, cannot look back a paragraph, and decides every half minute whether to keep listening. Text that reads well on a page can lose them. Run the eight steps as usual with `--mode script`, and add the points below.
 
+The limits below are defaults. A listen run tells you where a viewer drifted, not whether the script passed, so use it with judgement and write down why when you move a limit for one script.
+
 ## Set the time budget first
 
 Decide the length before the first line: `minutes: 3` in the front matter, or `--minutes 3` on the command line. At about 150 spoken words a minute, three minutes is 450 words. `script/over-time` fails a script more than 10% over its budget. When it fails, cut a whole part or a whole example.
