@@ -37,9 +37,9 @@ Structure (previews, part openers) is added to that explanation afterwards, and 
 
 ## What the talk pass still wrote
 
-Later runs showed written lines that came from the talk pass itself, before any trim. Three sources:
+Later runs showed written lines that came from the talk pass itself, before any trim. They had three sources:
 
-- The notes held finished phrases, and the talk pass copied them in. The notes now hold answers and the case, not sentences.
+- The notes held finished phrases, and the talk pass copied them in. The notes now hold answers and the case, never finished sentences.
 - Asked to say what a thing is, the writer listed what it covers after a colon. The draft step now asks for one moment where the listener would see it, and `script/colon-list` warns on the list shape.
 - A rule to tie back to the previous part "in one line" made the writer pack the link and its cause into one long sentence. The tie-back is now a few words, and the reason gets its own sentence.
 
