@@ -22,6 +22,8 @@ Every new paragraph starts with a connective or with words that point back to th
 
 Name what an opener refers to. "A smaller version is..." leaves the listener asking "of what?". Say "A smaller version of the same problem is..." or join it to the paragraph it belongs to.
 
+Each connective claims a relation. "So why is AI copy weak?" right after the framework intro reads as "even with the framework, why does it still fail?", while the intent was "let's step back: why do we need a framework at all?". Declare the intended relation as a bridge in the readers file and let [listen](../tools/listen.md#bridges) viewers say what they heard.
+
 ## Talk like a teacher
 
 Talk to the listener. Use "we", "you" and "let's" at least every few sentences: six sentences in a row without them sound like a lecture about a third party. Skip lines about your own material, such as "the rules fit on one screen": say why the next part matters to the listener.

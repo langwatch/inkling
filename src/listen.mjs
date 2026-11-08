@@ -157,15 +157,25 @@ export function atEnd(chunks) {
   });
 }
 
-export function chunkPrompt({ persona, context, memory, started, text, index, at, total }) {
+export const bridgeProbe = (at) => `What does the sentence starting "${at}" tell you about how the next part relates to the last one?`;
+
+const squash = (s) => plain(s).toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+
+/** The declared bridges whose opening words this chunk contains. */
+export function bridgesIn(text, bridges = []) {
+  const heard = squash(text);
+  return bridges.filter((b) => b?.at && heard.includes(squash(b.at)));
+}
+
+export function chunkPrompt({ persona, context, memory, started, text, index, at, total, bridges = [] }) {
   const player = at != null && total ? ` The player now shows ${clock(at)} / ${clock(total)}.` : "";
   return [
     personaLines(persona, context),
     memoryText(memory, started),
     `What you just heard, the next 30 seconds or so:${player}\n\n<heard>\n${text}\n</heard>`,
     LISTENER_RULES,
-    `Questions:\n${PROBES.map((q, i) => `${i + 1}. ${q}`).join("\n")}`,
-    `Answer 1 and 2 in a sentence each, in first person. For 3, say what you do and why in a sentence, then a line that is exactly "Action: watching", "Action: 2x" or "Action: skip". Then a line "Note:" with the few words you would keep in your head from this stretch. If the speaker said what the parts of the video will be, add a line "Plan:" with them. Write nothing else.`,
+    `Questions:\n${[...PROBES, ...bridges.map((b) => bridgeProbe(b.at))].map((q, i) => `${i + 1}. ${q}`).join("\n")}`,
+    `Answer 1 and 2 in a sentence each, in first person. For 3, say what you do and why in a sentence, then a line that is exactly "Action: watching", "Action: 2x" or "Action: skip".${bridges.length ? ` Answer ${bridges.map((_b, i) => i + 4).join(" and ")} in a sentence each, from what you heard.` : ""} Then a line "Note:" with the few words you would keep in your head from this stretch. If the speaker said what the parts of the video will be, add a line "Plan:" with them. Write nothing else.`,
   ].join("\n\n");
 }
 
@@ -179,12 +189,20 @@ export function finalPrompt({ persona, context, memory }) {
   ].join("\n\n");
 }
 
-export function listenJudgePrompt({ persona, script, chunks, answers, final }) {
+function bridgeRules(bridges) {
+  if (!bridges.length) return "";
+  return `
+
+Some chunks asked the viewer how a sentence links the next part to the last one. For each declared bridge below, say in a sentence what relation the viewer heard, from their answer to that question, and compare it with what the writer intended. It is a conflict only when the two clearly disagree (the viewer heard a consequence or a contrast where the writer meant a step back, for example); a looser or partial reading is not a conflict.
+${bridges.map((b) => `- starts "${b.at}": the writer intended that it ${b.relation}`).join("\n")}`;
+}
+
+export function listenJudgePrompt({ persona, script, chunks, answers, final, bridges = [] }) {
   return `You grade a viewing test for a narrated video. A viewer heard it once in chunks of about 30 seconds and, after each chunk, said what the part was about and what the last point was. Decide strictly from their answers and quote the words that decide it. Do not read files or research; use only what is below.
 
 For each chunk, the viewer is lost when either answer is wrong, says they are not sure, or is too vague to tell which part of the video it was. A short or hedged answer ("I think...") that is right is not lost.
 
-An example is explained when the viewer says what it showed, either in their answer right after the chunk where they heard it or in their final answers, even without its name, numbers or details. It is unexplained when neither says what it showed, or both get it wrong. An example is a concrete case: a story, a study, a test the speaker ran or a number. A claim on its own is not an example.
+An example is explained when the viewer says what it showed, either in their answer right after the chunk where they heard it or in their final answers, even without its name, numbers or details. It is unexplained when neither says what it showed, or both get it wrong. An example is a concrete case: a story, a study, a test the speaker ran or a number. A claim on its own is not an example.${bridgeRules(bridges)}
 
 Viewer:
 ${persona.background.trim()}
@@ -203,7 +221,7 @@ ${final.trim()}
 Reply with JSON only, nothing before or after it:
 {"lost": [{"chunk": 1, "quote": "the viewer's words", "note": "why it is wrong or vague, one sentence"}],
  "examples": [{"example": "the example as the script tells it", "explained": true, "quote": "the viewer's words"}],
- "agenda": {"recalled": true, "note": "one sentence"}}
+ "agenda": {"recalled": true, "note": "one sentence"}${bridges.length ? `,\n "bridges": [{"at": "the bridge's opening words", "heard": "the relation the viewer heard, one sentence", "intended": "the relation the writer intended", "conflict": false}]` : ""}}
 List every example the script uses to prove a point, whether or not the viewer mentioned it.`;
 }
 
@@ -224,10 +242,11 @@ export function listen({ script, readersFile, out, notesKept = NOTES_KEPT, pause
   else {
     if (!script) throw new Error("listen: a script is needed to start a run");
     const spec = readReadersFile(readersFile ?? DEFAULT_LISTENERS);
+    for (const br of spec.bridges ?? []) if (typeof br?.at !== "string" || typeof br?.relation !== "string") throw new Error(`${readersFile ?? DEFAULT_LISTENERS}: each bridge needs "at" and "relation" lines`);
     const chunks = chunk(spokenUnits(read(script)), CHUNK_WORDS, { pauses });
     if (!chunks.length) throw new Error(`${script}: nothing spoken`);
     mkdirSync(out, { recursive: true });
-    state = { script: resolve(script), readersFile: resolve(readersFile ?? DEFAULT_LISTENERS), personas: spec.personas, context: spec.context ?? {}, chunks, notesKept };
+    state = { script: resolve(script), readersFile: resolve(readersFile ?? DEFAULT_LISTENERS), personas: spec.personas, context: spec.context ?? {}, chunks, notesKept, bridges: spec.bridges ?? [] };
     writeFileSync(statePath, JSON.stringify(state, null, 1));
   }
   const { personas, context, chunks } = state;
@@ -245,7 +264,7 @@ export function listen({ script, readersFile, out, notesKept = NOTES_KEPT, pause
       const prompt = join(out, `${persona.id}.chunk-${k + 1}.prompt.md`);
       const at = chunks.slice(0, k + 1).reduce((n, c) => n + words(c).length, 0);
       const total = chunks.reduce((n, c) => n + words(c).length, 0);
-      if (!has(prompt)) writeFileSync(prompt, chunkPrompt({ persona, context, memory: memoryOf(answers, kept), started: k > 0, text: chunks[k], index: k, at, total }));
+      if (!has(prompt)) writeFileSync(prompt, chunkPrompt({ persona, context, memory: memoryOf(answers, kept), started: k > 0, text: chunks[k], index: k, at, total, bridges: bridgesIn(chunks[k], state.bridges) }));
       waiting = prompt;
       break;
     }
@@ -263,7 +282,7 @@ export function listen({ script, readersFile, out, notesKept = NOTES_KEPT, pause
     }
     if (!has(join(out, `${persona.id}.verdict.json`))) {
       const prompt = join(out, `${persona.id}.judge.prompt.md`);
-      if (!has(prompt)) writeFileSync(prompt, listenJudgePrompt({ persona, script: spokenSentences(read(state.script)).join(" "), chunks, answers, final: read(finalAnswer) }));
+      if (!has(prompt)) writeFileSync(prompt, listenJudgePrompt({ persona, script: spokenSentences(read(state.script)).join(" "), chunks, answers, final: read(finalAnswer), bridges: state.bridges ?? [] }));
       pending.push(prompt);
     }
   }
@@ -306,6 +325,11 @@ function report({ out, state }) {
     for (const e of v.examples ?? []) {
       if (!e.explained) failed += 1;
       lines.push(`- ${e.explained ? "PASS" : "FAIL"} example: ${clip(e.example, 160)}${e.quote ? ` ("${clip(e.quote, 160)}")` : ""}`);
+    }
+    // A bridge is a note with both readings; it fails only when the judge finds the two clearly conflict.
+    for (const b of v.bridges ?? []) {
+      if (b.conflict) failed += 1;
+      lines.push(`- ${b.conflict ? "FAIL" : "note"} bridge "${clip(b.at, 80)}": heard ${clip(b.heard, 160)}; intended ${clip(b.intended, 160)}`);
     }
     if (v.agenda) lines.push(`- note agenda${v.agenda.recalled ? "" : " not recalled"}: ${clip(v.agenda.note)}`);
     lines.push("");

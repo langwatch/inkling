@@ -1,0 +1,14 @@
+# One viewer and one declared bridge, for the bridge probe test and a cheap real run.
+context:
+  author: a small company or its founder showing what they learned
+  arrived_from: a link a colleague dropped in a team chat
+personas:
+  - id: busy-lead
+    view: full
+    background: >
+      A team lead at a 40-person software company. Some of the team use AI for
+      customer emails and release notes. Clicked the link because a colleague said
+      "worth a look"; a meeting starts in 15 minutes.
+bridges:
+  - at: "So why is AI copy weak?"
+    relation: steps back to explain why a framework is needed at all

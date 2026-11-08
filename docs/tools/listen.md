@@ -32,7 +32,21 @@ At the end, from all their notes: explain each example and what it proved, and n
 - **Lost.** An answer to question 1 or 2 that opens with "not sure", is wrong, or is too vague to place the part fails.
 - **Example.** An example fails when the viewer said what it showed neither right after hearing it nor at the end.
 
+- **Bridge.** A bridge that clearly clashes with its declared relation fails. Any other reading is a note with both texts, heard and intended.
+
 The report ends with a table of every chunk and what each viewer did there. `listen` exits 0 when everything passes, 1 on a failure and 3 while prompts wait for replies.
+
+## Bridges
+
+Each connective claims a relation: "so" says what follows is a consequence, "but" a contrast, "that's why" a cause, "let's step back" a return to the reason. Nothing in the text checks that the claimed relation is the one you meant. Declare the bridges that matter in the readers file, each with the opening words of the sentence and the relation you intend:
+
+```yaml
+bridges:
+  - at: "So why is AI copy weak?"
+    relation: steps back to explain why a framework is needed at all
+```
+
+The chunk that holds a bridge gets one more question: "What does the sentence starting '...' tell you about how the next part relates to the last one?". The viewer never sees the intended relation. The grader compares the two, and the report notes both. Without `bridges`, nothing changes.
 
 ## Viewers
 

@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
-import { listen, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf, atEnd } from "../src/listen.mjs";
+import { listen, bridgesIn, bridgeProbe, chunkPrompt, listenJudgePrompt, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf, atEnd } from "../src/listen.mjs";
 import { checkTarget, chunkOf } from "../src/listen-calibrate.mjs";
 import { words } from "../src/markdown.mjs";
 
@@ -56,14 +56,14 @@ test("a viewer keeps only the plan and their last two notes, never earlier full 
   rmSync(out, { recursive: true, force: true });
 });
 
-function answerAll(out, { skipAt = -1, fastAt = -1, unsureAt = -1, explained = true, lost = [] } = {}) {
+function answerAll(out, { skipAt = -1, fastAt = -1, unsureAt = -1, explained = true, lost = [], bridges } = {}) {
   const fast = new Set([fastAt].flat());
   for (let i = 0; i < 40; i++) {
     const state = listen({ out });
     if (!state.pending) return state;
     for (const p of state.pending) {
       if (p.endsWith(".judge.prompt.md")) {
-        const v = { lost, examples: [{ example: "Meta judges", explained, quote: "they prefer model text" }], agenda: { recalled: true } };
+        const v = { lost, examples: [{ example: "Meta judges", explained, quote: "they prefer model text" }], agenda: { recalled: true }, ...(bridges ? { bridges } : {}) };
         writeFileSync(p.replace(".judge.prompt.md", ".verdict.json"), JSON.stringify(v));
       } else {
         const k = Number(p.match(/chunk-(\d+)/)?.[1] ?? 0);
@@ -161,5 +161,68 @@ test("a skip or 2x once the player clock shows the end is a note, even before th
   assert.equal(r.failed, 0, r.report);
   assert.match(r.report, /note skip at chunk 3 \(the clock shows the end\)/);
   assert.equal(r.table["busy-lead"][2].end, true);
+  rmSync(out, { recursive: true, force: true });
+});
+
+const bridgeScript = new URL("./fixtures/script/bridge.md", import.meta.url).pathname;
+const bridgeReaders = new URL("./fixtures/script/bridge-readers.yaml", import.meta.url).pathname;
+const BRIDGE = { at: "So why is AI copy weak?", relation: "steps back to explain why a framework is needed at all" };
+
+test("a declared bridge adds one neutral probe to the chunk that holds it, and nowhere else", () => {
+  assert.deepEqual(bridgesIn("We built it. So, why is AI copy *weak*? Because...", [BRIDGE]), [BRIDGE]);
+  assert.deepEqual(bridgesIn("Nothing here.", [BRIDGE]), []);
+  const out = tmp();
+  listen({ script: bridgeScript, readersFile: bridgeReaders, out });
+  const state = JSON.parse(readFileSync(join(out, "listen.json"), "utf8"));
+  assert.deepEqual(state.bridges, [BRIDGE]);
+  const prompts = [];
+  for (let i = 0; i < 10; i++) {
+    const s = listen({ out });
+    if (!s.pending || s.pending[0].endsWith(".final.prompt.md")) break;
+    for (const p of s.pending) {
+      prompts.push(readFileSync(p, "utf8"));
+      writeFileSync(p.replace(".prompt.md", ".answer.md"), "1. Here.\n2. That.\n3. Fine.\nAction: watching\n4. It goes on.\nNote: ok\n");
+    }
+  }
+  const withProbe = prompts.filter((p) => p.includes(bridgeProbe(BRIDGE.at)));
+  assert.equal(withProbe.length, 1, "only the chunk that holds the bridge asks about it");
+  assert.match(withProbe[0], /4\. What does the sentence starting "So why is AI copy weak\?" tell you about how the next part relates to the last one\?/);
+  assert.match(withProbe[0], /Answer 4 in a sentence each/);
+  assert.doesNotMatch(withProbe[0], new RegExp(BRIDGE.relation), "the viewer never sees the intended relation");
+  assert.doesNotMatch(withProbe[0], PRIMING);
+  rmSync(out, { recursive: true, force: true });
+});
+
+test("without declared bridges the prompts carry no bridge probe or grading", () => {
+  const persona = { id: "p", background: "A lead." };
+  const plainPrompt = chunkPrompt({ persona, context: {}, memory: { notes: [] }, started: false, text: "So why is AI copy weak?", index: 0 });
+  assert.doesNotMatch(plainPrompt, /4\./);
+  const judge = listenJudgePrompt({ persona, script: "x", chunks: ["x"], answers: ["a"], final: "f" });
+  assert.doesNotMatch(judge, /bridge/i);
+});
+
+test("the judge compares the heard relation with the declared one and calls only a clear clash a conflict", () => {
+  const persona = { id: "p", background: "A lead." };
+  const judge = listenJudgePrompt({ persona, script: "x", chunks: ["x"], answers: ["a"], final: "f", bridges: [BRIDGE] });
+  assert.match(judge, /starts "So why is AI copy weak\?": the writer intended that it steps back to explain why a framework is needed at all/);
+  assert.match(judge, /conflict only when the two clearly disagree/);
+  assert.match(judge, /"bridges": \[\{"at"/);
+});
+
+test("a bridge is a note with both readings, and fails only on a conflict", () => {
+  const heard = { at: BRIDGE.at, heard: "even with the framework, why does it still fail", intended: BRIDGE.relation };
+  const note = run({ bridges: [{ ...heard, conflict: false }] }, bridgeScript);
+  assert.equal(note.failed, 0);
+  assert.match(note.report, /- note bridge "So why is AI copy weak\?": heard even with the framework, why does it still fail; intended steps back/);
+  const clash = run({ bridges: [{ ...heard, conflict: true }] }, bridgeScript);
+  assert.equal(clash.failed, 2, "one per viewer");
+  assert.match(clash.report, /- FAIL bridge "So why is AI copy weak\?"/);
+});
+
+test("a bridge without at or relation is refused", () => {
+  const out = tmp();
+  const bad = join(out, "readers.yaml");
+  writeFileSync(bad, readFileSync(bridgeReaders, "utf8").replace(/    relation: .*\n/, ""));
+  assert.throws(() => listen({ script: bridgeScript, readersFile: bad, out: join(out, "run") }), /each bridge needs/);
   rmSync(out, { recursive: true, force: true });
 });
