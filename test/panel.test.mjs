@@ -188,7 +188,7 @@ test("eval reports misses and flagged approved lines", () => {
   const r = evaluate({ mode: "ads", items: [
     { id: "ok", text: "# Ask your traces anything", label: "approved" },
     { id: "bad", text: "# Dashboards come with 77 ready-made questions", label: "rejected" },
-    { id: "vague", text: "They ask in plain words.", label: "rejected", reason: "vague" },
+    { id: "vague", text: "They get answers their way.", label: "rejected", reason: "vague" },
     { id: "fp", text: "Simply connect your agent.", label: "approved" },
   ] });
   assert.equal(r.recall, 0.5);

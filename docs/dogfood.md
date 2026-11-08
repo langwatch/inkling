@@ -54,4 +54,4 @@ inkling eval calibration/regression.jsonl
 approved 6, rejected 7: recall 86% (6/7), false positives 0/6
 ```
 
-The one miss is "They ask in plain words.", rejected as vague. No regex sees vagueness, so that line is a question for the judge step or the reader panel.
+"They ask in plain words." was the one miss at first; the phrase is now banned outright (`banned-words/in-plain-words`, 2026-11-08).

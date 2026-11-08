@@ -117,7 +117,7 @@ export default [
     fix: "Say what the product is and give the number; show the real input and output.",
     source: "Nexus writing-rules changelog 2026-09-22",
     examples: {
-      fail: ["You type a question in plain words, and what comes back is a chart."],
+      fail: ["You type a question, and what comes back is a chart."],
       pass: ["Instant Evals judges 10,000 conversations in about a minute."],
     },
   },

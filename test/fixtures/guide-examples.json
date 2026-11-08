@@ -28,6 +28,7 @@
     { "mode": "post", "rule": "numbers/number-opener", "text": "137 questions, which took the support lead most of a day to answer by hand, and that day was the actual cost.", "why": "writing-rules approves it; the founder's later note (2026-10-31) bans any sentence that starts with a number" }
   ],
   "rejected": [
+    { "mode": "ads", "rule": "banned-words/in-plain-words", "text": "They ask in plain words." },
     { "mode": "post", "rule": "structure/staccato", "text": "Sam gave up on it first. Overhead was high. Handoffs failed silently." },
     { "mode": "post", "rule": "narrator/undefined-subject", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
     { "mode": "post", "rule": "narrator/invented-scene", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },

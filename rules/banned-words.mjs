@@ -159,6 +159,17 @@ export default [
     },
   },
   {
+    id: "in-plain-words",
+    pattern: /\bin plain (?:words|language|english|terms|speech)\b|\bplainly put\b|\bput plainly\b|\bin simple (?:words|terms)\b/i,
+    message: "\"In plain words\" is an AI tic the founder banned: it promises clarity instead of giving it.",
+    fix: "Cut the phrase and say the thing. If the line needs it to be clear, rewrite the line.",
+    source: "Nexus writing-rules changelog 2026-11-08",
+    examples: {
+      fail: ["They ask in plain words.", "In plain language, the key never leaves the vault.", "Plainly put, it costs less."],
+      pass: ["They type the question, and a chart comes back."],
+    },
+  },
+  {
     id: "fan-voice",
     pattern: /\bthe feature that sold me\b|\bI'?m obsessed with\b|\bblew my mind\b/i,
     message: "Fan voice. Reads as an ad pretending to be a post.",

@@ -12,3 +12,5 @@
 {"id": "meat-proxy-approved", "mode": "ads", "text": "Stop being a meat-proxy, let your colleagues talk directly to your agent.", "label": "approved", "source": "founder line, 2026-10-31"}
 {"id": "plain-words-rejected", "mode": "ads", "text": "They ask in plain words.", "label": "rejected", "reason": "vague line, sells nothing concrete", "source": "founder review, 2026-11-03"}
 {"id": "signup-rejected", "mode": "ads", "text": "Sign up for free", "label": "rejected", "reason": "developers smell the gimmick; plain Sign up", "source": "founder note, 2026-09-13"}
+{"id": "in-plain-language-rejected", "mode": "post", "text": "In plain language, the key never leaves the vault.", "label": "rejected", "reason": "banned phrase 'in plain words' and variants, an AI tic", "source": "founder review, 2026-11-08"}
+{"id": "plainly-put-rejected", "mode": "docs", "text": "Plainly put, the judge picks the machine's text.", "label": "rejected", "reason": "banned phrase 'in plain words' and variants, an AI tic", "source": "founder review, 2026-11-08"}
