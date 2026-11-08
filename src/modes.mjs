@@ -33,7 +33,8 @@ export const MODES = {
   },
   script: {
     label: "spoken script: a narrated lesson or video, heard once, in order, with no headings",
-    paragraphWords: 90,
+    // A listener never sees a paragraph break, so the limit only stops a minute of talk with no breath.
+    paragraphWords: 150,
     like: ["post"],
     wordsPerMinute: 150,
   },

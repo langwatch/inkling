@@ -12,8 +12,8 @@ export default [
       const n = words(unit.raw).length;
       return n > settings.paragraphWords ? [{ index: 0, note: `${n} words; this mode allows ${settings.paragraphWords}.` }] : [];
     },
-    message: "Paragraph too long: one idea per paragraph.",
-    fix: "Split it at its natural beats, one job per paragraph.",
+    message: "Paragraph too long for this mode.",
+    fix: "Split it where the topic turns, and start the new paragraph with the word that joined the two halves (so, but, because, that's why), so the split keeps the link.",
     source: "Nexus docs-writing-rules rule 13 (80 words); writing-rules, Keep paragraphs short",
     examples: {
       fail: [Array.from({ length: 90 }, (_, i) => `word${i}`).join(" ") + "."],

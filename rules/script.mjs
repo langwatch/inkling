@@ -13,6 +13,8 @@ const SPOKEN = new Set(["paragraph", "list-item", "quote"]);
 const FINITE = /\b(?:is|are|was|were|am|be|been|being|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|isn't|aren't|wasn't|weren't|don't|doesn't|didn't|can't|won't|let's)\b|'(?:s|re|ve|ll|d|m)\b/i;
 const COMMON_VERB =
   /^(?:answer|prefer|grade|write|make|work|need|want|use|run|read|take|give|get|know|think|see|look|find|help|tell|ask|show|try|call|keep|start|stop|fail|win|pass|lose|learn|check|test|build|ship|cut|add|fix|say|hear|like|love|hate|pick|judge|score|flag|catch|miss|break|matter|happen|change|grow|drop|beat|cost|follow|lead|sell|buy|pay|send|reply|post)(?:s|es|ed|d)?$/;
+const REPLY = /^(?:yes|yeah|no|nope|right|agreed|exactly|sure|fair|fair enough|true|thanks|thank you|okay|ok|of course|got it)\W*$/i;
+const IMPERATIVE = /^(?:use|run|cut|keep|say|ask|try|look|read|write|make|give|take|check|tell|show|stop|start|pick|add|fix|put|let|imagine|picture|think|go|come|see|wait|listen|watch)$/;
 const SUBJECT = /\b(?:i|you|we|they|he|she|it|this|that|there|who|what)\b/i;
 
 /** A sentence a listener hears as a label: four words or fewer, no subject and no finite verb. */
@@ -20,6 +22,8 @@ export function isFragment(sentence) {
   const t = sentence.clean.trim();
   const w = words(t);
   if (!w.length || w.length > 4 || /\?\s*["')\]]*$/.test(t)) return false;
+  // Speech, not labels: a short reply ("No.", "Agreed.") or an imperative ("Use your judgement.").
+  if (REPLY.test(t) || IMPERATIVE.test(w[0].toLowerCase().replace(/[^a-z]/g, ""))) return false;
   if (FINITE.test(t) || SUBJECT.test(t)) return false;
   // "The model drifts.": a determiner, a noun, then a word in -s or -ed reads as subject and verb.
   if (/^(?:the|a|an|our|your|its|their|every|each)\s+[a-z-]+\s+[a-z]+(?:s|ed)\b/i.test(t) && !/^\S+\s+\S+\s+of\b/i.test(t)) return false;
@@ -254,7 +258,7 @@ export default [
         return comparative || demonstrative ? [at(s)] : [];
       }),
     message: "The paragraph opens by pointing back (\"A smaller version\", \"This is\") at something said a paragraph ago. A listener cannot look back to find it.",
-    fix: "Name the thing again: \"A smaller version of the curse of context is...\", or join it to the paragraph it belongs to.",
+    fix: "Name the thing again: \"A smaller version of that hedging problem is...\", or join it to the paragraph it belongs to.",
     source: "Founder review of lesson video v11, 2026-11-08: \"a smaller version of WHAT?\"",
     examples: {
       fail: [{ text: "A smaller version is writing from the middle of a conversation.", mode: "script" }, { text: "The model lists features.\n\nThis is hard even for humans.", mode: "script" }],
@@ -306,7 +310,7 @@ export default [
         });
       }),
     message: "The script gives a count (\"six main problems\", \"four steps\") without naming the items, at the start or inside a part. A listener holds a number with nothing to hang the coming items on.",
-    fix: "Name each part briefly in the same sentence or the next: \"six main problems: predictable words, conceding, the curse of context, ...\"",
+    fix: "Name each part briefly in the same sentence or the next: \"three main problems: predictable words, conceding and cramming\".",
     source: "Video lane review of lesson script v12, 2026-11-08",
     examples: {
       fail: [{ text: "Our research found six main problems with how agents write. Let's go through them together.", mode: "script" }, { text: "## How it works\n\nYou give your agent the repository, and it follows a loop of four steps. Let's take them in turn.", mode: "script" }],
@@ -343,7 +347,7 @@ export default [
       });
     },
     message: "A new part starts with no transition: nothing says we are moving on, or which part of the agenda this is.",
-    fix: "Open the part with one line that ties back: \"Next, let's look at the judge.\" or \"That was the first problem; the second is...\"",
+    fix: "Open the part with one sentence that ties back, in your own voice: \"Next, let's look at the judge.\" or \"So that's why the model hedges. Another thing that goes wrong is...\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"during switch between them, something showing moving from one to the next\"",
     examples: {
       fail: [{ text: "We'll look at the judge and the readers.\n\n## Judge\n\nThe judge grades text.\n\n## Readers\n\nPersonas answer questions.", mode: "script" }],
@@ -398,11 +402,11 @@ export default [
     scope: "document",
     check: (_u, { doc }) => spokenBlocks(doc).filter((b) => b.type !== "list-item").flatMap((b) => b.sentences.filter(isLabel).map(at)),
     message: "A label with no verb (\"The fourth problem.\", \"Problem two:\"). On a slide it is a heading; spoken, the listener hears a number and has to guess how it joins the next words.",
-    fix: "Make it the start of a sentence: \"The fourth problem is poor theory of mind.\"",
+    fix: "Say what happens in a full sentence: \"Another thing that goes wrong is that the model hedges every claim.\" Avoid \"The fourth problem is <name>.\" followed by a definition of the name: describe what happens first, and give the name once the listener can picture it.",
     source: "Founder review of lesson script v12, 2026-11-08: \"The fourth problem. Poor theory of mind, follows from the third.\"",
     examples: {
-      fail: [{ text: "The fourth problem. Poor theory of mind comes out of the third.", mode: "script" }, { text: "The fourth problem: poor theory of mind.", mode: "script" }, { text: "Problem two: the model concedes.", mode: "script" }, { text: "Second issue. The model concedes.", mode: "script" }],
-      pass: [{ text: "The fourth problem is poor theory of mind, and it grows out of the third one.", mode: "script" }, { text: "The first step is to decide who reads it.", mode: "script" }],
+      fail: [{ text: "The fourth problem. The model hedges every claim.", mode: "script" }, { text: "The fourth problem: hedging.", mode: "script" }, { text: "Problem two: the model concedes.", mode: "script" }, { text: "Second issue. The model concedes.", mode: "script" }],
+      pass: [{ text: "Another thing that goes wrong is that the model hedges every claim.", mode: "script" }, { text: "The first step is to decide who reads it.", mode: "script" }],
     },
   },
   {
@@ -411,11 +415,11 @@ export default [
     severity: "warning",
     pattern: /\b(?:follows from|it follows that|ergo|thereby|consequently|which implies)\b/i,
     message: "A logic-textbook connective. Spoken, it sounds like a proof, and the listener still has to work out the link.",
-    fix: "Explain the link the way you'd say it to a friend: \"this one comes out of the third: because the model ...\"",
+    fix: "Say the link the way you'd say it to a friend: \"and this one comes from the same place, because the model ...\"",
     source: "Founder review of lesson script v12, 2026-11-08: \"Poor theory of mind, follows from the third.\"",
     examples: {
-      fail: [{ text: "Poor theory of mind follows from the curse of context.", mode: "script" }, { text: "The model never meets the reader, which implies it guesses.", mode: "script" }],
-      pass: [{ text: "Poor theory of mind comes out of the curse of context, because the model never pictures the reader.", mode: "script" }],
+      fail: [{ text: "The hedging follows from the training.", mode: "script" }, { text: "The model never meets the reader, which implies it guesses.", mode: "script" }],
+      pass: [{ text: "The hedging comes from the same place, because the model was trained to stay fair and balanced.", mode: "script" }],
     },
   },
   {
@@ -444,7 +448,7 @@ export default [
         return overlaps(heading, contentStems(s.clean)) ? [] : [{ ...at(s), note: `The heading "${section.heading.text.trim()}" is never said.` }];
       }),
     message: "The section only makes sense through its heading, and a listener never hears the heading.",
-    fix: "Say the topic in the first sentence: \"The next problem is that the judge prefers the machine.\"",
+    fix: "Say the topic in the first sentence, as a sentence about what happens: \"So why not ask another AI to judge the writing?\" or \"Another thing that goes wrong is that the judge prefers the machine's text.\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"it needs a better introduction of the topic for each topic\"",
     examples: {
       fail: [{ text: "## The judge prefers the machine\n\nSo why not ask another AI to grade the writing?", mode: "script" }],
@@ -455,12 +459,12 @@ export default [
     id: "aside-jump",
     modes: SCRIPT,
     pattern: /,\s*which\s+(?:\w+\s+){0,2}(?:call|calls|name|names|dub|dubs|label|labels)\b/i,
-    message: "A new term dropped in as an aside (\"which psychologists call the curse of knowledge\"). Said aloud it is a jump to a second idea mid-sentence.",
-    fix: "Give it its own sentence that links back: \"This is very similar to what psychologists call the curse of knowledge.\"",
+    message: "A new term dropped in as an aside (\"which statisticians call regression to the mean\"). Said aloud it is a jump to a second idea mid-sentence.",
+    fix: "Give the name its own sentence after the thing it names: \"Statisticians have a name for this: regression to the mean.\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"weird way to make the jump\"",
     examples: {
-      fail: [{ text: "The curse of context, which psychologists call the curse of knowledge.", mode: "script" }],
-      pass: [{ text: "This is very similar to what we call the curse of knowledge in human psychology.", mode: "script" }],
+      fail: [{ text: "The model drifts to the middle, which statisticians call regression to the mean.", mode: "script" }],
+      pass: [{ text: "The model drifts to the middle. Statisticians have a name for this: regression to the mean.", mode: "script" }],
     },
   },
   {
