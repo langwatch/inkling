@@ -4,9 +4,32 @@ import { spokenBlocks } from "./script.mjs";
 import { ROTATION_SETS, rotations, measure, compare, MIN_WORDS } from "../src/voice.mjs";
 
 const SCRIPT = ["script"];
+// Short closers that sum up the example before them: "It just doesn't ask itself.", "It knew, and it still..."
+const CLOSER = /^(?:(?:and|so|but)\s+)?(?:it|that|they|the model)\s+(?:just|still|simply|never|knew|already)\b/i;
 const sentencesOf = (doc) => spokenBlocks(doc).flatMap((b) => b.sentences);
 
 export default [
+  {
+    id: "punchline-closer",
+    modes: SCRIPT,
+    scope: "document",
+    severity: "warning",
+    check: (_u, { doc }) =>
+      spokenBlocks(doc)
+        .filter((b) => b.type !== "list-item" && b.sentences.length >= 3)
+        .flatMap((b) => {
+          const last = b.sentences[b.sentences.length - 1];
+          const t = last.clean.trim();
+          return t.split(/\s+/).length <= 9 && CLOSER.test(t) ? [{ block: last.block, index: last.start }] : [];
+        }),
+    message: "A short closing line that sums up the paragraph's example (\"It just doesn't ask itself.\", \"It knew, and it still wrote about retries.\"). Every blind listener in three test runs heard this line as the machine's.",
+    fix: "Delete it; the example already made the point. Or carry on into the next thought in the same breath: \"...and that's where the curse of context comes back in.\"",
+    source: "Blind listener tests of the lesson's theory of mind section, runs 3 to 5, 2026-11-08",
+    examples: {
+      fail: [{ text: "Say a customer writes in. You ask the model for a reply. It writes about the billing retries. It just doesn't ask itself.", mode: "script" }, { text: "Ask it how the customer feels and it knows. But the reply was about retries. It knew, and it still wrote about retries.", mode: "script" }],
+      pass: [{ text: "Say a customer writes in. You ask the model for a reply. It writes about the billing retries, and the customer still doesn't know when the money comes back.", mode: "script" }, { text: "I tried it on our own posts. The judge agreed with me most of the time. Why would it?", mode: "script" }],
+    },
+  },
   {
     id: "balanced-line",
     modes: SCRIPT,

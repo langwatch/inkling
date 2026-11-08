@@ -22,6 +22,7 @@ inkling check script.md --mode script --minutes 3
 | `stiff-logic` (warning) | follows from, it follows that, ergo, thereby, consequently, which implies | say the link the way you would to a friend |
 | `step-label` (warning) | tutorial step labels: next comes, next up, subsequently, following that, lastly, last but not least | say "then" or "and then"; repeating then, so and and is fine |
 | `instruction-register` (warning, posts too) | a step said as an order outside a list: "You start a fresh model.", "Open a new chat." | "you can start...", "you could...", or what you do: "I usually..." |
+| `punchline-closer` (warning) | a short last line that sums up the paragraph's example: "It just doesn't ask itself." | delete it, or carry on into the next thought |
 | `balanced-line` (warning) | two matching halves: "that's what it knows, so that's what it writes", "the more X, the more Y", "and, at the same time," | say the halves as two plain thoughts |
 | `staged-reveal` (warning) | "The strange part is...", "The funny thing is..." | say the surprising thing and let it surprise |
 | `colon-list` (warning) | a colon followed by parallel items: "you picture what's in their head: what they know, what they want and what they care about" | show the one item that matters in a moment, or give each its own sentence |
