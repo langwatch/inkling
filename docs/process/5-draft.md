@@ -28,6 +28,7 @@ Picture one person from step 1 sitting across the table. They asked you the ques
 - **No outline, no headings.** Say it in the order the explanation needs, with each sentence leading into the next.
 - **A case before the name.** Start from something the listener has seen or done. Describe what happens first, and give the term after, once they can picture it. Use the term as an ordinary word in a sentence about what happens ("the model can picture you fine, it just doesn't bother"), never as an announcement: "Psychologists call that X" and "that's called X" are lecture register. If the listener doesn't need the term to follow, leave it out.
 - **Say the link.** Join the steps with "so", "because", "which is why", "and that's where". When you are not sure of a cause, say "maybe" and give your guess.
+- **Keep "if" and "when".** A cause and effect said as "ask it for copy, and it comes out weak" is an ad shape: a bare verb, "and", a timeless present. Said aloud it sounds clipped. Keep the connector and the tense the effect really has: "if you ask it for copy, it will come out weak".
 - **Repeat the plain word.** Keep one name for a thing ("the model" every time, never "the model", then "the AI", then "the system") and let a key word come back. Deliberate repetition is how people talk: it anchors the listener on what you are talking about.
 - **Say "then" again.** Repeating then, so and and is normal in speech. Rotating "next comes", "subsequently" and "lastly" to avoid it is the manual voice: a model learned it from tutorials and slide decks, and from training that penalised repetition ([why](../research/why.md#why-the-draft-sounds-written)).
 - **I and you.** Say what you did, saw or think, and talk to the listener.
@@ -75,7 +76,13 @@ How far you trim depends on the mode. Docs end strictly technical, ads end at on
 
 - Open on the concrete thing. For a piece about a product, the first sentence names it and says what it is.
 - Describe the mechanism before the meaning, and attach every number to its consequence.
-- Put general facts in the present tense: "models prefer text that models write". Keep the past for one event: "researchers found", "the judge picked". With a study in mind its data feels past, so the general claim slips into the past too ("text that models wrote"), and then it reads as if it covered only some old batch of text.
+- Match the tense to the claim. For each paragraph, ask: is this a general fact, or something that happened? A general fact takes the present: "models prefer text that models write". A single event takes the past: "researchers found", "the judge picked", and so does the story of how this piece was made. The slip goes both ways. With a study in mind its data feels past, so a general claim slips into the past ("text that models wrote") and reads as if it covered only some old batch of text. And after explaining a process in the present, the writer narrates one run of it and keeps the present, so the listener can't tell the story from the rule. This paragraph from the lesson script was written in the present:
+
+  > This video you're watching went through Inkling too. My agent starts a writer, a fresh subagent with only Inkling and the brief. The writer drafts the script, and then the style checker reads it and sends back warnings. Then blind readers and listeners try it. If they get lost, or they can tell a model wrote it, it goes back. And that repeats until it passes.
+
+  It tells one run, so it takes the past:
+
+  > This video you're watching went through Inkling too. My agent started a writer, a fresh subagent with only Inkling and the brief. The writer drafted the script, and then the style checker read it and sent back warnings. Then blind readers and listeners tried it. When they got lost, or could tell a model wrote it, it went back. And that repeated until it passed.
 - Take a side. Concessions, hedges and apologies belong in the docs, never in copy.
 - Make one claim per title, and let each paragraph follow from the one before it.
 - Leave out slogans: taglines, twist imperatives such as "Fail your copy before your readers do", and clipped fragments such as "Less noise. More signal.".

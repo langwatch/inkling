@@ -31,12 +31,15 @@ inkling check script.md --mode script --minutes 3
 | `structure/sentence-variance` (warning, also in `post`) | a stretch of 10 sentences at one steady length: no complete sentence of 6 words or fewer, none of 20 or more, or a length sd under 4 | mix in a short full sentence or a longer one that runs on with and, so, because; never a fragment |
 | `written-register` (warning) | written-only phrasing: left alone, thus, hence, in short, one might, whereby, therefore, moreover, furthermore, notwithstanding, in order to, as such, it is worth noting | say "on its own", "so", "to" |
 | `staccato-overuse` | more than 2 fragments per 300 spoken words, unless `<!-- staccato: on purpose -->` is in the file | join them into sentences |
+| `structure/clipped-condition` (warning, posts too) | a cause and effect said as an ad: a bare verb, "and", a timeless present: "But ask them for copy, and it usually comes out weak", "Hand them a PDF and they skim the first page"; a step in a numbered list is exempt | keep the connector and the real tense: "if you ask them for copy, it will come out weak" |
 | `agenda-count-only` (warning) | a count of parts or items, such as "six main problems" or "four steps", anywhere in the script, with no names in the same sentence or the next | name each item briefly |
 | `list-no-preview` (warning) | a walk through items ("The first...", "The second...") with no line naming them in the 4 sentences before the first | name the items before the first one |
 | `aside-jump` | a new term dropped in as ", which statisticians call..." | give the name its own sentence after the thing it names |
 | `writer-side-opener` (warning) | lines about the material, such as "fits on one screen" or "a problem with a name"; runs in every mode but legal | say why the reader should care |
 
 The narrator rules that run in every mode include two written for scripts: `narrator/overclaim` (warning) flags "the root cause" or "the real reason" in a part that lists several causes, and `narrator/training-tense` fails present-tense claims about finished training, such as "training rewards" or "the model is trained to".
+
+`narrator/tense-match` (warning, every mode but legal) checks tense against the kind of claim from both sides: a general claim told in the past ("text that models wrote"), and a paragraph that names the piece or a date ("this video", "today", "8 Nov") and then narrates one run in the present ("my agent starts a writer... it goes back").
 
 The time budget is the target, but followability beats length: a script may run over by some seconds to keep its previews, signposts and recaps.
 

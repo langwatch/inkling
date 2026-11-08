@@ -26,7 +26,34 @@ export function flatStretches(sentences, b = BURST) {
 
 const SHORT = 6;
 
+// A cause and effect said as an ad: bare verb, "and", a timeless present ("Ask them for copy, and it comes out weak").
+const CLIP_VERB = "ask|give|tell|show|hand|feed|paste|send|run|put|let|try|use|open|type|load|drop|point|turn|leave|add|write|make|start|pick|copy";
+const CLIP_SUBJECT = "it|that|this|she|he|(?:the|your|their|our)\\s+[a-z]+";
+// "they" and "you" take any bare verb ("and they skim"), except a modal or "then", which marks a real sequence.
+const CLIP_PLURAL = "(?:they|you|we)\\s+(?:(?:usually|often|always|just|still|probably|generally|mostly)\\s+)?(?!will\\b|would\\b|could\\b|can\\b|might\\b|should\\b|may\\b|must\\b|then\\b|to\\b)[a-z]+\\b(?!')";
+// An object must follow the verb, so a noun such as "Copy is hard, and it takes time" stays out.
+const CLIP_OBJECT = "the|a|an|it|this|that|them|him|her|me|us|these|those|your|my|our|their|some|one|every|each|all|its";
+const CLIP_PRESENT = "(?:[a-z]+s|is|are|get|see|end up|have|come|look|read|sound|feel)";
+export const CLIPPED_CONDITION = new RegExp(
+  `^["'(\\s]*(?:(?:but|so|and|now|just)\\s*,?\\s+)?(?:${CLIP_VERB})\\s+(?:${CLIP_OBJECT})\\b[^.;:!?]*?,?\\s+and\\s+(?:(?:${CLIP_SUBJECT})\\s+(?:(?:usually|often|always|just|still|probably|generally|mostly)\\s+)?${CLIP_PRESENT}\\b|${CLIP_PLURAL})`,
+  "i",
+);
+
 export default [
+  {
+    id: "clipped-condition",
+    modes: ["script", "post"],
+    scope: "paragraph",
+    severity: "warning",
+    check: (unit) => unit.sentences.filter((x) => CLIPPED_CONDITION.test(x.clean)).map((x) => ({ index: x.start - unit.start })),
+    message: "A cause and effect said as an ad (\"Ask them for copy, and it comes out weak\"): a bare verb, then \"and\", then a timeless present. It drops the connector, so a listener hears a clipped, written line, from the staccato family.",
+    fix: "Keep the connector and the tense the effect really has: \"If you ask them for copy, it will come out weak\", \"When you paste your notes in, the reply fills up with ticket names\". Real steps go in a numbered list.",
+    source: "Founder edit of the lesson opening, 2026-11-08: \"But ask them for copy... and it usually comes out weak\" became \"But if you ask them for copy... it will generally come out weak\"; it repeats across pieces",
+    examples: {
+      fail: [{ text: "But ask them for copy, like a headline, and it usually comes out weak.", mode: "script" }, { text: "Give the model your notes and it writes about the ticket names.", mode: "post" }, { text: "Ask the model for the reply and you often get a polite tour.", mode: "script" }],
+      pass: [{ text: "But if you ask them for copy, like a headline, it will generally come out weak.", mode: "script" }, { text: "When you give the model your notes, it writes about the ticket names.", mode: "post" }, { text: "Open a fresh chat and paste the notes in.", mode: "post" }, { text: "Ask the model for the reply.", mode: "script" }, { text: "1. Run the check, and the report opens.", mode: "post" }],
+    },
+  },
   {
     id: "long-paragraph",
     scope: "paragraph",

@@ -32,6 +32,11 @@ function severalCauses(section) {
 }
 
 // A general claim told in the past: "biased towards text that models wrote" reads as if it covered one old batch.
+// One specific event told in the present: the piece names itself ("this video") or a date, then narrates a run with -s verbs.
+const PIECE_ANCHOR = /\b(?:this|today's) (?:video|post|piece|article|script|talk|lesson|essay|newsletter|deck|thread)\b|\b(?:today|yesterday|last (?:week|month|night)|on (?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday))\b|\b\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b|\b20\d\d-\d\d-\d\d\b/i;
+const NARRATE_PRESENT = /\b(?:starts|drafts|reads|sends|tries|goes|pushes|repeats|passes|writes|runs|checks|picks|asks|opens|finds|gets|comes|takes|becomes|hands|cuts|fixes|adds|catches|flags|returns|loops|turns|moves|scores|stops|rewrites|tests|reviews|answers|fails|lands|replies)\b/i;
+const NARRATE_PAST = /\b(?:started|drafted|sent|tried|went|pushed|repeated|passed|wrote|ran|checked|picked|asked|opened|found|got|came|took|became|handed|fixed|added|caught|flagged|returned|looped|turned|moved|scored|stopped|rewrote|tested|reviewed|answered|failed|landed|replied|said|made|was|were|had|did)\b/i;
+
 const GENERAL_PAST = /\b(?:that|which)\s+(?:other\s+)?(?:AI\s+)?(?:models|LLMs|AIs|AI|machines|people|humans|writers)\s+wrote\b/i;
 const EVENT_CUE = /\b(?:found|showed|study|studies|experiment|survey|in (?:19|20)\d\d|last (?:week|month|year)|yesterday|when we|we (?:ran|tested|asked))\b/i;
 
@@ -380,25 +385,44 @@ export default [
     source: "Founder edit of the lesson script, 2026-11-08: \"You start a fresh model\" became \"You can start a fresh model\"; a lot of AI writing reads like an order",
     examples: {
       fail: [{ text: "You start a fresh model with zero context, and it reads the text for the first time.", mode: "script" }, { text: "Then you paste the notes into the chat.", mode: "post" }, { text: "Open a fresh chat with no history.", mode: "script" }],
-      pass: [{ text: "You can start a fresh model with zero context, and it reads the text for the first time.", mode: "script" }, { text: "I usually paste the notes into a fresh chat.", mode: "post" }, { text: "Ask the model for the reply and you often get a polite tour.", mode: "script" }, { text: "If you paste your notes in, the reply is full of ticket names.", mode: "script" }, { text: "Try it.", mode: "post" }, { text: "Run this:", mode: "post" }, { text: "1. Open a fresh chat.\n2. Paste the notes.", mode: "post" }],
+      pass: [{ text: "You can start a fresh model with zero context, and it reads the text for the first time.", mode: "script" }, { text: "I usually paste the notes into a fresh chat.", mode: "post" }, { text: "If you ask the model for the reply, you often get a polite tour.", mode: "script" }, { text: "If you paste your notes in, the reply is full of ticket names.", mode: "script" }, { text: "Try it.", mode: "post" }, { text: "Run this:", mode: "post" }, { text: "1. Open a fresh chat.\n2. Paste the notes.", mode: "post" }],
     },
   },
   {
-    id: "general-claim-past-tense",
+    id: "tense-match",
     modes: ALL_BUT_LEGAL,
-    scope: "body-sentence",
+    scope: "paragraph",
     severity: "warning",
     check: (unit) => {
-      const m = unit.clean.match(GENERAL_PAST);
-      if (!m || EVENT_CUE.test(unit.clean)) return [];
-      return [{ index: m.index, match: m[0] }];
+      const hits = [];
+      for (const x of unit.sentences) {
+        const m = x.clean.match(GENERAL_PAST);
+        if (m && !EVENT_CUE.test(x.clean)) hits.push({ index: x.start - unit.start + m.index, match: m[0], note: "This one is a general claim told in the past." });
+      }
+      const anchor = unit.clean.match(PIECE_ANCHOR);
+      if (anchor) {
+        const present = unit.sentences.filter((x) => NARRATE_PRESENT.test(x.clean));
+        const past = unit.sentences.filter((x) => NARRATE_PAST.test(x.clean.replace(PIECE_ANCHOR, "")));
+        if (present.length >= 3 && present.length > past.length) hits.push({ index: present[0].start - unit.start, note: `This one narrates one specific run in the present (${present.length} sentences after "${anchor[0]}").` });
+      }
+      return hits;
     },
-    message: "A general claim told in the past tense (\"text that models wrote\"). The writer has a study in mind, so its data sits in the past, but a listener hears the claim as covering only some old batch of text.",
-    fix: "Ongoing facts go in the present: \"text that models write\", \"models prefer AI text\". Keep the past for the one event: \"researchers found\", \"the judge picked\".",
-    source: "Founder edit of the lesson script, 2026-11-08: \"biased towards text that models wrote\" became \"text that other AI models write\"; it repeats across pieces",
+    message: "Tense that doesn't match the kind of claim. A general fact takes the present; one specific event, including how this piece was made, takes the past. The usual slip: after explaining a process in the present, the writer narrates one run of it and keeps the present, so a listener can't tell the story from the general rule.",
+    fix: "Ask of each paragraph: is this a general fact or something that happened? General: \"text that models write\", \"the writer drafts the script\". One event: \"researchers found\", \"for this video, the writer drafted the script, and the checker sent back warnings\".",
+    source: "Founder edits of the lesson script, 2026-11-08: \"text that models wrote\" became \"text that other AI models write\", and the demo paragraph \"My agent starts a writer... And that repeats until it passes\" was put in the past",
     examples: {
-      fail: [{ text: "Models are biased towards text that models wrote.", mode: "script" }, { text: "Readers trust posts that people wrote more than generated ones.", mode: "post" }],
-      pass: [{ text: "Models are biased towards text that other AI models write.", mode: "script" }, { text: "Researchers at Meta found the judges picked text that models wrote.", mode: "script" }, { text: "The email that Ana wrote was short.", mode: "post" }],
+      fail: [
+        { text: "Models are biased towards text that models wrote.", mode: "script" },
+        { text: "Readers trust posts that people wrote more than generated ones.", mode: "post" },
+        { text: "This video you're watching went through Inkling too. My agent starts a writer, a fresh subagent with only Inkling and the brief. The writer drafts the script, and then the style checker reads it and sends back warnings. Then blind readers and listeners try it. If they get lost, or they can tell a model wrote it, it goes back. And that repeats until it passes.", mode: "script" },
+      ],
+      pass: [
+        { text: "Models are biased towards text that other AI models write.", mode: "script" },
+        { text: "Researchers at Meta found the judges picked text that models wrote.", mode: "script" },
+        { text: "The email that Ana wrote was short.", mode: "post" },
+        { text: "This video you're watching went through Inkling too. My agent started a writer, a fresh subagent with only Inkling and the brief. The writer drafted the script, and then the style checker read it and sent back warnings. Then blind readers and listeners tried it. When they got lost, or could tell a model wrote it, it went back. And that repeated until it passed.", mode: "script" },
+        { text: "The writer drafts the script, and the style checker reads it and sends back warnings. Then readers try it, and it goes back until it passes.", mode: "script" },
+      ],
     },
   },
 ];

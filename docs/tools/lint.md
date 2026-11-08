@@ -38,8 +38,8 @@ Today one rule warns: `narrator/question-opener`, a piece that opens with a ques
 | hedges | softeners such as `almost` and `fairly`, casual hedges outside posts, modal hedges such as `can help` |
 | contrast | `not X, but Y`, `it wasn't X. It was Y.`, `X, not Y` closers, mirrored pairs, rule-of-three anaphora |
 | numbers | sentences and titles that open with a number, over-precise figures |
-| narrator | signposts, question openers (warning), fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` or `Teams ship...`, invented office scenes |
-| structure | long paragraphs, one-line barrages, staccato (short sentences that move time forward pass), gravitas closers, unintroduced names |
+| narrator | signposts, question openers (warning), fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` or `Teams ship...`, invented office scenes, tense that does not match the claim (general fact in the past, one event in the present) |
+| structure | long paragraphs, one-line barrages, staccato (short sentences that move time forward pass), gravitas closers, unintroduced names, clipped conditions ("ask it for copy, and it comes out weak") |
 | docs | rollout flags, future tense, artifacts as subjects of thinking verbs, title rules |
 | deck | slide titles, bullet counts and lengths, prose on slides |
 | pitch | headlines from the writer's side, concessions, worry lines, crammed headlines, investor and legal precision |
