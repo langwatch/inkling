@@ -44,3 +44,11 @@ Later runs showed written lines that came from the talk pass itself, before any 
 - A rule to tie back to the previous part "in one line" made the writer pack the link and its cause into one long sentence. The tie-back is now a few words, and the reason gets its own sentence.
 
 Example lines in Inkling's own pages were copied word for word ("a minute ago", "Another thing that goes wrong"), so the pages now say examples show a move and are not lines to reuse.
+
+## How the voice test works
+
+Each run gives the brief and the Inkling path to a fresh writer, then gives its section to two fresh listeners, blind and in a different shuffled order each. The listeners compare it with two human pieces and say whether each sounds like a person, quote any line that doesn't, and order the three.
+
+The section passes a run when both listeners say it sounds like a person, quote nothing beyond trivial lines, and don't rank it clearly below both human pieces. The test is done after two passing runs in a row.
+
+The first four runs compared the section with two short chat replies. A lesson section next to chat loses on register every time, so from run 5 the human pieces are the founder's own explanations of a why, 145 and 166 words, with names and private context removed. The section's required header line is named in the prompt, and listeners leave it out of their judgement.
