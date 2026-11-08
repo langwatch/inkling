@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { grade } from "../src/readers.mjs";
-import { allowedEdit, editSize, editTooBig, panelStart, panelRound, panelStatus, holdout, keeps, stopRun, loadState } from "../src/panel.mjs";
+import { allowedEdit, editSize, editTooBig, panelStart, panelRound, panelStatus, holdout, keeps, stopRun, loadState, bestVersion, holdoutsFor, holdoutKey, ABSOLUTE } from "../src/panel.mjs";
 import { startPlan, budgetStop, timingsSummary, topicInit, openItems } from "../src/budget.mjs";
 import { evaluate, calibrate, uncalibrated } from "../src/calibrate.mjs";
 
@@ -13,13 +13,14 @@ const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const BIN = new URL("../bin/inkling.mjs", import.meta.url).pathname;
 const readersFile = join(FIX, "draft.readers.yaml");
 const fresh = () => mkdtempSync(join(tmpdir(), "inkling-panel-"));
+process.env.INKLING_STATE_DIR = fresh();
 const DRAFT = readFileSync(join(FIX, "draft.md"), "utf8");
 
 /** Answer and judge every reader in a round directory, the way subagents would. */
-function answerRound(dir, { keep = "A", trust = false } = {}) {
+function answerRound(dir, { keep = "A", trust = false, skip = "none" } = {}) {
   for (const id of ["engineer", "skimmer"].concat(existsSync(join(dir, "engineer-fresh.prompt.md")) ? ["engineer-fresh", "skimmer-fresh"] : [])) {
     if (!existsSync(join(dir, `${id}.prompt.md`))) continue;
-    writeFileSync(join(dir, `${id}.answer.md`), `Keep: ${keep}\nIt says what it is sooner.\nNo, that is gone.\n1. A VM per agent.`);
+    writeFileSync(join(dir, `${id}.answer.md`), `Keep: ${keep}\nIt says what it is sooner.\nNo, that is gone.\nFinish: yes\nSkip: ${skip}\n1. A VM per agent.`);
   }
   assert.equal(grade(dir).stage, "verdicts");
   for (const id of ["engineer", "skimmer", "engineer-fresh", "skimmer-fresh"]) {
@@ -203,4 +204,42 @@ test("the CLI refuses quick for an uncalibrated mode", () => {
   const ok = spawnSync(process.execPath, [BIN, "plan", "--budget", "deep", "--mode", "x"], { encoding: "utf8" });
   assert.equal(ok.status, 0);
   assert.match(ok.stdout, /stop at the best version so far/);
+});
+
+test("rounds ask the absolute question, and a win with a skip does not count", () => {
+  const out = fresh();
+  const draft = join(out, "draft.md");
+  writeFileSync(draft, DRAFT);
+  const { prompts } = panelStart({ draft, readersFile, out });
+  assert.ok(readFileSync(prompts[0], "utf8").includes(ABSOLUTE));
+  answerRound(join(out, "round-1"));
+  writeFileSync(draft, lineEdit(DRAFT));
+  panelRound({ out, random: () => 0.9 });
+  const p = readFileSync(join(out, "round-2", "engineer.prompt.md"), "utf8");
+  assert.match(p, /Finish: yes" or "Finish: no"/);
+  assert.match(p, /Skip: none/);
+  answerRound(join(out, "round-2"), { keep: "B", skip: "the pricing part, it drags" });
+  assert.deepEqual(keeps(join(out, "round-2")), { engineer: "new-with-skip", skimmer: "new-with-skip" });
+  assert.equal(bestVersion(out, loadState(out)), 1, "a win with a skip leaves version 1 the best");
+  assert.match(panelStatus(out), /would still skip part of it: that win does not count/);
+});
+
+test("a second holdout on the same piece is refused across runs unless forced, and recorded", () => {
+  const dir = fresh();
+  const draft = join(dir, "draft.md");
+  writeFileSync(draft, DRAFT);
+  const run = () => {
+    const out = fresh();
+    panelStart({ draft, readersFile, out });
+    answerRound(join(out, "round-1"));
+    return out;
+  };
+  const first = run();
+  holdout({ out: first });
+  const second = run();
+  assert.throws(() => holdout({ out: second }), /already ran on this piece[\s\S]*--force/);
+  holdout({ out: second, force: true });
+  const recorded = holdoutsFor(holdoutKey(second));
+  assert.deepEqual(recorded.map((h) => h.forced), [false, true]);
+  assert.match(loadState(second).holdout, /forced/);
 });

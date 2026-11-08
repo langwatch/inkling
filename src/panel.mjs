@@ -3,11 +3,16 @@
 // reader cannot reward the change for being a change; the tool records the mapping and unshuffles.
 // Edit size shrinks per round (sections, then paragraphs, then lines), like a decaying learning rate.
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, resolve, dirname } from "node:path";
+import { homedir } from "node:os";
 import { readReadersFile, readerPrompt, runTextChecks, grade, DEFAULT_QUESTIONS } from "./readers.mjs";
 import { BUDGETS, budgetStop, recordTiming, readPlan, recordOpen, openItems } from "./budget.mjs";
 
 export const EDIT_SIZES = ["sections", "paragraphs", "lines"];
+
+/** Every panel read also asks the absolute question, so a preference never hides a skip. */
+export const ABSOLUTE = "Would you finish this? Where would you skip?";
+const withAbsolute = (questions) => (questions.includes(ABSOLUTE) ? questions : [...questions, ABSOLUTE]);
 
 /** Allowed edit size before round `round` (round 2 is the first edit). */
 export function allowedEdit(round) {
@@ -73,6 +78,8 @@ ${b}
 Rules: you have no tools. Do not read files, search or research; answer only from the text above. Read the way this person really reads: busy, generous, neither hunting for faults nor polite on the author's behalf.
 
 First line: "Keep: A" or "Keep: B", the version you would keep reading. Second line: why, in one or two sentences. Third line: whether what stopped you last time is still there.
+Fourth line: "Finish: yes" or "Finish: no": would you read the version you kept to the end?
+Fifth line: "Skip: none", or "Skip: " and where in the version you kept you would skip ahead, and why.
 Then answer these questions about the version you would keep, numbered:
 ${questions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
 }
@@ -90,7 +97,7 @@ export function panelStart({ draft, readersFile, out }) {
   const manifest = {
     draft: resolve(draft),
     personas: spec.personas,
-    questions: spec.questions ?? DEFAULT_QUESTIONS,
+    questions: withAbsolute(spec.questions ?? DEFAULT_QUESTIONS),
     expectations: spec.expectations,
     failOn: spec.doubts?.fail_on ?? ["trust_breaking"],
     context: spec.context ?? {},
@@ -144,7 +151,18 @@ export function panelRound({ out, draft, force = false, random = Math.random }) 
   return { prompts, size, allowed, nextAllowed: allowedEdit(next + 1), warning: tooBig };
 }
 
-/** Which version each reader kept, unshuffled. */
+/** The absolute answer under the A/B pick: would the reader finish, and where would they skip. */
+export function absolute(answer) {
+  const finish = answer.match(/finish:\s*\**\s*(yes|no)\b/i)?.[1]?.toLowerCase() ?? null;
+  const skipLine = answer.match(/skip:\s*\**\s*([^\n]*)/i)?.[1]?.replace(/\*+/g, "").trim() ?? null;
+  const skip = skipLine && !/^(?:none|no|nowhere|n\/a|nothing)\b/i.test(skipLine) ? skipLine : null;
+  return { finish, skip };
+}
+
+/**
+ * Which version each reader kept, unshuffled. A pick of the new version while the reader would
+ * still skip part of it, or would not finish it, is "new-with-skip": it does not count as a win.
+ */
 export function keeps(roundDir) {
   const manifest = JSON.parse(readFileSync(join(roundDir, "manifest.json"), "utf8"));
   if (!manifest.mapping) return {};
@@ -152,8 +170,11 @@ export function keeps(roundDir) {
   for (const p of manifest.personas) {
     const f = join(roundDir, `${p.id}.answer.md`);
     if (!existsSync(f)) continue;
-    const m = readFileSync(f, "utf8").match(/keep:\s*\**\s*([AB])\b/i);
-    out[p.id] = m ? manifest.mapping[p.id][m[1].toUpperCase()] : "unclear";
+    const answer = readFileSync(f, "utf8");
+    const m = answer.match(/keep:\s*\**\s*([AB])\b/i);
+    const kept = m ? manifest.mapping[p.id][m[1].toUpperCase()] : "unclear";
+    const { finish, skip } = absolute(answer);
+    out[p.id] = kept === "new" && (skip || finish === "no") ? "new-with-skip" : kept;
   }
   return out;
 }
@@ -169,6 +190,7 @@ export function panelStatus(out) {
     const kept = Object.entries(k).map(([id, v]) => `${id} kept ${v}`).join(", ");
     lines.push(`round ${r}: ${g.pending ? `waiting (${g.stage})` : g.failed ? `${g.failed} failed` : "all pass"}${g.coreFailed === 0 ? ", core pass" : ""}${kept ? `; ${kept}` : ""}`);
     if (Object.values(k).includes("old")) lines.push(`  a reader preferred the old version in round ${r}: revert that change or rethink it`);
+    if (Object.values(k).includes("new-with-skip")) lines.push(`  a reader kept the new version in round ${r} but would still skip part of it: that win does not count`);
   }
   if (state.holdout) lines.push(`holdout: ${state.holdout}`);
   const plan = readPlan(out);
@@ -179,13 +201,32 @@ export function panelStatus(out) {
   return lines.join("\n");
 }
 
-/** Fresh readers, used once, on the current version. */
-export function holdout({ out, draft }) {
+const registryPath = () => join(process.env.INKLING_STATE_DIR || join(homedir(), ".cache", "inkling"), "holdouts.json");
+const readRegistry = () => (existsSync(registryPath()) ? JSON.parse(readFileSync(registryPath(), "utf8")) : []);
+
+/** The piece a holdout belongs to: the plan's topic when there is one, else the draft's path. */
+export function holdoutKey(out, state = loadState(out)) {
+  const plan = readPlan(out);
+  return plan?.topic ? `topic:${plan.topic}` : `draft:${resolve(state.draft)}`;
+}
+
+/** Earlier holdouts on the same piece, from any run. */
+export const holdoutsFor = (key) => readRegistry().filter((h) => h.key === key);
+
+/**
+ * Fresh readers, used once, on the current version. Clean eyes are spent once per piece, not
+ * once per run: a second holdout on the same topic or draft is refused unless forced, and recorded.
+ */
+export function holdout({ out, draft, force = false }) {
   const state = loadState(out);
   const plan = readPlan(out);
   if (plan && !BUDGETS[plan.budget].holdout) throw new Error(`the ${plan.budget} budget has no clean-eyes round`);
   settleTimings(out, state);
   if (state.holdout) throw new Error("the holdout runs once. Make one small adjustment at most, then stop: a second holdout would overfit to it.");
+  const key = holdoutKey(out, state);
+  const earlier = holdoutsFor(key);
+  if (earlier.length && !force)
+    throw new Error(`a clean-eyes holdout already ran on this piece (${key}) in ${earlier.at(-1).run} at ${earlier.at(-1).at}. A second one overfits to it; pass --force to run it anyway, and it will be recorded as forced.`);
   const spec = readReadersFile(state.readersFile);
   const personas = spec.holdout?.length ? spec.holdout : spec.personas.map((p) => ({ ...p, id: `${p.id}-fresh` }));
   const dir = join(out, "holdout");
@@ -200,7 +241,7 @@ export function holdout({ out, draft }) {
   const text = readFileSync(join(out, `version-${version}.md`), "utf8");
   const manifest = {
     personas,
-    questions: spec.questions ?? DEFAULT_QUESTIONS,
+    questions: withAbsolute(spec.questions ?? DEFAULT_QUESTIONS),
     expectations: spec.expectations.map((e) => (e.applies_to ? { ...e, applies_to: e.applies_to.flatMap((id) => [id, `${id}-fresh`]) } : e)),
     failOn: spec.doubts?.fail_on ?? ["trust_breaking"],
     context: spec.context ?? {},
@@ -212,7 +253,9 @@ export function holdout({ out, draft }) {
     writeFileSync(f, readerPrompt({ persona: p, text, questions: manifest.questions, context: manifest.context }));
     return f;
   });
-  state.holdout = `ran on version ${state.round}`;
+  state.holdout = `ran on version ${state.round}${earlier.length ? ", forced" : ""}`;
+  mkdirSync(dirname(registryPath()), { recursive: true });
+  writeFileSync(registryPath(), JSON.stringify([...readRegistry(), { key, run: resolve(out), at: new Date().toISOString(), forced: earlier.length > 0 }], null, 1));
   state.emitted.holdout = Date.now();
   saveState(out, state);
   return { prompts, dir };
@@ -229,11 +272,11 @@ export function settleTimings(out, state) {
   saveState(out, state);
 }
 
-/** The latest version no reader rejected: a round where most readers kept the old text loses. */
+/** The latest version no reader rejected: a round where most readers kept the old text, or kept the new one but would still skip part of it, loses. */
 export function bestVersion(out, state) {
   for (let r = state.round; r > 1; r--) {
     const k = Object.values(keeps(join(out, `round-${r}`)));
-    if (k.filter((v) => v === "new").length >= k.filter((v) => v === "old").length) return r;
+    if (k.filter((v) => v === "new").length >= k.filter((v) => v === "old" || v === "new-with-skip").length) return r;
   }
   return 1;
 }
