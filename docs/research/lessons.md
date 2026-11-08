@@ -4,6 +4,8 @@ These are the review notes Inkling's rules came from, distilled. Each one was a 
 
 <!-- inkling-ignore-file mannered-words: this page names the banned words -->
 
+A pushback on one piece is a correction to that piece. It becomes a rule here only when it describes a pattern that comes back across pieces; a one-off argument against one wrong idea stays with that piece.
+
 ## Before the first line
 
 - Write for a reader with nothing in their head. Could someone who never saw our page, our UI or our chat picture this detail, and would they care? If it only makes sense to the people who built it, cut it and keep the claim it supported.

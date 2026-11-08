@@ -21,6 +21,4 @@ A model asked to talk still sounds like a manual, for four more reasons:
 3. **Steps said as orders.** Instructions are the written genre with the most "you" followed by a verb, and assistant answers default to telling the user what to do. So an explanation of a process comes out as a manual: "You start a fresh model. You give it the text." People explaining say "you can start a fresh one", "you could", "we just", "I usually".
 4. **Elegant variation.** Training penalised repetition, so the model avoids saying "then" twice and rotates "next", "after that" and "subsequently". People talking just say "then" again.
 
-Inkling turns each point into a step: tests written before the draft for 1 and 4, rules for 2, 3, 5 and 6, a goal with one claim and a named reader for 6, 7 and 8, zero-context reader tests for 4 and 8, and calibration against human verdicts for 9.
-
-Every explanation of why models fail, these points included, has to survive a check: "then why haven't the labs fixed it?". A cause that a prompt or one more instruction would cure is usually the wrong cause. See the [process](../../README.md#the-process).
+Inkling turns each point into a step: tests written before the draft for 1 and 4, rules for 2, 3, 5 and 6, a goal with one claim and a named reader for 6, 7 and 8, zero-context reader tests for 4 and 8, and calibration against human verdicts for 9. See the [process](../../README.md#the-process).
