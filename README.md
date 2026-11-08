@@ -12,6 +12,12 @@ Agents are great at writing code now, but still terrible at copy. This framework
 
 Agents stop once copy is accurate, because no test fails on it. You get a writing process your agent follows, tools it can pick up along the way, and the research behind both.
 
+## Watch the lesson
+
+<a href="https://inkling-lesson--langwatch-f9de22.lazeapps.com"><img src="docs/brand/lesson-poster.jpg" width="640" alt="Title frame of the Inkling lesson video: the Inkling icon and the line a content writing framework for agents"></a>
+
+A 7 minute narrated video on why agents write weak copy and how this process fixes it, with chapters, captions and the full rule list. It opens in the team's Laze workspace.
+
 ## The process
 
 When your agent writes something people will read, it goes through eight steps:
