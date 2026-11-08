@@ -79,7 +79,7 @@ const COUNT_WORDS = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eigh
 const PART_COUNT = /\b(two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:main\s+|big\s+|key\s+|short\s+)?(?:things|parts|steps|problems|reasons|ideas|points|sections|questions|habits|lessons|tools|ways|stops|topics|mistakes|chapters|issues)\b/i;
 /** How many list separators follow a colon or "are"/"is": a rough count of named items. */
 const names = (t) => {
-  const m = t.match(/(?::|\b(?:are|were|is)\b)([^.?!]*)/i);
+  const m = t.match(/(?::|,|\b(?:are|were|is)\b)([^.?!]*)/i);
   return m ? (m[1].match(/,|\band\b|\bor\b/gi) ?? []).length : 0;
 };
 const STRUCTURE_COUNT = /\b(two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:main\s+|short\s+)?(?:parts|sections|topics|stops|chapters)\b/i;
@@ -206,6 +206,8 @@ export default [
         section.blocks.slice(1).flatMap((b, i) => {
           const s = b.sentences[0];
           if (b.type !== "paragraph" || !s || isFragment(s)) return [];
+          // A question the listener would ask is itself the link to what came before.
+          if (/\?\s*["')\]]*$/.test(s.clean.trim())) return [];
           const head = words(s.clean).slice(0, 10).join(" ");
           if (CONNECTIVE.test(s.clean) || BACK_REF.test(head)) return [];
           const prev = section.blocks[i];

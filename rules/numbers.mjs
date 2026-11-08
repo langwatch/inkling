@@ -6,10 +6,12 @@ const OPENER = new RegExp(`^[\\s"'(\\[]*(?:\\$|USD |EUR |\u20ac)?(?:\\d[\\d,.]*\
 export default [
   {
     id: "number-opener",
-    check: (unit) => {
+    check: (unit, { mode }) => {
       if (unit.block.type === "cell") return [];
       const m = unit.clean.match(OPENER);
       if (!m) return [];
+      // Spoken, "Two things are going on here" is how people open an explanation, not a status flex.
+      if (mode === "script" && /^\s*(?:two|three|four|five)$/i.test(m[0])) return [];
       // "One lived 10.7 hours": "one" as a pronoun doing something is not a count.
       const next = unit.clean.slice(m.index + m[0].length).match(/^\s+([a-z]+)/)?.[1];
       if (/^\s*one$/i.test(m[0]) && next && (isPastAction(next) || /^[a-z]{3,}s$/.test(next))) return [];
@@ -20,7 +22,7 @@ export default [
     source: "Rejected line, \"Dashboards come with 77 ready-made questions\"; founder note 2026-10-31",
     examples: {
       fail: ["77 ready-made questions come with every dashboard.", "# 10 ways to cut your agent bill", "Three of the four measurements agree."],
-      pass: ["Every dashboard starts with the questions teams ask most often, 77 of them.", "Neither stopped. One lived 10.7 hours and made 1,301 API calls."],
+      pass: ["Every dashboard starts with the questions teams ask most often, 77 of them.", "Neither stopped. One lived 10.7 hours and made 1,301 API calls.", { text: "Two things are going on here, and one makes the other worse.", mode: "script" }],
     },
   },
   {

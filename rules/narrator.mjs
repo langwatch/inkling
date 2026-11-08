@@ -124,6 +124,8 @@ export default [
   {
     id: "narrated-flow",
     modes: ["post", "ads", "deck"],
+    // A spoken explanation starts from what the listener does: "you paste it in, and what comes back is...".
+    notModes: ["script"],
     pattern: /\bwhat comes back\b|\byou type (?:a|your|in)\b|\byou ask (?:it|in chat)\b[^.]*\band it\b/i,
     message: "Narrated user flow: walks the reader through the UI as a story.",
     fix: "Say what the product is and give the number; show the real input and output.",

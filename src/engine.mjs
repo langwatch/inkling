@@ -69,6 +69,7 @@ function ignored(set, rule) {
 }
 
 export function ruleApplies(rule, mode) {
+  if (rule.notModes?.includes(mode)) return false;
   return !rule.modes || modeFamily(mode).some((m) => rule.modes.includes(m));
 }
 

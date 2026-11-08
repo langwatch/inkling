@@ -24,7 +24,7 @@ Picture one person from step 1 sitting across the table. They asked you the ques
 - **Repeat the plain word.** Keep one name for a thing ("the model" every time, never "the model", then "the AI", then "the system") and let a key word come back. Deliberate repetition is how people talk: it anchors the listener on what you are talking about.
 - **Say "then" again.** Repeating then, so and and is normal in speech. Rotating "next comes", "subsequently" and "lastly" to avoid it is the manual voice: a model learned it from tutorials and slide decks, and from training that penalised repetition ([why](../research/why.md#why-the-draft-sounds-written)).
 - **I and you.** Say what you did, saw or think, and talk to the listener.
-- **Ask their question.** When the listener would interrupt with a question, ask it yourself and answer it.
+- **Ask their question, in their words.** When the listener would interrupt, ask what they would ask at that moment ("wait, it can do that?") and answer it. A presenter's "So why does that happen?" is a stage cue, and listeners hear it as one.
 - **Say the hard part.** If a step is tricky or took you a while to see, say so.
 
 Don't trim while you talk. A long, loose first pass is fine; the next two passes fix length.
@@ -34,12 +34,22 @@ Don't trim while you talk. A long, loose first pass is fine; the next two passes
 Now read the talk back as the reader from step 1 and add what they need to follow it:
 
 - A first line that tells a newcomer where they are and why they should care.
-- For anything with several parts, a preview that names them, and a sentence at each switch that says where we are. Write those in the same voice: "Another thing that goes wrong is that the model hedges every claim" is talk, "The second problem: hedging." is a label.
+- For anything with several parts, a preview of them, and a sentence at each switch that says where we are. Write those in the same voice: "Another thing that goes wrong is that the model hedges every claim" is talk, "The second problem: hedging." is a label. A preview never names a term the listener hasn't met yet: "two things are going on, and one makes the other worse" previews without a single term. A short piece or one section of a longer script often needs no preview at all.
 - Headings for a page, if the mode uses them. A heading never replaces the sentence that opens the part.
 
 ## Trim it
 
-Cut whole things: a repeat, an aside, a second example that proves the same point, a part the claim doesn't need. Keep the connectives, the "I" and "you", the question and its answer, and the case that comes before the name. A sentence that loses its "because" to save four words has lost the part that explained something.
+Cut by deleting, never by rewriting. Delete whole things: a repeat, an aside, a second example that proves the same point, a part the claim doesn't need. Keep the connectives, the "I" and "you", the question and its answer, and the case that comes before the name. A sentence that loses its "because" to save four words has lost the part that explained something.
+
+Some edits look like trimming and turn talk into notes. Never make these three:
+
+- Turning a description into a definition: "...has a name in psychology, theory of mind" becomes "Theory of mind is...".
+- Moving a name in front of the case it names, so the listener hears the term before they can picture it.
+- Ending on a recap that lists the terms again. End on the last real point, said the way you would say it.
+
+When the piece is still too long after deleting, say fewer things: drop an idea or an example. If that would lose the claim, run over and say so in the notes; a length target is a default, and squeezing every sentence costs more than ten seconds.
+
+Before you ship, read the talk pass and the final version one after the other, aloud. If the talk pass sounds more like a person, go back to it and only delete.
 
 How far you trim depends on the mode. Docs end strictly technical, ads end at one claim per line, and a script keeps the voice it had when you talked it.
 
