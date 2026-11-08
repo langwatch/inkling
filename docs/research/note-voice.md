@@ -51,8 +51,10 @@ Example lines in Inkling's own pages were copied word for word ("a minute ago", 
 
 ## How the voice test works
 
-Each run gives the brief and the Inkling path to a fresh writer, then gives its section to two fresh listeners, blind and in a different shuffled order each. The listeners compare it with two human pieces and say whether each sounds like a person, quote any line that doesn't, and order the three.
+Each run gives the brief and the Inkling path to a fresh writer. Its section then goes to four fresh listeners, each with the section and two human pieces in a different shuffled order.
 
-The section passes a run when both listeners say it sounds like a person, quote nothing beyond trivial lines, and don't rank it clearly below both human pieces. The test is done after two passing runs in a row.
+The human pieces are the founder's own explanations of a why, 145 and 166 words, with names and private context removed. The first runs used two short chat replies instead, and a lesson section next to chat loses on register every time. The section's required opening words are named in the prompt, and listeners leave them out.
 
-The first four runs compared the section with two short chat replies. A lesson section next to chat loses on register every time, so from run 5 the human pieces are the founder's own explanations of a why, 145 and 166 words, with names and private context removed. The section's required header line is named in the prompt, and listeners leave it out of their judgement.
+Each listener answers two things. Which text, if any, did an AI write, and how sure are they? And which phrases would a person not say out loud? The section passes a run when listeners can't pick it out more often than chance (at most one of four names it), and no phrase in it is flagged by two or more listeners. The test is done after two passing runs in a row.
+
+Until run 5 the listeners ranked the three texts instead. With three texts, one always comes last, and real writing has tells no generator copies in full, so "ranked last" measured distance from one person's style. The question we care about is whether a listener hears a machine, and a single odd phrase one listener noticed is noise until a second one notices it too.
