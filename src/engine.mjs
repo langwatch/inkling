@@ -1,5 +1,5 @@
 // Runs rules over a parsed document. A rule is data: an id, a scope, and either a
-// `pattern` or a `check(unit, ctx)`; see docs/layers/a-lints.md for the shape.
+// `pattern` or a `check(unit, ctx)`, and an optional severity: "warning" (default "error").
 import { mask, parse, words } from "./markdown.mjs";
 import { MODES, modeFamily } from "./modes.mjs";
 
@@ -118,6 +118,7 @@ export function lint({ text, file = "-", mode = "post", rules, audience }) {
           line: pos.line,
           col: pos.col,
           rule: rule.id,
+          severity: rule.severity ?? "error",
           family: rule.family,
           match: hit.match?.trim(),
           excerpt: hit.excerpt ?? excerpt(base, at),

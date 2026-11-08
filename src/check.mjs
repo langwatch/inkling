@@ -26,7 +26,7 @@ function format(findings, { color }) {
   return findings
     .map((f) =>
       [
-        `${c(1, `${f.file}:${f.line}:${f.col}`)}  ${c(31, f.rule)}`,
+        `${c(1, `${f.file}:${f.line}:${f.col}`)}  ${f.severity === "warning" ? c(33, `warning ${f.rule}`) : c(31, f.rule)}`,
         f.excerpt ? `  > ${f.excerpt}` : null,
         `  why: ${f.message}`,
         `  fix: ${f.fix}`,
@@ -55,8 +55,10 @@ export function runCheck({ paths, mode, audience, house, only, skip, json, stdin
     const out = [head, ""];
     if (all.length) out.push(format(all, { color }), "");
     const rulesHit = new Set(all.map((f) => f.rule)).size;
-    out.push(all.length ? `${all.length} finding${all.length === 1 ? "" : "s"} from ${rulesHit} rule${rulesHit === 1 ? "" : "s"}.` : "clean: no findings.");
+    const warnings = all.filter((f) => f.severity === "warning").length;
+    const tail = warnings ? `, ${warnings} warning${warnings === 1 ? "" : "s"} (exit 0 unless an error remains; keep a warned line only with a reason)` : "";
+    out.push(all.length ? `${all.length} finding${all.length === 1 ? "" : "s"} from ${rulesHit} rule${rulesHit === 1 ? "" : "s"}${tail}.` : "clean: no findings.");
     process.stdout.write(out.join("\n") + "\n");
   }
-  return all.length ? 1 : 0;
+  return all.some((f) => f.severity !== "warning") ? 1 : 0;
 }

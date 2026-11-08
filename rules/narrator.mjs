@@ -280,4 +280,28 @@ export default [
       ],
     },
   },
+  {
+    id: "question-opener",
+    severity: "warning",
+    scope: "document",
+    modes: ALL_BUT_LEGAL,
+    check: (unit) => {
+      const { doc } = unit;
+      const first = doc.title ?? doc.blocks.find((b) => ["paragraph", "list-item", "quote", "heading"].includes(b.type));
+      const [q, next] = first?.sentences ?? [];
+      if (!q || !/\?\s*$/.test(q.clean)) return [];
+      const sameLine = next && !/\n/.test(first.text.slice(q.end, next.start));
+      const note = sameLine
+        ? "The answer lands in the same line: keep it only if the question is the reader's own words."
+        : "The answer does not land in the same line, so the question is a windup.";
+      return [{ block: first, index: q.start, note }];
+    },
+    message: "The piece opens with a question (warning).",
+    fix: "Open on the concrete thing. Keep the question only when the answer follows in the same line and the question is what the reader would ask, as in \"Laptop shut? It still works\".",
+    source: "Nexus writing-rules, Open flat and Ask a question only if the next breath answers it (founder, 2026-11-08)",
+    examples: {
+      fail: ["Ever wondered why your agent forgets?\n\nIt compacts its context.", { text: "# Laptop shut? It still works", mode: "ads" }],
+      pass: ["The agent forgets because it compacts its context. Why does that matter? It drops the plan.", { text: "# You don't need an agent sandbox", mode: "ads" }],
+    },
+  },
 ];

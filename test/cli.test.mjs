@@ -42,3 +42,17 @@ test("yaml subset: block scalars, flow lists, lists of maps", () => {
   const y = parseYaml("a: >\n  one\n  two\nb: [x, 'y z']\nc:\n- id: p\n  view: skim\n");
   assert.deepEqual(y, { a: "one two\n", b: ["x", "y z"], c: [{ id: "p", view: "skim" }] });
 });
+
+test("check exits 0 when only warnings remain and prints them", () => {
+  const r = run(["check", "-", "--mode", "ads"], "# Laptop shut? It still works\n");
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /warning narrator\/question-opener/);
+  assert.match(r.stdout, /1 warning/);
+});
+
+test("check exits 1 when an error sits beside a warning", () => {
+  const r = run(["check", "-", "--mode", "post"], "Ever wondered why?\n\nIt was honestly fine.\n");
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /warning narrator\/question-opener/);
+  assert.match(r.stdout, /banned-words\/mannered-words/);
+});

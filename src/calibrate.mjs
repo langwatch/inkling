@@ -32,7 +32,7 @@ export function evaluate({ items, mode, house }) {
   let approved = 0, rejected = 0, falsePositives = 0, caught = 0;
   const misses = [], flagged = [];
   for (const item of items) {
-    const findings = lint({ text: item.text, mode: item.mode ?? mode, rules });
+    const findings = lint({ text: item.text, mode: item.mode ?? mode, rules }).filter((f) => f.severity !== "warning");
     const hit = new Set(findings.map((f) => f.rule));
     for (const r of hit) {
       perRule[r] ??= { caught: 0, falsePositives: 0 };

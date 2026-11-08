@@ -70,7 +70,7 @@ export default [
     source: "Nexus writing-rules: arrow CTAs and imperative signoffs (\"Stop waiting. Start building.\"), staccato",
     examples: {
       fail: ["Less noise. More signal.", "# Draft. Test. Ship.", "Stop guessing. Start writing."],
-      pass: ["The panel reads the draft, and the report lists where readers stopped.", "# Write the reader tests first", "# Laptop shut? It still works", "First line here. It was honestly fine."],
+      pass: ["The panel reads the draft, and the report lists where readers stopped.", "# Write the reader tests first", "# Laptop shut? It still works", "First line here. It worked well enough."],
     },
   },
   {

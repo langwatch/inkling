@@ -1,6 +1,6 @@
 # Lint
 
-`inkling check` runs deterministic rules over markdown and prints each finding with its position, the rule id, why the rule exists, the fix and where the rule came from. It makes no network calls and exits 1 on any finding, so it fits in CI and in an agent's edit loop.
+`inkling check` runs deterministic rules over markdown and prints each finding with its position, the rule id, why the rule exists, the fix and where the rule came from. It makes no network calls and exits 1 when any error remains, so it fits in CI and in an agent's edit loop.
 
 ```sh
 inkling check draft.md --mode post --audience "engineers on Hacker News who build agents"
@@ -22,6 +22,12 @@ To skip one block on purpose, put a comment above it with the reason:
 
 In `.mdx` docs, a sentence carrying a `{/* Founder decision: <reason> */}` comment keeps its wording on purpose (docs-writing-rules rule 3), and no rule reports it. Put the comment inside the sentence or right after it; it exempts that sentence only.
 
+## Errors and warnings
+
+A finding is an error unless its rule says `severity: "warning"`. Warnings print with the word `warning` before the rule id and leave the exit code at 0. They mark a move the guides allow only rarely, so the writer keeps the line only with a reason.
+
+Today one rule warns: `narrator/question-opener`, a piece that opens with a question. Keep one only when the answer follows in the same line and the reader would ask that question themselves, as in "Laptop shut? It still works". The message says which case the line is in.
+
 ## Rule families
 
 | Family | What it catches |
@@ -32,7 +38,7 @@ In `.mdx` docs, a sentence carrying a `{/* Founder decision: <reason> */}` comme
 | hedges | softeners such as `almost` and `fairly`, casual hedges outside posts, modal hedges such as `can help` |
 | contrast | `not X, but Y`, `it wasn't X. It was Y.`, `X, not Y` closers, mirrored pairs, rule-of-three anaphora |
 | numbers | sentences and titles that open with a number, over-precise figures |
-| narrator | signposts, fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` or `Teams ship...`, invented office scenes |
+| narrator | signposts, question openers (warning), fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` or `Teams ship...`, invented office scenes |
 | structure | long paragraphs, one-line barrages, staccato (short sentences that move time forward pass), gravitas closers, unintroduced names |
 | docs | rollout flags, future tense, artifacts as subjects of thinking verbs, title rules |
 | deck | slide titles, bullet counts and lengths, prose on slides |

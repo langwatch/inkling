@@ -15,7 +15,7 @@ import { existsSync } from "node:fs";
 const USAGE = `inkling: content writing framework for agents
 
   inkling check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
-      step 5, lint: deterministic rules with file:line, rule, why and fix; exit 1 on findings
+      step 5, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
   inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--json]
       step 6, judge: Jev; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
   inkling readers prompts <draft> <readers.yaml> --out <dir>
