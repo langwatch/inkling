@@ -32,3 +32,10 @@ test("short replies and imperatives are speech, labels stay fragments", () => {
   for (const t of ["Agreed.", "No.", "Fair enough.", "Use your best judgement.", "Cut it."]) assert.equal(isFragment(s(t)), false, t);
   for (const t of ["Beige soup.", "Trained to concede.", "Cramming.", "Formula punch."]) assert.equal(isFragment(s(t)), true, t);
 });
+
+test("repeated then and so raise nothing; step labels warn", () => {
+  const talk = "---\nminutes: 1\n---\n\nYou decide who reads it, and then you write the tests. Then you write the draft, and then you check it. So you fix what failed, so the readers try it again, and so on until it passes.\n";
+  assert.deepEqual(lint({ text: talk, mode: "script", rules: RULES }).map((f) => `${f.rule}: ${f.excerpt}`), []);
+  const label = lint({ text: "---\nminutes: 1\n---\n\nNext comes the draft.\n", mode: "script", rules: RULES });
+  assert.ok(label.some((f) => f.rule === "script/step-label" && f.severity === "warning"));
+});

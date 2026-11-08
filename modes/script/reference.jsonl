@@ -17,3 +17,5 @@
 {"id": "v12-008", "text": "Beige soup.", "label": "rejected", "reason": "verbless fragment in a script", "source": "founder review 2026-11-08"}
 {"id": "v12-009", "text": "The fourth problem. Poor theory of mind, follows from the third.", "label": "rejected", "reason": "label opener with no verb and a stiff \"follows from\"", "source": "founder review 2026-11-08"}
 {"id": "v12-010", "text": "The fourth problem is poor theory of mind, and it grows out of the third one.", "label": "approved", "source": "founder review 2026-11-08"}
+{"id": "v12-011", "text": "Next comes the draft.", "label": "rejected", "reason": "tutorial step-label register, no one talks like that", "source": "founder review 2026-11-08"}
+{"id": "v12-012", "text": "Then you write the draft.", "label": "approved", "source": "founder review 2026-11-08"}

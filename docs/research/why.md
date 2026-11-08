@@ -12,4 +12,12 @@ LangWatch's founder rejected his agent's landing page titles over and over, then
 8. **Poor theory of mind.** The agent rarely asks who is reading and which mind they need. Often several: a seller and an engineer for a brochure on a technical product, a lawyer for an order form, an investor for a pitch deck.
 9. **Model judges prefer model text.** Ask a model which of two versions is better, and it picks the one a model wrote more often. In [a study from Meta's AI research lab](https://facebookresearch.github.io/RAM/blogs/unslop/) ([paper](https://arxiv.org/abs/2610.38882)), model judges comparing two versions preferred model-written sections of papers over the expert human originals in 63.5% to 84.6% of pairs. A model judge is no test until it agrees with lines people already approved and rejected. See [judge bias](judge-bias.md).
 
+## Why the draft sounds written
+
+A model asked to talk still sounds like a manual, for three more reasons:
+
+1. **Likely relative to what.** The model predicts what is likely in written text that matches the context, and written text is not speech. A context about a lesson, a framework or steps pulls in the register of tutorials, manuals and slide decks: "Next comes", "Finally", "In short". No one talked like that before AI.
+2. **Post-training house style.** Raters rewarded answers that looked organised and polished, so the model moved away from its pretraining mix towards signposts, step labels and parallel structure. That style collapsed into one house voice, and AI text on the web now feeds it back into training.
+3. **Elegant variation.** Training penalised repetition, so the model avoids saying "then" twice and rotates "next", "after that" and "subsequently". People talking just say "then" again.
+
 Inkling turns each point into a step: tests written before the draft for 1 and 4, rules for 2, 3, 5 and 6, a goal with one claim and a named reader for 6, 7 and 8, and calibration against human verdicts for 9. See the [process](../../README.md#the-process).

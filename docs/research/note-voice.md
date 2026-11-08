@@ -27,6 +27,8 @@ The same four shapes came back in every version:
 
 The listeners in `readers listen` check whether a viewer follows and keeps watching. They resolve a compressed line from context, so v12 passed 7 of 7 listening checks with the definitions still in it. No check asked whether a line sounds like a person talking until the last listen question, and that one runs after the draft is done.
 
+**Underneath all five, the model writes in a written register.** It predicts what is likely in written text that matches the context, so a brief about a lesson pulls in the manual and slide-deck voice ("Next comes the draft"). Post-training rewarded answers that looked organised, which made signposts and step labels the house style, and the training against repetition makes it rotate "next", "after that" and "subsequently" where a speaker says "then" again. See [why the draft sounds written](why.md#why-the-draft-sounds-written).
+
 ## What changed
 
 The draft step now starts by explaining the topic to someone who asked, the way you would say it, in the voice of the [reference excerpts](../voice/reference.md), from memory and with no outline.

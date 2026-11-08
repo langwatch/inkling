@@ -42,6 +42,8 @@ Talk to the listener. Use "we", "you" and "let's" at least every few sentences: 
 
 Use spoken words. "Left alone", "thus", "hence", "in order to" and "it is worth noting" sound read off a page; say "on its own", "so" and "to". `script/written-register` warns on them, and the last listen question asks viewers to quote any phrase a person would not say.
 
+Step labels such as "Next comes the draft", "Subsequently" and "Lastly" are the tutorial voice. Say "then" again: repeating then, so and and is normal when people talk, and no rule flags it. `script/step-label` warns on the labels.
+
 ## Use staccato only on purpose
 
 A run of fragments such as "Fast. Cheap. Local." sounds like a list of full stops when read aloud. `script/staccato-overuse` allows two per 300 spoken words.
