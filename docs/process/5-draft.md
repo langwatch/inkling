@@ -7,7 +7,7 @@ You draft in three passes: talk it, shape it, trim it. The order matters. A draf
 Answer four questions in the draft's notes. The notes hold answers and the case you will tell, never finished sentences: a line drafted in the notes comes back in the talk pass as a written line.
 
 1. Who reads this, from where, knowing what, deciding what?
-2. What is the one claim? If it explains a failure, does it survive the obvious objection: if the fix were that easy, why hasn't anyone done it already? For AI, ask why the labs haven't trained it in.
+2. What is the one claim? If it explains a failure, say the cause and what works. Then test it: if the fix were that easy, why hasn't anyone done it already? For AI, ask why the labs haven't trained it in. A claim whose fix is a prompt ("just ask it", "tell it who reads") fails that test, so look for the cause a prompt can't cure and make that the claim. Don't pick the most surprising sentence in your sources as the claim; pick the cause.
 3. What would this reader not expect?
 4. What does the first line tell a newcomer about where they are and why they should care?
 
@@ -48,13 +48,16 @@ Now read the talk back as the reader from step 1 and add what they need to follo
 
 ## Trim it
 
+Read the claim from step 2 again before you cut. A line that carries part of it, the cause or what works, stays; cut something else, or run over.
+
 Cut by deleting, never by rewriting. Delete whole things: a repeat, an aside, a second example that proves the same point, a part the claim doesn't need. Keep the connectives, the "I" and "you", the question and its answer, and the case that comes before the name. A sentence that loses its "because" to save four words has lost the part that explained something.
 
-Some edits look like trimming and turn talk into notes. Never make these four:
+Some edits look like trimming and turn talk into notes. Never make these five:
 
 - Turning a description into a definition: "...has a name in psychology, theory of mind" becomes "Theory of mind is...".
 - Moving a name in front of the case it names, so the listener hears the term before they can picture it.
 - Ending on a recap that lists the terms again, or on a balanced line such as "the more you paste in, the more leaks out". End on the last real point, said the way you would say it.
+- Summing up an example in a short closing line ("It knew, and it still wrote about the retries."). The listener got the point from the example; the summary sounds like a punchline. Go on to the next thought.
 - Polishing a plain sentence into two matching halves ("that's what it knows, so that's what it writes"), or building up to a short closing line that lands like a punchline ("It just doesn't ask itself."). Listeners hear both as composed. Say the halves as two plain thoughts, and stop when the explanation is done, or hand on to what comes next.
 
 When the piece is still too long after deleting, say fewer things: drop an idea or an example. If that would lose the claim, run over and say so in the notes; a length target is a default, and squeezing every sentence costs more than ten seconds.

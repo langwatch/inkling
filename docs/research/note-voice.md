@@ -43,6 +43,10 @@ Later runs showed written lines that came from the talk pass itself, before any 
 - Asked to say what a thing is, the writer listed what it covers after a colon. The draft step now asks for one moment where the listener would see it, and `script/colon-list` warns on the list shape.
 - A rule to tie back to the previous part "in one line" made the writer pack the link and its cause into one long sentence. The tie-back is now a few words, and the reason gets its own sentence.
 
+The claim went wrong once even with the right diagnosis in the sources. The writer read the research page and took its surprising opening fact ("asking it who reads gets a decent answer") as the claim. It answered the "why haven't the labs fixed it?" check in its notes without changing the claim, then trimmed the line that said what works, because the claim didn't include it.
+
+So the research page now leads with the cause, the claim step says the cause and what works and rejects a claim whose fix is a prompt, and the trim re-reads the claim before each cut.
+
 Example lines in Inkling's own pages were copied word for word ("a minute ago", "Another thing that goes wrong"), so the pages now say examples show a move and are not lines to reuse.
 
 ## How the voice test works
