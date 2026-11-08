@@ -94,6 +94,8 @@ examples/sandbox-titles/titles.md:5:24  numbers/number-in-title
 
 The fourth title, "You don't need an agent sandbox", gets no finding. The full output is in [output.txt](examples/sandbox-titles/output.txt), and the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).
 
+For a narrated lesson or video, `--mode script --minutes 3` and `inkling readers listen` check the script by ear; see [spoken scripts](docs/process/script-mode.md).
+
 More tools: [preference judge](docs/tools/preference.md), [surprise](docs/tools/surprise.md), [images](docs/tools/images.md), [known false positives](docs/tools/known-false-positives.md).
 
 ## Research

@@ -13,5 +13,6 @@ Pick the mind for each reader from step 1 and write it next to them. Then pick t
 | `legal` | order forms and terms | 120 words | exact periods and amounts, no "and/or" or "etc." |
 | `investor` | investor updates and decks | 60 words | every number with its comparison, no hype words, no "we believe" |
 | `x` | posts and replies on X | 50 words | the copy rules plus the post rules, and the first line counts as the title |
+| `script` | narrated lessons and video scripts, heard once | 90 words | the post rules plus a time budget, an agenda, transitions and a teacher's voice; see [spoken scripts](script-mode.md) |
 
 A preset only sets which rules apply. The reader line from step 1 stays free text, because no fixed list of audiences covers every piece.
