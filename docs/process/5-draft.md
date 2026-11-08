@@ -11,7 +11,7 @@ Answer four questions in the draft's notes:
 3. What would this reader not expect?
 4. What does the first line tell a newcomer about where they are and why they should care?
 
-Then read the [reference voice](../voice/reference.md). It is how people explained things to each other while building Inkling, and it is what your first pass should sound like.
+Then read the [reference voice](../voice/reference.md). It is how people explained things to each other while building Inkling, and it is what your first pass should sound like. The [talking-voice profile](../voice/profile.md) puts numbers on the same voice; `inkling voice <file>` measures a spoken draft against it.
 
 ## Talk it first
 
@@ -21,6 +21,7 @@ Picture one person from step 1 sitting across the table. They asked you the ques
 - **No outline, no headings.** Say it in the order the explanation needs, with each sentence leading into the next.
 - **A case before the name.** Start from something the listener has seen or done. Describe what happens first, and give the term after, once they can picture it: "...and there's a name for that."
 - **Say the link.** Join the steps with "so", "because", "which is why", "and that's where". When you are not sure of a cause, say "maybe" and give your guess.
+- **Repeat the plain word.** Keep one name for a thing ("the model" every time, never "the model", then "the AI", then "the system") and let a key word come back. Deliberate repetition is how people talk: it anchors the listener on what you are talking about.
 - **Say "then" again.** Repeating then, so and and is normal in speech. Rotating "next comes", "subsequently" and "lastly" to avoid it is the manual voice: a model learned it from tutorials and slide decks, and from training that penalised repetition ([why](../research/why.md#why-the-draft-sounds-written)).
 - **I and you.** Say what you did, saw or think, and talk to the listener.
 - **Ask their question.** When the listener would interrupt with a question, ask it yourself and answer it.

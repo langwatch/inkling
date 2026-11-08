@@ -7,4 +7,5 @@ Inkling collects tools and notes that existed before it, adapted into one writin
 - **Reader tests.** `inkling readers` is a port of the Content agent's `reader-sim` from Python to Node: personas, expectations written first, skim views, regex checks with `forbid` and `scope`, and the isolated `claude -p` reader. The subagent backend, context fields, doubt classes and the stop rule are new here.
 - **Research.** The Content agent's notes on the Meta FAIR paper, the XAR judge, the simulator judge and Jev's calibration fed the judge step and the preference judge. The research helper wrote `docs/research/`.
 - **Images.** `tools/images/edit.py` is an internal mascot tool. The deck image pattern comes from the Content agent's notes on the talk decks it made.
+- **Common words.** `data/top2000.txt` is the top 2,000 English words from [wordfreq](https://github.com/rspeer/wordfreq), data under CC BY-SA 4.0.
 - **Icon.** Generated with the same tool, with the siesta and rush icons as the references.

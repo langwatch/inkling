@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { RULES } from "../rules/index.mjs";
 import { lint } from "../src/engine.mjs";
 import { isFragment } from "../rules/script.mjs";
+import { parse } from "../src/markdown.mjs";
 
 // The reference voice is how people explained things to each other while building Inkling.
 // The rules about how sentences join and how a script sounds must never fire on it.
@@ -38,4 +39,17 @@ test("repeated then and so raise nothing; step labels warn", () => {
   assert.deepEqual(lint({ text: talk, mode: "script", rules: RULES }).map((f) => `${f.rule}: ${f.excerpt}`), []);
   const label = lint({ text: "---\nminutes: 1\n---\n\nNext comes the draft.\n", mode: "script", rules: RULES });
   assert.ok(label.some((f) => f.rule === "script/step-label" && f.severity === "warning"));
+});
+
+test("the reference voice sits inside the talking-voice profile", async () => {
+  const { measure, compare, spokenSentences } = await import("../src/voice.mjs");
+  const off = compare(measure(spokenSentences(parse(excerpts.map((e) => e.text).join("\n\n"))))).filter((r) => !r.ok);
+  assert.deepEqual(off.map((r) => `${r.key} ${r.value}`), []);
+});
+
+test("v12 reads written: the profile warns, never errors", () => {
+  const v12 = readFileSync(new URL("./fixtures/script/v12.md", import.meta.url), "utf8");
+  const f = lint({ text: v12, mode: "script", rules: RULES });
+  assert.ok(f.some((x) => x.rule === "script/voice-profile" && x.severity === "warning"));
+  assert.ok(f.every((x) => x.rule !== "script/voice-profile" || x.severity === "warning"));
 });

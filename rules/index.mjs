@@ -13,6 +13,7 @@ import pitch from "./pitch.mjs";
 import houseLangwatch from "./house-langwatch.mjs";
 import slogan from "./slogan.mjs";
 import script from "./script.mjs";
+import scriptVoice from "./script-voice.mjs";
 
 export const FAMILIES = {
   punctuation,
@@ -27,7 +28,7 @@ export const FAMILIES = {
   deck,
   pitch,
   slogan,
-  script,
+  script: [...script, ...scriptVoice],
   "house-langwatch": houseLangwatch,
 };
 

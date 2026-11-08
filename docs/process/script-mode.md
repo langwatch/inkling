@@ -42,6 +42,8 @@ Talk to the listener. Use "we", "you" and "let's" at least every few sentences: 
 
 Use spoken words. "Left alone", "thus", "hence", "in order to" and "it is worth noting" sound read off a page; say "on its own", "so" and "to". `script/written-register` warns on them, and the last listen question asks viewers to quote any phrase a person would not say.
 
+Repeat on purpose. Keep one name for each thing and say it again, because a listener who hears "the model", then "the AI", then "the system" wonders whether those are three things. `script/elegant-variation` warns when a script rotates synonyms within four sentences.
+
 Step labels such as "Next comes the draft", "Subsequently" and "Lastly" are the tutorial voice. Say "then" again: repeating then, so and and is normal when people talk, and no rule flags it. `script/step-label` warns on the labels.
 
 ## Use staccato only on purpose
@@ -60,4 +62,4 @@ When a part lists several causes, call each one "one reason" or "the first reaso
 
 ## Check it by ear
 
-`inkling check script.md --mode script` runs the rules on [script rules](../tools/script-rules.md). Then `inkling readers listen script.md` plays the script to simulated busy viewers in chunks of about 30 seconds and fails on a skip, a listener who lost the thread, or an example they could not explain. See [listen](../tools/listen.md).
+`inkling voice script.md` measures the draft against the [talking-voice profile](../voice/profile.md): sentence length and spread, contractions, I, we and you, questions, "then" against "next", and one name per thing. `inkling check script.md --mode script` runs the rules on [script rules](../tools/script-rules.md). Then `inkling readers listen script.md` plays the script to simulated busy viewers in chunks of about 30 seconds and fails on a skip, a listener who lost the thread, or an example they could not explain. See [listen](../tools/listen.md).

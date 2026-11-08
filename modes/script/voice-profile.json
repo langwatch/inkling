@@ -1,0 +1,19 @@
+{
+  "about": "Talking-voice targets for spoken scripts, from the founder's chat lines and the agent replies he accepted (docs/voice/profile.md). Defaults used with judgement: every miss is a warning.",
+  "minWords": 150,
+  "targets": {
+    "sentence_length_mean": { "min": 10, "max": 18, "hint": "talk runs 14 to 15 words a sentence on average; split the longest ones or join the shortest" },
+    "sentence_length_spread": { "min": 7, "hint": "speech mixes short and long sentences; vary them" },
+    "contractions_per100": { "min": 2, "hint": "say it's, don't, you're, that's" },
+    "written_only_per1000": { "max": 1, "hint": "swap thus, therefore, subsequently, in order to for so, then, to" },
+    "common_word_share": { "min": 0.75, "hint": "prefer the everyday word" },
+    "latinate_share": { "max": 0.03, "hint": "prefer short everyday words to -tion, -ity, -ment words" },
+    "connectives_per100": { "min": 3.5, "max": 8, "hint": "join the steps with and, so, because, but, then" },
+    "long_chain_share": { "max": 0.06, "hint": "a sentence over 30 words with 3 or more connectives runs on; break it where the topic turns" },
+    "questions_per100_sentences": { "min": 3, "hint": "ask the question the listener would ask, then answer it" },
+    "i_we_per100": { "min": 1.5, "hint": "say what you did, saw or think" },
+    "you_per100": { "min": 1.5, "hint": "talk to the listener" },
+    "then_share_of_step_words": { "min": 0.5, "hint": "say then again instead of next, after that, subsequently" },
+    "referent_rotation": { "max": 0.15, "hint": "pick one name for the thing (the model) and repeat it" }
+  }
+}

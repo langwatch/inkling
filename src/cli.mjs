@@ -14,6 +14,8 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { listen, listenWithClaude, defaultListenOut } from "./listen.mjs";
 import { calibrateListen } from "./listen-calibrate.mjs";
+import { measure, compare, report, spokenSentences } from "./voice.mjs";
+import { parse } from "./markdown.mjs";
 
 const USAGE = `inkling: content writing framework for agents
 
@@ -39,6 +41,9 @@ const USAGE = `inkling: content writing framework for agents
   inkling readers holdout <run> [--draft <file>] [--force]
       the default reader loop: a panel that stays across rounds, old and new shown as A/B,
       edits shrinking from sections to paragraphs to lines, then one clean-eyes holdout
+  inkling voice <file|-> [--json]
+      a spoken script against the talking-voice profile (docs/voice/profile.md): sentence length and
+      spread, contractions, written-only words, I/we/you, questions, then versus next, one name per thing
   inkling plan --budget <quick|standard|deep> --mode <mode> [--out <run>] [--topic <topic>]
       pick a time budget up front; quick needs a calibrated mode
   inkling timings [<run dirs>...]        real minutes per layer against the estimates
@@ -120,6 +125,13 @@ export function main(argv) {
     case "judge":
       if (!positionals[0]) return usage("inkling judge needs a file or -");
       return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin }));
+    case "voice": {
+      if (!positionals[0]) return usage("inkling voice needs a file or -");
+      const text = positionals[0] === "-" ? stdin() : readFileSync(positionals[0], "utf8");
+      const m = measure(spokenSentences(parse(text)));
+      process.stdout.write(values.json ? JSON.stringify({ measures: m, compare: compare(m) }, null, 2) + "\n" : report(m) + "\n");
+      return 0;
+    }
     case "plan":
       return plan(values);
     case "timings":
