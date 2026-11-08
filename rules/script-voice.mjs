@@ -8,6 +8,32 @@ const sentencesOf = (doc) => spokenBlocks(doc).flatMap((b) => b.sentences);
 
 export default [
   {
+    id: "balanced-line",
+    modes: SCRIPT,
+    severity: "warning",
+    pattern: /\bthat'?s what \w+ [^,.;]{1,40},?\s+so that'?s what\b|\b(?:and|but|while),?\s+at the same time,\s|\bthe (?:more|less|fewer|better|worse) [^,.;]{1,40},\s+the (?:more|less|fewer|better|worse)\b/i,
+    message: "A line built in two matching halves (\"that's what it knows, so that's what it writes\", \"the more you paste, the more leaks\", \"knowing X and, at the same time, Y\"). Listeners hear the symmetry as a written, composed line.",
+    fix: "Say the two halves as two plain thoughts, in the order they happen: \"It knows about the billing change. So it writes about the billing change.\" Or keep the half that carries the point.",
+    source: "Blind listener tests of the lesson's theory of mind section, runs 3 and 4, 2026-11-08",
+    examples: {
+      fail: [{ text: "That's what the model knows about, so that's what it writes.", mode: "script" }, { text: "The hard part is knowing everything and, at the same time, reading it fresh.", mode: "script" }, { text: "The more you paste in, the more leaks out.", mode: "script" }],
+      pass: [{ text: "It knows about the billing change, so it writes about it.", mode: "script" }, { text: "You paste more in, and more of it ends up in the reply.", mode: "script" }],
+    },
+  },
+  {
+    id: "staged-reveal",
+    modes: SCRIPT,
+    severity: "warning",
+    pattern: /^(?:(?:but|and|so|now)\s+)?the (?:strange|funny|weird|interesting|surprising|crazy|wild|ironic) (?:part|thing|bit) (?:is|was)\b/i,
+    message: "A staged reveal: the sentence announces that the next thing is surprising. Listeners hear the setup for a punchline.",
+    fix: "Say the surprising thing and let it surprise: \"But when I ask the model who's reading, it gets it right.\"",
+    source: "Blind listener test of the lesson's theory of mind section, run 4, 2026-11-08",
+    examples: {
+      fail: [{ text: "The strange part is that the model can do it.", mode: "script" }],
+      pass: [{ text: "But the model can do it, when I ask.", mode: "script" }],
+    },
+  },
+  {
     id: "colon-list",
     modes: SCRIPT,
     severity: "warning",

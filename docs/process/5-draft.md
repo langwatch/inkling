@@ -50,11 +50,12 @@ Now read the talk back as the reader from step 1 and add what they need to follo
 
 Cut by deleting, never by rewriting. Delete whole things: a repeat, an aside, a second example that proves the same point, a part the claim doesn't need. Keep the connectives, the "I" and "you", the question and its answer, and the case that comes before the name. A sentence that loses its "because" to save four words has lost the part that explained something.
 
-Some edits look like trimming and turn talk into notes. Never make these three:
+Some edits look like trimming and turn talk into notes. Never make these four:
 
 - Turning a description into a definition: "...has a name in psychology, theory of mind" becomes "Theory of mind is...".
 - Moving a name in front of the case it names, so the listener hears the term before they can picture it.
 - Ending on a recap that lists the terms again, or on a balanced line such as "the more you paste in, the more leaks out". End on the last real point, said the way you would say it.
+- Polishing a plain sentence into two matching halves ("that's what it knows, so that's what it writes"), or building up to a short closing line that lands like a punchline ("It just doesn't ask itself."). Listeners hear both as composed. Say the halves as two plain thoughts, and stop when the explanation is done, or hand on to what comes next.
 
 When the piece is still too long after deleting, say fewer things: drop an idea or an example. If that would lose the claim, run over and say so in the notes; a length target is a default, and squeezing every sentence costs more than ten seconds.
 
