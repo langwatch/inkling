@@ -16,7 +16,7 @@ Agents stop once copy is accurate, because no test fails on it. You get a writin
 
 <a href="https://inkling-lesson--langwatch-f9de22.lazeapps.com"><img src="docs/brand/lesson-poster.jpg" width="640" alt="Title frame of the Inkling lesson video: the Inkling icon and the line a content writing framework for agents"></a>
 
-A narrated video (7:16) on the six ways AI writing goes wrong and how this process fixes them, with chapters, captions and the full rule list. It opens in the team's Laze workspace.
+A narrated video (7:21) on the six ways AI writing goes wrong and how this process fixes them, with chapters, captions and the full rule list. It opens in the team's Laze workspace.
 
 ## The process
 
