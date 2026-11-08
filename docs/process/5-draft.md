@@ -7,7 +7,7 @@ You draft in three passes: talk it, shape it, trim it. The order matters. A draf
 Answer four questions in the draft's notes. The notes hold answers and the case you will tell, never finished sentences: a line drafted in the notes comes back in the talk pass as a written line.
 
 1. Who reads this, from where, knowing what, deciding what?
-2. What is the one claim?
+2. What is the one claim? If it explains a failure, does it survive the obvious objection: if the fix were that easy, why hasn't anyone done it already? For AI, ask why the labs haven't trained it in.
 3. What would this reader not expect?
 4. What does the first line tell a newcomer about where they are and why they should care?
 
