@@ -26,7 +26,7 @@ When your agent writes something people will read, it goes through eight steps:
 2. **[Which mind.](docs/process/2-which-mind.md)** Pick the mind the reader needs: a seller, an engineer, a lawyer, an investor, or more than one.
 3. **[The claim.](docs/process/3-one-claim.md)** The one thing the piece has to land, and what this reader would not expect.
 4. **[Reader tests first.](docs/process/4-reader-tests.md)** Before any draft, write what each reader must take away.
-5. **[Draft.](docs/process/5-draft.md)** Write against the reader, the mind and the claim.
+5. **[Draft.](docs/process/5-draft.md)** Explain it to one reader who asked, the way you would say it, in the [reference voice](docs/voice/reference.md), from memory and with no outline. Then shape it for the reader and trim whole repeats, never the "so" and "because".
 6. **[Check.](docs/process/6-check.md)** Look for the phrasing reviewers rejected before: hedges, slogans, contrast formulas, crammed headlines.
 7. **[Reader test.](docs/process/7-reader-test.md)** Simulated readers read the draft and say what they would do next and where they would stop. Fix what stopped them.
 8. **[Stop.](docs/process/8-stop.md)** Stop when the readers pass, or when the time you set runs out, and keep what readers still asked for the next piece.
@@ -102,6 +102,7 @@ More tools: [preference judge](docs/tools/preference.md), [surprise](docs/tools/
 
 - **[Why agents write bad copy](docs/research/why.md).** The nine reasons, from an agent explaining its own rejected titles and a study showing that a large language model (LLM) asked to grade text prefers text a model wrote.
 - **[Patterns](docs/research/lessons.md).** The review notes every rule came from.
+- **[Why drafts came out as notes](docs/research/note-voice.md).** How an outline-first draft and label-shaped fixes turned a lesson script into compressed notes, and what the draft step does now.
 - **Examples.** [Approved and rejected lines](calibration/regression.jsonl), [pairs for the preference judge](calibration/pairs.jsonl) and [the sandbox titles](examples/sandbox-titles/).
 - **Studies.** [Judge bias](docs/research/judge-bias.md), with the [Meta study](https://facebookresearch.github.io/RAM/blogs/unslop/) and [paper](https://arxiv.org/abs/2610.38882), and [surprise](docs/research/surprise-study.md).
 - **[Origin](docs/research/origin.md).** The conversation that started Inkling.
