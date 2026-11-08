@@ -13,7 +13,7 @@ const excerpts = page
   .split(/\n(?=### )/)
   .filter((s) => s.startsWith("### "))
   .map((s) => ({ title: s.split("\n")[0].slice(4), text: s.split("\n").filter((l) => l.startsWith("> ")).map((l) => l.slice(2)).join(" ") }));
-const SHAPE = /^(?:script|structure)\//;
+const SHAPE = /^(?:script\/|structure\/|narrator\/instruction-register$)/;
 
 test("the reference page has 10 to 20 excerpts", () => {
   assert.ok(excerpts.length >= 10 && excerpts.length <= 20, `${excerpts.length} excerpts`);
@@ -35,7 +35,7 @@ test("short replies and imperatives are speech, labels stay fragments", () => {
 });
 
 test("repeated then and so raise nothing; step labels warn", () => {
-  const talk = "---\nminutes: 1\n---\n\nYou decide who reads it, and then you write the tests. Then you write the draft, and then you check it. So you fix what failed, so the readers try it again, and so on until it passes.\n";
+  const talk = "---\nminutes: 1\n---\n\nWe decide who reads it, and then we write the tests. Then we write the draft, and then we check it. So we fix what failed, so the readers try it again, and so on until it passes.\n";
   assert.deepEqual(lint({ text: talk, mode: "script", rules: RULES }).map((f) => `${f.rule}: ${f.excerpt}`), []);
   const label = lint({ text: "---\nminutes: 1\n---\n\nNext comes the draft.\n", mode: "script", rules: RULES });
   assert.ok(label.some((f) => f.rule === "script/step-label" && f.severity === "warning"));
@@ -63,4 +63,12 @@ test("sentence variance: v12 has a flat stretch, docs never run it, fragments do
   const mk = (short) => Array.from({ length: 12 }, (_, i) => ({ clean: i % 4 === 2 ? short : long }));
   assert.ok(flatStretches(mk("Beige soup.")).length > 0);
   assert.equal(flatStretches(mk("It didn't work.")).length, 0);
+});
+
+test("instruction register: steps said as orders warn, what you can do and what I do pass", () => {
+  const warn = (text, mode = "script") => lint({ text: `---\nminutes: 1\n---\n\n${text}\n`, mode, rules: RULES }).filter((f) => f.rule === "narrator/instruction-register");
+  for (const t of ["You start a fresh model with zero context.", "Then you paste the notes into the chat.", "Open a fresh chat with no history.", "So you give it the text and ask what it sees."]) assert.equal(warn(t).length, 1, t);
+  for (const t of ["You can start a fresh model with zero context.", "I usually start a fresh one.", "We just paste it in.", "Ask the model for the reply and you often get a polite tour.", "Copy has no judge.", "Use your best judgement.", "Try it.", "If you paste your notes in, the reply is full of ticket names.", "You use it every time you talk to someone."]) assert.deepEqual(warn(t), [], t);
+  assert.deepEqual(warn("1. Open a fresh chat.\n2. Paste the notes.", "post"), []);
+  assert.deepEqual(lint({ text: "# Setup\n\nOpen the settings page.\n", mode: "docs", rules: RULES }).filter((f) => f.rule === "narrator/instruction-register"), []);
 });

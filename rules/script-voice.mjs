@@ -36,8 +36,8 @@ export default [
     fix: "Pick one word and repeat it: \"the model\" every time, \"then\" every time. Some repetition anchors the listener on what you are talking about.",
     source: "Founder review of the lesson script, 2026-11-08: some repetition is fine, it anchors people back on what they are talking about",
     examples: {
-      fail: [{ text: "The model predicts the next word. So the AI drifts to the average. The system never surprises.", mode: "script" }, { text: "You decide who reads it. Next, you write the tests. After that, you write the draft.", mode: "script" }],
-      pass: [{ text: "The model predicts the next word. So the model drifts to the average, and the model never surprises you.", mode: "script" }, { text: "You decide who reads it. Then you write the tests, and then you write the draft.", mode: "script" }],
+      fail: [{ text: "The model predicts the next word. So the AI drifts to the average. The system never surprises.", mode: "script" }, { text: "We decide who reads it. Next, we write the tests. After that, we write the draft.", mode: "script" }],
+      pass: [{ text: "The model predicts the next word. So the model drifts to the average, and the model never surprises you.", mode: "script" }, { text: "We decide who reads it. Then we write the tests, and then we write the draft.", mode: "script" }],
     },
   },
   {

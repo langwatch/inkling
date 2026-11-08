@@ -430,11 +430,11 @@ export default [
     severity: "warning",
     pattern: /\b(?:next comes|next up|subsequently|following that|lastly|last but not least)\b/i,
     message: "A tutorial step label. It comes from manuals and slide decks, where the model learned to sound organised; people explaining something just say \"then\" again.",
-    fix: "Say \"then\" or \"and then\": \"Then you write the draft.\" Repeating then, so and and is normal in speech.",
+    fix: "Say \"then\" or \"and then\": \"Then we write the draft.\" Repeating then, so and and is normal in speech.",
     source: "Founder review of the lesson script, 2026-11-08: \"Next comes the draft\", no one talked like that before AI",
     examples: {
       fail: [{ text: "Next comes the draft.", mode: "script" }, { text: "Lastly, the readers try it.", mode: "script" }],
-      pass: [{ text: "Then you write the draft.", mode: "script" }, { text: "Then you check it, and then you let readers try it.", mode: "script" }],
+      pass: [{ text: "Then we write the draft.", mode: "script" }, { text: "Then we check it, and then we let readers try it.", mode: "script" }],
     },
   },
   {

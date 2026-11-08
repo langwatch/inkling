@@ -31,6 +31,23 @@ function severalCauses(section) {
   return SEVERAL.test(text) || section.blocks.filter((b) => b.type === "list-item" && b.ordered).length >= 2;
 }
 
+// Steps said as orders: "You start a fresh model." In talk, people say what you can do or what they do.
+const STEP = "open|paste|run|click|type|copy|spin|add|send|load|upload|install|connect|create|select|enter|press|generate|save|delete|drop|start|feed|grab|hand|give|ask|write|pick|set|put|record";
+const OBJECT = "the|a|an|it|this|that|them|these|those|your|my|our|some|one|up|in|out|on|off|back|down|over|every|each|all|its";
+const YOU_ORDER = new RegExp(`^(?:(?:then|so|and|first|next|now)\\s*,?\\s+)*you\\s+(?:just\\s+|simply\\s+|then\\s+|first\\s+)?(?:${STEP})\\b(?!\\s+(?:every time|whenever|without thinking|all the time)\\b)`, "i");
+// A bare verb counts as an order only when an object follows it: "Copy has no judge" is a noun.
+const BARE_ORDER = new RegExp(`^(?:(?:then|so|and|first|next|now|just)\\s*,?\\s+)*(?:${STEP})\\s+(?:${OBJECT})\\b`, "i");
+// "Ask it and you get..." is a condition, said the way people talk.
+const CONDITIONAL = /,?\s+and\s+(?:you|it|they|the|that)\b/i;
+/** A sentence that tells the reader to do a step, outside a list: "You paste the notes." or "Open a fresh model." */
+export function isOrder(sentence) {
+  const t = sentence.replace(/^["'(\s]+/, "");
+  // "Run this:" introduces the code or list that holds the real steps.
+  if (/:\s*$/.test(t)) return false;
+  if (YOU_ORDER.test(t)) return true;
+  return BARE_ORDER.test(t) && !CONDITIONAL.test(t);
+}
+
 export default [
   {
     id: "signpost",
@@ -343,6 +360,23 @@ export default [
     examples: {
       fail: ["When a model writes code, the tests pass or fail, and training rewards the model for passing.", "Another issue is that AI is trained to concede.", "RLHF teaches models to hedge."],
       pass: ["When a model writes code, the tests pass or fail, and training rewarded the model for passing.", "Another issue is that AI was trained to concede.", "The model predicts the next word."],
+    },
+  },
+  {
+    id: "instruction-register",
+    modes: ["post", "script"],
+    scope: "document",
+    severity: "warning",
+    check: (_u, { doc }) =>
+      doc.blocks
+        .filter((b) => b.type === "paragraph" || b.type === "quote")
+        .flatMap((b) => b.sentences.filter((x) => isOrder(x.clean.trim())).map((x) => ({ block: x.block, index: x.start }))),
+    message: "A step said as an order (\"You start a fresh model\", \"Paste the notes in\"). In explaining prose it reads like an instruction manual; people talking say what you can do, or what they do.",
+    fix: "Say \"you can start...\", \"you could paste...\", or what you do: \"I usually start a fresh one\", \"we just paste it in\". Real how-to steps belong in a numbered list, and a CTA such as \"Try it\" stays as it is.",
+    source: "Founder edit of the lesson script, 2026-11-08: \"You start a fresh model\" became \"You can start a fresh model\"; a lot of AI writing reads like an order",
+    examples: {
+      fail: [{ text: "You start a fresh model with zero context, and it reads the text for the first time.", mode: "script" }, { text: "Then you paste the notes into the chat.", mode: "post" }, { text: "Open a fresh chat with no history.", mode: "script" }],
+      pass: [{ text: "You can start a fresh model with zero context, and it reads the text for the first time.", mode: "script" }, { text: "I usually paste the notes into a fresh chat.", mode: "post" }, { text: "Ask the model for the reply and you often get a polite tour.", mode: "script" }, { text: "If you paste your notes in, the reply is full of ticket names.", mode: "script" }, { text: "Try it.", mode: "post" }, { text: "Run this:", mode: "post" }, { text: "1. Open a fresh chat.\n2. Paste the notes.", mode: "post" }],
     },
   },
 ];

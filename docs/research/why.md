@@ -14,11 +14,12 @@ LangWatch's founder rejected his agent's landing page titles over and over, then
 
 ## Why the draft sounds written
 
-A model asked to talk still sounds like a manual, for three more reasons:
+A model asked to talk still sounds like a manual, for four more reasons:
 
 1. **Likely relative to what.** The model predicts what is likely in written text that matches the context, and written text is not speech. A context about a lesson, a framework or steps pulls in the register of tutorials, manuals and slide decks: "Next comes", "Finally", "In short". No one talked like that before AI.
 2. **Post-training house style.** Raters rewarded answers that looked organised and polished, so the model moved away from its pretraining mix towards signposts, step labels and parallel structure. That style collapsed into one house voice, and AI text on the web now feeds it back into training.
-3. **Elegant variation.** Training penalised repetition, so the model avoids saying "then" twice and rotates "next", "after that" and "subsequently". People talking just say "then" again.
+3. **Steps said as orders.** Instructions are the written genre with the most "you" followed by a verb, and assistant answers default to telling the user what to do. So an explanation of a process comes out as a manual: "You start a fresh model. You give it the text." People explaining say "you can start a fresh one", "you could", "we just", "I usually".
+4. **Elegant variation.** Training penalised repetition, so the model avoids saying "then" twice and rotates "next", "after that" and "subsequently". People talking just say "then" again.
 
 Inkling turns each point into a step: tests written before the draft for 1 and 4, rules for 2, 3, 5 and 6, a goal with one claim and a named reader for 6, 7 and 8, zero-context reader tests for 4 and 8, and calibration against human verdicts for 9.
 

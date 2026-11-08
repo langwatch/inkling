@@ -82,7 +82,7 @@ These sentences are invented, written to show the measures at work:
 
 > So I tried the judge on our own posts, and it agreed with me most of the time, which was weird. Why would it? Because it was grading text that looked like its own.
 
-> Then you write the tests. Then you write the draft. And then, and this is the part people skip, you let someone who's never seen it read it.
+> Then we write the tests. Then we write the draft. And then, and this is the part people skip, we let someone who's never seen it read it.
 
 > I mean, the model isn't wrong, it's just safe. And safe copy doesn't make anyone click.
 
