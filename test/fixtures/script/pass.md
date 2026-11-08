@@ -10,13 +10,13 @@ This is a short lesson on why AI agents write weak copy, and what you can do abo
 
 ## Why the writing fails
 
-Let's start with why the writing fails. Our research traced the problem back to one cause: when an agent writes code, a test tells it when it got something wrong, but when it writes copy, nothing does. So it stops as soon as the text is accurate, even when no reader would care.
+Let's start with why the writing fails. Our research traced the problem back to one cause: when an agent writes code, a test tells it when it got something wrong, but when it writes copy, nothing does. Nothing fails. So it stops as soon as the text is accurate, even when no reader would care.
 
 Another issue is that the model was trained to concede. It was rewarded for being fair and safe, so you get balance and hedges in places where an ad has to take a side.
 
 ## Why a judge can't fix it
 
-That brings us to the second part: why not ask another AI to judge the writing? A team at Meta tested exactly that. Their AI judges picked the model's text over the expert's text most of the time, because to a model, model text is the most familiar text there is. So a judge only helps you once you tune it on lines a human approved and rejected.
+That brings us to the second part: why not ask another AI to judge the writing? A team at Meta tested exactly that. It went badly. Their AI judges picked the model's text over the expert's text most of the time, because to a model, model text is the most familiar text there is. So a judge only helps you once you tune it on lines a human approved and rejected.
 
 ## What we learned
 

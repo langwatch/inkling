@@ -59,6 +59,23 @@ The targets sit between the founder's chat and the accepted replies, since a scr
 
 Under 150 spoken words the measures are noisy, so `script/voice-profile` stays quiet and `inkling voice` marks the numbers as hints.
 
+## Sentence-length variance
+
+The founder's overall spread of 14.6 mixes one-line chat replies with long messages, so a script can't copy it.
+
+A rolling window is closer to what a listener hears: take 8 sentences at a time and call the window flat when its lengths barely change (sd under 4), when it has no complete sentence of 6 words or fewer, or when it has none of 20 or more. Flat windows happen in all talk. A run of three in a row, a flat stretch of 10 sentences, is the signal:
+
+| Corpus | Flat stretches per 100 sentences |
+| --- | --- |
+| founder | 0.75 |
+| accepted replies | 1.4 |
+| script v11 | 2.0 |
+| script v12 | 3.7 |
+
+V12 had the highest spread of any version and still read flat: 30% of its windows held no short sentence, against 12% of the founder's.
+
+`structure/sentence-variance` warns on each flat stretch in posts and scripts. Docs stay out, since task steps read best at an even length. A short sentence has to be a full sentence with a verb ("It didn't work."); a fragment does not count, which keeps the check in line with `script/fragment`. The thresholds are in `modes/script/voice-profile.json`.
+
 ## In his style
 
 These sentences are invented, written to show the measures at work:

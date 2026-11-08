@@ -1,6 +1,28 @@
 // Shape of paragraphs and sentences: walls of text, barrages, staccato, gravitas closers.
 import { words } from "../src/markdown.mjs";
 import { TIME_MARKER, isPastAction } from "../src/verbs.mjs";
+import { readFileSync } from "node:fs";
+import { isFragment } from "./script.mjs";
+
+const BURST = JSON.parse(readFileSync(new URL("../modes/script/voice-profile.json", import.meta.url), "utf8")).burstiness;
+
+/** Stretches where sentence length stays flat: `stretch` flat windows in a row, reported once at the stretch start. */
+export function flatStretches(sentences, b = BURST) {
+  const len = sentences.map((s) => words(s.clean).length);
+  const out = [];
+  let run = 0;
+  for (let i = 0; i + b.window <= len.length; i++) {
+    const w = len.slice(i, i + b.window);
+    const mean = w.reduce((a, x) => a + x, 0) / w.length;
+    const sd = Math.sqrt(w.reduce((a, x) => a + (x - mean) ** 2, 0) / w.length);
+    const short = sentences.slice(i, i + b.window).some((s, k) => w[k] <= b.shortMax && !isFragment(s));
+    const long = w.some((x) => x >= b.longMin);
+    const flat = sd < b.minSd || !short || !long;
+    run = flat ? run + 1 : 0;
+    if (run === b.stretch) out.push({ start: i - b.stretch + 1, sd: Math.round(sd * 10) / 10, short, long });
+  }
+  return out;
+}
 
 const SHORT = 6;
 
@@ -68,6 +90,28 @@ export default [
         "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me.",
         "Bumped the embedding model. Deploy went green. Wednesday morning, support pinged me: three customers told their invoices were already paid.",
       ],
+    },
+  },
+  {
+    id: "sentence-variance",
+    scope: "document",
+    // Docs stay out: reference steps read best at an even length. Posts and scripts are heard or read as talk.
+    modes: ["post", "script"],
+    severity: "warning",
+    check: (_unit, { doc }) => {
+      const sentences = doc.blocks.filter((b) => b.type === "paragraph" || b.type === "quote").flatMap((b) => b.sentences);
+      return flatStretches(sentences).map((r) => {
+        const s = sentences[r.start];
+        const why = [r.sd < BURST.minSd ? `lengths barely change (sd ${r.sd})` : null, r.short ? null : `no complete sentence of ${BURST.shortMax} words or fewer`, r.long ? null : `none of ${BURST.longMin} or more`].filter(Boolean).join(", ");
+        return { block: s.block, index: s.start, note: `${BURST.window + BURST.stretch - 1} sentences from here: ${why}.` };
+      });
+    },
+    message: "A long stretch at one steady sentence length. People talking swing between short and long, and the change itself keeps the listener with you.",
+    fix: "Mix in a short, complete sentence (\"That's the whole trick.\", \"It didn't work.\") or one longer sentence that runs on with and, so and because. Short means a full sentence with a verb, never a fragment.",
+    source: "Founder review 2026-11-08: the text should not run at one steady sentence length; talking-voice profile, flat stretches per 100 sentences: founder 0.75, script v12 3.7",
+    examples: {
+      fail: [{ text: "The model reads the brief and the notes you gave it. It writes a draft that covers every point you made. The draft is accurate and also very hard to read. The reader skims the first lines and then they stop. The writer adds more detail to every single paragraph. The detail makes each paragraph longer than it was before. The reader skims again and they stop even sooner. The writer then adds a summary at the very end. The summary repeats the points that came just before it. The reader never gets as far as reading the summary.", mode: "script" }],
+      pass: [{ text: "The model reads the brief and the notes you gave it. It writes a draft that covers every point you made, and the draft is accurate, so you'd think you're done. You're not. The reader skims the first lines and then they stop, because nothing in there was for them. So the writer adds more detail, which makes it longer. It gets worse. The reader skims again, stops even sooner, and you end up adding a summary at the end that repeats everything you said, which nobody reaches. That's the loop.", mode: "script" }],
     },
   },
   {

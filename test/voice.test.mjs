@@ -53,3 +53,14 @@ test("v12 reads written: the profile warns, never errors", () => {
   assert.ok(f.some((x) => x.rule === "script/voice-profile" && x.severity === "warning"));
   assert.ok(f.every((x) => x.rule !== "script/voice-profile" || x.severity === "warning"));
 });
+
+test("sentence variance: v12 has a flat stretch, docs never run it, fragments don't count as short", async () => {
+  const v12 = readFileSync(new URL("./fixtures/script/v12.md", import.meta.url), "utf8");
+  assert.ok(lint({ text: v12, mode: "script", rules: RULES }).some((f) => f.rule === "structure/sentence-variance" && f.severity === "warning"));
+  assert.ok(!lint({ text: v12, mode: "docs", rules: RULES }).some((f) => f.rule === "structure/sentence-variance"));
+  const { flatStretches } = await import("../rules/structure.mjs");
+  const long = "The writer keeps adding one more detail to every paragraph of the draft, because the model was trained never to drop a requirement.";
+  const mk = (short) => Array.from({ length: 12 }, (_, i) => ({ clean: i % 4 === 2 ? short : long }));
+  assert.ok(flatStretches(mk("Beige soup.")).length > 0);
+  assert.equal(flatStretches(mk("It didn't work.")).length, 0);
+});

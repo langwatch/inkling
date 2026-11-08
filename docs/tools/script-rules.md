@@ -23,6 +23,7 @@ inkling check script.md --mode script --minutes 3
 | `step-label` (warning) | tutorial step labels: next comes, next up, subsequently, following that, lastly, last but not least | say "then" or "and then"; repeating then, so and and is fine |
 | `elegant-variation` (warning) | one thing or one step word rotated through synonyms within 4 sentences: the model, the AI, the system; then, next, after that | pick one word and repeat it |
 | `voice-profile` (warning) | 3 or more [talking-voice profile](../voice/profile.md) measures missed, in a script of 150 spoken words or more | talk it again in the reference voice; `inkling voice <file>` shows the table |
+| `structure/sentence-variance` (warning, also in `post`) | a stretch of 10 sentences at one steady length: no complete sentence of 6 words or fewer, none of 20 or more, or a length sd under 4 | mix in a short full sentence or a longer one that runs on with and, so, because; never a fragment |
 | `written-register` (warning) | written-only phrasing: left alone, thus, hence, in short, one might, whereby, therefore, moreover, furthermore, notwithstanding, in order to, as such, it is worth noting | say "on its own", "so", "to" |
 | `staccato-overuse` | more than 2 fragments per 300 spoken words, unless `<!-- staccato: on purpose -->` is in the file | join them into sentences |
 | `agenda-count-only` (warning) | a count of parts or items, such as "six main problems" or "four steps", anywhere in the script, with no names in the same sentence or the next | name each item briefly |
