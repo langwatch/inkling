@@ -349,7 +349,7 @@ export default [
       });
     },
     message: "A new part starts with no transition: nothing says we are moving on, or which part of the agenda this is.",
-    fix: "Open the part with one sentence that ties back, in your own voice: \"Next, let's look at the judge.\" or \"So that's why the model hedges. Another thing that goes wrong is...\"",
+    fix: "Open the part with one sentence that ties back, in your own voice: \"Next, let's look at the judge.\" or \"So that's why the model hedges. And it also...\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"during switch between them, something showing moving from one to the next\"",
     examples: {
       fail: [{ text: "We'll look at the judge and the readers.\n\n## Judge\n\nThe judge grades text.\n\n## Readers\n\nPersonas answer questions.", mode: "script" }],
@@ -404,11 +404,11 @@ export default [
     scope: "document",
     check: (_u, { doc }) => spokenBlocks(doc).filter((b) => b.type !== "list-item").flatMap((b) => b.sentences.filter(isLabel).map(at)),
     message: "A label with no verb (\"The fourth problem.\", \"Problem two:\"). On a slide it is a heading; spoken, the listener hears a number and has to guess how it joins the next words.",
-    fix: "Say what happens in a full sentence: \"Another thing that goes wrong is that the model hedges every claim.\" Avoid \"The fourth problem is <name>.\" followed by a definition of the name: describe what happens first, and give the name once the listener can picture it.",
+    fix: "Say what happens in a full sentence: \"The model also hedges every claim.\" When an agenda named the part, open on that name and say what it means in the same breath, never as a separate \"<name> is <definition>\" line.",
     source: "Founder review of lesson script v12, 2026-11-08: \"The fourth problem. Poor theory of mind, follows from the third.\"",
     examples: {
       fail: [{ text: "The fourth problem. The model hedges every claim.", mode: "script" }, { text: "The fourth problem: hedging.", mode: "script" }, { text: "Problem two: the model concedes.", mode: "script" }, { text: "Second issue. The model concedes.", mode: "script" }],
-      pass: [{ text: "Another thing that goes wrong is that the model hedges every claim.", mode: "script" }, { text: "The first step is to decide who reads it.", mode: "script" }],
+      pass: [{ text: "The model also hedges every claim.", mode: "script" }, { text: "The first step is to decide who reads it.", mode: "script" }],
     },
   },
   {
@@ -463,7 +463,7 @@ export default [
         return overlaps(heading, contentStems(s.clean)) ? [] : [{ ...at(s), note: `The heading "${section.heading.text.trim()}" is never said.` }];
       }),
     message: "The section only makes sense through its heading, and a listener never hears the heading.",
-    fix: "Say the topic in the first sentence, as a sentence about what happens: \"So why not ask another AI to judge the writing?\" or \"Another thing that goes wrong is that the judge prefers the machine's text.\"",
+    fix: "Say the topic in the first sentence, as a sentence about what happens: \"So why not ask another AI to judge the writing?\" or \"And the judge prefers the machine's text, which surprised us.\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"it needs a better introduction of the topic for each topic\"",
     examples: {
       fail: [{ text: "## The judge prefers the machine\n\nSo why not ask another AI to grade the writing?", mode: "script" }],

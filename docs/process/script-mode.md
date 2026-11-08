@@ -22,7 +22,9 @@ The same holds inside a part. Before walking through three tools, problems or st
 
 ## Open each part with a sentence that says what happens
 
-The listener never hears a heading, so the first sentence of each part says the topic and where it sits in the agenda. Say it as a sentence about what happens, the way you would in conversation: "Another thing that goes wrong is that the model hedges every claim." or "That brings us to the second part: why not ask another AI to judge the writing?"
+The listener never hears a heading, so the first sentence of each part says the topic and where it sits in the agenda. Say it as a sentence about what happens, the way you would in conversation: "The model also hedges every claim." or "That brings us to the second part: why not ask another AI to judge the writing?"
+
+When the agenda named the parts, open on the name it used ("The fourth problem is <name>") and say what it means in the same breath, through what happens, never as a dictionary line. The part before already explained its own idea: tie back to it in one line, never explain it again.
 
 Avoid opening on the name of the part followed by its definition, as in "The second problem is hedging. Hedging is when...". If you name a thing before the listener has heard what it does, you have to define it in the next sentence, and a script full of definitions is a glossary. Describe what happens first; the name can come after, once the listener can picture it.
 
