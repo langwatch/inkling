@@ -1,0 +1,9 @@
+// One JSON object per line. Lines starting with // are comments. See README.md in this folder.
+{"id": "v11-001", "text": "The rules fit on one screen.", "label": "rejected", "reason": "talks about our material, not the listener: who asked?", "source": "founder review 2026-11-08"}
+{"id": "v11-002", "text": "With no judge, the model's writing habits come from the rest of its training, and each habit is a problem with a name.", "label": "rejected", "reason": "no one talks like that", "source": "founder review 2026-11-08"}
+{"id": "v11-003", "text": "A smaller version is writing from the middle of a conversation.", "label": "rejected", "reason": "a smaller version of what?", "source": "founder review 2026-11-08"}
+{"id": "v11-004", "text": "Trained to concede. The model was trained to be fair and safe, so it hedges and adds balance.", "label": "rejected", "reason": "a bare label as a section opener comes out of the blue", "source": "founder review 2026-11-08"}
+{"id": "v11-005", "text": "The curse of context, which psychologists call the curse of knowledge.", "label": "rejected", "reason": "weird way to make the jump", "source": "founder review 2026-11-08"}
+{"id": "v11-006", "text": "A human writer learned punchy from watching people react.", "label": "rejected", "reason": "an invented third party instead of talking to the listener", "source": "founder review 2026-11-08"}
+{"id": "v11-007", "text": "Our research identified six main problems with how agents write, let's explore them together.", "label": "approved", "source": "founder review 2026-11-08"}
+{"id": "v11-008", "text": "Another issue is that AI is trained to concede.", "label": "approved", "source": "founder review 2026-11-08"}

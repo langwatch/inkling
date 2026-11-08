@@ -1,0 +1,16 @@
+{
+ "mode": "script",
+ "at": "2026-11-08T11:22:54.978Z",
+ "approved": 2,
+ "rejected": 6,
+ "caught": 4,
+ "falsePositives": 0,
+ "recall": 0.6666666666666666,
+ "fpRate": 0,
+ "pass": false,
+ "why": [
+  "2 approved lines, the bar is 20",
+  "6 rejected lines, the bar is 10"
+ ],
+ "gatingRules": []
+}

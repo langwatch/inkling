@@ -87,11 +87,11 @@ function founderDecision(block, at) {
 }
 
 /** Lint one document. Returns findings sorted by position. */
-export function lint({ text, file = "-", mode = "post", rules, audience }) {
+export function lint({ text, file = "-", mode = "post", rules, audience, minutes }) {
   if (!MODES[mode]) throw new Error(`unknown mode ${mode}; one of ${Object.keys(MODES).join(", ")}`);
   const doc = parse(text);
   if (MODES[mode].firstBlockIsTitle && !doc.title) doc.title = doc.blocks.find((b) => PROSE.has(b.type)) ?? null;
-  const ctx = { doc, mode, audience, settings: MODES[mode], words };
+  const ctx = { doc, mode, audience, minutes, settings: MODES[mode], words };
   const findings = [];
   for (const rule of rules) {
     if (!ruleApplies(rule, mode)) continue;

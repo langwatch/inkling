@@ -1,4 +1,4 @@
-// The guides' own approved examples must pass every rule, and their rejected examples must trip the named rule.
+// The guides' own approved examples must pass every rule, and their rejected examples must trip the named rule (an advisory warning counts).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -17,7 +17,8 @@ for (const ex of fixtures.approved) {
 
 for (const ex of fixtures.rejected) {
   test(`guide-rejected trips ${ex.rule}: ${ex.text.slice(0, 60)}`, () => {
-    assert.ok(ids(ex).includes(ex.rule), `got ${ids(ex).join(", ") || "nothing"}`);
+    const got = findings(ex).map((f) => f.rule);
+    assert.ok(got.includes(ex.rule), `got ${got.join(", ") || "nothing"}`);
   });
 }
 

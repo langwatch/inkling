@@ -20,7 +20,9 @@
     { "mode": "docs", "text": "The tunnel URL is public." },
     { "mode": "docs", "text": "Send your developer the Connect your agent guide." },
     { "mode": "docs", "text": "Scenario is the most advanced agent testing framework available. {/* Founder decision: kept for search indexing */}" },
-    { "mode": "docs", "text": "Scenario is the most powerful agent testing framework available. {/* Founder decision: kept for search indexing */}" }
+    { "mode": "docs", "text": "Scenario is the most powerful agent testing framework available. {/* Founder decision: kept for search indexing */}" },
+    { "mode": "script", "text": "Our research identified six main problems with how agents write, let's explore them together." },
+    { "mode": "script", "text": "Another issue is that AI is trained to concede." }
   ],
   "contested": [
     { "mode": "post", "rule": "numbers/number-opener", "text": "137 questions, which took the support lead most of a day to answer by hand, and that day was the actual cost.", "why": "writing-rules approves it; the founder's later note (2026-10-31) bans any sentence that starts with a number" }
@@ -33,6 +35,12 @@
     { "mode": "docs", "rule": "docs/indefinite-event-opener", "text": "A developer connects the agent to the platform." },
     { "mode": "post", "rule": "narrator/undefined-subject", "text": "A developer connects the agent to the platform." },
     { "mode": "post", "rule": "narrator/vague-attribution", "text": "Many companies already run their agents this way." },
-    { "mode": "docs", "rule": "banned-words/marketing-hype", "text": "Scenario is the most powerful agent testing framework available." }
+    { "mode": "docs", "rule": "banned-words/marketing-hype", "text": "Scenario is the most powerful agent testing framework available." },
+    { "mode": "script", "rule": "script/writer-side-opener", "text": "The rules fit on one screen.", "why": "Talks about our material, not the listener: who asked? (founder review of lesson video v11, 2026-11-08)" },
+    { "mode": "script", "rule": "script/writer-side-opener", "text": "With no judge, the model's writing habits come from the rest of its training, and each habit is a problem with a name.", "why": "No one talks like that; a teacher says what the problems are and why they matter (founder review of lesson video v11, 2026-11-08)" },
+    { "mode": "script", "rule": "script/dangling-back-reference", "text": "A smaller version is writing from the middle of a conversation.", "why": "A smaller version of what? The listener cannot look back (founder review of lesson video v11, 2026-11-08)" },
+    { "mode": "script", "rule": "script/bare-opener-after-break", "text": "Trained to concede. The model was trained to be fair and safe, so it hedges and adds balance.", "why": "A bare label as a section opener comes out of the blue when heard (founder review of lesson video v11, 2026-11-08)" },
+    { "mode": "script", "rule": "script/aside-jump", "text": "The curse of context, which psychologists call the curse of knowledge.", "why": "A second term dropped in as an aside is a weird way to make the jump (founder review of lesson video v11, 2026-11-08)" },
+    { "mode": "script", "rule": "narrator/undefined-subject", "text": "A human writer learned punchy from watching people react.", "why": "Which writer? An invented third party instead of talking to the listener (founder review of lesson video v11, 2026-11-08)" }
   ]
 }

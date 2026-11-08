@@ -31,6 +31,12 @@ export const MODES = {
     like: ["ads", "post"],
     firstBlockIsTitle: true,
   },
+  script: {
+    label: "spoken script: a narrated lesson or video, heard once, in order, with no headings",
+    paragraphWords: 90,
+    like: ["post"],
+    wordsPerMinute: 150,
+  },
 };
 
 export const MODE_NAMES = Object.keys(MODES);
