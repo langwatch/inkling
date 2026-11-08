@@ -13,7 +13,9 @@ Answer four questions in the draft's notes. The notes hold answers and the case 
 
 When the piece is one part of a longer one, read the parts around it before you write: the agenda as the listener heard it, the end of the part before and the start of the part after. Open the way the agenda promised, using the name it used.
 
-And never explain again what a neighbouring part already explained: tie back to it in a few words and carry on. If the link needs a reason, the reason gets its own sentence, or the example shows it; a tie-back that packs the link and its cause into one sentence sounds like a summary. Pick an example the neighbours don't use, unless you call back to theirs on purpose.
+And never explain again what a neighbouring part already explained: tie back to it in a few words, tagged onto a sentence about what happens ("...and that's the curse of context again"), and carry on. A sentence whose subject is the earlier idea ("That's the part the model is missing in the curse of context") sounds like an essay.
+
+If the link needs a reason, the reason gets its own sentence, or the example shows it; a tie-back that packs the link and its cause into one sentence sounds like a summary. Pick an example the neighbours don't use, unless you call back to theirs on purpose.
 
 Then read the [reference voice](../voice/reference.md). It is how people explained things to each other while building Inkling, and it is what your first pass should sound like. The [talking-voice profile](../voice/profile.md) puts numbers on the same voice; `inkling voice <file>` measures a spoken draft against it.
 
@@ -22,6 +24,7 @@ Then read the [reference voice](../voice/reference.md). It is how people explain
 Picture one person from step 1 sitting across the table. They asked you the question this piece answers: "wait, why does that happen?" or "so what is this thing?". Write down their question, then answer it as you would if they were in front of you.
 
 - **From memory.** Read your sources first, then close them and explain. Paraphrasing a research list item by item gives you that list back with new words. Open the sources again only to check a fact or a number.
+- **Say it in your own words.** When a source states the idea in a compact phrase ("holding the whole context and reading as someone who has none of it"), that phrase was written to be read. Tell what happens instead, in a case: "you wrote the notes, so you can't read the article without them in your head."
 - **No outline, no headings.** Say it in the order the explanation needs, with each sentence leading into the next.
 - **A case before the name.** Start from something the listener has seen or done. Describe what happens first, and give the term after, once they can picture it. Use the term as an ordinary word in a sentence about what happens ("the model can picture you fine, it just doesn't bother"), never as an announcement: "Psychologists call that X" and "that's called X" are lecture register. If the listener doesn't need the term to follow, leave it out.
 - **Say the link.** Join the steps with "so", "because", "which is why", "and that's where". When you are not sure of a cause, say "maybe" and give your guess.
