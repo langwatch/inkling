@@ -21,6 +21,7 @@ inkling check script.md --mode script --minutes 3
 | `label-opener` | an ordinal or count label said as its own sentence or before a colon: "The fourth problem.", "Problem two:" | say what happens: "The model also hedges every claim." |
 | `stiff-logic` (warning) | follows from, it follows that, ergo, thereby, consequently, which implies | say the link the way you would to a friend |
 | `step-label` (warning) | tutorial step labels: next comes, next up, subsequently, following that, lastly, last but not least | say "then" or "and then"; repeating then, so and and is fine |
+| `colon-list` (warning) | a colon followed by parallel items: "you picture what's in their head: what they know, what they want and what they care about" | show the one item that matters in a moment, or give each its own sentence |
 | `elegant-variation` (warning) | one thing or one step word rotated through synonyms within 4 sentences: the model, the AI, the system; then, next, after that | pick one word and repeat it |
 | `voice-profile` (warning) | 3 or more [talking-voice profile](../voice/profile.md) measures missed, in a script of 150 spoken words or more | talk it again in the reference voice; `inkling voice <file>` shows the table |
 | `structure/sentence-variance` (warning, also in `post`) | a stretch of 10 sentences at one steady length: no complete sentence of 6 words or fewer, none of 20 or more, or a length sd under 4 | mix in a short full sentence or a longer one that runs on with and, so, because; never a fragment |

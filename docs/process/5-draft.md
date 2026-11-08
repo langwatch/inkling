@@ -4,7 +4,7 @@ You draft in three passes: talk it, shape it, trim it. The order matters. A draf
 
 ## Before the first line
 
-Answer four questions in the draft's notes:
+Answer four questions in the draft's notes. The notes hold answers and the case you will tell, never finished sentences: a line drafted in the notes comes back in the talk pass as a written line.
 
 1. Who reads this, from where, knowing what, deciding what?
 2. What is the one claim?
@@ -13,7 +13,7 @@ Answer four questions in the draft's notes:
 
 When the piece is one part of a longer one, read the parts around it before you write: the agenda as the listener heard it, the end of the part before and the start of the part after. Open the way the agenda promised, using the name it used.
 
-And never explain again what a neighbouring part already explained: tie back to it in one line ("it's the same leak as the jargon a minute ago, from the other side"). Pick an example the neighbours don't use, unless you call back to theirs on purpose.
+And never explain again what a neighbouring part already explained: tie back to it in a few words and carry on. If the link needs a reason, the reason gets its own sentence, or the example shows it; a tie-back that packs the link and its cause into one sentence sounds like a summary. Pick an example the neighbours don't use, unless you call back to theirs on purpose.
 
 Then read the [reference voice](../voice/reference.md). It is how people explained things to each other while building Inkling, and it is what your first pass should sound like. The [talking-voice profile](../voice/profile.md) puts numbers on the same voice; `inkling voice <file>` measures a spoken draft against it.
 
@@ -30,6 +30,7 @@ Picture one person from step 1 sitting across the table. They asked you the ques
 - **I and you.** Say what you did, saw or think, and talk to the listener.
 - **Ask their question, in their words.** When the listener would interrupt, ask what they would ask at that moment ("wait, it can do that?") and answer it. A presenter's "So why does that happen?" is a stage cue, and listeners hear it as one; so is a bare "Why? Because...". Put the "because" inside the sentence instead.
 - **Say the hard part.** If a step is tricky or took you a while to see, say so.
+- **Show it, don't define it.** When the listener needs to know what a thing is, give one moment where they would see it happen, not a colon and a list of what it covers. A list of parallel items ("what they know, what they want and what they care about") is a dictionary shape, and two adjectives stacked before a noun ("a polite, complete tour") are a writer's polish. Pick the one that matters.
 - **Say what "it" is.** A pronoun more than a sentence away from its noun loses a listener: "I catch it" two lines after the problem leaves them guessing. Say the noun again.
 
 The example sentences in Inkling's pages and rule messages show a move; they are not lines to copy. Say the move in your own words, for your own case.

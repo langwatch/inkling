@@ -34,3 +34,13 @@ The listeners in `readers listen` check whether a viewer follows and keeps watch
 The draft step now starts by explaining the topic to someone who asked, the way you would say it, in the voice of the [reference excerpts](../voice/reference.md), from memory and with no outline.
 
 Structure (previews, part openers) is added to that explanation afterwards, and trimming cuts whole repeats and asides, never the connectives. The script rules' fixes now suggest sentences that say what happens ("The model also hedges every claim"), shown as moves rather than lines to copy, and a test checks that the shape rules raise nothing on the reference excerpts. See [draft](../process/5-draft.md) and [spoken scripts](../process/script-mode.md).
+
+## What the talk pass still wrote
+
+Later runs showed written lines that came from the talk pass itself, before any trim. Three sources:
+
+- The notes held finished phrases, and the talk pass copied them in. The notes now hold answers and the case, not sentences.
+- Asked to say what a thing is, the writer listed what it covers after a colon. The draft step now asks for one moment where the listener would see it, and `script/colon-list` warns on the list shape.
+- A rule to tie back to the previous part "in one line" made the writer pack the link and its cause into one long sentence. The tie-back is now a few words, and the reason gets its own sentence.
+
+Example lines in Inkling's own pages were copied word for word ("a minute ago", "Another thing that goes wrong"), so the pages now say examples show a move and are not lines to reuse.

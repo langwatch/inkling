@@ -8,6 +8,19 @@ const sentencesOf = (doc) => spokenBlocks(doc).flatMap((b) => b.sentences);
 
 export default [
   {
+    id: "colon-list",
+    modes: SCRIPT,
+    severity: "warning",
+    pattern: /:\s[^.?!]*?,\s+(\w+)\b[^,.;:?!]{0,40},?\s+(?:and|or)\s+\1\b/i,
+    message: "A colon followed by a list of parallel items (what they know, what they want and what they care about): a dictionary or slide shape. A listener hears a set of items to remember, not something happening.",
+    fix: "Show the one item that matters in a moment the listener knows (\"you see their face drop and you start over\"), or give each item its own sentence as it comes up.",
+    source: "Blind listener test of the lesson's theory of mind section, run 3, 2026-11-08",
+    examples: {
+      fail: [{ text: "You picture what's in their head: what they know, what they want and what they care about.", mode: "script" }],
+      pass: [{ text: "You see their face drop, and you start over in simpler words.", mode: "script" }, { text: "It's the same at work: a test fails, a screenshot looks wrong, and I fix it.", mode: "script" }],
+    },
+  },
+  {
     id: "elegant-variation",
     modes: SCRIPT,
     scope: "document",
