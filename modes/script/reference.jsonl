@@ -15,3 +15,5 @@
 {"id": "v12-006", "text": "When a model writes code, the tests pass or fail, and training rewarded the model for passing.", "label": "approved", "source": "founder review 2026-11-08"}
 {"id": "v12-007", "text": "Left alone, the model drifts towards the average of every marketing line it has read.", "label": "rejected", "reason": "written register: \"left alone\"", "source": "founder review 2026-11-08"}
 {"id": "v12-008", "text": "Beige soup.", "label": "rejected", "reason": "verbless fragment in a script", "source": "founder review 2026-11-08"}
+{"id": "v12-009", "text": "The fourth problem. Poor theory of mind, follows from the third.", "label": "rejected", "reason": "label opener with no verb and a stiff \"follows from\"", "source": "founder review 2026-11-08"}
+{"id": "v12-010", "text": "The fourth problem is poor theory of mind, and it grows out of the third one.", "label": "approved", "source": "founder review 2026-11-08"}

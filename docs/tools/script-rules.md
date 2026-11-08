@@ -18,6 +18,8 @@ inkling check script.md --mode script --minutes 3
 | `dangling-back-reference` | an opener such as "A smaller version is" or "This is" that points at a paragraph already gone (also in `deck`) | name the thing again |
 | `impersonal-run` | 6 or more sentences in a row with no we, you, I or let's; the finding gives the run length | bring the listener in |
 | `fragment` | each verbless fragment, such as "Beige soup."; one per script may carry `<!-- fragment: on purpose -->`; quoted titles and list items are exempt | join it to the sentence before |
+| `label-opener` | an ordinal or count label said as its own sentence or before a colon: "The fourth problem.", "Problem two:" | "The fourth problem is X." |
+| `stiff-logic` (warning) | follows from, it follows that, ergo, thereby, consequently, which implies | say the link the way you would to a friend |
 | `written-register` (warning) | written-only phrasing: left alone, thus, hence, in short, one might, whereby, therefore, moreover, furthermore, notwithstanding, in order to, as such, it is worth noting | say "on its own", "so", "to" |
 | `staccato-overuse` | more than 2 fragments per 300 spoken words, unless `<!-- staccato: on purpose -->` is in the file | join them into sentences |
 | `agenda-count-only` (warning) | a count of parts or items, such as "six main problems" or "four steps", anywhere in the script, with no names in the same sentence or the next | name each item briefly |
@@ -31,4 +33,4 @@ The time budget is the target, but followability beats length: a script may run 
 
 A fragment is a sentence of four words or fewer with no subject and no finite verb. Spoken words are paragraphs, list items and quotes; headings and the title are not counted.
 
-`writer-side-opener` stays a warning until the `script` reference set passes [calibration](calibration.md). Today it holds 11 rejected and 5 approved lines, in `modes/script/reference.jsonl`.
+`writer-side-opener` stays a warning until the `script` reference set passes [calibration](calibration.md). Today it holds 12 rejected and 6 approved lines, in `modes/script/reference.jsonl`.

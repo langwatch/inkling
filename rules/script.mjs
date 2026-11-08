@@ -120,6 +120,13 @@ function unpreviewedWalks(doc) {
   return out;
 }
 
+const ITEM = "(?:problem|reason|issue|step|part|point|mistake|lesson|tool|thing|habit|cause|idea|question|rule|tip)";
+const ORDINAL_WORD = "(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|next|last|final)";
+const COUNT_WORD = "(?:one|two|three|four|five|six|seven|eight|nine|ten|\\d+)";
+/** An ordinal or count label said as its own sentence or before a colon: "The fourth problem.", "Problem two:". */
+export const LABEL_OPENER = new RegExp(`^(?:(?:and|so|now)\\s+)?(?:(?:the\\s+)?${ORDINAL_WORD}\\s+(?:(?:big|main|key)\\s+)?${ITEM}|${ITEM}\\s+${COUNT_WORD})\\s*(?:[.:!]|$)`, "i");
+const isLabel = (x) => LABEL_OPENER.test(x.clean.trim());
+
 const FRAGMENT_MARK = /<!--\s*fragment:\s*on purpose\s*-->/i;
 const QUOTED = /^["\u201c'].*["\u201d']\W*$/;
 
@@ -176,7 +183,7 @@ export default [
     scope: "document",
     check: (_u, { doc }) =>
       spokenBlocks(doc)
-        .filter((b) => b.type === "paragraph" && b.sentences[0] && isFragment(b.sentences[0]) && b.sentences.length > 1)
+        .filter((b) => b.type === "paragraph" && b.sentences[0] && isFragment(b.sentences[0]) && !isLabel(b.sentences[0]) && b.sentences.length > 1)
         .map((b) => ({ block: b, index: b.sentences[0].start })),
     message: "After a break the paragraph opens on a bare label (\"Trained to concede.\", \"Cramming.\"). On a page it reads as a bold label; out loud it is a jump.",
     fix: "Say how it connects: \"Another issue is that AI was trained to concede.\"",
@@ -370,7 +377,7 @@ export default [
     check: (_u, { doc }) => {
       const fragments = spokenBlocks(doc)
         .filter((b) => b.type !== "list-item")
-        .flatMap((b) => b.sentences.filter((x) => isFragment(x) && !QUOTED.test(x.clean.trim())));
+        .flatMap((b) => b.sentences.filter((x) => isFragment(x) && !isLabel(x) && !QUOTED.test(x.clean.trim())));
       let kept = 0;
       return fragments.flatMap((x) => {
         if (markedFragment(x, doc) && kept++ === 0) return [];
@@ -383,6 +390,32 @@ export default [
     examples: {
       fail: [{ text: "The model drifts towards the average of every marketing line it has read. Beige soup.", mode: "script" }, { text: "<!-- fragment: on purpose -->\nBeige soup.\n\n<!-- fragment: on purpose -->\nPlain code.", mode: "script" }],
       pass: [{ text: "The model drifts towards the average of every marketing line it has read: beige soup.", mode: "script" }, { text: "<!-- fragment: on purpose -->\nThe model drifts towards the average. Beige soup.", mode: "script" }, { text: "The headline was \"You don't need an agent sandbox.\"", mode: "script" }],
+    },
+  },
+  {
+    id: "label-opener",
+    modes: SCRIPT,
+    scope: "document",
+    check: (_u, { doc }) => spokenBlocks(doc).filter((b) => b.type !== "list-item").flatMap((b) => b.sentences.filter(isLabel).map(at)),
+    message: "A label with no verb (\"The fourth problem.\", \"Problem two:\"). On a slide it is a heading; spoken, the listener hears a number and has to guess how it joins the next words.",
+    fix: "Make it the start of a sentence: \"The fourth problem is poor theory of mind.\"",
+    source: "Founder review of lesson script v12, 2026-11-08: \"The fourth problem. Poor theory of mind, follows from the third.\"",
+    examples: {
+      fail: [{ text: "The fourth problem. Poor theory of mind comes out of the third.", mode: "script" }, { text: "The fourth problem: poor theory of mind.", mode: "script" }, { text: "Problem two: the model concedes.", mode: "script" }, { text: "Second issue. The model concedes.", mode: "script" }],
+      pass: [{ text: "The fourth problem is poor theory of mind, and it grows out of the third one.", mode: "script" }, { text: "The first step is to decide who reads it.", mode: "script" }],
+    },
+  },
+  {
+    id: "stiff-logic",
+    modes: SCRIPT,
+    severity: "warning",
+    pattern: /\b(?:follows from|it follows that|ergo|thereby|consequently|which implies)\b/i,
+    message: "A logic-textbook connective. Spoken, it sounds like a proof, and the listener still has to work out the link.",
+    fix: "Explain the link the way you'd say it to a friend: \"this one comes out of the third: because the model ...\"",
+    source: "Founder review of lesson script v12, 2026-11-08: \"Poor theory of mind, follows from the third.\"",
+    examples: {
+      fail: [{ text: "Poor theory of mind follows from the curse of context.", mode: "script" }, { text: "The model never meets the reader, which implies it guesses.", mode: "script" }],
+      pass: [{ text: "Poor theory of mind comes out of the curse of context, because the model never pictures the reader.", mode: "script" }],
     },
   },
   {
