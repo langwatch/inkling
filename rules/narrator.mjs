@@ -31,6 +31,10 @@ function severalCauses(section) {
   return SEVERAL.test(text) || section.blocks.filter((b) => b.type === "list-item" && b.ordered).length >= 2;
 }
 
+// A general claim told in the past: "biased towards text that models wrote" reads as if it covered one old batch.
+const GENERAL_PAST = /\b(?:that|which)\s+(?:other\s+)?(?:AI\s+)?(?:models|LLMs|AIs|AI|machines|people|humans|writers)\s+wrote\b/i;
+const EVENT_CUE = /\b(?:found|showed|study|studies|experiment|survey|in (?:19|20)\d\d|last (?:week|month|year)|yesterday|when we|we (?:ran|tested|asked))\b/i;
+
 // Steps said as orders: "You start a fresh model." In talk, people say what you can do or what they do.
 const STEP = "open|paste|run|click|type|copy|spin|add|send|load|upload|install|connect|create|select|enter|press|generate|save|delete|drop|start|feed|grab|hand|give|ask|write|pick|set|put|record";
 const OBJECT = "the|a|an|it|this|that|them|these|those|your|my|our|some|one|up|in|out|on|off|back|down|over|every|each|all|its";
@@ -377,6 +381,24 @@ export default [
     examples: {
       fail: [{ text: "You start a fresh model with zero context, and it reads the text for the first time.", mode: "script" }, { text: "Then you paste the notes into the chat.", mode: "post" }, { text: "Open a fresh chat with no history.", mode: "script" }],
       pass: [{ text: "You can start a fresh model with zero context, and it reads the text for the first time.", mode: "script" }, { text: "I usually paste the notes into a fresh chat.", mode: "post" }, { text: "Ask the model for the reply and you often get a polite tour.", mode: "script" }, { text: "If you paste your notes in, the reply is full of ticket names.", mode: "script" }, { text: "Try it.", mode: "post" }, { text: "Run this:", mode: "post" }, { text: "1. Open a fresh chat.\n2. Paste the notes.", mode: "post" }],
+    },
+  },
+  {
+    id: "general-claim-past-tense",
+    modes: ALL_BUT_LEGAL,
+    scope: "body-sentence",
+    severity: "warning",
+    check: (unit) => {
+      const m = unit.clean.match(GENERAL_PAST);
+      if (!m || EVENT_CUE.test(unit.clean)) return [];
+      return [{ index: m.index, match: m[0] }];
+    },
+    message: "A general claim told in the past tense (\"text that models wrote\"). The writer has a study in mind, so its data sits in the past, but a listener hears the claim as covering only some old batch of text.",
+    fix: "Ongoing facts go in the present: \"text that models write\", \"models prefer AI text\". Keep the past for the one event: \"researchers found\", \"the judge picked\".",
+    source: "Founder edit of the lesson script, 2026-11-08: \"biased towards text that models wrote\" became \"text that other AI models write\"; it repeats across pieces",
+    examples: {
+      fail: [{ text: "Models are biased towards text that models wrote.", mode: "script" }, { text: "Readers trust posts that people wrote more than generated ones.", mode: "post" }],
+      pass: [{ text: "Models are biased towards text that other AI models write.", mode: "script" }, { text: "Researchers at Meta found the judges picked text that models wrote.", mode: "script" }, { text: "The email that Ana wrote was short.", mode: "post" }],
     },
   },
 ];

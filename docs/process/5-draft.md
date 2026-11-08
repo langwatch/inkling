@@ -75,6 +75,7 @@ How far you trim depends on the mode. Docs end strictly technical, ads end at on
 
 - Open on the concrete thing. For a piece about a product, the first sentence names it and says what it is.
 - Describe the mechanism before the meaning, and attach every number to its consequence.
+- Put general facts in the present tense: "models prefer text that models write". Keep the past for one event: "researchers found", "the judge picked". With a study in mind its data feels past, so the general claim slips into the past too ("text that models wrote"), and then it reads as if it covered only some old batch of text.
 - Take a side. Concessions, hedges and apologies belong in the docs, never in copy.
 - Make one claim per title, and let each paragraph follow from the one before it.
 - Leave out slogans: taglines, twist imperatives such as "Fail your copy before your readers do", and clipped fragments such as "Less noise. More signal.".
