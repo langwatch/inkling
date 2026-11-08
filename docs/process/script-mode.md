@@ -34,4 +34,4 @@ Pick examples your listener already knows, and say what each one proved, with th
 
 ## Check it by ear
 
-`inkling check script.md --mode script` runs the rules on [script rules](../tools/script-rules.md). Then `inkling readers listen script.md` plays the script to simulated listeners in chunks of 30 to 45 seconds and fails on a skip, a listener who lost the thread, or an example they could not explain. See [listen](../tools/listen.md).
+`inkling check script.md --mode script` runs the rules on [script rules](../tools/script-rules.md). Then `inkling readers listen script.md` plays the script to simulated busy viewers in chunks of about 30 seconds and fails on a skip, a listener who lost the thread, or an example they could not explain. See [listen](../tools/listen.md).

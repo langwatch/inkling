@@ -1,33 +1,28 @@
-# Listeners for a spoken script: a narrated lesson or video, heard once, in order.
-# `inkling readers listen` feeds them the script in 30 to 45 second chunks.
+# Viewers for a spoken script: a narrated lesson or video, heard once, in order, by people
+# whose time is short. `inkling readers listen` feeds them the script in chunks of about 30 seconds.
 context:
-  author: a small company or its founder teaching what they learned
-  size: an early product, no famous customers
-  arrived_from: a link in a post, a newsletter or a README
-  attention: you keep listening while each part is clear and earns the next minute
+  author: a small company or its founder showing what they learned
+  arrived_from: a link a colleague dropped in a team chat
 personas:
-  - id: learner
-    view: full
-    background: >
-      An engineer or founder who uses AI agents at work and clicked a short video
-      lesson to learn something they can use this week. Listens with the video in a
-      side tab, gives it a fair chance, and skips ahead when they lose the thread
-      or a part feels like filler.
   - id: busy-lead
     view: full
     background: >
-      A team lead watching on a phone between meetings. Generous to small teams and
-      fine with a plain delivery, but wants to know early what the lesson covers and
-      roughly where they are in it. Closes the tab when a part runs on with no point.
+      A team lead at a 40-person software company. Some of the team use AI for
+      customer emails and release notes. Clicked the link because a colleague said
+      "worth a look"; a meeting starts in 15 minutes.
+  - id: sales-cofounder
+    view: full
+    background: >
+      The sales co-founder of a 12-person startup who sends AI-drafted outreach
+      and decks. Not an engineer. Watching between two customer calls, with the
+      next one starting soon.
 expectations:
   - id: follows
     core: true
-    expect: After each chunk the listener can say where they are in the lesson and what the last point was.
+    expect: After each chunk the viewer can say what the part is about and what the last point was.
   - id: no_skip
     core: true
-    expect: The listener does not want to skip ahead at any chunk.
+    expect: The viewer keeps watching at every chunk.
   - id: examples_land
     core: true
-    expect: The listener explains each example back and what it proved.
-  - id: agenda
-    expect: The listener says the agenda back.
+    expect: The viewer explains each example back and what it proved.

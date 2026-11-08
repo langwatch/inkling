@@ -10,7 +10,7 @@ Each line of the file is a JSON object holding a line from a script and its labe
 
 ## Readers
 
-`readers.yaml` lists two listeners, a learner and a busy team lead. `inkling readers listen <script>` uses them by default; pass `--readers <yaml>` to use your own.
+`readers.yaml` lists two viewers with little time: a team lead with a meeting in 15 minutes and a sales co-founder between calls. `inkling readers listen <script>` uses them by default; pass `--readers <yaml>` to use your own.
 
 ## Status
 

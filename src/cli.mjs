@@ -13,6 +13,7 @@ import { calibrate, evaluate, formatEval, readReference, uncalibrated } from "./
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { listen, listenWithClaude, defaultListenOut } from "./listen.mjs";
+import { calibrateListen } from "./listen-calibrate.mjs";
 
 const USAGE = `inkling: content writing framework for agents
 
@@ -27,9 +28,11 @@ const USAGE = `inkling: content writing framework for agents
       subagent and saves <dir>/<persona>.answer.md; grade writes judge prompts the same way
   inkling readers run <draft> <readers.yaml> --out <dir> [--reader sonnet] [--judge opus]
       step 7, claude -p backend on the subscription, isolated config, tools off
-  inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude]
-      a spoken script heard once: chunks of 30 to 45 s, three probes after each, examples and agenda
-      recalled at the end; fails on a skip, a wrong "where are we" or an unexplained example
+  inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude] [--notes 2]
+      a spoken script heard once by busy viewers: 30 s chunks, three probes after each, examples and
+      parts recalled at the end; fails on a skip, a lost viewer or an unexplained example
+  inkling readers listen --calibrate [--out <dir>] [--reader sonnet]
+      rerun calibration/listen.json: each target must hold in 2 of 3 runs
   inkling readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]
   inkling readers panel round <run> [--draft <file>] [--force]
   inkling readers panel status|stop <run>
@@ -92,6 +95,8 @@ export function main(argv) {
       minutes: { type: "string" },
       readers: { type: "string" },
       backend: { type: "string" },
+      calibrate: { type: "boolean" },
+      notes: { type: "string" },
     },
   });
   if (values.mode && !MODES[values.mode]) {
@@ -251,14 +256,21 @@ function pendingMessage(pending, what, save) {
   );
 }
 
-function listenCommand([script, run], values) {
-  if (!script) return usage("inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude]");
-  const out = values.out ?? (existsSync(join(script, "listen.json")) ? script : defaultListenOut(script));
-  const args = { script: existsSync(join(script, "listen.json")) ? null : script, readersFile: values.readers, out };
+async function listenCommand([script], values) {
+  const notesKept = values.notes ? Number(values.notes) : undefined;
+  const log = (f) => process.stderr.write(`listen: ${f}\n`);
   try {
-    const state = values.backend === "claude"
-      ? listenWithClaude({ ...args, reader: values.reader, judge: values.judge, log: (f) => process.stderr.write(`listen: ${f}\n`) })
-      : listen(args);
+    if (values.calibrate) {
+      const out = values.out ?? join("runs", `listen-calibration-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}`);
+      const r = await calibrateListen({ out, reader: values.reader, judge: values.judge, notesKept, readersFile: values.readers, log });
+      process.stdout.write(r.report);
+      return r.all ? 0 : 1;
+    }
+    if (!script) return usage("inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude] [--reader sonnet] [--notes 2] | --calibrate");
+    const resume = existsSync(join(script, "listen.json"));
+    const out = values.out ?? (resume ? script : defaultListenOut(script));
+    const args = { script: resume ? null : script, readersFile: values.readers, out, notesKept };
+    const state = values.backend === "claude" ? await listenWithClaude({ ...args, reader: values.reader, judge: values.judge, log }) : listen(args);
     if (state.pending) {
       process.stdout.write(
         `${state.pending.length} listen prompts waiting. Run each as its own fresh subagent (no fork, no tools) and save its whole reply next to it: ` +

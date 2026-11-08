@@ -1,7 +1,7 @@
 // Model calls for reader tests and the preference judge run on a Claude subscription only:
 // either as fresh subagents of the calling agent, or `claude -p` with an isolated config.
 // Paid API models are refused. Adapted from reader-sim (docs/layers/e-readers.md, credits).
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, chmodSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, delimiter } from "node:path";
@@ -89,6 +89,28 @@ export class ClaudeCli {
       if (last.status === 0 && last.stdout.trim()) return last.stdout.trim();
     }
     throw new Error(`${this.name} failed: ${(last.stderr || last.stdout || "").trim().slice(0, 400)}`);
+  }
+
+  /** Same call as ask, without blocking, so several readers can run at once. */
+  async askAsync(system, prompt) {
+    const args = ["-p", "--model", this.model, "--tools", "", "--strict-mcp-config", "--setting-sources", "",
+      "--disable-slash-commands", "--no-session-persistence", "--system-prompt", system];
+    let last = "";
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { status, stdout, stderr } = await new Promise((done) => {
+        const child = spawn(claudeBin(), args, { cwd: this.cwd, env: this.env, timeout: 600_000 });
+        let out = "";
+        let err = "";
+        child.stdout.on("data", (d) => (out += d));
+        child.stderr.on("data", (d) => (err += d));
+        child.on("close", (code) => done({ status: code, stdout: out, stderr: err }));
+        child.on("error", (e) => done({ status: -1, stdout: "", stderr: e.message }));
+        child.stdin.end(prompt);
+      });
+      if (status === 0 && stdout.trim()) return stdout.trim();
+      last = stderr || stdout;
+    }
+    throw new Error(`${this.name} failed: ${last.trim().slice(0, 400)}`);
   }
 }
 
