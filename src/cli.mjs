@@ -11,6 +11,8 @@ import { panelStart, panelRound, panelStatus, holdout, stopRun } from "./panel.m
 import { BUDGETS, BUDGET_NAMES, describeBudgets, startPlan, recordTiming, timingsSummary, topicPaths, topicInit } from "./budget.mjs";
 import { calibrate, evaluate, formatEval, readReference, uncalibrated } from "./calibrate.mjs";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { listen, listenWithClaude, defaultListenOut } from "./listen.mjs";
 
 const USAGE = `inkling: content writing framework for agents
 
@@ -25,10 +27,13 @@ const USAGE = `inkling: content writing framework for agents
       subagent and saves <dir>/<persona>.answer.md; grade writes judge prompts the same way
   inkling readers run <draft> <readers.yaml> --out <dir> [--reader sonnet] [--judge opus]
       step 7, claude -p backend on the subscription, isolated config, tools off
+  inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude]
+      a spoken script heard once: chunks of 30 to 45 s, three probes after each, examples and agenda
+      recalled at the end; fails on a skip, a wrong "where are we" or an unexplained example
   inkling readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]
   inkling readers panel round <run> [--draft <file>] [--force]
   inkling readers panel status|stop <run>
-  inkling readers holdout <run> [--draft <file>]
+  inkling readers holdout <run> [--draft <file>] [--force]
       the default reader loop: a panel that stays across rounds, old and new shown as A/B,
       edits shrinking from sections to paragraphs to lines, then one clean-eyes holdout
   inkling plan --budget <quick|standard|deep> --mode <mode> [--out <run>] [--topic <topic>]
@@ -246,6 +251,31 @@ function pendingMessage(pending, what, save) {
   );
 }
 
+function listenCommand([script, run], values) {
+  if (!script) return usage("inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude]");
+  const out = values.out ?? (existsSync(join(script, "listen.json")) ? script : defaultListenOut(script));
+  const args = { script: existsSync(join(script, "listen.json")) ? null : script, readersFile: values.readers, out };
+  try {
+    const state = values.backend === "claude"
+      ? listenWithClaude({ ...args, reader: values.reader, judge: values.judge, log: (f) => process.stderr.write(`listen: ${f}\n`) })
+      : listen(args);
+    if (state.pending) {
+      process.stdout.write(
+        `${state.pending.length} listen prompts waiting. Run each as its own fresh subagent (no fork, no tools) and save its whole reply next to it: ` +
+          `<name>.answer.md for a chunk or final prompt, <persona>.verdict.json for a judge prompt:\n` +
+          state.pending.map((p) => `  ${p}`).join("\n") +
+          `\nThen run inkling readers listen ${out} again.\n`,
+      );
+      return 3;
+    }
+    process.stdout.write(state.report);
+    return state.failed ? 1 : 0;
+  } catch (e) {
+    process.stderr.write(`inkling: ${e.message}\n`);
+    return 1;
+  }
+}
+
 function readers([sub, ...pos], values) {
   const refused = refuseIfPaid(`readers ${sub ?? ""}`.trim());
   if (refused) {
@@ -265,11 +295,12 @@ function readers([sub, ...pos], values) {
     process.stdout.write(state.report ?? "");
     return state.failed ? 1 : 0;
   }
+  if (sub === "listen") return listenCommand(pos, values);
   if (sub === "panel") return panel(pos, values);
   if (sub === "holdout") {
     if (!pos[0]) return usage("inkling readers holdout <run> [--draft <file>]");
     try {
-      const { prompts, dir } = holdout({ out: pos[0], draft: values.draft });
+      const { prompts, dir } = holdout({ out: pos[0], draft: values.draft, force: values.force });
       process.stdout.write(pendingMessage(prompts, "clean-eyes prompts (fresh subagents, used once)", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade ${dir}. If core passes, stop. Otherwise make one small adjustment and stop.`));
       return 0;
     } catch (e) {
@@ -287,7 +318,7 @@ function readers([sub, ...pos], values) {
     process.stdout.write(state.report);
     return state.failed ? 1 : 0;
   }
-  return usage("inkling readers prompts|grade|run|panel|holdout");
+  return usage("inkling readers prompts|grade|run|listen|panel|holdout");
 }
 
 function prefer([sub, ...pos], values) {
