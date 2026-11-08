@@ -6,9 +6,13 @@ The limits below are defaults. A listen run shows where a viewer drifted. Use it
 
 ## Set the time budget first
 
-Decide the length before the first line: `minutes: 3` in the front matter, or `--minutes 3` on the command line. At about 150 spoken words a minute, three minutes is 450 words. `script/over-time` warns on a script more than 10% over its budget. When it warns, cut a whole part or a whole example.
+Decide the length before the first line: `minutes: 3` in the front matter, or `--minutes 3` on the command line. At about 150 spoken words a minute, three minutes is 450 words. Use the budget to decide how many parts and examples fit, before you draft: a part that explains something takes 45 to 90 seconds, so three minutes holds two or three of them.
 
-The budget is still the target, but followability beats length: previews, signposts and recaps are worth some extra time. Cut whole parts or examples before you cut any of them.
+`script/over-time` warns on a script more than 10% over its budget. When it warns, cut a whole part or a whole example. Never squeeze the sentences inside a part to fit: a part cut to 40 words keeps its name and its claim and loses the "because" that explained it, and that is how a script turns into notes. Previews, signposts and recaps are worth some extra time too.
+
+## Talk each part first
+
+Draft the way [step 5](5-draft.md) says: explain each part aloud to one listener who asked about it, in the [reference voice](../voice/reference.md), before any agenda, headings or part openers exist. Then add the agenda and the openers below to that talk. A script built from a list of headings, each expanded into a paragraph, comes out as labels and definitions however many times you fix its lines.
 
 ## Say the agenda
 
@@ -16,13 +20,17 @@ In the first 15% of the script, say what the parts are: "We'll look at three thi
 
 The same holds inside a part. Before walking through three tools, problems or steps, name them in one short line: "four steps: decide who reads it, write the tests, draft and check, and let readers try it." `script/list-no-preview` warns on a "The first..., The second..." walk with no such line before it.
 
-## Open each part with one line tied to the agenda
+## Open each part with a sentence that says what happens
 
-The listener never hears a heading, so the first sentence of each part says the topic and where it sits in the agenda: "Let's start with why the writing fails." or "That brings us to the second part: why not ask another AI to judge the writing?"
+The listener never hears a heading, so the first sentence of each part says the topic and where it sits in the agenda. Say it as a sentence about what happens, the way you would in conversation: "Another thing that goes wrong is that the model hedges every claim." or "That brings us to the second part: why not ask another AI to judge the writing?"
+
+Avoid opening on the name of the part followed by its definition, as in "The second problem is hedging. Hedging is when...". If you name a thing before the listener has heard what it does, you have to define it in the next sentence, and a script full of definitions is a glossary. Describe what happens first; the name can come after, once the listener can picture it.
 
 ## Put a transition at every switch
 
 Every new paragraph starts with a connective or with words that point back to the last one: so, but, because, another, next, that is why, let's. A paragraph that opens on a bare label such as "Trained to concede." reads as a bold label on a page and as a jump when spoken. Say "Another issue is that AI was trained to concede." instead.
+
+A script you talked first has these already. The check catches the places you added later.
 
 Name what an opener refers to. "A smaller version is..." leaves the listener asking "of what?". Say "A smaller version of the same problem is..." or join it to the paragraph it belongs to.
 
@@ -36,9 +44,11 @@ Use spoken words. "Left alone", "thus", "hence", "in order to" and "it is worth 
 
 ## Use staccato only on purpose
 
-A run of fragments such as "Fast. Cheap. Local." sounds like a list of full stops when read aloud. `script/staccato-overuse` allows two per 300 spoken words,.
+A run of fragments such as "Fast. Cheap. Local." sounds like a list of full stops when read aloud. `script/staccato-overuse` allows two per 300 spoken words.
 
-`script/fragment` fails each verbless fragment, such as "Beige soup.", on its own. Join it to the sentence before: "...every marketing line it has read: beige soup." When a pause is the point, keep one per script and mark it with `<!-- fragment: on purpose -->` on the line above. Quoted titles and items in an on-screen list are exempt.
+`script/fragment` fails each verbless fragment, such as "Beige soup.", on its own. Join it to the sentence before with a verb: "...every marketing line it has read, producing something like a beige soup." 
+
+Short replies such as "No." or "Agreed." and imperatives such as "Use your judgement." are speech, and the rule leaves them alone. When a pause is the point, keep one per script and mark it with `<!-- fragment: on purpose -->` on the line above. Quoted titles and items in an on-screen list are exempt.
 
 ## Use examples the listener understands, and state the cause
 
