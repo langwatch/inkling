@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
-import { listen, registerOf, FINAL, bridgesIn, bridgeProbe, chunkPrompt, listenJudgePrompt, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf, atEnd } from "../src/listen.mjs";
+import { listen, registerOf, oddOf, FINAL, bridgesIn, bridgeProbe, chunkPrompt, listenJudgePrompt, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf, atEnd } from "../src/listen.mjs";
 import { checkTarget, chunkOf } from "../src/listen-calibrate.mjs";
 import { words } from "../src/markdown.mjs";
 
@@ -249,4 +249,12 @@ test("the final recall asks for any phrase no one would say, and the report keep
     }
   }
   rmSync(out, { recursive: true, force: true });
+});
+
+test("each chunk asks for lines a person wouldn't say, and none means none", () => {
+  const prompt = chunkPrompt({ persona: { id: "p", background: "A lead." }, context: {}, memory: { notes: [] }, started: false, text: "So why is AI copy weak?", index: 0 });
+  assert.match(prompt, /a line "Odd:"/);
+  assert.equal(oddOf('1. It is about release notes.\nNote: notes leak\nOdd: "Psychologists call that X" sounds like a lecture'), '"Psychologists call that X" sounds like a lecture');
+  assert.equal(oddOf("1. fine\nOdd: none"), null);
+  assert.equal(oddOf("1. fine\nNote: x"), null);
 });

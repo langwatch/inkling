@@ -134,6 +134,12 @@ const NOT_SURE = /^\s*[12][.)]\s*(?:honestly,?\s*)?(?:i'?m |i am |i'm honestly )
 /** True when answer 1 or 2 opens by saying the viewer is not sure what the part is about or what the last point was. */
 export const unsure = (answer) => NOT_SURE.test(answer.split(/\n\s*3[.)]/)[0]);
 
+/** The line a viewer heard as unspoken in a chunk, unless they flagged none. */
+export function oddOf(answer) {
+  const said = line(answer, "Odd");
+  return !said || /^(?:none|no\b|nothing|n\/a)/i.test(said) ? null : said;
+}
+
 /** What the viewer carries forward: the plan if they caught one, and their last two notes. */
 export function memoryOf(answers, kept = NOTES_KEPT) {
   const plan = answers.map((a) => line(a, "Plan")).find((p) => p && !/^(?:none|no|not\b|n\/a|unclear|nothing)/i.test(p)) ?? null;
@@ -183,7 +189,7 @@ export function chunkPrompt({ persona, context, memory, started, text, index, at
     `What you just heard, the next 30 seconds or so:${player}\n\n<heard>\n${text}\n</heard>`,
     LISTENER_RULES,
     `Questions:\n${[...PROBES, ...bridges.map((b) => bridgeProbe(b.at))].map((q, i) => `${i + 1}. ${q}`).join("\n")}`,
-    `Answer 1 and 2 in a sentence each, in first person. For 3, say what you do and why in a sentence, then a line that is exactly "Action: watching", "Action: 2x" or "Action: skip".${bridges.length ? ` Answer ${bridges.map((_b, i) => i + 4).join(" and ")} in a sentence each, from what you heard.` : ""} Then a line "Note:" with the few words you would keep in your head from this stretch. If the speaker said what the parts of the video will be, add a line "Plan:" with them. Write nothing else.`,
+    `Answer 1 and 2 in a sentence each, in first person. For 3, say what you do and why in a sentence, then a line that is exactly "Action: watching", "Action: 2x" or "Action: skip".${bridges.length ? ` Answer ${bridges.map((_b, i) => i + 4).join(" and ")} in a sentence each, from what you heard.` : ""} Then a line "Note:" with the few words you would keep in your head from this stretch. If the speaker said what the parts of the video will be, add a line "Plan:" with them. If a line in this stretch sounded like something a person wouldn't say aloud to you (a textbook definition, a stage question, a signpost, a written phrase), add a line "Odd:" quoting it and saying why in a few words. Write nothing else.`,
   ].join("\n\n");
 }
 
@@ -339,6 +345,10 @@ function report({ out, state }) {
       if (b.conflict) failed += 1;
       lines.push(`- ${b.conflict ? "FAIL" : "note"} bridge "${clip(b.at, 80)}": heard ${clip(b.heard, 160)}; intended ${clip(b.intended, 160)}`);
     }
+    state.chunks.forEach((_c, k) => {
+      const odd = oddOf(read(join(out, `${p.id}.chunk-${k + 1}.answer.md`)));
+      if (odd) lines.push(`- note odd at chunk ${k + 1}: ${clip(odd)}`);
+    });
     const register = registerOf(read(join(out, `${p.id}.final.answer.md`)));
     if (register) lines.push(`- note register: ${clip(register)}`);
     if (v.agenda) lines.push(`- note agenda${v.agenda.recalled ? "" : " not recalled"}: ${clip(v.agenda.note)}`);
