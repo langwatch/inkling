@@ -6,6 +6,12 @@
 {"id": "v11-005", "text": "The curse of context, which psychologists call the curse of knowledge.", "label": "rejected", "reason": "weird way to make the jump", "source": "founder review 2026-11-08"}
 {"id": "v11-006", "text": "A human writer learned punchy from watching people react.", "label": "rejected", "reason": "an invented third party instead of talking to the listener", "source": "founder review 2026-11-08"}
 {"id": "v11-007", "text": "Our research identified six main problems with how agents write, let's explore them together.", "label": "approved", "source": "founder review 2026-11-08"}
-{"id": "v11-008", "text": "Another issue is that AI is trained to concede.", "label": "approved", "source": "founder review 2026-11-08"}
+{"id": "v11-008", "text": "Another issue is that AI was trained to concede.", "label": "approved", "source": "founder review 2026-11-08"}
 {"id": "v12-001", "text": "So why is AI copy weak?", "label": "rejected", "reason": "as a bridge after the framework intro, \"So\" reads as \"even with the framework, why does it still fail?\", while the intent was stepping back to why a framework is needed", "source": "founder review 2026-11-08"}
 {"id": "v12-002", "text": "Let's step back: why do we need a framework at all?", "label": "approved", "source": "founder review 2026-11-08"}
+{"id": "v12-003", "text": "The root cause is that code has a judge, and writing doesn't.", "label": "rejected", "reason": "overclaim: one of six listed causes", "source": "founder review 2026-11-08"}
+{"id": "v12-004", "text": "The first reason, and the root of the others, is that code has a judge.", "label": "approved", "source": "founder review 2026-11-08"}
+{"id": "v12-005", "text": "When a model writes code, the tests pass or fail, and training rewards the model for passing.", "label": "rejected", "reason": "present tense for finished training", "source": "founder review 2026-11-08"}
+{"id": "v12-006", "text": "When a model writes code, the tests pass or fail, and training rewarded the model for passing.", "label": "approved", "source": "founder review 2026-11-08"}
+{"id": "v12-007", "text": "Left alone, the model drifts towards the average of every marketing line it has read.", "label": "rejected", "reason": "written register: \"left alone\"", "source": "founder review 2026-11-08"}
+{"id": "v12-008", "text": "Beige soup.", "label": "rejected", "reason": "verbless fragment in a script", "source": "founder review 2026-11-08"}

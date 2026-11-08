@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
-import { listen, bridgesIn, bridgeProbe, chunkPrompt, listenJudgePrompt, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf, atEnd } from "../src/listen.mjs";
+import { listen, registerOf, FINAL, bridgesIn, bridgeProbe, chunkPrompt, listenJudgePrompt, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf, atEnd } from "../src/listen.mjs";
 import { checkTarget, chunkOf } from "../src/listen-calibrate.mjs";
 import { words } from "../src/markdown.mjs";
 
@@ -224,5 +224,29 @@ test("a bridge without at or relation is refused", () => {
   const bad = join(out, "readers.yaml");
   writeFileSync(bad, readFileSync(bridgeReaders, "utf8").replace(/    relation: .*\n/, ""));
   assert.throws(() => listen({ script: bridgeScript, readersFile: bad, out: join(out, "run") }), /each bridge needs/);
+  rmSync(out, { recursive: true, force: true });
+});
+
+test("the final recall asks for any phrase no one would say, and the report keeps it as a note", () => {
+  assert.equal(FINAL.at(-1), "Was there any phrase a person wouldn't say out loud? Quote it.");
+  assert.equal(registerOf('1. a\n2. b\n3. "Left alone" sounded written.\n'), '"Left alone" sounded written.');
+  assert.equal(registerOf("1. a\n2. b\n3. No, it all sounded spoken.\n"), null);
+  const out = tmp();
+  listen({ script: fixture, out });
+  for (let i = 0; i < 40; i++) {
+    const s = listen({ out });
+    if (!s.pending) {
+      assert.equal(s.failed, 0, "a register answer is a note, never a failure");
+      assert.match(s.report, /- note register: "Left alone" sounded written\./);
+      break;
+    }
+    for (const p of s.pending) {
+      if (p.endsWith(".judge.prompt.md")) writeFileSync(p.replace(".judge.prompt.md", ".verdict.json"), JSON.stringify({ lost: [], examples: [], agenda: { recalled: true } }));
+      else if (p.endsWith(".final.prompt.md")) {
+        assert.match(readFileSync(p, "utf8"), /3\. Was there any phrase a person wouldn't say out loud\? Quote it\./);
+        writeFileSync(p.replace(".prompt.md", ".answer.md"), '1. None.\n2. Parts.\n3. "Left alone" sounded written.\n');
+      } else writeFileSync(p.replace(".prompt.md", ".answer.md"), "1. Here.\n2. That.\n3. Fine.\nAction: watching\nNote: ok\n");
+    }
+  }
   rmSync(out, { recursive: true, force: true });
 });

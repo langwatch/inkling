@@ -21,6 +21,8 @@ export function isFragment(sentence) {
   const w = words(t);
   if (!w.length || w.length > 4 || /\?\s*["')\]]*$/.test(t)) return false;
   if (FINITE.test(t) || SUBJECT.test(t)) return false;
+  // "The model drifts.": a determiner, a noun, then a word in -s or -ed reads as subject and verb.
+  if (/^(?:the|a|an|our|your|its|their|every|each)\s+[a-z-]+\s+[a-z]+(?:s|ed)\b/i.test(t) && !/^\S+\s+\S+\s+of\b/i.test(t)) return false;
   return !w.slice(1).some((x) => {
     const bare = x.toLowerCase().replace(/[^a-z]/g, "");
     return isPastAction(bare) || COMMON_VERB.test(bare);
@@ -98,6 +100,41 @@ const TRANSITION =
 const firstSentence = (section) => section.blocks[0]?.sentences[0] ?? null;
 const at = (s) => ({ block: s.block, index: s.start });
 
+const ORDINAL = /^(?:(?:and|so|but|now|then),?\s+)?(?:in\s+)?the\s+(first|second|third|fourth|fifth|sixth|seventh|next|last|final)\b/i;
+
+/** Walks through parallel items ("The first...", "The second...") whose first item comes with no preview naming them. */
+function unpreviewedWalks(doc) {
+  const all = spokenBlocks(doc).flatMap((b) => b.sentences);
+  const out = [];
+  const kind = (x) => ORDINAL.exec(x.clean)?.[1].toLowerCase();
+  // A walk starts at the nearest "first" before a "second"; an earlier "first" belongs to another list.
+  all.forEach((s, i) => {
+    if (kind(s) !== "second") return;
+    let k = i - 1;
+    while (k >= 0 && i - k < 40 && kind(all[k]) !== "first") k--;
+    if (k < 0 || kind(all[k]) !== "first") return;
+    const first = all[k];
+    const before = [first.clean.slice(0, first.clean.search(/\bfirst\b/i)), ...all.slice(Math.max(0, k - 4), k).map((x) => x.clean)];
+    if (!before.some((t) => (t.match(/(?::|\b(?:are|were)\b)([^.?!]*)/i)?.[1].match(/,|\band\b|\bor\b/gi) ?? []).length >= 2) && !out.includes(first)) out.push(first);
+  });
+  return out;
+}
+
+const FRAGMENT_MARK = /<!--\s*fragment:\s*on purpose\s*-->/i;
+const QUOTED = /^["\u201c'].*["\u201d']\W*$/;
+
+/** Whether a fragment carries the on-purpose mark on its own line or the line above its paragraph. */
+function markedFragment(s, doc) {
+  const { line } = s.block.pos(s.start);
+  if (FRAGMENT_MARK.test(doc.lines[line - 1] ?? "")) return true;
+  const first = s.block.parts[0].line;
+  for (let i = first - 2; i >= 0; i--) {
+    if (FRAGMENT_MARK.test(doc.lines[i])) return true;
+    if (doc.lines[i].trim() && !/^\s*<!--.*-->\s*$/.test(doc.lines[i])) return false;
+  }
+  return false;
+}
+
 export default [
   {
     id: "no-time-budget",
@@ -117,6 +154,7 @@ export default [
     id: "over-time",
     modes: SCRIPT,
     scope: "document",
+    severity: "warning",
     check: (_u, ctx) => {
       const minutes = budgetMinutes(ctx);
       if (!minutes) return [];
@@ -125,7 +163,7 @@ export default [
       return n > limit * 1.1 ? [{ index: 0, note: `${n} spoken words is about ${(n / WORDS_PER_MINUTE).toFixed(1)} minutes against a budget of ${minutes} (${limit} words, 10% slack).` }] : [];
     },
     message: "The script runs over its time budget.",
-    fix: "Cut whole parts, not words: drop the weakest section or example until the script fits.",
+    fix: "Cut whole parts or examples, never the previews, signposts and recaps: a listener follows a slightly longer script better than a short one with no way in.",
     source: "Founder review of lesson video v11, 2026-11-08",
     examples: {
       fail: [{ text: `---\nminutes: 0.1\n---\n\n${"We tried the judge on our own posts and it agreed with us. ".repeat(3)}`, mode: "script" }],
@@ -141,11 +179,11 @@ export default [
         .filter((b) => b.type === "paragraph" && b.sentences[0] && isFragment(b.sentences[0]) && b.sentences.length > 1)
         .map((b) => ({ block: b, index: b.sentences[0].start })),
     message: "After a break the paragraph opens on a bare label (\"Trained to concede.\", \"Cramming.\"). On a page it reads as a bold label; out loud it is a jump.",
-    fix: "Say how it connects: \"Another issue is that AI is trained to concede.\"",
+    fix: "Say how it connects: \"Another issue is that AI was trained to concede.\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"Trained to concede, out of the blue!\"",
     examples: {
       fail: [{ text: "Trained to concede. The model was trained to be fair and safe, so it hedges.", mode: "script" }, { text: "Cramming. The model fits everything in.", mode: "script" }],
-      pass: [{ text: "Another issue is that AI is trained to concede. It was trained to be fair and safe, so it hedges.", mode: "script" }],
+      pass: [{ text: "Another issue is that AI was trained to concede. It was trained to be fair and safe, so it hedges.", mode: "script" }],
     },
   },
   {
@@ -260,12 +298,26 @@ export default [
           return [rest, next].some((t) => names(t) >= n - 1) ? [] : [{ ...at(s), note: `"${m[0].trim()}" with no names.` }];
         });
       }),
-    message: "The script gives a count of parts (\"six main problems\") without naming them. A listener holds a number with nothing to hang the coming parts on.",
+    message: "The script gives a count (\"six main problems\", \"four steps\") without naming the items, at the start or inside a part. A listener holds a number with nothing to hang the coming items on.",
     fix: "Name each part briefly in the same sentence or the next: \"six main problems: predictable words, conceding, the curse of context, ...\"",
     source: "Video lane review of lesson script v12, 2026-11-08",
     examples: {
-      fail: [{ text: "Our research found six main problems with how agents write. Let's go through them together.", mode: "script" }],
+      fail: [{ text: "Our research found six main problems with how agents write. Let's go through them together.", mode: "script" }, { text: "## How it works\n\nYou give your agent the repository, and it follows a loop of four steps. Let's take them in turn.", mode: "script" }],
       pass: [{ text: "Our research found three main problems: predictable words, conceding and cramming. Let's go through them together.", mode: "script" }, { text: "We found three problems. They are predictable words, conceding and cramming.", mode: "script" }],
+    },
+  },
+  {
+    id: "list-no-preview",
+    modes: SCRIPT,
+    scope: "document",
+    severity: "warning",
+    check: (_u, { doc }) => unpreviewedWalks(doc).map(at),
+    message: "The script walks through items (\"The first...\", \"The second...\") with no preview naming them first. A listener can't tell how many are coming or where the walk ends.",
+    fix: "Name the items briefly before the first one: \"four steps: decide who reads it, write the tests, draft and check, and let readers try it. In the first step...\"",
+    source: "Founder review of lesson script v12, 2026-11-08: \"Better to be a longer video but that can be followed more easily\"",
+    examples: {
+      fail: [{ text: "Let's see how it works.\n\nThe first step is to decide who reads it. The second step is to write the tests.", mode: "script" }],
+      pass: [{ text: "It follows four steps: decide who reads it, write the tests, draft and check, and let readers try it.\n\nThe first step is to decide who reads it. The second step is to write the tests.", mode: "script" }],
     },
   },
   {
@@ -309,6 +361,41 @@ export default [
     examples: {
       fail: [{ text: "Fast. Cheap. Local. We built the lint for that. Plain code. No model.", mode: "script" }],
       pass: [{ text: "<!-- staccato: on purpose -->\nFast. Cheap. Local. We built the lint for that. Plain code. No model.", mode: "script" }],
+    },
+  },
+  {
+    id: "fragment",
+    modes: SCRIPT,
+    scope: "document",
+    check: (_u, { doc }) => {
+      const fragments = spokenBlocks(doc)
+        .filter((b) => b.type !== "list-item")
+        .flatMap((b) => b.sentences.filter((x) => isFragment(x) && !QUOTED.test(x.clean.trim())));
+      let kept = 0;
+      return fragments.flatMap((x) => {
+        if (markedFragment(x, doc) && kept++ === 0) return [];
+        return [{ ...at(x), note: kept > 1 && markedFragment(x, doc) ? "Only one fragment per script may be kept on purpose." : `"${x.clean.trim()}" has no verb.` }];
+      });
+    },
+    message: "A verbless fragment. Read aloud, it is a full stop with nothing in it, and the listener can't tell what it says about what came before.",
+    fix: "Join it to the sentence it belongs to, with a verb: \"...the average of every marketing line it has read, which is beige soup.\" Keep at most one per script where the pause is the point, marked <!-- fragment: on purpose -->.",
+    source: "Founder review of lesson script v12, 2026-11-08: \"jev lint should be against it?\" on \"Beige soup.\"",
+    examples: {
+      fail: [{ text: "The model drifts towards the average of every marketing line it has read. Beige soup.", mode: "script" }, { text: "<!-- fragment: on purpose -->\nBeige soup.\n\n<!-- fragment: on purpose -->\nPlain code.", mode: "script" }],
+      pass: [{ text: "The model drifts towards the average of every marketing line it has read: beige soup.", mode: "script" }, { text: "<!-- fragment: on purpose -->\nThe model drifts towards the average. Beige soup.", mode: "script" }, { text: "The headline was \"You don't need an agent sandbox.\"", mode: "script" }],
+    },
+  },
+  {
+    id: "written-register",
+    modes: SCRIPT,
+    severity: "warning",
+    pattern: /\b(?:left alone|thus|hence|in short|one might|whereby|therefore|moreover|furthermore|notwithstanding|in order to|as such|it is worth noting)\b/i,
+    message: "Written-only phrasing. People write it but rarely say it, so it sounds read off a page.",
+    fix: "Say what you would say when talking: \"on its own\" for \"left alone\", \"so\" for \"thus\" or \"therefore\", \"to\" for \"in order to\".",
+    source: "Founder review of lesson script v12, 2026-11-08, on \"left alone, the model drifts\"",
+    examples: {
+      fail: [{ text: "Left alone, the model drifts towards the average of every marketing line it has read.", mode: "script" }, { text: "We cut the intro in order to save time.", mode: "script" }],
+      pass: [{ text: "On its own, the model drifts towards the average of every marketing line it has read.", mode: "script" }, { text: "We cut the intro to save time.", mode: "script" }],
     },
   },
   {

@@ -23,7 +23,7 @@ After every chunk:
 2. What was the last point?
 3. Still watching, watching at 2x, or skipping ahead? The answer ends with "Action: watching", "Action: 2x" or "Action: skip", a "Note:" line with what they keep in their head, and a "Plan:" line once the speaker says what the parts are.
 
-At the end, from all their notes: explain each example and what it proved, and name the parts in order. A grader then reads every answer against the full script.
+At the end, from all their notes: explain each example and what it proved, name the parts in order, and quote any phrase a person would not say when speaking. The report keeps that quote as a note. A grader then reads every answer against the full script.
 
 ## When it fails
 

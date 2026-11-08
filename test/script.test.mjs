@@ -12,7 +12,7 @@ const at = (findings, rule, snippet) => findings.some((f) => f.rule === rule && 
 
 test("v11 fails script mode on every line the founder flagged", () => {
   const f = check(fixture("v11.md"), { minutes: 3 });
-  assert.ok(f.some((x) => x.rule === "script/over-time" && x.severity === "error"));
+  assert.ok(f.some((x) => x.rule === "script/over-time" && x.severity === "warning"));
   assert.ok(at(f, "script/bare-opener-after-break", "Trained to concede."));
   assert.ok(at(f, "script/dangling-back-reference", "A smaller version is writing from the middle"));
   assert.ok(at(f, "script/writer-side-opener", "The rules fit on one screen."));
@@ -66,4 +66,46 @@ test("lint calibration: the lint owns the lines simulated listeners resolve too 
     const f = check(text, { minutes: 3 });
     assert.ok(at(f, t.rule, t.line), `${t.id}: ${t.rule} on "${t.line}"`);
   }
+});
+
+test("v12's previews pass the soft list checks: seven reasons and four steps are named before the walk", () => {
+  const f = check(fixture("v12.md"));
+  assert.ok(!f.some((x) => ["script/list-no-preview", "script/agenda-count-only", "script/over-time", "narrator/overclaim", "narrator/training-tense"].includes(x.rule)), JSON.stringify(f.map((x) => x.rule)));
+  for (const x of f.filter((y) => ["script/list-no-preview", "script/agenda-count-only"].includes(y.rule))) assert.equal(x.severity, "warning");
+});
+
+test("an earlier v12 draft: the root cause among six, present-tense training, and a walk with no preview", () => {
+  const text = [
+    "---\nminutes: 2\n---\n\n# Lesson\n\n## Why AI writing fails",
+    "So why is AI copy weak? The root cause is that code has a judge, and writing doesn't. When a model writes code, the tests pass or fail, and training rewards the model for passing.",
+    "Without that judge, our research found six main ways AI writing goes wrong. Let's go through them together.",
+    "## Predictable words\n\nThe first one is predictable words. A language model predicts the most likely next word.",
+    "## Trained to concede\n\nThe second problem is that the model was trained to concede, so it softens every claim.",
+  ].join("\n\n");
+  const f = check(text);
+  const by = (id) => f.filter((x) => x.rule === id);
+  assert.equal(by("narrator/overclaim")[0]?.severity, "warning");
+  assert.equal(by("narrator/training-tense")[0]?.severity, "error");
+  assert.equal(by("script/list-no-preview")[0]?.severity, "warning");
+  const fixed = text.replace("The root cause is", "The first reason, and the root of the others, is").replace("training rewards", "training rewarded").replace("goes wrong.", "goes wrong: no judge, predictable words, conceding, the curse of context, formula punch and cramming.");
+  const g = check(fixed);
+  assert.ok(!g.some((x) => ["narrator/overclaim", "narrator/training-tense", "script/list-no-preview"].includes(x.rule)), JSON.stringify(g.map((x) => x.rule)));
+});
+
+test("a verbless fragment is an error; one marked on purpose is kept, a second marked one is not", () => {
+  const frag = (t) => check(t).filter((x) => x.rule === "script/fragment");
+  assert.equal(frag("The model drifts towards the average of every marketing line it has read. Beige soup.").length, 1);
+  assert.equal(frag("<!-- fragment: on purpose -->\nThe model drifts towards the average. Beige soup.").length, 0);
+  const two = frag("<!-- fragment: on purpose -->\nThe model drifts. Beige soup.\n\n<!-- fragment: on purpose -->\nWe tried it. Plain code.");
+  assert.equal(two.length, 1);
+  assert.match(two[0].excerpt, /Plain code/);
+  assert.equal(frag("We showed four shapes:\n\n- Punchlines in threes.\n- Stacks of one-line paragraphs.").length, 0, "an on-screen list is exempt");
+  assert.equal(frag('The title was short. "You don\'t need an agent sandbox."').length, 0, "a quoted title is exempt");
+  for (const name of ["pass.md", "bridge.md"]) assert.equal(check(fixture(name)).filter((x) => x.rule === "script/fragment").length, 0, name);
+});
+
+test("written-only phrasing is a script warning", () => {
+  const f = check("Left alone, the model drifts towards the average of every marketing line it has read.").filter((x) => x.rule === "script/written-register");
+  assert.equal(f[0]?.severity, "warning");
+  assert.ok(!check("On its own, the model drifts towards the average.").some((x) => x.rule === "script/written-register"));
 });

@@ -22,7 +22,7 @@
     { "mode": "docs", "text": "Scenario is the most advanced agent testing framework available. {/* Founder decision: kept for search indexing */}" },
     { "mode": "docs", "text": "Scenario is the most powerful agent testing framework available. {/* Founder decision: kept for search indexing */}" },
     { "mode": "script", "text": "Our research identified six main problems with how agents write, let's explore them together." },
-    { "mode": "script", "text": "Another issue is that AI is trained to concede." }
+    { "mode": "script", "text": "Another issue is that AI was trained to concede." }
   ],
   "contested": [
     { "mode": "post", "rule": "numbers/number-opener", "text": "137 questions, which took the support lead most of a day to answer by hand, and that day was the actual cost.", "why": "writing-rules approves it; the founder's later note (2026-10-31) bans any sentence that starts with a number" }

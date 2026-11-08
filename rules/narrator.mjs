@@ -1,6 +1,7 @@
 // Sentences about the text instead of the subject, and openers that wind up instead of saying it.
 import { ALL_BUT_LEGAL } from "../src/modes.mjs";
 import { COPULA, PERSON_NOUN, isPastAction } from "../src/verbs.mjs";
+import { sectionsOf } from "./script.mjs";
 
 const NOT_VERB = /^(?:in|on|at|of|for|with|from|to|and|or|but|that|who|which|like|than|the|a|an|our|your|their|across|around|without|using)$/;
 
@@ -17,6 +18,17 @@ function textBefore(unit, doc) {
     out.push(x.clean);
   }
   return out.join(" ").toLowerCase();
+}
+
+
+const ONE_CAUSE = /\bthe (?:root cause|real (?:reason|cause|problem)|only (?:reason|cause|problem)|one (?:reason|cause|problem)|single (?:reason|cause))\b/i;
+const SEVERAL =
+  /\b(?:two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:main\s+|big\s+|key\s+|different\s+)?(?:reasons|causes|problems|issues|ways|mistakes|failures)\b|\b(?:second|third|fourth|another)\s+(?:one|reason|cause|problem|issue|way|mistake|failure)\b/i;
+
+/** Sections that name several causes or problems: a count, an ordinal past the first, or a numbered list. */
+function severalCauses(section) {
+  const text = section.blocks.map((b) => (b.sentences ?? []).map((x) => x.clean).join(" ")).join(" ");
+  return SEVERAL.test(text) || section.blocks.filter((b) => b.type === "list-item" && b.ordered).length >= 2;
 }
 
 export default [
@@ -302,6 +314,33 @@ export default [
     examples: {
       fail: ["Ever wondered why your agent forgets?\n\nIt compacts its context.", { text: "# Laptop shut? It still works", mode: "ads" }],
       pass: ["The agent forgets because it compacts its context. Why does that matter? It drops the plan.", { text: "# You don't need an agent sandbox", mode: "ads" }],
+    },
+  },
+  {
+    id: "overclaim",
+    severity: "warning",
+    scope: "document",
+    check: (_u, { doc }) =>
+      sectionsOf(doc)
+        .filter(severalCauses)
+        .flatMap((section) => section.blocks.flatMap((b) => (b.sentences ?? []).filter((x) => ONE_CAUSE.test(x.clean)).map((x) => ({ block: b, index: x.start })))),
+    message: "A single definite cause (\"the root cause\", \"the real reason\") in a part that lists several. The reader hears one cause, then meets the others.",
+    fix: "Say \"one reason\" or \"the first reason\", or name it as the root of the others and show how.",
+    source: "Founder review of lesson script v12, 2026-11-08: \"The root cause is that code has a judge\" was one of six listed causes",
+    examples: {
+      fail: ["The root cause is that code has a judge, and writing doesn't. Without that judge, our research found six main ways AI writing goes wrong."],
+      pass: ["The first reason, and the root of the others, is that code has a judge. Our research found six main ways AI writing goes wrong.", "The root cause is a missing index."],
+    },
+  },
+  {
+    id: "training-tense",
+    pattern: /\btraining (?:rewards|teaches|punishes|pushes)\b|\b(?:RLHF|fine-tuning) (?:teaches|rewards|punishes|trains)\b|\b(?:AI|LLMs?|(?:language )?models?|agents?|chatbots?) (?:is|are|gets|get) (?:rewarded|trained|taught|punished) (?:for|to)\b/i,
+    message: "Present tense for finished training. The training is over; what the model does now is its habit.",
+    fix: "Use the past tense: \"was trained to\", \"training rewarded\". Present tense stays right for what the model does now: \"the model predicts the next word\".",
+    source: "Founder review of lesson script v12, 2026-11-08; Nexus writing-rules, Why LLM copy fails (\"Training rewarded being fair and safe\")",
+    examples: {
+      fail: ["When a model writes code, the tests pass or fail, and training rewards the model for passing.", "Another issue is that AI is trained to concede.", "RLHF teaches models to hedge."],
+      pass: ["When a model writes code, the tests pass or fail, and training rewarded the model for passing.", "Another issue is that AI was trained to concede.", "The model predicts the next word."],
     },
   },
 ];

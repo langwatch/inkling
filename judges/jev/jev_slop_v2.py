@@ -11,6 +11,7 @@ v1 (jev_slop.py) is kept as is. v2 changes (2026-10-13, after he rejected v1's v
       results_list_no_perspective  a list of results/picks with no view, surprise, example or conclusion
       tells_what_visuals_show      narration recites what the screen shows (scripts only: --script, [motion]/[face]
                                    cues, or a script.json with scenes)
+      written_register             narration in written-only phrasing (scripts only, Jev backend)
       weak_opening                 first paragraph only (a title-only first line is read with the next one)
       weak_ending                  last paragraph only, including a weak product close
     The named checks run on Claude (`--checks claude`, default) because Jev failed them on the labelled check set
@@ -58,10 +59,10 @@ v1 = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(v1)
 CHECK_MODEL = os.environ.get("JEV_SLOP_CHECK_MODEL", "claude-opus-5-5")
 TICS = {k: q for k, q in v1.QUESTIONS.items() if k != "ai_sounding"}
 NAMED = ["numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show",
-         "weak_opening", "weak_ending"]
+         "written_register", "weak_opening", "weak_ending"]
 # Penalty per hit on the 0-10 headline. Named checks weigh more than tics: they are what he rejects drafts for.
 SCORE_WEIGHTS = {"numbers_no_takeaway": 2.0, "overprecise_number": 1.0, "results_list_no_perspective": 2.0,
-                 "tells_what_visuals_show": 1.0, "weak_opening": 2.0, "weak_ending": 2.0, "tic": 0.5, "regex": 0.5,
+                 "tells_what_visuals_show": 1.0, "written_register": 1.0, "weak_opening": 2.0, "weak_ending": 2.0, "tic": 0.5, "regex": 0.5,
                  "unsurprising": 2.0, "concedes_or_hedges": 2.0, "writer_side": 2.0, "formula_shape": 2.0,
                  "crammed_claims": 2.0, "wrong_register": 2.0}
 
@@ -87,6 +88,9 @@ DEFS = {
         "tested, positions in a ranking, chart values, a list of names. His rule: 'show don't tell, the motion "
         "graphics will show'. The voice should say what it means instead. NOT a hit for a single number said as part "
         "of a takeaway.",
+    "written_register": "Video narration with phrasing people only write and never say when they talk: 'left alone', "
+        "'thus', 'hence', 'whereby', 'one might', 'moreover', 'in order to', 'it is worth noting', or a clause order "
+        "no speaker would use. NOT a hit for plain spoken words, even long or loose sentences.",
     "weak_opening": "Weak opening. It does not hook with the writer's angle or with something the reader cares about. "
         "Typical: opens on a count of what was done or a method summary, hedges, signposts what is coming instead "
         "of saying it, gives away the conclusion in a flat way, or clears its throat. A plain question the piece "
@@ -383,7 +387,8 @@ def checks_claude(units, script, op, end):
     sys.path.insert(0, XAR)
     import llm
     numbered = "\n\n".join(f"[{i+1}]{' (' + u['cue'] + ')' if u['cue'] else ''} {u['text']}" for i, u in enumerate(units))
-    names = [k for k in NAMED if script or k != "tells_what_visuals_show"]
+    # written_register is a Jev-only question: the Claude extract has no field for it
+    names = [k for k in NAMED if k != "written_register" and (script or k != "tells_what_visuals_show")]
     # an opening that is merged from two units is extracted as one: tell Claude both numbers
     prompt = CLAUDE_TMPL.format(
         genre="video narration script" if script else "piece of writing",
@@ -415,7 +420,9 @@ def checks_claude(units, script, op, end):
 def checks_jev(units, script, op, end, key):
     def one(i):
         qs = {k: JEV_Q[k] for k in ("numbers_no_takeaway", "overprecise_number", "results_list_no_perspective")}
-        if script: qs["tells_what_visuals_show"] = JEV_Q["tells_what_visuals_show"]
+        if script:
+            qs["tells_what_visuals_show"] = JEV_Q["tells_what_visuals_show"]
+            qs["written_register"] = JEV_Q["written_register"]
         state = units[i]["text"]
         if op and i == op[0]:
             qs["weak_opening"] = JEV_Q["weak_opening"].replace("this paragraph", "this opening")

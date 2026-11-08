@@ -33,6 +33,6 @@ test("scores near a threshold are rerun; a split is advisory, agreement counts",
 });
 
 test("every flag has a rewrite instruction", () => {
-  for (const flag of ["unsurprising", "concedes_or_hedges", "writer_side", "formula_shape", "crammed_claims", "wrong_register", "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show"])
+  for (const flag of ["unsurprising", "concedes_or_hedges", "writer_side", "formula_shape", "crammed_claims", "wrong_register", "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register"])
     assert.ok(REWRITES[flag], flag);
 });

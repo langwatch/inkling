@@ -52,7 +52,7 @@ export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75,
 /** A score this close to its threshold gets a second run; a split between the runs is advisory. */
 export const NEAR = 0.05;
 const NAMED = new Set(["unsurprising", "concedes_or_hedges", "writer_side", "formula_shape", "crammed_claims", "wrong_register",
-  "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "weak_opening", "weak_ending"]);
+  "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register", "weak_opening", "weak_ending"]);
 
 /** How to rewrite a line each flag hit. Shown as the fix under every Jev finding. */
 export const REWRITES = {
@@ -66,6 +66,7 @@ export const REWRITES = {
   overprecise_number: "Round it unless the decimals are the point.",
   results_list_no_perspective: "Say what the results mean before or instead of listing them. Pick the one that changes a decision.",
   tells_what_visuals_show: "Cut the narration of what is on screen; say what the viewer cannot see.",
+  written_register: "Say it the way you would when talking: \"on its own\" for \"left alone\", \"so\" for \"thus\" or \"therefore\", \"to\" for \"in order to\".",
   weak_opening: "Open on the concrete thing: the error, the person, the number with its consequence.",
   weak_ending: "End on the last fact or cut the closer. No moral, summary or product aside.",
 };

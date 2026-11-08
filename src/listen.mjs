@@ -32,7 +32,15 @@ export const PROBES = ["What's this part about?", "What was the last point?", "S
 export const FINAL = [
   "Explain each example back to me and what it proved.",
   "What were the parts of this video, in order?",
+  "Was there any phrase a person wouldn't say out loud? Quote it.",
 ];
+
+/** The final answer to the register question, unless the viewer heard nothing off. */
+export function registerOf(final) {
+  const m = final.match(/^\s*3[.)]\s*([\s\S]*?)(?=^\s*\d+[.)]|$(?![\s\S]))/m);
+  const said = (m?.[1] ?? "").trim();
+  return !said || /^(?:no\b|none\b|nothing\b|not really\b)/i.test(said) ? null : said;
+}
 
 const SPOKEN = new Set(["paragraph", "list-item", "quote"]);
 
@@ -331,6 +339,8 @@ function report({ out, state }) {
       if (b.conflict) failed += 1;
       lines.push(`- ${b.conflict ? "FAIL" : "note"} bridge "${clip(b.at, 80)}": heard ${clip(b.heard, 160)}; intended ${clip(b.intended, 160)}`);
     }
+    const register = registerOf(read(join(out, `${p.id}.final.answer.md`)));
+    if (register) lines.push(`- note register: ${clip(register)}`);
     if (v.agenda) lines.push(`- note agenda${v.agenda.recalled ? "" : " not recalled"}: ${clip(v.agenda.note)}`);
     lines.push("");
   }
