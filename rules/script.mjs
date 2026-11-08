@@ -70,6 +70,12 @@ export function budgetMinutes(ctx) {
 const AGENDA =
   /\b(?:we'll|we will|i'll|i will|you'll|let's|let us)\s+(?:\w+\s+){0,2}(?:look at|cover|go through|walk through|explore|see|start with|get to|learn)\b|\b(?:two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:main\s+|big\s+|key\s+|short\s+)?(?:things|parts|steps|problems|reasons|ideas|points|sections|questions|habits|lessons|tools|ways|stops|topics|mistakes|chapters)\b|\bfirst\b[^.?!]*\b(?:then|next|after that)\b/i;
 const COUNT_WORDS = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+const PART_COUNT = /\b(two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:main\s+|big\s+|key\s+|short\s+)?(?:things|parts|steps|problems|reasons|ideas|points|sections|questions|habits|lessons|tools|ways|stops|topics|mistakes|chapters|issues)\b/i;
+/** How many list separators follow a colon or "are"/"is": a rough count of named items. */
+const names = (t) => {
+  const m = t.match(/(?::|\b(?:are|were|is)\b)([^.?!]*)/i);
+  return m ? (m[1].match(/,|\band\b|\bor\b/gi) ?? []).length : 0;
+};
 const STRUCTURE_COUNT = /\b(two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:main\s+|short\s+)?(?:parts|sections|topics|stops|chapters)\b/i;
 
 /** The agenda sentence in the first 15% of the spoken words, if any. */
@@ -234,6 +240,32 @@ export default [
     examples: {
       fail: [{ text: "# Lesson\n\n## One\n\nThe judge grades text.\n\n## Two\n\nThe readers answer questions.\n\n## Three\n\nThe lint is free.", mode: "script" }],
       pass: [{ text: "# Lesson\n\nWe'll look at three parts: the judge, the readers and the lint.\n\n## One\n\nThe first part is the judge, which grades text.\n\n## Two\n\nNext come the readers, who answer questions.\n\n## Three\n\nThe last part is the lint, which is free.", mode: "script" }],
+    },
+  },
+  {
+    id: "agenda-count-only",
+    modes: SCRIPT,
+    scope: "document",
+    severity: "warning",
+    check: (_u, { doc }) =>
+      spokenBlocks(doc).flatMap((b) => {
+        const all = spokenBlocks(doc).flatMap((x) => x.sentences);
+        return b.sentences.flatMap((s) => {
+          const m = s.clean.match(PART_COUNT);
+          if (!m) return [];
+          const n = COUNT_WORDS[m[1].toLowerCase()] ?? Number(m[1]);
+          if (!(n >= 2)) return [];
+          const rest = s.clean.slice(m.index + m[0].length);
+          const next = all[all.indexOf(s) + 1]?.clean ?? "";
+          return [rest, next].some((t) => names(t) >= n - 1) ? [] : [{ ...at(s), note: `"${m[0].trim()}" with no names.` }];
+        });
+      }),
+    message: "The script gives a count of parts (\"six main problems\") without naming them. A listener holds a number with nothing to hang the coming parts on.",
+    fix: "Name each part briefly in the same sentence or the next: \"six main problems: predictable words, conceding, the curse of context, ...\"",
+    source: "Video lane review of lesson script v12, 2026-11-08",
+    examples: {
+      fail: [{ text: "Our research found six main problems with how agents write. Let's go through them together.", mode: "script" }],
+      pass: [{ text: "Our research found three main problems: predictable words, conceding and cramming. Let's go through them together.", mode: "script" }, { text: "We found three problems. They are predictable words, conceding and cramming.", mode: "script" }],
     },
   },
   {

@@ -18,6 +18,7 @@ inkling check script.md --mode script --minutes 3
 | `dangling-back-reference` | an opener such as "A smaller version is" or "This is" that points at a paragraph already gone (also in `deck`) | name the thing again |
 | `impersonal-run` | 6 or more sentences in a row with no we, you, I or let's; the finding gives the run length | bring the listener in |
 | `staccato-overuse` | more than 2 fragments per 300 spoken words, unless `<!-- staccato: on purpose -->` is in the file | join them into sentences |
+| `agenda-count-only` (warning) | a count of parts, such as "six main problems", with no names in the same sentence or the next | name each part briefly |
 | `aside-jump` | a new term dropped in as ", which psychologists call..." | give it its own sentence |
 | `writer-side-opener` (warning) | lines about the material, such as "fits on one screen" or "a problem with a name"; runs in every mode but legal | say why the reader should care |
 

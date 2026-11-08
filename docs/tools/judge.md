@@ -10,6 +10,8 @@ inkling judge titles.md --mode ads --audience "founders who searched for an agen
 
 Without a key, `inkling judge` prints that it skipped and exits 0. The lint tool needs no key.
 
+Inkling blanks YAML front matter (a leading `---` block such as `minutes: 4.5`) before Jev reads the draft, so the first paragraph Jev judges is the first one a reader sees. Each finding is reported at the source line where its paragraph starts. `--mode script` also turns on the check for narration that describes what the visuals show.
+
 ## What it runs
 
 `judges/jev/jev_slop_v2.py` is a copy of the Content agent's `jev-slop` tool (credits in [credits.md](../credits.md)). Inkling calls it with `--checks jev`, so every question goes to Jev and no other model:

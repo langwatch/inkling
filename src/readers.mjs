@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, mkdtempSync, rmSync
 import { join, resolve, extname } from "node:path";
 import { homedir } from "node:os";
 import { parseYaml } from "./yaml.mjs";
+import { blankFrontmatter } from "./markdown.mjs";
 import { ClaudeCli, hasClaudeLogin } from "./subscription.mjs";
 
 // No question primes fault-finding: readers say what they would do and whether anything made them stop.
@@ -64,7 +65,7 @@ const SKIP = ["```", "[Image", ">", "1.", "- ", "<"];
 
 /** Render the HTML a GitHub README uses as the reader sees it: headings, text and image alt text. */
 export function asRendered(md) {
-  return md
+  return blankFrontmatter(md)
     .replace(/<!--[\s\S]*?-->\n?/g, "")
     .replace(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, n, t) => `${"#".repeat(Number(n))} ${t.trim()}`)
     .replace(/<img[^>]*?alt="([^"]*)"[^>]*>/gi, (_, alt) => `[Image: ${alt}]`)

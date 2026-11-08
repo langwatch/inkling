@@ -77,6 +77,17 @@ function frontmatter(lines) {
   return { data: {}, end: 0 };
 }
 
+/**
+ * Front matter (a leading `---` block closed by `---`) as blank lines, so every later line keeps
+ * its number. Text with no closed front matter comes back unchanged.
+ */
+export function blankFrontmatter(text) {
+  const lines = text.split(/\r?\n/);
+  const { end } = frontmatter(lines);
+  if (!end) return text;
+  return [...lines.slice(0, end).map(() => ""), ...lines.slice(end)].join("\n");
+}
+
 function splitSentences(block) {
   const raw = block.text;
   const clean = mask(raw);

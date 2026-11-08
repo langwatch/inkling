@@ -24,7 +24,7 @@ export const DRIFT_CHUNKS = 2;
 
 /** Middle chunks (1-based) where a viewer chose 2x, when there are enough of them to count as drift. */
 export function driftOf(rows) {
-  const fast = rows.filter((r, k) => k >= 2 && k < rows.length - 1 && r.action === "2x").map((r) => r.chunk);
+  const fast = rows.filter((r, k) => k >= 2 && k < rows.length - 1 && !r.end && r.action === "2x").map((r) => r.chunk);
   return fast.length >= DRIFT_CHUNKS ? fast : [];
 }
 
@@ -141,10 +141,21 @@ function memoryText({ plan, notes }, started) {
   return parts.join("\n");
 }
 
-const clock = (words) => {
-  const s = Math.round((words / 150) * 60);
+const seconds = (n) => Math.round((n / 150) * 60);
+const clock = (n) => {
+  const s = seconds(n);
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
+
+/** Per chunk, whether the player clock shows the end after it: the last chunk, and any chunk the clock rounds to the end. */
+export function atEnd(chunks) {
+  const total = seconds(chunks.reduce((n, c) => n + words(c).length, 0));
+  let at = 0;
+  return chunks.map((c, k) => {
+    at += words(c).length;
+    return k === chunks.length - 1 || seconds(at) >= total;
+  });
+}
 
 export function chunkPrompt({ persona, context, memory, started, text, index, at, total }) {
   const player = at != null && total ? ` The player now shows ${clock(at)} / ${clock(total)}.` : "";
@@ -266,6 +277,7 @@ function report({ out, state }) {
   const lines = ["# listen report", "", `script: ${state.script}`, `${state.chunks.length} chunks of about 30 seconds`, ""];
   let failed = 0;
   const table = {};
+  const ends = atEnd(state.chunks);
   for (const p of state.personas) {
     const v = parseJson(read(join(out, `${p.id}.verdict.json`)));
     const lostBy = new Map((v.lost ?? []).map((l) => [Number(l.chunk), l]));
@@ -274,17 +286,17 @@ function report({ out, state }) {
       const answer = read(join(out, `${p.id}.chunk-${k + 1}.answer.md`));
       const action = actionOf(answer);
       const lost = unsure(answer) || lostBy.has(k + 1);
-      const last = k === state.chunks.length - 1;
+      const last = ends[k];
       if (lost) {
         failed += 1;
         lines.push(`- FAIL lost at chunk ${k + 1}: ${lostBy.has(k + 1) ? `"${clip(lostBy.get(k + 1).quote)}" ${clip(lostBy.get(k + 1).note)}` : `"${clip(answer.split(/\n\s*3[.)]/)[0])}"`}`);
       }
-      // After the last chunk there is nothing left to skip; a single 2x is a note, repeated 2x is drift (below).
+      // Once the clock shows the end there is nothing left to skip; a single 2x is a note, repeated 2x is drift (below).
       if (action === "skip" && !last) {
         failed += 1;
         lines.push(`- FAIL skip at chunk ${k + 1}: ${clip(answer.match(/3[.)]\s*([^\n]*)/)?.[1])}`);
-      } else if (action !== "watching") lines.push(`- note ${action} at chunk ${k + 1}${last ? " (last chunk)" : ""}: ${clip(answer.match(/3[.)]\s*([^\n]*)/)?.[1])}`);
-      return { chunk: k + 1, lost, action };
+      } else if (action !== "watching") lines.push(`- note ${action} at chunk ${k + 1}${last ? " (the clock shows the end)" : ""}: ${clip(answer.match(/3[.)]\s*([^\n]*)/)?.[1])}`);
+      return { chunk: k + 1, lost, action, end: last };
     });
     const drift = driftOf(table[p.id]);
     if (drift.length) {

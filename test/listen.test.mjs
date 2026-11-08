@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
-import { listen, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf } from "../src/listen.mjs";
+import { listen, chunk, spokenSentences, skipped, unsure, actionOf, memoryOf, plain, driftOf, atEnd } from "../src/listen.mjs";
 import { checkTarget, chunkOf } from "../src/listen-calibrate.mjs";
 import { words } from "../src/markdown.mjs";
 
@@ -146,4 +146,20 @@ test("drift in the window meets a skip target, and an info target is reported bu
   const t = checkTarget({ skip_between: ["With no judge", "e."] }, result);
   assert.ok(t.holds);
   assert.match(t.why, /drifted/);
+});
+
+test("a skip or 2x once the player clock shows the end is a note, even before the last chunk", () => {
+  const out = tmp();
+  listen({ script: fixture, out });
+  const statePath = join(out, "listen.json");
+  const state = JSON.parse(readFileSync(statePath, "utf8"));
+  const long = (w) => Array.from({ length: 75 }, () => w).join(" ") + ".";
+  state.chunks = [long("intro"), long("middle"), long("end"), "Bye."];
+  writeFileSync(statePath, JSON.stringify(state));
+  assert.deepEqual(atEnd(state.chunks), [false, false, true, true], "the clock rounds 225 of 226 words to the end");
+  const r = answerAll(out, { skipAt: 3, fastAt: [4] });
+  assert.equal(r.failed, 0, r.report);
+  assert.match(r.report, /note skip at chunk 3 \(the clock shows the end\)/);
+  assert.equal(r.table["busy-lead"][2].end, true);
+  rmSync(out, { recursive: true, force: true });
 });

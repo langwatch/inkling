@@ -27,7 +27,7 @@ At the end, from all their notes: explain each example and what it proved, and n
 
 ## When it fails
 
-- **Skip.** "Action: skip" before the last chunk fails. After the last chunk there is nothing left to skip, so it is a note. A single "Action: 2x" is a note.
+- **Skip.** "Action: skip" fails until the player clock shows the end. Once it does, on the last chunk or a chunk the clock rounds to the end, there is nothing left to skip, so a skip or a 2x there is a note. A single "Action: 2x" is a note.
 - **Drift.** "Action: 2x" on 2 or more middle chunks (not the first two, not the last) by one viewer fails like a skip, and the report lists those chunks.
 - **Lost.** An answer to question 1 or 2 that opens with "not sure", is wrong, or is too vague to place the part fails.
 - **Example.** An example fails when the viewer said what it showed neither right after hearing it nor at the end.

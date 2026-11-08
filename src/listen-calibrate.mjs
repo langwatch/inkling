@@ -31,14 +31,14 @@ export function checkTarget(target, result) {
   }
   if (target.skip_between) {
     const [a, b] = target.skip_between.map((m) => chunkOf(result.chunks, m));
-    const skip = any(a, b, (c) => c.action === "skip");
+    const skip = any(a, b, (c) => c.action === "skip" && !c.end);
     const drift = Object.values(result.drift ?? {}).some((chunks) => chunks.some((k) => k >= a + 1 && k <= b + 1));
     const holds = skip || drift;
     return { holds, why: `${skip ? "a viewer skipped" : drift ? "a viewer drifted (2x on 2+ chunks)" : "no viewer skipped or drifted"} in chunks ${a + 1}-${b + 1}` };
   }
   if (target.clean_through) {
     const i = chunkOf(result.chunks, target.clean_through);
-    const bad = any(0, i, (c) => c.lost || c.action === "skip");
+    const bad = any(0, i, (c) => c.lost || (c.action === "skip" && !c.end));
     return { holds: !bad, why: `${bad ? "a viewer was lost or skipped" : "no viewer lost or skipped"} in chunks 1-${i + 1}` };
   }
   throw new Error(`target ${target.id} has no check`);

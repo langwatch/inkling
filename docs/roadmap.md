@@ -7,7 +7,7 @@ Status per tool, and what comes next.
 | goal and modes | shipped: eight modes, audience as free text, `x` and `script` set up for calibration | per-mode limits from real reviews (title length for ads, bullet words for decks) |
 | reader tests and panel | shipped: subagent and `claude -p` backends, doubt classes, stop rule, panel rounds with A/B, an absolute finish and skip question and shrinking edits, one holdout per piece, `readers listen` for spoken scripts | a page extractor for live URLs |
 | budgets | shipped: quick, standard, deep; timings per step; topics carry readers and lessons | recalibrate the estimates from `inkling timings` after the first 20 runs |
-| lint | shipped: 110 rules in 14 families, examples as tests, warnings that exit 0 | a `--changed` mode for git diffs, rules for the remaining docs rules (description restated, page shapes) |
+| lint | shipped: 111 rules in 14 families, examples as tests, warnings that exit 0 | a `--changed` mode for git diffs, rules for the remaining docs rules (description restated, page shapes) |
 | judge | shipped: wraps Jev, per-flag thresholds, reruns near a threshold, skips without a key | port the Jev questions into rule files so the lint and judge steps share one rule list; calibrate thresholds on the fixtures in a public set |
 | calibration | shipped: `inkling eval`, `inkling calibrate`, regression set of 13 lines | fill `modes/x/reference.jsonl`; grow the regression set from every review |
 | preference judge | advisory: both orders, three seed pairs | grow `calibration/pairs.jsonl` to 30 held-out pairs from 10 briefs, add `inkling prefer calibrate`, then let it fail drafts |

@@ -2,6 +2,8 @@
 // TypeSafe's Jev one yes/no question per banned shape, per paragraph or per line of copy.
 // Jev is the only paid call inkling makes: about 0.0003 USD per paragraph.
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { blankFrontmatter } from "./markdown.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,10 +18,33 @@ export function judgeArgs({ file, mode, audience, context, json }) {
   const args = [SCRIPT, file, "--checks", "jev"];
   if (mode === "ads" || mode === "deck" || mode === "x") args.push("--copy");
   if (mode === "docs") args.push("--docs");
+  if (mode === "script") args.push("--script");
   const who = [audience, context && `context: ${context}`].filter(Boolean).join("; ");
   if (who) args.push("--audience", who);
   if (json) args.push("--json");
   return args;
+}
+
+/** Source line where each paragraph starts, split the way jev_slop splits paragraphs. */
+export function paragraphLines(text) {
+  const out = [];
+  let line = 1;
+  for (const part of text.split(/(\n\s*\n)/)) {
+    if (/^\n\s*\n$/.test(part)) {
+      line += (part.match(/\n/g) ?? []).length;
+      continue;
+    }
+    const trimmed = part.trim();
+    if (trimmed && !/^[-*_#=\s]+$/.test(trimmed)) out.push(line + (part.slice(0, part.indexOf(trimmed)).match(/\n/g) ?? []).length);
+    line += (part.match(/\n/g) ?? []).length;
+  }
+  return out;
+}
+
+/** What Jev reads: the text with its front matter blanked, so line 1 is never `---\nminutes: 4.5`. */
+export function judgeInput(text) {
+  const clean = blankFrontmatter(text);
+  return { text: clean, lines: paragraphLines(clean) };
 }
 
 /** Per-flag thresholds. A draft passes only when no named flag is over its threshold. */
@@ -63,7 +88,7 @@ export function nearThreshold(report) {
 }
 
 /** Pass, fail and advisory flags from one run, or two when the first had scores near a threshold. */
-export function verdict(first, second = null) {
+export function verdict(first, second = null, lines = null) {
   const a = scores(first);
   const b = second ? scores(second) : null;
   const fails = [], advisory = [];
@@ -73,7 +98,7 @@ export function verdict(first, second = null) {
       const hit = p >= thr;
       const near = Math.abs(p - thr) <= NEAR;
       const p2 = b?.[i]?.scores[flag];
-      const item = { n: line.n, text: line.text, flag, p, threshold: thr, fix: REWRITES[flag] };
+      const item = { n: line.n, line: lines?.[line.n - 1] ?? line.n, text: line.text, flag, p, threshold: thr, fix: REWRITES[flag] };
       if (near && p2 != null) {
         item.p2 = p2;
         if (hit !== p2 >= thr) advisory.push({ ...item, why: "split between two runs" });
@@ -86,8 +111,8 @@ export function verdict(first, second = null) {
 
 export function formatVerdict(v) {
   const out = [];
-  for (const f of v.fails) out.push(`line ${f.n}  jev/${f.flag}  ${f.p.toFixed(2)}${f.p2 != null ? `, rerun ${f.p2.toFixed(2)}` : ""} (threshold ${f.threshold})`, `  > ${f.text}`, `  fix: ${f.fix}`);
-  for (const f of v.advisory) out.push(`line ${f.n}  jev/${f.flag}  advisory: ${f.why} (${f.p.toFixed(2)}, ${f.p2.toFixed(2)}; threshold ${f.threshold})`, `  > ${f.text}`, `  fix: ${f.fix}`);
+  for (const f of v.fails) out.push(`line ${f.line ?? f.n}  jev/${f.flag}  ${f.p.toFixed(2)}${f.p2 != null ? `, rerun ${f.p2.toFixed(2)}` : ""} (threshold ${f.threshold})`, `  > ${f.text}`, `  fix: ${f.fix}`);
+  for (const f of v.advisory) out.push(`line ${f.line ?? f.n}  jev/${f.flag}  advisory: ${f.why} (${f.p.toFixed(2)}, ${f.p2.toFixed(2)}; threshold ${f.threshold})`, `  > ${f.text}`, `  fix: ${f.fix}`);
   out.push(v.pass ? `PASS: no named flag over its threshold${v.advisory.length ? `, ${v.advisory.length} advisory` : ""}${v.reran ? " (reran lines near a threshold)" : ""}.` : `FAIL: ${v.fails.length} flag(s) over threshold.`);
   return out.join("\n") + "\n";
 }
@@ -107,14 +132,17 @@ export function runJudge({ file, mode, audience, context, json, stdin }) {
     );
     return 0;
   }
-  const args = judgeArgs({ file, mode, audience, context, json: true });
-  const input = file === "-" ? stdin() : undefined;
+  const raw = file === "-" ? stdin() : readFileSync(file, "utf8");
+  const json5 = file.endsWith(".json");
+  const { text, lines } = json5 ? { text: raw, lines: null } : judgeInput(raw);
+  const args = judgeArgs({ file: json5 ? file : "-", mode, audience, context, json: true });
+  const input = json5 ? undefined : text;
   const one = jevJson(args, input, key);
   if (one.error) return one.error;
   const near = nearThreshold(one.report);
   const two = near.length ? jevJson(args, input, key) : null;
   if (two?.error) return two.error;
-  const v = verdict(one.report, two?.report);
+  const v = verdict(one.report, two?.report, lines);
   if (json) process.stdout.write(JSON.stringify({ ...v, runs: [one.report, two?.report].filter(Boolean) }, null, 1) + "\n");
   else process.stdout.write(`inkling judge: Jev, mode ${mode}${near.length ? `; reran for ${near.length} score(s) within ${NEAR} of a threshold` : ""}\n\n` + formatVerdict(v));
   return v.pass ? 0 : 1;
