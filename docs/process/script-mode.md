@@ -2,7 +2,7 @@
 
 A script for a narrated lesson or video is heard once, in order. Your listener cannot see the headings, cannot look back a paragraph, and decides every half minute whether to keep listening. Text that reads well on a page can lose them. Run the eight steps as usual with `--mode script`, and add the points below.
 
-The limits below are defaults. A listen run tells you where a viewer drifted, not whether the script passed, so use it with judgement and write down why when you move a limit for one script.
+The limits below are defaults. A listen run shows where a viewer drifted. Use it with judgement and write down why when you move a limit for one script.
 
 ## Set the time budget first
 
