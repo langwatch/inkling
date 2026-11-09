@@ -124,17 +124,21 @@ function jevJson(args, input, key) {
   return { report: JSON.parse(r.stdout) };
 }
 
+/** A partner or disclosure note ("Written with ACME", "This post is sponsored"): not the lead, so the judge skips it. */
+const NOTE = /^\s*(?:[*_]+\s*)?(?:note:|disclosure:|(?:written|made|built|published|produced|created)\s+(?:with|together with|in partnership with)\b|in partnership with\b|this (?:post|article|piece) (?:was|is) (?:written|sponsored|made|produced)\b|sponsored by\b)/i;
+
 /**
  * The first screen of a post or page as copy lines: the title, the subtitle and each sentence of the
- * first paragraph, so the copy checks (writer's side, concession, surprise) read the lead too.
+ * first three body paragraphs, skipping partner and disclosure notes, so the copy checks read the lead.
  */
-export function firstScreen(raw) {
+export function firstScreen(raw, paragraphs = 3) {
   const doc = parse(raw);
-  const first = doc.blocks.find((b) => b.type === "paragraph" && b !== doc.title && b !== doc.subtitle);
+  const same = (b) => doc.subtitle && b.text.replace(/\s+/g, " ").trim() === doc.subtitle.text.replace(/\s+/g, " ").trim();
+  const body = doc.blocks.filter((b) => b.type === "paragraph" && b !== doc.title && b !== doc.subtitle && !same(b) && !NOTE.test(b.text) && !/^\s*\[/.test(b.text)).slice(0, paragraphs);
   const units = [
     doc.title && { text: doc.title.text, line: doc.title.pos(0).line },
     doc.subtitle && { text: doc.subtitle.text, line: doc.subtitle.pos(0).line },
-    ...(first?.sentences ?? []).map((x) => ({ text: x.raw, line: first.pos(x.start).line })),
+    ...body.flatMap((b) => b.sentences.map((x) => ({ text: x.raw, line: b.pos(x.start).line }))),
   ].filter(Boolean).map((u) => ({ ...u, text: u.text.replace(/\s+/g, " ").trim() }));
   return { text: units.map((u) => u.text).join("\n\n") + "\n", lines: units.map((u) => u.line) };
 }

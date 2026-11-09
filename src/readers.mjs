@@ -104,6 +104,34 @@ function contextLines({ context = {}, persona }) {
 
 const ANSWER_FORMAT = `Answer each question in first person, plainly, in two to five sentences, numbered like the questions. Write nothing before answer 1 and nothing after the last answer.`;
 
+const REFERENCE_VOICE = new URL("../docs/voice/reference.md", import.meta.url).pathname;
+/** Three of the founder's own explanations from the reference voice: the default voice samples. */
+const DEFAULT_VOICE = ["Why simulated readers nitpick", "Why the first name was wrong", "Why there should be a time budget"];
+
+/** Voice samples from a markdown file: the `> ` quotes, or with none, its non-empty lines. */
+export function voiceSamples(file = REFERENCE_VOICE, pick = file === REFERENCE_VOICE ? DEFAULT_VOICE : null) {
+  const text = readFileSync(file, "utf8");
+  const quotes = [];
+  let heading = null;
+  for (const line of text.split("\n")) {
+    if (/^#{2,4} /.test(line)) heading = line.replace(/^#+ /, "").trim();
+    else if (line.startsWith("> ")) quotes.push({ heading, text: line.slice(2).trim() });
+  }
+  const list = quotes.length ? quotes : text.split("\n").map((t) => ({ heading: null, text: t.trim() })).filter((q) => q.text && !q.text.startsWith("#"));
+  const chosen = pick ? pick.map((h) => list.find((q) => q.heading === h)).filter(Boolean) : list.slice(0, 3);
+  if (!chosen.length) throw new Error(`${file}: no voice samples`);
+  return chosen.map((q) => q.text);
+}
+
+/** The voice question: the reader hunts for the line least like the samples, then says if the author could have said it. */
+export const VOICE_QUESTION =
+  "The text is written, so it may be tidier than the samples; that alone is fine. Which one or two lines sound least like the person in the samples: a phrase they would not use, or a point put the way someone else would put it? Quote each word for word, then say yes or no: would they write it that way? If no line stands out, say none.";
+
+export const VOICE_EXPECTATION = {
+  id: "sounds_like_author",
+  expect: "The reader answers none, or says yes, the author would write each quoted line that way. A quoted line the reader says the author would not write fails it; the quote is the evidence. A line called only tidier or more written than the samples is a yes.",
+};
+
 export function readReadersFile(path) {
   const text = readFileSync(path, "utf8");
   const data = extname(path) === ".json" ? JSON.parse(text) : parseYaml(text);
@@ -113,7 +141,13 @@ export function readReadersFile(path) {
   for (const p of personas) {
     if (!p.id || !p.background) throw new Error(`${path}: every persona needs id and background`);
     p.view ??= "full";
+    if (p.voice) {
+      p.voiceSamples = voiceSamples(p.voice === true ? undefined : resolve(path, "..", p.voice));
+      p.extraQuestions = [...(p.extraQuestions ?? []), VOICE_QUESTION];
+    }
   }
+  const voiced = personas.filter((p) => p.voice).map((p) => p.id);
+  if (voiced.length && !expectations.some((e) => e.id === VOICE_EXPECTATION.id)) expectations.push({ ...VOICE_EXPECTATION, applies_to: voiced });
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
   const context = { ...(data.context ?? {}) };
   if (data.stance) context.stance = data.stance;
@@ -218,12 +252,22 @@ function competitorBlock(competitors = []) {
   return `The other results you opened from the same search:\n\n${pages.join("\n\n")}`;
 }
 
-export function readerPrompt({ persona, text, questions, context, competitors }) {
+const voiceBlock = (persona) =>
+  persona.voiceSamples?.length
+    ? `How the author talks, in things they said to people:\n\n${persona.voiceSamples.map((v) => `<sample>\n${v}\n</sample>`).join("\n\n")}`
+    : "";
+
+/** The questions one persona answers: the shared ones, then its own (the voice question). */
+export const questionsFor = (persona, questions) => [...questions, ...(persona.extraQuestions ?? [])];
+
+export function readerPrompt({ persona, text, questions: shared, context, competitors }) {
+  const questions = questionsFor(persona, shared);
   const view = persona.view === "skim" ? skimView(text) : asRendered(text);
   const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings and the first sentence of each section). Judge only from it." : "";
   return [
     `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${skimNote}`,
     contextLines({ context, persona }),
+    voiceBlock(persona),
     `Here is what you read:\n\n<text>\n${view}\n</text>`,
     /\[mock:/i.test(text) ? MARKER_NOTE : "",
     competitorBlock(competitors),
@@ -241,7 +285,8 @@ const skimNote = (seen) =>
     ? `\n\nThis reader only skimmed. Everything they saw:\n<seen>\n${seen}\n</seen>\nWhen an expectation asks for something the text they saw does not contain, grade it pass with the note "beyond the skim view", unless the expectation has skim: true.`
     : "";
 
-export function judgePrompt({ persona, questions, expectations, answers, context, seen }) {
+export function judgePrompt({ persona, questions: shared, expectations, answers, context, seen }) {
+  const questions = questionsFor(persona, shared);
   const exps = expectations.filter((e) => !e.forbid && (!e.applies_to || e.applies_to.includes(persona.id)));
   const classes = Object.entries(DOUBT_CLASSES).map(([k, v]) => `- ${k}: ${v}`).join("\n");
   return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. An expectation about a line passes only when the reader quotes the line's words; naming a section or retelling the idea is no quote. A line the reader quotes as odd, read twice or not spoken is a note for the writer, class skepticism, unless the reader says it made them stop or leave. Do not read files or research; use only what is below.
@@ -327,7 +372,8 @@ export function grade(dir) {
     for (const [gid, gs] of byId) {
       const fails = gs.filter((g) => !g.pass);
       const fail = fails.length > 0 && agreed(fails.length);
-      const shown = (fail ? fails : gs.filter((g) => g.pass))[0] ?? gs[0];
+      const pool = fail ? fails : gs.filter((g) => g.pass);
+      const shown = { ...(pool[0] ?? gs[0]), evidence: [...new Set(pool.map((g) => g.evidence).filter(Boolean))].join('" | "') };
       failed += fail;
       if (fail && (!core.size || core.has(gid))) coreFailed += 1;
       const noise = !fail && fails.length ? `; failed in ${fails.length}/${n}, below half: noise` : "";

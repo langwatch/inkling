@@ -37,11 +37,17 @@ test("every flag has a rewrite instruction", () => {
     assert.ok(REWRITES[flag], flag);
 });
 
-test("--first-screen judges the title, the subtitle and each sentence of the first paragraph as copy lines", async () => {
+test("--first-screen judges the title, the subtitle and each sentence of the lead as copy lines", async () => {
   const { firstScreen, judgeArgs } = await import("../src/judge.mjs");
   const lead = firstScreen("# Title here\n\nThe subtitle.\n\nA big closed model is the safe pick on day one. Then we measured.\n\n## Later\n\nNot judged.\n");
-  assert.deepEqual(lead.text.trim().split("\n\n"), ["Title here", "The subtitle.", "A big closed model is the safe pick on day one.", "Then we measured."]);
-  assert.deepEqual(lead.lines, [1, 3, 5, 5]);
+  assert.deepEqual(lead.text.trim().split("\n\n"), ["Title here", "The subtitle.", "A big closed model is the safe pick on day one.", "Then we measured.", "Not judged."]);
+  assert.deepEqual(lead.lines, [1, 3, 5, 5, 9]);
   assert.ok(judgeArgs({ file: "-", mode: "post", copy: true }).includes("--copy"));
   assert.ok(!judgeArgs({ file: "-", mode: "post" }).includes("--copy"));
+});
+
+test("--first-screen skips the partner note and a subtitle repeated in the body, and reads three body paragraphs", async () => {
+  const { firstScreen } = await import("../src/judge.mjs");
+  const md = "---\nintro: The short intro.\n---\n*Written with ACME.*\n\nThe short intro.\n\nOne.\n\nTwo.\n\nThree.\n\nFour.\n";
+  assert.deepEqual(firstScreen(md).text.trim().split("\n\n"), ["The short intro.", "One.", "Two.", "Three."]);
 });

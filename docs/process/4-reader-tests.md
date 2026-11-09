@@ -45,6 +45,16 @@ expectations:
 - `questions` overrides the default questions; JSON works as well as YAML.
 - `competitors` lists the other results for the same search (`name`, `url`, `file` with the page text as a visitor sees it) and needs `context.search`. Readers see them beside the draft and answer two more questions: which one they would sign up on, and whether this page looks like a real company with a real product.
 
+## Voice readers
+
+A persona with `voice: true` first reads three of the founder's own explanations from the [reference voice](../voice/reference.md), then the draft, and answers one more question: which one or two lines sound least like that person, quoted, and would they write it that way. 
+
+`voice: <file>` takes the samples from another file (its `> ` quotes). The grader adds the `sounds_like_author` expectation: it fails on a quoted line the reader says the author would not write. Use it with `--runs 3` so a line has to come back to count.
+
+It stays advisory, never core. On 2026-11-09 three runs each on a published post (the agent sandboxes post) and on a rejected landing page both failed 3/3: readers set chat samples against written text find a line in anything.
+
+The lines they quoted on the rejected page were the ones the founder disliked (the mechanism explained back, the setup sentence); on the published post they were its closing pitch and a flat claim. Read the quotes as candidates for a second look.
+
 ## Realistic readers
 
 The stance follows the audience, and every readers file states it with `stance:` (or `context.stance`):
