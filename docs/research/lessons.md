@@ -15,10 +15,6 @@ A pushback on one piece is a correction to that piece. It becomes a rule here on
 
 ## Prose
 
-- Open flat: start on the concrete thing, with energy. Open with a question only rarely: when the answer follows in the same line and the reader would ask that question themselves ("Laptop shut? It still works"). The lint warns on every opening question so the writer has to give that reason.
-- Mechanism before meaning. If the mechanism is too boring to write down, suspect the meaning.
-- Specifics over summaries: the error, the file, the tool, the person with their role.
-- Attach every number to its consequence, and never open a sentence or a title with one.
 - Hedge colloquially and specifically ("wrong about one time in twenty"), or do not hedge. Never with "honestly", not even as a discourse marker: models overuse it.
 - Active voice: the actor is the subject with a plain verb. Simplified Technical English was tried and dropped, because it produced stacks of short statements.
 - Let a sentence turn with a conjunction instead of stopping and restating itself in the next one.

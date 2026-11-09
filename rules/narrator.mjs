@@ -337,8 +337,8 @@ export default [
       return [{ block: first, index: q.start, note }];
     },
     message: "The piece opens with a question (warning).",
-    fix: "Open on the concrete thing. Keep the question only when the answer follows in the same line and the question is what the reader would ask, as in \"Laptop shut? It still works\".",
-    source: "Nexus writing-rules, Open flat and Ask a question only if the next breath answers it (founder, 2026-11-08)",
+    fix: "Start with the answer. Keep the question only when the answer follows in the same line and the question is what the reader would ask, as in \"Laptop shut? It still works\".",
+    source: "Nexus writing-rules, Ask a question only if the next breath answers it (founder, 2026-11-08)",
     examples: {
       fail: ["Ever wondered why your agent forgets?\n\nIt compacts its context.", { text: "# Laptop shut? It still works", mode: "ads" }],
       pass: ["The agent forgets because it compacts its context. Why does that matter? It drops the plan.", { text: "# You don't need an agent sandbox", mode: "ads" }],

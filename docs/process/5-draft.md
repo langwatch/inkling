@@ -74,8 +74,6 @@ How far you trim depends on the mode. Docs end strictly technical, ads end at on
 
 [lessons.md](../research/lessons.md) collects the review notes every rule came from. These are the notes reviewers repeat:
 
-- Open on the concrete thing. For a piece about a product, the first sentence names it and says what it is.
-- Describe the mechanism before the meaning, and attach every number to its consequence.
 - Match the tense to the claim. For each paragraph, ask: is this a general fact, or something that happened? A general fact takes the present: "models prefer text that models write". A single event takes the past: "researchers found", "the judge picked", and so does the story of how this piece was made. The slip goes both ways. With a study in mind its data feels past, so a general claim slips into the past ("text that models wrote") and reads as if it covered only some old batch of text. And after explaining a process in the present, the writer narrates one run of it and keeps the present, so the listener can't tell the story from the rule. This paragraph from the lesson script was written in the present:
 
   > This video you're watching went through Inkling too. My agent starts a writer, a fresh subagent with only Inkling and the brief. The writer drafts the script, and then the style checker reads it and sends back warnings. Then blind readers and listeners try it. If they get lost, or they can tell a model wrote it, it goes back. And that repeats until it passes.

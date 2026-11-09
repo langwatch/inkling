@@ -116,7 +116,7 @@ export default [
     },
     message: "Number with no comparison. A number without its \"so what\" is a status flex.",
     fix: "Attach the comparison: from what, over what period, against what.",
-    source: "Nexus writing-rules, Attach every number to its consequence; Round-number flexes",
+    source: "Nexus writing-rules, Round-number flexes: an investor reads a growth or user count with no baseline as a flex and discounts it",
     examples: {
       fail: [{ text: "We have 300% growth.", mode: "investor" }],
       pass: [{ text: "Revenue grew 3x over the last 12 months, from 60k to 180k EUR ARR.", mode: "investor" }],

@@ -58,7 +58,7 @@ Every flag prints its fix:
 | results_list_no_perspective | Say what the results mean before or instead of listing them. Pick the one that changes a decision. |
 | tells_what_visuals_show | Cut the narration of what is on screen; say what the viewer cannot see. |
 | written_register (scripts) | Say it the way you would when talking: "on its own" for "left alone", "so" for "thus" or "therefore", "to" for "in order to". |
-| weak_opening | Open on the concrete thing: the error, the person, the number with its consequence. |
+| weak_opening | The opening is a windup: background, a claim about the world or a line about the piece. Start on what the reader came for. |
 | weak_ending | End on the last fact or cut the closer. No moral, summary or product aside. |
 
 The table is `REWRITES` in `src/judge.mjs`.
