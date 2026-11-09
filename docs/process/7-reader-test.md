@@ -17,3 +17,12 @@ A single run per persona can't tell a real fail from one reader's mood. For a de
 Readers also quote any line no person would say to them in conversation. Those quotes are notes for the writer, and the stop rule still decides when to stop.
 
 To have the copy checks read the lead line by line as well, run `inkling judge <draft> --first-screen`. On a test lead it flagged "A big closed model is the safe pick on day one" as unsurprising, and it flagged three of the other four lead lines too, so treat what it finds as a reason to look again.
+
+## Without a claude login
+
+`inkling readers run` calls `claude -p`. On a computer where that has no usable login, such as a hosted agent's computer, use the subagent path instead:
+
+1. `inkling readers prompts <draft> <readers.yaml> --out <dir> [--runs N]` writes one prompt per reader.
+2. Give each prompt file to a fresh subagent with no other context and save its whole reply as `<persona>.answer.md` beside it.
+3. `inkling readers grade <dir>` writes one grader prompt per reader. Answer each the same way and save it as `<persona>.verdict.json`.
+4. Run `inkling readers grade <dir>` again for the report.

@@ -125,11 +125,11 @@ export function voiceSamples(file = REFERENCE_VOICE, pick = file === REFERENCE_V
 
 /** The voice question: the reader hunts for the line least like the samples, then says if the author could have said it. */
 export const VOICE_QUESTION =
-  "The text is written, so it may be tidier than the samples; that alone is fine. Quote any line, none, one or two, that this person would not write: a phrase they would not use, or a point put the way someone else would put it. For each, answer: yes, close enough, or no, they would not write that. If no line stands out, say none.";
+  "The text is written, so it may be tidier than the samples; that alone is fine. Quote at most two lines, or none, that this person would not write: a phrase they would not use, or a point put the way someone else would put it. For each, answer: yes, close enough, or no, they would not write that. If no line stands out, say none.";
 
 export const VOICE_EXPECTATION = {
   id: "sounds_like_author",
-  expect: "The reader quotes no line, or answers yes or close enough for each. It fails only on a quoted line with a clear no, they would not write that; the quote is the evidence. \"Probably not exactly, but close\" or \"tidier than they talk\" is a pass.",
+  expect: "The reader quotes no line, or answers yes or close enough for each. Read only the first two quotes; ignore any after them. It fails only on one of those with a clear no, they would not write that; the quote is the evidence. \"Probably not exactly, but close\" or \"tidier than they talk\" is a pass.",
 };
 
 export function readReadersFile(path) {

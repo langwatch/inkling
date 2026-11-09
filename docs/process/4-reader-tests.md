@@ -47,9 +47,9 @@ expectations:
 
 ## Voice readers
 
-A persona with `voice: true` first reads three of the founder's own explanations from the [reference voice](../voice/reference.md), then the draft. It answers one more question: quote any line, none, one or two, that this person would not write, and for each say yes, close enough, or no.
+A persona with `voice: true` first reads three of the founder's own explanations from the [reference voice](../voice/reference.md), then the draft. It answers one more question: quote at most two lines, or none, that this person would not write, and for each say yes, close enough, or no.
 
-`voice: <file>` takes the samples from another file (its `> ` quotes). The grader adds the `sounds_like_author` expectation, which fails only on a quoted line with a clear no; "close enough" passes. Use it with `--runs 3` so a line has to come back to count.
+`voice: <file>` takes the samples from another file (its `> ` quotes). The grader adds the `sounds_like_author` expectation, which reads only the first two quotes and fails only on a clear no; "close enough" passes. Use it with `--runs 3` so a line has to come back to count.
 
 It stays advisory, never core. Calibration on 2026-11-09, three runs each:
 
