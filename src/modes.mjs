@@ -13,6 +13,14 @@ export const MODES = {
     label: "marketing, ads, landing copy, titles: a business mind, lead with strengths, never concede",
     paragraphWords: 40,
   },
+  landing: {
+    label: "landing page for cold search or ad traffic: a story from the search to the result, a product mock per claim, calls to action along the page, enough real content on the topic to rank",
+    paragraphWords: 60,
+    like: ["ads"],
+    minWords: 700,
+    minSections: 5,
+    sectionsPerCta: 2,
+  },
   deck: {
     label: "slides: few-word titles, at most three short bullets, narrative in speaker notes",
     paragraphWords: 30,
@@ -46,6 +54,6 @@ export const MODE_NAMES = Object.keys(MODES);
 export const modeFamily = (mode) => [mode, ...(MODES[mode]?.like ?? [])];
 
 /** Modes that sell or pitch: the copy rules bind hardest here. */
-export const PITCH = ["ads", "deck", "investor"];
+export const PITCH = ["ads", "landing", "deck", "investor"];
 export const PROSE_MODES = ["docs", "post", "investor", "legal"];
-export const ALL_BUT_LEGAL = ["docs", "post", "ads", "deck", "investor"];
+export const ALL_BUT_LEGAL = ["docs", "post", "ads", "landing", "deck", "investor"];

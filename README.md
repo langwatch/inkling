@@ -96,6 +96,8 @@ examples/sandbox-titles/titles.md:5:24  numbers/number-in-title
 
 The fourth title, "You don't need an agent sandbox", gets no finding. The full output is in [output.txt](examples/sandbox-titles/output.txt), and the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).
 
+For a landing page that search or ad traffic lands on, `--mode landing` adds the story, mock, call-to-action and thin-page checks and a comparison test against the other results; see [landing pages](docs/process/landing-mode.md). Readers are cold by default; set `stance: warm` only for an audience that knows us.
+
 For a narrated lesson or video, `--mode script --minutes 3`, `inkling voice` and `inkling readers listen` check the script by ear; see [spoken scripts](docs/process/script-mode.md) and the [talking-voice profile](docs/voice/profile.md).
 
 More tools: [preference judge](docs/tools/preference.md), [surprise](docs/tools/surprise.md), [images](docs/tools/images.md), [known false positives](docs/tools/known-false-positives.md).

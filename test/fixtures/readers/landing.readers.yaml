@@ -1,0 +1,15 @@
+# A landing page for paid search: cold visitors compare it with the other results.
+context:
+  search: claude code cloud
+  arrived_from: a Google search ad
+competitors:
+  - name: Acme Remote Agents
+    url: https://acme.example/claude-code
+    file: competitor-acme.txt
+personas:
+  - id: dev
+    background: A developer who pays for Claude Code Max and wants it running while the laptop is shut.
+expectations:
+  - id: picks_us
+    core: true
+    expect: The reader would sign up on this page over the other results.

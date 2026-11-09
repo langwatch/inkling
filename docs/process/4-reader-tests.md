@@ -42,10 +42,16 @@ expectations:
 - An expectation with `forbid` is a regex over the title, subtitle, headings, section openers or all blocks. It runs locally with no model, at no cost.
 - `core: true` marks the expectations that decide whether the draft is done. With none marked, all of them are core.
 - `questions` overrides the default questions; JSON works as well as YAML.
+- `competitors` lists the other results for the same search (`name`, `url`, `file` with the page text as a visitor sees it) and needs `context.search`. Readers see them beside the draft and answer two more questions: which one they would sign up on, and whether this page looks like a real company with a real product.
 
 ## Realistic readers
 
-Real readers are busy and generous: they keep reading unless something stops them, and one named source is enough for them to trust a claim. A reader prompted to find faults always finds some, and fixing every one of them drives copy past the point where it works and back to the average. So:
+The stance follows the audience, and every readers file states it with `stance:` (or `context.stance`):
+
+- `cold`, the default: a visitor from a search or an ad with the other results open in tabs, deciding whether the page answers the search and whether a real company is behind it. Use it for ads, landing pages, X and anything a stranger meets first. A page that looks thin or fake, or that loses to another result, is `trust_breaking`.
+- `warm`: a reader who already knows the author, such as a newsletter subscriber or the founder's network. They are busy and generous, and one named source is enough for them to trust a claim.
+
+Cold is not nitpicking. In both stances a reader prompted to find faults always finds some, and fixing every one of them drives copy past the point where it works and back to the average. The stop rule and the rounds budget stay the same; a cold reader fails a page only on what makes a real visitor close the tab or pick another result. So:
 
 - The prompt gives the reader the context above and asks them to read as that person reads.
 - No question asks for doubts. The questions ask what it is about, what they took away, what they would do next, whether anything made them stop or want to leave, and where they would start skimming.

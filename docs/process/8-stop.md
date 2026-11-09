@@ -1,6 +1,6 @@
 # Stop
 
-Stop editing when the core expectations pass. Simulated readers are generous, and fixing every small doubt past that point pushes copy back towards the average.
+Stop editing when the core expectations pass. Fixing every small doubt past that point pushes copy back towards the average, for cold readers as much as for warm ones.
 
 Every number in Inkling is a default you can override: the 10% over budget, the six sentences without "we" or "you", two chunks at 2x. Reader test results are feedback to weigh. Tighten or loosen any of these for the piece in front of you and write down why.
 

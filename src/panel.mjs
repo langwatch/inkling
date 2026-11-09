@@ -5,7 +5,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, statSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { homedir } from "node:os";
-import { readReadersFile, readerPrompt, runTextChecks, grade, DEFAULT_QUESTIONS } from "./readers.mjs";
+import { readReadersFile, readerPrompt, readerRules, runTextChecks, grade, DEFAULT_QUESTIONS } from "./readers.mjs";
 import { BUDGETS, budgetStop, recordTiming, readPlan, recordOpen, openItems } from "./budget.mjs";
 
 export const EDIT_SIZES = ["sections", "paragraphs", "lines"];
@@ -75,7 +75,7 @@ ${a}
 ${b}
 </version B>
 
-Rules: you have no tools. Do not read files, search or research; answer only from the text above. Read the way this person really reads: busy, generous, neither hunting for faults nor polite on the author's behalf.
+${readerRules(context)}
 
 First line: "Keep: A" or "Keep: B", the version you would keep reading. Second line: why, in one or two sentences. Third line: whether what stopped you last time is still there.
 Fourth line: "Finish: yes" or "Finish: no": would you read the version you kept to the end?
@@ -101,12 +101,13 @@ export function panelStart({ draft, readersFile, out }) {
     expectations: spec.expectations,
     failOn: spec.doubts?.fail_on ?? ["trust_breaking"],
     context: spec.context ?? {},
+    competitors: spec.competitors ?? [],
     textChecks: runTextChecks(text, spec.expectations),
   };
   writeFileSync(join(roundDir, "manifest.json"), JSON.stringify(manifest, null, 1));
   const prompts = spec.personas.map((p) => {
     const f = join(roundDir, `${p.id}.prompt.md`);
-    writeFileSync(f, readerPrompt({ persona: p, text, questions: manifest.questions, context: manifest.context }));
+    writeFileSync(f, readerPrompt({ persona: p, text, questions: manifest.questions, context: manifest.context, competitors: manifest.competitors }));
     return f;
   });
   saveState(out, { draft: resolve(draft), readersFile: resolve(readersFile), round: 1, mappings: {}, holdout: null, emitted: { "round-1": Date.now() }, timed: [] });
@@ -250,7 +251,7 @@ export function holdout({ out, draft, force = false }) {
   writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 1));
   const prompts = personas.map((p) => {
     const f = join(dir, `${p.id}.prompt.md`);
-    writeFileSync(f, readerPrompt({ persona: p, text, questions: manifest.questions, context: manifest.context }));
+    writeFileSync(f, readerPrompt({ persona: p, text, questions: manifest.questions, context: manifest.context, competitors: manifest.competitors }));
     return f;
   });
   state.holdout = `ran on version ${state.round}${earlier.length ? ", forced" : ""}`;

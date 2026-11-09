@@ -43,7 +43,7 @@ Mode: ${comparison.mode ?? "ads"}
 Line A: ${JSON.stringify(first)}
 Line B: ${JSON.stringify(second)}
 
-Which line would the owner approve for this reader? Judge it the way a real reader in that moment meets it: busy and mostly generous, so the line that makes them stop scrolling wins. Reply with JSON only:
+Which line would the owner approve for this reader? Judge it the way a real reader in that moment meets it: ${c.stance === "warm" ? "busy and mostly generous, since they know the author" : "busy and cold, with other results one click away"}, so the line that makes them stop scrolling wins. Reply with JSON only:
 {"winner": "A" or "B", "reason": "one plain sentence quoting the words that decide it"}`;
 }
 

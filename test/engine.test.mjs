@@ -15,7 +15,9 @@ test("flags the example sentence for negation and hedge", () => {
 
 test("the fixed sentence is clean in every mode", () => {
   const fixed = "The agent's main session plans and talks to people, and hands the heavy work to subagents.";
-  for (const mode of MODE_NAMES.filter((m) => m !== "deck" && m !== "x")) assert.deepEqual(ids(fixed, mode), [], mode);
+  for (const mode of MODE_NAMES.filter((m) => m !== "deck" && m !== "x" && m !== "landing")) assert.deepEqual(ids(fixed, mode), [], mode);
+  // one sentence is no landing page: it names no search, is thin and has no call to action
+  assert.deepEqual(ids(fixed, "landing").filter((id) => !id.startsWith("landing/")), []);
   // on a slide, a 16-word sentence belongs in the speaker notes
   assert.deepEqual(ids(fixed, "deck"), ["deck/slide-prose"]);
   // on X the first line is the headline, and 16 words is two claims for a scroller

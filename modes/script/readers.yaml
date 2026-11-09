@@ -1,5 +1,6 @@
 # Viewers for a spoken script: a narrated lesson or video, heard once, in order, by people
 # whose time is short. `inkling readers listen` feeds them the script in chunks of about 30 seconds.
+stance: warm
 context:
   author: a small company or its founder showing what they learned
   arrived_from: a link a colleague dropped in a team chat

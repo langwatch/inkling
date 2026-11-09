@@ -26,7 +26,29 @@ export const DOUBT_CLASSES = {
   content_gap: "a question only evidence we do not have yet would answer (a benchmark, a customer number, a public inkling)",
 };
 
-const READER_RULES = `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. Read the way this person really reads: busy, mostly generous, with the attention described, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
+/**
+ * How the reader meets the piece. Cold readers arrived from a search or an ad with other results
+ * open; warm readers already know the author (newsletter, the author's network). Cold is the default.
+ */
+export const STANCES = {
+  cold: "You arrived cold, from a search or an ad, with the other results still open in tabs. You do not know these people. You are deciding whether this answers what you searched for, and whether a real company with a real product is behind it; you close the tab the moment it looks thin, fake or off-topic and try the next result. You are not hunting for small faults: wording you would not notice in real life does not count.",
+  warm: "You already know who wrote this and you are mostly generous: busy, reading with the attention described, and one real source is enough for you to trust a claim.",
+};
+
+export function stanceOf(context = {}) {
+  const stance = context.stance ?? "cold";
+  if (!STANCES[stance]) throw new Error(`unknown stance ${stance}; one of ${Object.keys(STANCES).join(", ")}`);
+  return stance;
+}
+
+export const readerRules = (context) =>
+  `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. ${STANCES[stanceOf(context)]} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
+
+/** The questions a comparison reader answers when the readers file names the other results. */
+export const compareQuestions = (search) => [
+  `You searched for "${search}". Of the pages you have open, which one would you sign up on, and why?`,
+  "Does this page look like a real company with a real product behind it? What made you decide?",
+];
 
 function contextLines({ context = {}, persona }) {
   const lines = [];
@@ -36,6 +58,7 @@ function contextLines({ context = {}, persona }) {
   if (from) lines.push(`Where you came from: ${from}`);
   const attention = persona.attention ?? context.attention;
   if (attention) lines.push(`Your attention right now: ${attention}`);
+  if (context.search) lines.push(`What you searched for: ${context.search}`);
   return lines.length ? `What you know before reading:\n${lines.join("\n")}` : "";
 }
 
@@ -52,7 +75,17 @@ export function readReadersFile(path) {
     p.view ??= "full";
   }
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
-  return { ...data, personas, expectations, questions: data.questions?.length ? data.questions : DEFAULT_QUESTIONS };
+  const context = { ...(data.context ?? {}) };
+  if (data.stance) context.stance = data.stance;
+  stanceOf(context);
+  const competitors = (data.competitors ?? []).map((c) => {
+    if (!c.name || !c.file) throw new Error(`${path}: every competitor needs name and file (the page text as a visitor sees it)`);
+    return { ...c, text: readFileSync(resolve(path, "..", c.file), "utf8").trim() };
+  });
+  if (competitors.length && !context.search) throw new Error(`${path}: competitors need context.search, the search they came from`);
+  const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS;
+  const questions = competitors.length ? [...base, ...compareQuestions(context.search)] : base;
+  return { ...data, context, competitors, personas, expectations, questions };
 }
 
 const blocksOf = (md) => md.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
@@ -133,14 +166,22 @@ export function runTextChecks(md, expectations) {
     });
 }
 
-export function readerPrompt({ persona, text, questions, context }) {
+/** The other results the reader has open, each as plain page text. */
+function competitorBlock(competitors = []) {
+  if (!competitors.length) return "";
+  const pages = competitors.map((c) => `<other result name="${c.name}"${c.url ? ` url="${c.url}"` : ""}>\n${c.text}\n</other result>`);
+  return `The other results you opened from the same search:\n\n${pages.join("\n\n")}`;
+}
+
+export function readerPrompt({ persona, text, questions, context, competitors }) {
   const view = persona.view === "skim" ? skimView(text) : asRendered(text);
   const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings and the first sentence of each section). Judge only from it." : "";
   return [
     `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${skimNote}`,
     contextLines({ context, persona }),
     `Here is what you read:\n\n<text>\n${view}\n</text>`,
-    READER_RULES,
+    competitorBlock(competitors),
+    readerRules(context),
     `Questions:\n${questions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`,
     ANSWER_FORMAT,
   ]
@@ -153,7 +194,7 @@ export function judgePrompt({ persona, questions, expectations, answers, context
   const classes = Object.entries(DOUBT_CLASSES).map(([k, v]) => `- ${k}: ${v}`).join("\n");
   return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. Do not read files or research; use only what is below.
 
-Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.
+Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.${stanceOf(context) === "cold" ? " This reader arrived cold from a search: a page that looks thin, fake or like no real company is behind it, or a reader picking another result over it, is trust_breaking." : ""}
 ${classes}
 
 Persona:
@@ -264,7 +305,7 @@ export function writePrompts({ draft, readersFile, out }) {
   writeFileSync(join(out, "manifest.json"), JSON.stringify(manifest, null, 1));
   const prompts = spec.personas.map((persona) => {
     const file = join(out, `${persona.id}.prompt.md`);
-    writeFileSync(file, readerPrompt({ persona, text, questions: spec.questions, context: spec.context }));
+    writeFileSync(file, readerPrompt({ persona, text, questions: spec.questions, context: spec.context, competitors: spec.competitors }));
     return file;
   });
   return { prompts, textChecks };

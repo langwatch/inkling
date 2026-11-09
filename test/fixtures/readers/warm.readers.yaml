@@ -1,0 +1,9 @@
+stance: warm
+context:
+  arrived_from: our newsletter
+personas:
+  - id: subscriber
+    background: A subscriber who has read the newsletter for months.
+expectations:
+  - id: what_is_it
+    expect: The reader can say in one line what is offered.

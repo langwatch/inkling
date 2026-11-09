@@ -130,3 +130,47 @@ test("skimView keeps a quoted sentence inside the first sentence", () => {
   assert.ok(out.includes(`"doesn't need X. It needs Y."`));
   assert.ok(!out.includes("A founder"));
 });
+
+test("readers are cold by default: a visitor from search with other results open", () => {
+  const out = fresh();
+  writePrompts({ draft, readersFile: file, out });
+  const prompt = readFileSync(join(out, "engineer.prompt.md"), "utf8");
+  assert.match(prompt, /You arrived cold/);
+  assert.doesNotMatch(prompt, /mostly generous/);
+});
+
+test("a warm audience reads generously", () => {
+  const out = fresh();
+  writePrompts({ draft, readersFile: join(FIX, "warm.readers.yaml"), out });
+  const prompt = readFileSync(join(out, "subscriber.prompt.md"), "utf8");
+  assert.match(prompt, /mostly generous/);
+  assert.doesNotMatch(prompt, /You arrived cold/);
+});
+
+test("an unknown stance is refused", () => {
+  const dir = fresh();
+  const bad = join(dir, "bad.readers.yaml");
+  writeFileSync(bad, "stance: friendly\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.throws(() => readReadersFile(bad), /unknown stance friendly/);
+});
+
+test("named competitors put the other results beside the page and ask which one the reader picks", () => {
+  const spec = readReadersFile(join(FIX, "landing.readers.yaml"));
+  assert.equal(spec.competitors[0].name, "Acme Remote Agents");
+  assert.ok(spec.questions.some((q) => /which one would you sign up on/.test(q)));
+  assert.ok(spec.questions.some((q) => /real company with a real product/.test(q)));
+  const out = fresh();
+  writePrompts({ draft, readersFile: join(FIX, "landing.readers.yaml"), out });
+  const prompt = readFileSync(join(out, "dev.prompt.md"), "utf8");
+  assert.match(prompt, /<other result name="Acme Remote Agents" url="https:\/\/acme.example\/claude-code">/);
+  assert.match(prompt, /Run Claude Code on our servers/);
+  assert.match(prompt, /What you searched for: claude code cloud/);
+});
+
+test("competitors without the search they came from are refused", () => {
+  const dir = fresh();
+  writeFileSync(join(dir, "c.txt"), "x");
+  const bad = join(dir, "bad.readers.yaml");
+  writeFileSync(bad, "competitors:\n  - name: X\n    file: c.txt\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.throws(() => readReadersFile(bad), /context.search/);
+});

@@ -73,4 +73,4 @@ A pushback on one piece is a correction to that piece. It becomes a rule here on
 - Lint scores prove nothing on their own. A clean report means the shapes are gone, and the draft still has to say something.
 - Jev's overall "AI sounding" score rated approved human drafts as AI; use it for single tics only.
 - Label only lines a person approved or rejected with a reason.
-- Readers are busy and generous. A reader primed to find faults always finds some, and fixing all of them pushes copy back to the average. Stop when the core expectations pass.
+- The stance follows the audience. Warm readers (newsletter, the founder's network) are busy and generous; cold visitors from search compare the page with the other results and close it when it looks thin or fake. A reader primed to find faults always finds some, in either stance, and fixing all of them pushes copy back to the average. Stop when the core expectations pass.
