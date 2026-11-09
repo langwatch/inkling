@@ -132,6 +132,13 @@ export const VOICE_EXPECTATION = {
   expect: "The reader quotes no line, or answers yes or close enough for each. Read only the first two quotes; ignore any after them. It fails only on one of those with a clear no, they would not write that; the quote is the evidence. \"Probably not exactly, but close\" or \"tidier than they talk\" is a pass.",
 };
 
+/** With `result:` set, every skimmer must get that result from what a skim shows: a visual and at most one number. */
+export const skimResultExpectation = (result) => ({
+  id: "skim_gets_result",
+  skim: true,
+  expect: `From the skim alone, the reader can say the result in their own words: ${result.trim()} It passes when they got it from a chart, an image, a table or its description, or one headline number with its comparison. It fails when they cannot say the result, or list several figures without knowing which one matters.`,
+});
+
 export function readReadersFile(path) {
   const text = readFileSync(path, "utf8");
   const data = extname(path) === ".json" ? JSON.parse(text) : parseYaml(text);
@@ -148,6 +155,8 @@ export function readReadersFile(path) {
   }
   const voiced = personas.filter((p) => p.voice).map((p) => p.id);
   if (voiced.length && !expectations.some((e) => e.id === VOICE_EXPECTATION.id)) expectations.push({ ...VOICE_EXPECTATION, applies_to: voiced });
+  const skimmers = personas.filter((p) => p.view === "skim").map((p) => p.id);
+  if (data.result && skimmers.length && !expectations.some((e) => e.id === "skim_gets_result")) expectations.push({ ...skimResultExpectation(data.result), applies_to: skimmers });
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
   const context = { ...(data.context ?? {}) };
   if (data.stance) context.stance = data.stance;
@@ -180,6 +189,8 @@ export function asRendered(md) {
     .replace(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, n, t) => `${"#".repeat(Number(n))} ${t.trim()}`)
     .replace(/<img[^>]*?alt="([^"]*)"[^>]*>/gi, (_, alt) => `[Image: ${alt}]`)
     .replace(/<img[^>]*>/gi, "[Image with no alt text]")
+    .replace(/!\[([^\]]+)\]\([^)]*\)/g, (_, alt) => `[Image: ${alt}]`)
+    .replace(/!\[\]\([^)]*\)/g, "[Image with no alt text]")
     .replace(/<br\s*\/?>/gi, " ")
     .replace(/<\/?(?:p|div|sub|sup|picture|source)[^>]*>/gi, "")
     .replace(/[ \t]+\n/g, "\n")
@@ -188,7 +199,17 @@ export function asRendered(md) {
     .trim();
 }
 
-/** What a skimmer sees: the title, the subtitle, the headings and each section's first sentence. */
+/** A visual catches a skimming eye: an image (its alt text), a chart or mock marker, or a small table. */
+const VISUAL = /^\[(?:Image|chart|mock)\b/i;
+const MAX_TABLE_ROWS = 6;
+function glance(b) {
+  if (VISUAL.test(b)) return b;
+  if (!b.startsWith("|")) return null;
+  const rows = b.split("\n").filter((r) => !/^\|?\s*:?-{2,}/.test(r));
+  return rows.length <= MAX_TABLE_ROWS + 1 ? b : [...rows.slice(0, MAX_TABLE_ROWS + 1), `[${rows.length - MAX_TABLE_ROWS - 1} more rows]`].join("\n");
+}
+
+/** What a skimmer sees: the title, the subtitle, the headings, each section's first sentence, and the images, charts and tables. */
 export function skimView(md) {
   const blocks = blocksOf(asRendered(md));
   const out = [];
@@ -207,6 +228,8 @@ export function skimView(md) {
     } else if (b.startsWith("## ") || b.startsWith("### ")) {
       out.push(b);
       wantFirst = true;
+    } else if (out.length && glance(b)) {
+      out.push(glance(b));
     } else if (wantFirst && !SKIP.some((s) => b.startsWith(s))) {
       out.push(firstSentence(b));
       wantFirst = false;
@@ -263,7 +286,7 @@ export const questionsFor = (persona, questions) => [...questions, ...(persona.e
 export function readerPrompt({ persona, text, questions: shared, context, competitors }) {
   const questions = questionsFor(persona, shared);
   const view = persona.view === "skim" ? skimView(text) : asRendered(text);
-  const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings and the first sentence of each section). Judge only from it." : "";
+  const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings, the first sentence of each section, and the images, charts and tables you glanced at; an image shows as its description). Judge only from it." : "";
   return [
     `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${skimNote}`,
     contextLines({ context, persona }),
@@ -282,7 +305,7 @@ export function readerPrompt({ persona, text, questions: shared, context, compet
 /** What a skim reader saw goes to the grader, so detail the skim never showed is not held against them. */
 const skimNote = (seen) =>
   seen
-    ? `\n\nThis reader only skimmed. Everything they saw:\n<seen>\n${seen}\n</seen>\nWhen an expectation asks for something the text they saw does not contain, grade it pass with the note "beyond the skim view", unless the expectation has skim: true.`
+    ? `\n\nThis reader only skimmed. Everything they saw:\n<seen>\n${seen}\n</seen>\nWhen an expectation asks for something the text they saw does not contain, grade it pass with the note "beyond the skim view", unless the expectation has skim: true. A skimmer takes the result from a chart, an image or a table plus at most one number; a reader who names the result passes even with no figures, and a reader who repeats a string of figures but cannot say which one matters has not got the result.`
     : "";
 
 export function judgePrompt({ persona, questions: shared, expectations, answers, context, seen }) {

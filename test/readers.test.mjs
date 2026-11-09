@@ -222,3 +222,27 @@ test("a voice persona sees the author's samples, is asked for any line the autho
   const manifest = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8"));
   assert.deepEqual(manifest.expectations[0].applies_to, ["friend-r1", "friend-r2"]);
 });
+
+test("the skim view shows images, charts and small tables, not a logo above the title", () => {
+  const md = "![logo](logo.png)\n\n# Cheaper models\n\nSame work for less.\n\n## Results\n\nWe ran both on the same emails.\n\n![Cost per thousand emails: Gemma 0.42 USD, GPT 2.31 USD](cost.png)\n\n| model | cost |\n| --- | --- |\n| Gemma | 0.42 |\n| GPT | 2.31 |\n\nMore detail follows here.";
+  const view = skimView(md);
+  assert.ok(view.startsWith("# Cheaper models"));
+  assert.match(view, /\[Image: Cost per thousand emails: Gemma 0\.42 USD, GPT 2\.31 USD\]/);
+  assert.match(view, /\| Gemma \| 0\.42 \|/);
+  assert.doesNotMatch(view, /More detail follows/);
+  const long = `# T\n\n## S\n\nText.\n\n| a |\n| --- |\n${Array.from({ length: 9 }, (_, i) => `| ${i} |`).join("\n")}`;
+  assert.match(skimView(long), /\[3 more rows\]/);
+});
+
+test("result: adds a skim expectation the skimmer must carry from a visual", () => {
+  const dir = mkdtempSync(join(tmpdir(), "inkling-readers-"));
+  const f = join(dir, "r.yaml");
+  writeFileSync(f, readFileSync(file, "utf8") + "\nresult: Gemma does the same work at a fifth of the cost.\n");
+  const spec = readReadersFile(f);
+  const e = spec.expectations.find((x) => x.id === "skim_gets_result");
+  assert.deepEqual(e.applies_to, ["skimmer"]);
+  assert.equal(e.skim, true);
+  assert.match(e.expect, /a fifth of the cost/);
+  assert.match(e.expect, /chart, an image, a table/);
+  assert.equal(readReadersFile(file).expectations.some((x) => x.id === "skim_gets_result"), false, "no result, no expectation");
+});

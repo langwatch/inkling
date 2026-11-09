@@ -6,6 +6,7 @@ import { MODES, MODE_NAMES } from "./modes.mjs";
 import { RULES, FAMILIES } from "../rules/index.mjs";
 import { refuseIfPaid } from "./subscription.mjs";
 import { writePrompts, grade, runWithClaude } from "./readers.mjs";
+import { readerReport } from "./report.mjs";
 import { writePreferPrompts, gradePrefer } from "./prefer.mjs";
 import { panelStart, panelRound, panelStatus, holdout, stopRun } from "./panel.mjs";
 import { BUDGETS, BUDGET_NAMES, describeBudgets, startPlan, recordTiming, timingsSummary, topicPaths, topicInit } from "./budget.mjs";
@@ -38,6 +39,9 @@ const USAGE = `inkling: content writing framework for agents
       parts recalled at the end; fails on a skip, a lost viewer or an unexplained example
   inkling readers listen --calibrate [--out <dir>] [--reader sonnet]
       rerun calibration/listen.json: each target must hold in 2 of 3 runs
+  inkling readers report <run...> [--out <file>] [--backend claude] [--reader sonnet]
+      what each reader said, retold version by version for the writer; takes run directories or a
+      panel run; the subagent backend writes reader-report.prompt.md for a fresh subagent to answer
   inkling readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]
   inkling readers panel round <run> [--draft <file>] [--force]
   inkling readers panel status|stop <run>
@@ -342,6 +346,21 @@ function readers([sub, ...pos], values) {
       return 1;
     }
   }
+  if (sub === "report") {
+    if (!pos.length) return usage("inkling readers report <run...> [--out <file>] [--backend claude]");
+    try {
+      const r = readerReport({ paths: pos, out: values.out, run: values.backend === "claude", model: values.reader });
+      if (r.pending.length) {
+        process.stdout.write(pendingMessage(r.pending, "report prompt", r.target).replace("Then run grade again.", `The report is that reply: ${r.target}`));
+        return 3;
+      }
+      process.stdout.write(r.report ?? readFileSync(r.target, "utf8"));
+      return 0;
+    } catch (e) {
+      process.stderr.write(`inkling: ${e.message}\n`);
+      return 1;
+    }
+  }
   if (sub === "grade") {
     if (!pos[0]) return usage("inkling readers grade <dir>");
     const state = grade(pos[0]);
@@ -352,7 +371,7 @@ function readers([sub, ...pos], values) {
     process.stdout.write(state.report);
     return state.failed ? 1 : 0;
   }
-  return usage("inkling readers prompts|grade|run|listen|panel|holdout");
+  return usage("inkling readers prompts|grade|run|report|listen|panel|holdout");
 }
 
 function prefer([sub, ...pos], values) {

@@ -23,6 +23,7 @@ A pushback on one piece is a correction to that piece. It becomes a rule here on
 - Leave out slogans: taglines, twist imperatives ("Fail your copy before your readers do" was rejected as a README opener), chiasmus and clipped fragments. A slogan passes every other rule and still reads as written by a model.
 - End modestly. When in doubt, cut the closer.
 - Paraphrasing a tic is keeping it. If a sentence existed only to do the banned move, cut it.
+- Numbers go in a picture. A post that scatters figures through its paragraphs loses the reader, who can't tell which one is the result (founder, 2026-11-09: "Claude is teeerrible terrible with numbers"). Show the result in a chart, a comparison table or an image, and say at most one headline number with its comparison in the prose.
 
 ## Docs
 

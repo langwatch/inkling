@@ -38,7 +38,8 @@ expectations:
 ```
 
 - `context` is what a real reader knows before reading: who wrote it, how big they are, where the reader came from, how much attention they have. A persona can override `arrived_from` and `attention`.
-- A `skim` reader sees only the title, the subtitle, the headings and the first sentence of each section. The grader gets the same view and passes an expectation that view never showed ("beyond the skim view"). Add `skim: true` to an expectation the skim view must carry, such as the claim in the headings.
+- A `skim` reader sees only the title, the subtitle, the headings, the first sentence of each section, and the images (as their alt text), chart and mock markers and tables (up to six rows) below the title. The grader gets the same view and passes an expectation that view never showed ("beyond the skim view"). Add `skim: true` to an expectation the skim view must carry, such as the claim in the headings.
+- `result:` states the result the piece reports, in one line ("Gemma does the same work at a fifth of the cost."). With it, every skim reader gets the `skim_gets_result` expectation: from the skim alone they say the result, taken from a chart, image, table or one headline number. A skimmer who lists several figures without knowing which one matters fails it.
 - An expectation about a line ("quotes a line they liked") passes only on a quote of the line's words; a section name fails it.
 - An expectation with `forbid` is a regex over the title, subtitle, headings, section openers or all blocks. It runs locally with no model, at no cost.
 - `core: true` marks the expectations that decide whether the draft is done. With none marked, all of them are core.

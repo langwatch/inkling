@@ -86,6 +86,12 @@ How far you trim depends on the mode. Docs end strictly technical, ads end at on
 - Make one claim per title, and let each paragraph follow from the one before it.
 - Leave out slogans: taglines, twist imperatives such as "Fail your copy before your readers do", and clipped fragments such as "Less noise. More signal.".
 
+## Numbers
+
+Put the result in one chart, comparison table or image, because that is where a skimmer looks for it: a bar per option, a cost against quality plot, two columns side by side. The prose says at most one number, the outcome with what it is compared to ("3x cheaper than GPT"). Every other figure goes in the table or the chart.
+
+A paragraph with three figures in it loses the reader, because they can't tell which one is the result. The `scattered-numbers` and `numbers-everywhere` warnings catch this in posts. Write the image's alt text as the result, too ("Cost per thousand emails: Gemma 0.42 USD, GPT 2.31 USD"), because that is what a skim reader and a screen reader get.
+
 ## Images
 
 Words inside a generated image follow the same rules as prose. Write the image prompt as precisely as the copy: [images](../tools/images.md) has the prompt pattern and real prompts.

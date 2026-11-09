@@ -18,6 +18,14 @@ Readers also quote any line no person would say to them in conversation. Those q
 
 To have the copy checks read the lead line by line as well, run `inkling judge <draft> --first-screen`. On a test lead it flagged "A big closed model is the safe pick on day one" as unsurprising, and it flagged three of the other four lead lines too, so treat what it finds as a reason to look again.
 
+## Reader report
+
+After the rounds, `inkling readers report <run...>` retells what each reader said, version by version, for the person who asked for the piece: 4 to 8 bullets per version with the readers' own words ("The CTO said it jumps into "Test the swap" without telling him what swap or why"), what they liked, and one line on what is still open. It takes run directories or a whole panel run.
+
+It is optional. Use it when someone else will review the piece, so they can see how it got better and how the audience reacts to it, and when a result looks wrong. A report where every reader sounds like the wrong person ("Audience check:") means the readers file probed the wrong audience.
+
+With `--backend claude` it writes `reader-report.md` on the subscription. Without it, it writes `reader-report.prompt.md`; give that to a fresh subagent and save its reply as `reader-report.md`.
+
 ## Without a claude login
 
 `inkling readers run` calls `claude -p`. On a computer where that has no usable login, such as a hosted agent's computer, use the subagent path instead:
