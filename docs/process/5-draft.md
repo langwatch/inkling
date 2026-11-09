@@ -90,6 +90,8 @@ How far you trim depends on the mode. Docs end strictly technical, ads end at on
 
 Put the result in one chart, comparison table or image, because that is where a skimmer looks for it: a bar per option, a cost against quality plot, two columns side by side. The prose says at most one number, the outcome with what it is compared to ("3x cheaper than GPT"). Every other figure goes in the table or the chart.
 
+In one post, the skimming CTO went from "I didn't see a single number" to "The 82% line is the reason I stayed." once the result became one headline number.
+
 A paragraph with three figures in it loses the reader, because they can't tell which one is the result. The `scattered-numbers` and `numbers-everywhere` warnings catch this in posts. Write the image's alt text as the result, too ("Cost per thousand emails: Gemma 0.42 USD, GPT 2.31 USD"), because that is what a skim reader and a screen reader get.
 
 ## Images

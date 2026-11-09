@@ -20,11 +20,13 @@ To have the copy checks read the lead line by line as well, run `inkling judge <
 
 ## Reader report
 
-After the rounds, `inkling readers report <run...>` retells what each reader said, version by version, for the person who asked for the piece: 4 to 8 bullets per version with the readers' own words ("The CTO said it jumps into "Test the swap" without telling him what swap or why"), what they liked, and one line on what is still open. It takes run directories or a whole panel run.
+After the rounds, `inkling readers report <run...>` retells what each reader said, for the person who asked for the piece, in under 400 words so it reads on a phone. It opens with how the readers' reaction changed across versions, such as "the skimming CTO went from 'I didn't see a single number' to 'The 82% line is the reason I stayed.'" That line came from a post whose result moved into one headline number.
+
+Then each version gets 3 to 5 bullets in the readers' own words, what they liked, and one line on what is still open. Readers are "the CTO" or "they", never "he" or "she". It takes run directories or a whole panel run.
 
 It is optional. Use it when someone else will review the piece, so they can see how it got better and how the audience reacts to it, and when a result looks wrong. A report where every reader sounds like the wrong person ("Audience check:") means the readers file probed the wrong audience.
 
-With `--backend claude` it writes `reader-report.md` on the subscription. Without it, it writes `reader-report.prompt.md`; give that to a fresh subagent and save its reply as `reader-report.md`.
+With `--backend claude` it writes `reader-report.md` on the subscription, checks the length, the pronouns and the opening, and asks for one rewrite if any fails. Without it, it writes `reader-report.prompt.md`; give that to a fresh subagent and save its reply as `reader-report.md`. Running the command again prints the report and runs the same check, exiting 1 with what to fix.
 
 ## Without a claude login
 

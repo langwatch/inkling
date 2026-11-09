@@ -44,19 +44,36 @@ function runMaterial({ dir, label }) {
   return `<version label="${label}">\n${questions}${readers.join("\n\n")}\n\n${report}</version>`;
 }
 
-export const REPORT_RULES = `Write it for the person who wrote the text, the way you would tell them over coffee what each reader said. Plain spoken English, short sentences, no em dashes.
+export const REPORT_WORDS = 400;
 
-For each version, in order:
+export const REPORT_RULES = `Write it for the person who wrote the text, the way you would tell them over coffee what each reader said. They read it on a phone: keep the whole report under ${REPORT_WORDS} words. Plain spoken English, short sentences, no em dashes.
+
+Start with one short paragraph that starts "Across versions:" on how the readers' reaction changed from the first version to the last, with one reader's words from the start and from the end when they show it.
+
+Then, for each version, in order:
 - A heading: "## " and the version label.
-- 4 to 8 bullets. Each starts with who the reader is in two or three words ("The CTO", "The skimmer"), then what they said, close to their own words, with the line they reacted to in quotes. Example: The CTO said it jumps into "Test the swap" without telling him what swap or why.
+- 3 to 5 bullets. Each starts with who the reader is in two or three words ("The CTO", "The skimmer"), then what they said, close to their own words, with the line they reacted to in quotes. Example: The CTO said it jumps into "Test the swap" without telling them what swap or why.
 - Say what they liked as well as where they slowed down or stopped.
 - When a reader was read several times, say what came back across the runs, not each run.
 - One line that starts "Still open:" with what is left, or "Still open: nothing." when every reader got it.
 
-After the last version, one line that starts "Across versions:" on how the readers' reaction changed from the first version to the last.
-If the readers' backgrounds or answers suggest they are not the people the piece is written for, add one line that starts "Audience check:" and say who they seem to be.
+If the readers' backgrounds or answers suggest they are not the people the piece is written for, end with one line that starts "Audience check:" and say who they seem to be.
 
+Call a reader by their role ("the CTO", "the skimmer") or "they", never "he" or "she": the readers are simulated and have no gender.
 Quote only words that appear in the answers. No scores, ids, file names or expectation names. Reply with the report in Markdown and nothing else.`;
+
+const wordCount = (text) => text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+
+/** What a generated report breaks of the template: too long, or a reader called he or she. */
+export function reportProblems(text) {
+  const problems = [];
+  const n = wordCount(text);
+  if (n > REPORT_WORDS * 1.1) problems.push(`It is ${n} words; cut it to under ${REPORT_WORDS}: fewer bullets, shorter quotes.`);
+  const gendered = text.match(/\b(?:he|she|him|her|his|hers|himself|herself)\b/gi);
+  if (gendered) problems.push(`It calls a reader "${gendered[0]}"; use the role or "they".`);
+  if (!/^\s*(?:\*\*)?Across versions:/.test(text)) problems.push(`It must start with the "Across versions:" paragraph.`);
+  return problems;
+}
 
 export function reportPrompt(runs) {
   return `Below are the answers simulated readers gave about a piece of writing, one block per version.\n\n${REPORT_RULES}\n\n${runs.map(runMaterial).join("\n\n")}\n`;
@@ -74,9 +91,17 @@ export function readerReport({ paths, out, run = false, model = "sonnet" }) {
   mkdirSync(base, { recursive: true });
   const workdir = mkdtempSync(join(base, "report-"));
   try {
-    const text = new ClaudeCli({ model, workdir }).ask("You retell reader feedback for a writer. Markdown only.", readFileSync(promptFile, "utf8"));
-    writeFileSync(target, text.trim() + "\n");
-    return { pending: [], promptFile, target, report: text.trim() + "\n" };
+    const cli = new ClaudeCli({ model, workdir });
+    const system = "You retell reader feedback for a writer. Markdown only.";
+    const prompt = readFileSync(promptFile, "utf8");
+    let text = cli.ask(system, prompt).trim();
+    let problems = reportProblems(text);
+    if (problems.length) {
+      text = cli.ask(system, `${prompt}\n\nA first draft of the report broke the rules:\n${problems.map((p) => `- ${p}`).join("\n")}\n\nRewrite it. The first draft:\n\n${text}`).trim();
+      problems = reportProblems(text);
+    }
+    writeFileSync(target, text + "\n");
+    return { pending: [], promptFile, target, report: text + "\n", problems };
   } finally {
     rmSync(workdir, { recursive: true, force: true });
   }

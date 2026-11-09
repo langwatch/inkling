@@ -6,7 +6,7 @@ import { MODES, MODE_NAMES } from "./modes.mjs";
 import { RULES, FAMILIES } from "../rules/index.mjs";
 import { refuseIfPaid } from "./subscription.mjs";
 import { writePrompts, grade, runWithClaude } from "./readers.mjs";
-import { readerReport } from "./report.mjs";
+import { readerReport, reportProblems } from "./report.mjs";
 import { writePreferPrompts, gradePrefer } from "./prefer.mjs";
 import { panelStart, panelRound, panelStatus, holdout, stopRun } from "./panel.mjs";
 import { BUDGETS, BUDGET_NAMES, describeBudgets, startPlan, recordTiming, timingsSummary, topicPaths, topicInit } from "./budget.mjs";
@@ -354,8 +354,11 @@ function readers([sub, ...pos], values) {
         process.stdout.write(pendingMessage(r.pending, "report prompt", r.target).replace("Then run grade again.", `The report is that reply: ${r.target}`));
         return 3;
       }
-      process.stdout.write(r.report ?? readFileSync(r.target, "utf8"));
-      return 0;
+      const text = r.report ?? readFileSync(r.target, "utf8");
+      process.stdout.write(text);
+      const problems = r.problems ?? reportProblems(text);
+      for (const p of problems) process.stderr.write(`inkling: report check: ${p}\n`);
+      return problems.length ? 1 : 0;
     } catch (e) {
       process.stderr.write(`inkling: ${e.message}\n`);
       return 1;

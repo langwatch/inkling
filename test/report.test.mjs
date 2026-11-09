@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { writePrompts } from "../src/readers.mjs";
-import { readerReport, runDirs, REPORT_RULES } from "../src/report.mjs";
+import { readerReport, runDirs, REPORT_RULES, reportProblems } from "../src/report.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const draft = join(FIX, "draft.md");
@@ -25,7 +25,10 @@ test("report prompt retells each reader per version, background once even with -
   assert.equal(r.target, join(out, "reader-report.md"));
   const prompt = readFileSync(r.promptFile, "utf8");
   assert.ok(prompt.includes(REPORT_RULES));
-  assert.match(prompt, /4 to 8 bullets/);
+  assert.match(prompt, /3 to 5 bullets/);
+  assert.match(prompt, /under 400 words/);
+  assert.match(prompt, /never "he" or "she"/);
+  assert.ok(prompt.indexOf("Across versions:") < prompt.indexOf("for each version"), "the trend comes first");
   assert.match(prompt, /Still open:/);
   assert.match(prompt, /Audience check:/);
   assert.equal(prompt.match(/A senior engineer who builds agents/g).length, 1, "the background is said once per reader");
@@ -61,7 +64,7 @@ test("the CLI writes the prompt, waits for the reply, then prints it", () => {
   const waiting = cli(["readers", "report", out]);
   assert.equal(waiting.status, 3, waiting.stderr);
   assert.match(waiting.stdout, /reader-report\.prompt\.md/);
-  writeFileSync(join(out, "reader-report.md"), "## run\n\n- The engineer said a VM per agent.\n");
+  writeFileSync(join(out, "reader-report.md"), "Across versions: one version, read once.\n\n## run\n\n- The engineer said a VM per agent.\n");
   const done = cli(["readers", "report", out]);
   assert.equal(done.status, 0, done.stderr);
   assert.match(done.stdout, /The engineer said/);
@@ -71,4 +74,15 @@ test("a run with no answers is refused", () => {
   const out = fresh();
   writePrompts({ draft, readersFile: file, out });
   assert.throws(() => readerReport({ paths: [out] }), /no answers yet/);
+});
+
+test("a report that is too long, gendered or missing the trend first is caught", () => {
+  const ok = "Across versions: the CTO went from lost to staying.\n\n## version 1\n\n- The CTO said they stayed.";
+  assert.deepEqual(reportProblems(ok), []);
+  const bad = `## version 1\n\n- The CTO said he left. ${"word ".repeat(450)}`;
+  const problems = reportProblems(bad);
+  assert.equal(problems.length, 3);
+  assert.match(problems.join(" "), /words; cut it/);
+  assert.match(problems.join(" "), /"he"/);
+  assert.match(problems.join(" "), /Across versions/);
 });
