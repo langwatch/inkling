@@ -33,11 +33,13 @@ When your agent writes something people will read, it goes through eight steps:
 
 ## Start
 
-Point your agent at this repo. In Claude Code or another coding agent, paste this line. In a chat app such as Claude or ChatGPT, paste it with your draft and turn on web access so it can read the repo:
+Point your agent at this repo. In Claude Code or another coding agent, paste this line. In a chat app such as Claude or ChatGPT, paste it and turn on web access so it can read the repo:
 
 ```text
-Follow the writing process at https://github.com/langwatch/inkling to write <what you are writing> for <who reads it>.
+Follow the writing process at https://github.com/langwatch/inkling to write
 ```
+
+The line only teaches your agent the process. Then tell it what you want written. If you already said it earlier in the chat, the agent works from that; if it still can't tell who will read the piece, it asks you before it drafts.
 
 ## Tools
 
