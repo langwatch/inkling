@@ -249,9 +249,10 @@ export function parse(text) {
   if (titleBlock && !fm.title) {
     const after = blocks[blocks.indexOf(titleBlock) + 1];
     if (after && after.type === "paragraph") subtitle = after;
-  } else if (fm.description) {
+  } else if (fm.description || fm.intro) {
+    const src = fm.description ?? fm.intro;
     const db = new Block("paragraph", { fromFrontmatter: true });
-    db.add(fm.description.value, fm.description.line, fm.description.col);
+    db.add(src.value, src.line, src.col);
     db.sentences = splitSentences(db);
     subtitle = db;
   }

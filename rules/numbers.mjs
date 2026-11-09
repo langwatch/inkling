@@ -39,6 +39,27 @@ export default [
     },
   },
   {
+    id: "number-without-measure",
+    severity: "warning",
+    check: (unit) => {
+      const out = [];
+      const re = /\b\d[\d,.]*\s*(?:%|x\b|times\b)(?:\s+(?:less|more|fewer|lower|higher|faster|slower|cheaper|better|worse))?/gi;
+      const MEASURE = /\b(?:cost|costs|price|spend|bill|money|time|latency|seconds?|minutes?|hours?|days?|errors?|mistakes?|accuracy|recall|precision|tokens?|requests?|calls?|traffic|users?|people|teams?|customers?|revenue|signups?|sign-ups?|clicks?|conversions?|memory|cpu|storage|disk|size|failures?|bugs?|tickets?|messages?|emails?|traces?|of\b)/i;
+      for (const m of unit.clean.matchAll(re)) {
+        const around = unit.clean.slice(Math.max(0, m.index - 40), m.index + m[0].length + 40);
+        if (!MEASURE.test(around.replace(m[0], " ").replace(/\bper\s+\w+/gi, " "))) out.push({ index: m.index, match: m[0] });
+      }
+      return out;
+    },
+    message: "A percentage or multiple with no measure near it: the reader can't tell what got less, more or scored.",
+    fix: "Name the measure next to the number (\"82% less cost per email\", \"both score 99% accuracy\").",
+    source: "Founder review of the Doubleword post, 2026-11-09 (\"at 82% less per email\", \"both score 99%\")",
+    examples: {
+      fail: ["Swap the model and it runs at 82% less per email.", "On the hard set both score 99%."],
+      pass: ["Swap the model and it costs 82% less per email.", "On the hard set both score 99% accuracy.", "It answers 3x faster, in under a second."],
+    },
+  },
+  {
     id: "overprecise-number",
     modes: ["ads", "deck", "investor", "post"],
     pattern: /\b\d+\.\d{2,}\s*%|\b\d+\.\d+x\b/i,

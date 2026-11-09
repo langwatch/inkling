@@ -68,6 +68,23 @@ export default [
     },
   },
   {
+    id: "long-subtitle",
+    severity: "warning",
+    scope: "document",
+    check: (_u, { doc }) => {
+      const s = doc.subtitle?.sentences ?? [];
+      const words = s.map((x) => x.clean).join(" ").split(/\s+/).filter(Boolean).length;
+      return s.length && (words > 25 || (s.length > 1 && words > 20)) ? [{ block: s[0].block, index: s[0].start }] : [];
+    },
+    message: "Subtitle runs past one sentence of about 20 words. Under a title, a long subtitle reads as a paragraph the reader skips.",
+    fix: "Keep one sentence of about 20 words with the one thing the title leaves open; move the rest into the body.",
+    source: "Founder review of the Doubleword post, 2026-11-09 (46 words over two sentences, \"incredibly long\"; he kept one sentence of about 20)",
+    examples: {
+      fail: ["# Swap the model, keep the quality\n\nWe moved our email agent to an open model and checked every answer against the old one. The bill dropped by most of it, and the scores held on both the easy and the hard set."],
+      pass: ["# Swap the model, keep the quality\n\nWe moved our email agent to an open model and it costs 82% less with the same scores."],
+    },
+  },
+  {
     id: "concession",
     modes: ["ads", "deck", "investor"],
     pattern: /\b(?:is|are) (?:great|good|fine|useful|powerful),? but\b|\bwhile [\w\s]{1,30} (?:works?|is (?:great|good|fine))\b/i,
