@@ -23,13 +23,15 @@ const USAGE = `inkling: content writing framework for agents
       step 5, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
       --mode landing --page <ad|home|product|guide|job>: the kind of landing page (or page: in the front matter; ad by default)
       --mode script --minutes 3: a spoken script against its time budget (or minutes: in the front matter)
-  inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--json]
+  inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--first-screen] [--json]
+      --first-screen: judge the title, subtitle and first paragraph line by line with the copy checks (writer's side, concession, surprise)
       step 6, judge: Jev; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
-  inkling readers prompts <draft> <readers.yaml> --out <dir>
+  inkling readers prompts <draft> <readers.yaml> --out <dir> [--runs N]
   inkling readers grade <dir>
       step 7, reader panel, subagent backend: one prompt per persona, your agent runs each as a fresh
       subagent and saves <dir>/<persona>.answer.md; grade writes judge prompts the same way
-  inkling readers run <draft> <readers.yaml> --out <dir> [--reader sonnet] [--judge opus]
+  inkling readers run <draft> <readers.yaml> --out <dir> [--runs N] [--reader sonnet] [--judge opus]
+      --runs N reads each persona N times; a fail counts only in at least half the runs (2 or 3 for a decision)
       step 7, claude -p backend on the subscription, isolated config, tools off
   inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude] [--notes 2]
       a spoken script heard once by busy viewers: 30 s chunks, three probes after each, examples and
@@ -100,6 +102,8 @@ export function main(argv) {
       force: { type: "boolean" },
       run: { type: "string" },
       minutes: { type: "string" },
+      runs: { type: "string" },
+      "first-screen": { type: "boolean" },
       readers: { type: "string" },
       backend: { type: "string" },
       calibrate: { type: "boolean" },
@@ -127,7 +131,7 @@ export function main(argv) {
       }));
     case "judge":
       if (!positionals[0]) return usage("inkling judge needs a file or -");
-      return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin }));
+      return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin, firstScreen: values["first-screen"] }));
     case "voice": {
       if (!positionals[0]) return usage("inkling voice needs a file or -");
       const text = positionals[0] === "-" ? stdin() : readFileSync(positionals[0], "utf8");
@@ -315,7 +319,7 @@ function readers([sub, ...pos], values) {
   if (sub === "prompts" || sub === "run") {
     const [draft, file] = pos;
     if (!draft || !file || !values.out) return usage(`inkling readers ${sub} <draft> <readers.yaml> --out <dir>`);
-    const { prompts, textChecks } = writePrompts({ draft, readersFile: file, out: values.out });
+    const { prompts, textChecks } = writePrompts({ draft, readersFile: file, out: values.out, runs: values.runs ? Number(values.runs) : 1 });
     for (const c of textChecks) process.stdout.write(`${c.pass ? "PASS" : "FAIL"} ${c.id} (text check)${c.evidence ? `: ${c.evidence}` : ""}\n`);
     if (sub === "prompts") {
       process.stdout.write(pendingMessage(prompts, "reader prompts", "<persona>.answer.md"));

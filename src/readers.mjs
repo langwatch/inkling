@@ -17,6 +17,7 @@ export const DEFAULT_QUESTIONS = [
   "Did anything make you stop reading or want to leave? If so, what and why. If nothing did, say so.",
   "How did reading feel: worth your time, or too long?",
   "Quote, word for word, the line you liked most, and any line you had to read twice or that sounded odd. If no line did either, say so.",
+  "Quote, word for word, any line that does not sound like something a person would say out loud to you. If every line does, say so.",
   "Where would you start skimming, and what had you grasped by then?",
 ];
 
@@ -243,7 +244,7 @@ const skimNote = (seen) =>
 export function judgePrompt({ persona, questions, expectations, answers, context, seen }) {
   const exps = expectations.filter((e) => !e.forbid && (!e.applies_to || e.applies_to.includes(persona.id)));
   const classes = Object.entries(DOUBT_CLASSES).map(([k, v]) => `- ${k}: ${v}`).join("\n");
-  return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. An expectation about a line passes only when the reader quotes the line's words; naming a section or retelling the idea is no quote. Do not read files or research; use only what is below.
+  return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. An expectation about a line passes only when the reader quotes the line's words; naming a section or retelling the idea is no quote. A line the reader quotes as odd, read twice or not spoken is a note for the writer, class skepticism, unless the reader says it made them stop or leave. Do not read files or research; use only what is below.
 
 Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.${stanceOf(context) === "cold" ? " This reader arrived cold from a search: a page that looks thin, fake or like no real company is behind it, or a reader picking another result over it, is trust_breaking." : ""}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].leaves}` : ""}
 ${classes}
@@ -309,24 +310,44 @@ export function grade(dir) {
   }
   const counts = { trust_breaking: 0, skepticism: 0, content_gap: 0 };
   const gaps = [];
+  // With --runs N each persona is read N times; a fail counts only when at least half the runs agree.
+  const groups = new Map();
   for (const p of personas) {
-    const v = parseVerdict(readFileSync(join(dir, `${p.id}.verdict.json`), "utf8"));
-    lines.push(`## ${p.id}`);
-    for (const g of v.grades) {
-      failed += !g.pass;
-      if (!g.pass && (!core.size || core.has(g.id))) coreFailed += 1;
-      lines.push(`- ${g.pass ? "PASS" : "FAIL"} ${g.id}: ${g.note ?? ""}${g.evidence ? ` ("${g.evidence}")` : ""}`);
+    const id = p.base ?? p.id;
+    if (!groups.has(id)) groups.set(id, []);
+    groups.get(id).push(parseVerdict(readFileSync(join(dir, `${p.id}.verdict.json`), "utf8")));
+  }
+  for (const [id, verdicts] of groups) {
+    const n = verdicts.length;
+    const agreed = (k) => 2 * k >= n;
+    const tally = (k) => (n > 1 ? ` (${k}/${n})` : "");
+    lines.push(`## ${id}${n > 1 ? ` (${n} runs)` : ""}`);
+    const byId = new Map();
+    for (const v of verdicts) for (const g of v.grades) byId.set(g.id, [...(byId.get(g.id) ?? []), g]);
+    for (const [gid, gs] of byId) {
+      const fails = gs.filter((g) => !g.pass);
+      const fail = fails.length > 0 && agreed(fails.length);
+      const shown = (fail ? fails : gs.filter((g) => g.pass))[0] ?? gs[0];
+      failed += fail;
+      if (fail && (!core.size || core.has(gid))) coreFailed += 1;
+      const noise = !fail && fails.length ? `; failed in ${fails.length}/${n}, below half: noise` : "";
+      lines.push(`- ${fail ? "FAIL" : "PASS"} ${gid}${tally(fail ? fails.length : gs.length - fails.length)}: ${shown.note ?? ""}${shown.evidence ? ` ("${shown.evidence}")` : ""}${noise}`);
     }
-    for (const d of v.doubts) {
-      const cls = d.class in counts ? d.class : "skepticism";
-      counts[cls] += 1;
-      if (failOn.includes(cls)) {
-        failed += 1;
-        coreFailed += 1;
-        lines.push(`- FAIL doubt (${cls}): "${d.quote}" ${d.note ?? ""}`);
-      } else if (cls === "content_gap") gaps.push(`${p.id}: "${d.quote}"`);
-      else lines.push(`- note doubt (${cls}): "${d.quote}"`);
-    }
+    const breaking = verdicts.map((v) => v.doubts.filter((d) => failOn.includes(d.class in counts ? d.class : "skepticism")));
+    const runsBreaking = breaking.filter((b) => b.length).length;
+    for (const v of verdicts)
+      for (const d of v.doubts) {
+        const cls = d.class in counts ? d.class : "skepticism";
+        counts[cls] += 1;
+        if (failOn.includes(cls)) {
+          if (agreed(runsBreaking)) {
+            failed += 1;
+            coreFailed += 1;
+            lines.push(`- FAIL doubt (${cls})${tally(runsBreaking)}: "${d.quote}" ${d.note ?? ""}`);
+          } else lines.push(`- note doubt (${cls}, in ${runsBreaking}/${n} runs, below half: noise): "${d.quote}"`);
+        } else if (cls === "content_gap") gaps.push(`${id}: "${d.quote}"`);
+        else lines.push(`- note doubt (${cls}): "${d.quote}"`);
+      }
     lines.push("");
   }
   lines.push(`doubts: ${counts.trust_breaking} trust-breaking, ${counts.skepticism} skepticism, ${counts.content_gap} content gaps`);
@@ -339,9 +360,21 @@ export function grade(dir) {
 }
 
 /** Write one self-contained prompt per persona plus the manifest the grader reads. */
-export function writePrompts({ draft, readersFile, out }) {
+/** Each persona N times as `<id>-r<k>`, so one reader's mood can't fail a draft on its own. */
+export function repeatPersonas({ personas, expectations, runs = 1 }) {
+  if (!Number.isInteger(runs) || runs < 1) throw new Error(`--runs must be a whole number of 1 or more, got ${runs}`);
+  if (runs === 1) return { personas, expectations };
+  const ids = (id) => Array.from({ length: runs }, (_, k) => `${id}-r${k + 1}`);
+  return {
+    personas: personas.flatMap((p) => ids(p.id).map((id) => ({ ...p, id, base: p.id }))),
+    expectations: expectations.map((e) => (e.applies_to ? { ...e, applies_to: e.applies_to.flatMap(ids) } : e)),
+  };
+}
+
+export function writePrompts({ draft, readersFile, out, runs = 1 }) {
   const text = readFileSync(draft, "utf8");
-  const spec = readReadersFile(readersFile);
+  const spec = { ...readReadersFile(readersFile) };
+  Object.assign(spec, repeatPersonas({ personas: spec.personas, expectations: spec.expectations, runs }));
   mkdirSync(out, { recursive: true });
   const textChecks = runTextChecks(text, spec.expectations);
   const manifest = {

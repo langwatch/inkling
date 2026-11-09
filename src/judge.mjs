@@ -3,7 +3,7 @@
 // Jev is the only paid call inkling makes: about 0.0003 USD per paragraph.
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { blankFrontmatter } from "./markdown.mjs";
+import { blankFrontmatter, parse } from "./markdown.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,9 +14,9 @@ export function jevKey(env = process.env) {
 }
 
 /** Jev judges as the reader described, so who wrote it and where the reader meets it go in too. */
-export function judgeArgs({ file, mode, audience, context, json }) {
+export function judgeArgs({ file, mode, audience, context, json, copy = false }) {
   const args = [SCRIPT, file, "--checks", "jev"];
-  if (mode === "ads" || mode === "deck" || mode === "x") args.push("--copy");
+  if (copy || mode === "ads" || mode === "deck" || mode === "x") args.push("--copy");
   if (mode === "docs") args.push("--docs");
   if (mode === "script") args.push("--script");
   const who = [audience, context && `context: ${context}`].filter(Boolean).join("; ");
@@ -124,7 +124,22 @@ function jevJson(args, input, key) {
   return { report: JSON.parse(r.stdout) };
 }
 
-export function runJudge({ file, mode, audience, context, json, stdin }) {
+/**
+ * The first screen of a post or page as copy lines: the title, the subtitle and each sentence of the
+ * first paragraph, so the copy checks (writer's side, concession, surprise) read the lead too.
+ */
+export function firstScreen(raw) {
+  const doc = parse(raw);
+  const first = doc.blocks.find((b) => b.type === "paragraph" && b !== doc.title && b !== doc.subtitle);
+  const units = [
+    doc.title && { text: doc.title.text, line: doc.title.pos(0).line },
+    doc.subtitle && { text: doc.subtitle.text, line: doc.subtitle.pos(0).line },
+    ...(first?.sentences ?? []).map((x) => ({ text: x.raw, line: first.pos(x.start).line })),
+  ].filter(Boolean).map((u) => ({ ...u, text: u.text.replace(/\s+/g, " ").trim() }));
+  return { text: units.map((u) => u.text).join("\n\n") + "\n", lines: units.map((u) => u.line) };
+}
+
+export function runJudge({ file, mode, audience, context, json, stdin, firstScreen: lead = false }) {
   const key = jevKey();
   if (!key) {
     process.stderr.write(
@@ -135,8 +150,8 @@ export function runJudge({ file, mode, audience, context, json, stdin }) {
   }
   const raw = file === "-" ? stdin() : readFileSync(file, "utf8");
   const json5 = file.endsWith(".json");
-  const { text, lines } = json5 ? { text: raw, lines: null } : judgeInput(raw);
-  const args = judgeArgs({ file: json5 ? file : "-", mode, audience, context, json: true });
+  const { text, lines } = json5 ? { text: raw, lines: null } : lead ? firstScreen(raw) : judgeInput(raw);
+  const args = judgeArgs({ file: json5 ? file : "-", mode, audience, context, json: true, copy: lead });
   const input = json5 ? undefined : text;
   const one = jevJson(args, input, key);
   if (one.error) return one.error;

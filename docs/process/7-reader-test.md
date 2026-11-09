@@ -11,3 +11,9 @@ Each round allows smaller edits than the last: whole sections first, then paragr
 Fix what stopped a reader, never what a reader forgot to name. A reader who explains the idea but can't recall the term for it has understood it; adding a line that repeats the terms makes the piece sound like a summary.
 
 Watch how readers retell the piece. A reader who answers "what did you take away" with the writer's story ("they picked this model because it was safe") and no line about what it means for them is telling you the piece is written from our side. Write an expectation for it when the piece explains a choice: "The reader says what the choice means for them."
+
+A single run per persona can't tell a real fail from one reader's mood. For a decision, read each persona two or three times with `--runs 2` or `--runs 3`: the report counts a fail only when at least half the runs share it and shows the count ("FAIL next_action (2/3)"). A fail in fewer runs shows as noise.
+
+Readers also quote any line no person would say to them in conversation. Those quotes are notes for the writer, and the stop rule still decides when to stop.
+
+To have the copy checks read the lead line by line as well, run `inkling judge <draft> --first-screen`. On a test lead it flagged "A big closed model is the safe pick on day one" as unsurprising, and it flagged three of the other four lead lines too, so treat what it finds as a reason to look again.

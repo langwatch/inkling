@@ -36,3 +36,12 @@ test("every flag has a rewrite instruction", () => {
   for (const flag of ["unsurprising", "concedes_or_hedges", "writer_side", "formula_shape", "crammed_claims", "wrong_register", "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register"])
     assert.ok(REWRITES[flag], flag);
 });
+
+test("--first-screen judges the title, the subtitle and each sentence of the first paragraph as copy lines", async () => {
+  const { firstScreen, judgeArgs } = await import("../src/judge.mjs");
+  const lead = firstScreen("# Title here\n\nThe subtitle.\n\nA big closed model is the safe pick on day one. Then we measured.\n\n## Later\n\nNot judged.\n");
+  assert.deepEqual(lead.text.trim().split("\n\n"), ["Title here", "The subtitle.", "A big closed model is the safe pick on day one.", "Then we measured."]);
+  assert.deepEqual(lead.lines, [1, 3, 5, 5]);
+  assert.ok(judgeArgs({ file: "-", mode: "post", copy: true }).includes("--copy"));
+  assert.ok(!judgeArgs({ file: "-", mode: "post" }).includes("--copy"));
+});

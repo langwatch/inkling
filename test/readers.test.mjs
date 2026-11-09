@@ -187,3 +187,22 @@ test("the grader sees what a skim reader saw and asks for a quoted line", () => 
   assert.match(skim, /naming a section or retelling the idea is no quote/);
   assert.match(readFileSync(join(out, "engineer.prompt.md"), "utf8"), /read twice or that sounded odd/);
 });
+
+test("--runs reads each persona N times and fails only what at least half the runs agree on", () => {
+  const out = fresh();
+  const { prompts } = writePrompts({ draft, readersFile: file, out, runs: 3 });
+  assert.equal(prompts.length, 6);
+  assert.ok(existsSync(join(out, "engineer-r3.prompt.md")));
+  const verdict = (pass, doubt) => JSON.stringify({ grades: [{ id: "what_is_it", pass: true }, { id: "next_action", pass }], doubts: doubt ? [{ quote: "looks like an ad", class: "trust_breaking" }] : [] });
+  const runs = { "engineer-r1": [false, true], "engineer-r2": [false, false], "engineer-r3": [true, false], "skimmer-r1": [true, false], "skimmer-r2": [true, false], "skimmer-r3": [true, false] };
+  for (const [id, [pass, doubt]] of Object.entries(runs)) {
+    writeFileSync(join(out, `${id}.answer.md`), "1. A thing.\n");
+    writeFileSync(join(out, `${id}.verdict.json`), verdict(pass, doubt));
+  }
+  const { report } = grade(out);
+  assert.match(report, /## engineer \(3 runs\)/);
+  assert.match(report, /FAIL next_action \(2\/3\)/);
+  assert.match(report, /note doubt \(trust_breaking, in 1\/3 runs, below half: noise\)/);
+  assert.match(report, /## skimmer \(3 runs\)\n- PASS what_is_it \(3\/3\)/);
+  assert.throws(() => writePrompts({ draft, readersFile: file, out: fresh(), runs: 0 }), /--runs/);
+});
