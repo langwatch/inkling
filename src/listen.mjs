@@ -10,7 +10,7 @@ import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { parse, words } from "./markdown.mjs";
 import { readReadersFile } from "./readers.mjs";
-import { ClaudeCli, hasClaudeLogin } from "./subscription.mjs";
+import { ClaudeCli, claudeLogin } from "./subscription.mjs";
 
 export const DEFAULT_LISTENERS = join(dirname(fileURLToPath(import.meta.url)), "..", "modes", "script", "readers.yaml");
 /** About 30 seconds of speech at 150 words a minute, cut at sentence boundaries. */
@@ -374,7 +374,8 @@ export const defaultListenOut = (script) => join("runs", `listen-${basename(scri
 
 /** The claude -p backend: answer every pending prompt, one listener per process at a time, until the run finishes. */
 export async function listenWithClaude({ script, readersFile, out, reader = "sonnet", judge = "opus", notesKept, pauses, log = () => {} }) {
-  if (!hasClaudeLogin()) throw new Error("no claude login found for claude -p; run inkling readers listen without --backend claude and answer the prompts as fresh subagents");
+  const login = claudeLogin();
+  if (!login.kind) throw new Error(`claude -p can't run: ${login.why}; or ${"run inkling readers listen without --backend claude and answer the prompts as fresh subagents"}`);
   const base = join(homedir(), ".cache", "inkling");
   mkdirSync(base, { recursive: true });
   const workdir = mkdtempSync(join(base, "listen-"));

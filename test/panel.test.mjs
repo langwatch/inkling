@@ -243,3 +243,35 @@ test("a second holdout on the same piece is refused across runs unless forced, a
   assert.deepEqual(recorded.map((h) => h.forced), [false, true]);
   assert.match(loadState(second).holdout, /forced/);
 });
+
+test("claude login: a config dir token, then CLAUDE_CODE_OAUTH_TOKEN, then the person's own config", async () => {
+  const { claudeLogin } = await import("../src/subscription.mjs");
+  const { mkdtempSync, writeFileSync, chmodSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "inkling-login-"));
+  const bin = join(dir, "claude");
+  writeFileSync(bin, "#!/usr/bin/env node\n");
+  chmodSync(bin, 0o755);
+  const saved = { ...process.env };
+  try {
+    process.env.PATH = dir;
+    delete process.env.PROOF_CLAUDE_BIN;
+    process.env.PROOF_CLAUDE_CONFIG = join(dir, "cfg");
+    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    assert.equal(claudeLogin().kind, "own", "a script install with the login kept elsewhere still runs");
+    assert.equal(claudeLogin().bin, bin);
+    process.env.CLAUDE_CODE_OAUTH_TOKEN = "t";
+    assert.equal(claudeLogin().kind, "token");
+    const { mkdirSync } = await import("node:fs");
+    mkdirSync(join(dir, "cfg"));
+    writeFileSync(join(dir, "cfg", ".credentials.json"), JSON.stringify({ claudeAiOauth: { accessToken: "a" } }));
+    assert.equal(claudeLogin().kind, "file");
+    process.env.PATH = join(dir, "none");
+    process.env.HOME = join(dir, "nohome");
+    assert.equal(claudeLogin().kind, null);
+  } finally {
+    for (const k of Object.keys(process.env)) if (!(k in saved)) delete process.env[k];
+    Object.assign(process.env, saved);
+  }
+});

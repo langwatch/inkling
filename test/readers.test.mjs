@@ -207,7 +207,7 @@ test("--runs reads each persona N times and fails only what at least half the ru
   assert.throws(() => writePrompts({ draft, readersFile: file, out: fresh(), runs: 0 }), /--runs/);
 });
 
-test("a voice persona sees the author's samples, hunts for the least-like line and is graded on it", () => {
+test("a voice persona sees the author's samples, is asked for any line the author would not write and is graded on it", () => {
   const dir = fresh();
   const rf = join(dir, "voice.readers.yaml");
   writeFileSync(rf, "personas:\n  - id: friend\n    voice: true\n    background: Someone who knows how the author talks.\n  - id: other\n    background: b\nexpectations: []\n");
@@ -217,7 +217,7 @@ test("a voice persona sees the author's samples, hunts for the least-like line a
   writePrompts({ draft, readersFile: rf, out, runs: 2 });
   const prompt = readFileSync(join(out, "friend-r1.prompt.md"), "utf8");
   assert.equal((prompt.match(/<sample>/g) ?? []).length, 3);
-  assert.match(prompt, /sound least like the person in the samples/);
+  assert.match(prompt, /Quote any line, none, one or two, that this person would not write/);
   assert.doesNotMatch(readFileSync(join(out, "other-r1.prompt.md"), "utf8"), /<sample>/);
   const manifest = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8"));
   assert.deepEqual(manifest.expectations[0].applies_to, ["friend-r1", "friend-r2"]);

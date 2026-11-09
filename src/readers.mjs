@@ -7,7 +7,7 @@ import { join, resolve, extname } from "node:path";
 import { homedir } from "node:os";
 import { parseYaml } from "./yaml.mjs";
 import { blankFrontmatter } from "./markdown.mjs";
-import { ClaudeCli, hasClaudeLogin } from "./subscription.mjs";
+import { ClaudeCli, claudeLogin } from "./subscription.mjs";
 
 // No question primes fault-finding: readers say what they would do and whether anything made them stop.
 export const DEFAULT_QUESTIONS = [
@@ -125,11 +125,11 @@ export function voiceSamples(file = REFERENCE_VOICE, pick = file === REFERENCE_V
 
 /** The voice question: the reader hunts for the line least like the samples, then says if the author could have said it. */
 export const VOICE_QUESTION =
-  "The text is written, so it may be tidier than the samples; that alone is fine. Which one or two lines sound least like the person in the samples: a phrase they would not use, or a point put the way someone else would put it? Quote each word for word, then say yes or no: would they write it that way? If no line stands out, say none.";
+  "The text is written, so it may be tidier than the samples; that alone is fine. Quote any line, none, one or two, that this person would not write: a phrase they would not use, or a point put the way someone else would put it. For each, answer: yes, close enough, or no, they would not write that. If no line stands out, say none.";
 
 export const VOICE_EXPECTATION = {
   id: "sounds_like_author",
-  expect: "The reader answers none, or says yes, the author would write each quoted line that way. A quoted line the reader says the author would not write fails it; the quote is the evidence. A line called only tidier or more written than the samples is a yes.",
+  expect: "The reader quotes no line, or answers yes or close enough for each. It fails only on a quoted line with a clear no, they would not write that; the quote is the evidence. \"Probably not exactly, but close\" or \"tidier than they talk\" is a pass.",
 };
 
 export function readReadersFile(path) {
@@ -444,7 +444,8 @@ export function writePrompts({ draft, readersFile, out, runs = 1 }) {
 
 /** The claude -p backend: answer and judge every prompt in a run directory. */
 export function runWithClaude({ out, reader = "sonnet", judge = "opus" }) {
-  if (!hasClaudeLogin()) throw new Error("no claude login found for claude -p; use the subagent backend: inkling readers prompts, then inkling readers grade");
+  const login = claudeLogin();
+  if (!login.kind) throw new Error(`claude -p can't run: ${login.why}; or ${"use the subagent backend: inkling readers prompts, then inkling readers grade"}`);
   const base = join(homedir(), ".cache", "inkling");
   mkdirSync(base, { recursive: true });
   const workdir = mkdtempSync(join(base, "run-"));

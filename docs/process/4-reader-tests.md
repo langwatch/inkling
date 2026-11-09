@@ -47,13 +47,19 @@ expectations:
 
 ## Voice readers
 
-A persona with `voice: true` first reads three of the founder's own explanations from the [reference voice](../voice/reference.md), then the draft, and answers one more question: which one or two lines sound least like that person, quoted, and would they write it that way. 
+A persona with `voice: true` first reads three of the founder's own explanations from the [reference voice](../voice/reference.md), then the draft. It answers one more question: quote any line, none, one or two, that this person would not write, and for each say yes, close enough, or no.
 
-`voice: <file>` takes the samples from another file (its `> ` quotes). The grader adds the `sounds_like_author` expectation: it fails on a quoted line the reader says the author would not write. Use it with `--runs 3` so a line has to come back to count.
+`voice: <file>` takes the samples from another file (its `> ` quotes). The grader adds the `sounds_like_author` expectation, which fails only on a quoted line with a clear no; "close enough" passes. Use it with `--runs 3` so a line has to come back to count.
 
-It stays advisory, never core. On 2026-11-09 three runs each on a published post (the agent sandboxes post) and on a rejected landing page both failed 3/3: readers set chat samples against written text find a line in anything.
+It stays advisory, never core. Calibration on 2026-11-09, three runs each:
 
-The lines they quoted on the rejected page were the ones the founder disliked (the mechanism explained back, the setup sentence); on the published post they were its closing pitch and a flat claim. Read the quotes as candidates for a second look.
+| Text | Fails |
+| --- | --- |
+| three long chat explanations the founder wrote (not the samples) | 0/3, 0/3, 0/3 |
+| a published post an agent wrote (agent sandboxes) | 3/3 |
+| a landing page the founder rejected | 2/3 |
+
+The founder's own text passed every run, and the lines quoted on the other two were all agent-written: a citation-style line, a flat claim, a marketing closer, compliance phrasing. The baseline is chat, the same register as the samples, so a written post by the founder may still trip it. Read the quotes as candidates for a second look.
 
 ## Realistic readers
 
