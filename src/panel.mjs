@@ -241,6 +241,7 @@ export function holdout({ out, draft, force = false }) {
   }
   const text = readFileSync(join(out, `version-${version}.md`), "utf8");
   const manifest = {
+    draft: resolve(join(out, `version-${version}.md`)),
     personas,
     questions: withAbsolute(spec.questions ?? DEFAULT_QUESTIONS),
     expectations: spec.expectations.map((e) => (e.applies_to ? { ...e, applies_to: e.applies_to.flatMap((id) => [id, `${id}-fresh`]) } : e)),

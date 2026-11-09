@@ -20,3 +20,10 @@ Status per tool, and what comes next.
 - Every rule states its source and has a failing and a passing example.
 - A check that has not passed calibration stays advisory.
 - Inkling checks its own README and docs on every change; see [the self-check](dogfood.md).
+
+## Image check
+
+Readers see only alt text, so zoomed-in, cropped, unreadable or repeated screenshots reach them unchecked; step 6 asks for a look by hand for now.
+
+Next: `inkling images check <draft>` resizes each local or reachable image to the width it displays at (656 px on the Laze blog), writes one prompt listing them in page order, and a fresh subagent on the subscription opens each one and answers per image: can you tell where in the product this is, can you read every word, does it show what the line beside it says, has it appeared before on the page.
+

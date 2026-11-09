@@ -23,7 +23,7 @@ expectations:
     expect: The reader names a next action.
     applies_to: [engineer]
   - id: favourite_line
-    expect: The reader quotes a line they liked.
+    expect: The reader quotes, word for word, a line they liked.
   - id: no_hedge_headline
     core: true
     expect: Headings carry no hedge words.

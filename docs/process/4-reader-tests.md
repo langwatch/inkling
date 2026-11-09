@@ -38,7 +38,8 @@ expectations:
 ```
 
 - `context` is what a real reader knows before reading: who wrote it, how big they are, where the reader came from, how much attention they have. A persona can override `arrived_from` and `attention`.
-- A `skim` reader sees only the title, the subtitle, the headings and the first sentence of each section.
+- A `skim` reader sees only the title, the subtitle, the headings and the first sentence of each section. The grader gets the same view and passes an expectation that view never showed ("beyond the skim view"). Add `skim: true` to an expectation the skim view must carry, such as the claim in the headings.
+- An expectation about a line ("quotes a line they liked") passes only on a quote of the line's words; a section name fails it.
 - An expectation with `forbid` is a regex over the title, subtitle, headings, section openers or all blocks. It runs locally with no model, at no cost.
 - `core: true` marks the expectations that decide whether the draft is done. With none marked, all of them are core.
 - `questions` overrides the default questions; JSON works as well as YAML.
@@ -54,7 +55,7 @@ The stance follows the audience, and every readers file states it with `stance:`
 Cold is not nitpicking. In both stances a reader prompted to find faults always finds some, and fixing every one of them drives copy past the point where it works and back to the average. The stop rule and the rounds budget stay the same; a cold reader fails a page only on what makes a real visitor close the tab or pick another result. So:
 
 - The prompt gives the reader the context above and asks them to read as that person reads.
-- No question asks for doubts. The questions ask what it is about, what they took away, what they would do next, whether anything made them stop or want to leave, and where they would start skimming.
+- No question asks for doubts. The questions ask what it is about, what they took away, what they would do next, whether anything made them stop or want to leave, where they would start skimming, and for two lines quoted word for word: the one they liked most and any they had to read twice or that sounded odd. A line read twice is a good place to look for one written from our side.
 - The grader puts every stop reason in one class: `trust_breaking` (the reader would stop or leave, or reads it as an ad), `skepticism` (a fair question, and they keep reading) or `content_gap` (only evidence we do not have yet would answer it). Only `trust_breaking` fails the run. Skepticism is counted, and content gaps are listed as evidence to collect.
 - When every core expectation passes, the report ends with "core expectations pass: stop editing".
 

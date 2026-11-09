@@ -16,6 +16,7 @@ export const DEFAULT_QUESTIONS = [
   "What would you do next?",
   "Did anything make you stop reading or want to leave? If so, what and why. If nothing did, say so.",
   "How did reading feel: worth your time, or too long?",
+  "Quote, word for word, the line you liked most, and any line you had to read twice or that sounded odd. If no line did either, say so.",
   "Where would you start skimming, and what had you grasped by then?",
 ];
 
@@ -233,17 +234,23 @@ export function readerPrompt({ persona, text, questions, context, competitors })
     .join("\n\n");
 }
 
-export function judgePrompt({ persona, questions, expectations, answers, context }) {
+/** What a skim reader saw goes to the grader, so detail the skim never showed is not held against them. */
+const skimNote = (seen) =>
+  seen
+    ? `\n\nThis reader only skimmed. Everything they saw:\n<seen>\n${seen}\n</seen>\nWhen an expectation asks for something the text they saw does not contain, grade it pass with the note "beyond the skim view", unless the expectation has skim: true.`
+    : "";
+
+export function judgePrompt({ persona, questions, expectations, answers, context, seen }) {
   const exps = expectations.filter((e) => !e.forbid && (!e.applies_to || e.applies_to.includes(persona.id)));
   const classes = Object.entries(DOUBT_CLASSES).map(([k, v]) => `- ${k}: ${v}`).join("\n");
-  return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. Do not read files or research; use only what is below.
+  return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. An expectation about a line passes only when the reader quotes the line's words; naming a section or retelling the idea is no quote. Do not read files or research; use only what is below.
 
 Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.${stanceOf(context) === "cold" ? " This reader arrived cold from a search: a page that looks thin, fake or like no real company is behind it, or a reader picking another result over it, is trust_breaking." : ""}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].leaves}` : ""}
 ${classes}
 
 Persona:
 ${persona.background.trim()}
-${contextLines({ context, persona })}
+${contextLines({ context, persona })}${skimNote(seen)}
 
 Expectations:
 ${JSON.stringify(exps, null, 1)}
@@ -280,7 +287,8 @@ export function grade(dir) {
     if (existsSync(verdict)) continue;
     const answers = readFileSync(join(dir, `${p.id}.answer.md`), "utf8");
     const prompt = join(dir, `${p.id}.judge.prompt.md`);
-    writeFileSync(prompt, judgePrompt({ persona: p, questions, expectations, answers, context }));
+    const seen = p.view === "skim" && manifest.draft && existsSync(manifest.draft) ? skimView(readFileSync(manifest.draft, "utf8")) : null;
+    writeFileSync(prompt, judgePrompt({ persona: p, questions, expectations, answers, context, seen }));
     pendingJudge.push(prompt);
   }
   if (pendingJudge.length) return { pending: pendingJudge, stage: "verdicts" };

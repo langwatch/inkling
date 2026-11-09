@@ -174,3 +174,16 @@ test("competitors without the search they came from are refused", () => {
   writeFileSync(bad, "competitors:\n  - name: X\n    file: c.txt\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
   assert.throws(() => readReadersFile(bad), /context.search/);
 });
+
+test("the grader sees what a skim reader saw and asks for a quoted line", () => {
+  const out = fresh();
+  writePrompts({ draft, readersFile: file, out });
+  for (const id of ["engineer", "skimmer"]) writeFileSync(join(out, `${id}.answer.md`), "1. A thing.\n");
+  grade(out);
+  const skim = readFileSync(join(out, "skimmer.judge.prompt.md"), "utf8");
+  assert.match(skim, /This reader only skimmed\. Everything they saw:/);
+  assert.match(skim, /beyond the skim view/);
+  assert.doesNotMatch(readFileSync(join(out, "engineer.judge.prompt.md"), "utf8"), /only skimmed/);
+  assert.match(skim, /naming a section or retelling the idea is no quote/);
+  assert.match(readFileSync(join(out, "engineer.prompt.md"), "utf8"), /read twice or that sounded odd/);
+});
