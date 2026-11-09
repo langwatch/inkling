@@ -4,11 +4,12 @@
 import { words } from "../src/markdown.mjs";
 
 const LANDING = ["landing"];
-const MOCK = /^\s*\[mock:/i;
-const CTA = /^\s*\[cta:/i;
+const MOCK = /\[mock:/i;
+const CTA = /\[cta:/i;
 const NO_MOCK_SECTION = /\b(?:questions?|faq|pricing|price|cost)\b/i;
 
-const marker = (block, re) => block.type === "paragraph" && re.test(block.text ?? "");
+/** A marker paragraph starts with `[`; a mock and a call to action may share one. */
+const marker = (block, re) => block.type === "paragraph" && /^\s*\[/.test(block.text ?? "") && re.test(block.text ?? "");
 
 /** The page split at H2 headings; `hero` is everything before the first one. */
 function sectionsOf(doc) {

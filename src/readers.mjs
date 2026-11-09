@@ -166,6 +166,8 @@ export function runTextChecks(md, expectations) {
     });
 }
 
+const MARKER_NOTE = "On the page, each [mock: ...] line is an animated product mock drawn as described, and each [cta: ...] line is a sign-up button with that label.";
+
 /** The other results the reader has open, each as plain page text. */
 function competitorBlock(competitors = []) {
   if (!competitors.length) return "";
@@ -180,6 +182,7 @@ export function readerPrompt({ persona, text, questions, context, competitors })
     `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${skimNote}`,
     contextLines({ context, persona }),
     `Here is what you read:\n\n<text>\n${view}\n</text>`,
+    /\[mock:/i.test(text) ? MARKER_NOTE : "",
     competitorBlock(competitors),
     readerRules(context),
     `Questions:\n${questions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`,
