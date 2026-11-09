@@ -9,3 +9,5 @@ Then the agent grades the answers against the expectations you wrote before the 
 Each round allows smaller edits than the last: whole sections first, then paragraphs, then single lines. See the [panel tool](../tools/panel.md).
 
 Fix what stopped a reader, never what a reader forgot to name. A reader who explains the idea but can't recall the term for it has understood it; adding a line that repeats the terms makes the piece sound like a summary.
+
+Watch how readers retell the piece. A reader who answers "what did you take away" with the writer's story ("they picked this model because it was safe") and no line about what it means for them is telling you the piece is written from our side. Write an expectation for it when the piece explains a choice: "The reader says what the choice means for them."

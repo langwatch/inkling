@@ -1,0 +1,20 @@
+page: ad
+context:
+  search: claude code cloud
+  arrived_from: a Google search ad
+  attention: a minute at most, other results open in tabs
+personas:
+  - id: searcher
+    view: full
+    background: >
+      A developer who pays for Claude Code Max. Last night a long refactor stopped when they
+      closed the laptop, so this morning they searched for a way to keep it running.
+expectations:
+  - id: names_gain
+    core: true
+    expect: The reader names a concrete gain they would get, in their own words, not a list of features.
+  - id: not_told_what_they_know
+    core: true
+    expect: The reader does not say the page explained their own problem to them or talked down to them.
+  - id: no_repeats
+    expect: The reader does not say the page repeats itself.

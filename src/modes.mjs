@@ -14,12 +14,50 @@ export const MODES = {
     paragraphWords: 40,
   },
   landing: {
-    label: "landing page for cold search or ad traffic: a story from the search to the result, a product mock per claim, calls to action along the page, enough real content on the topic to rank",
+    label: "landing page: a story from the reader's search to the result, short problem text, a different visual per section, calls to action where they help. Pick the kind with --page or `page:` in the front matter",
     paragraphWords: 60,
     like: ["ads"],
-    minWords: 700,
-    minSections: 5,
-    sectionsPerCta: 2,
+    defaultPage: "ad",
+    // Each kind of landing page has its own goal, reader and structure: docs/process/landing/.
+    pages: {
+      ad: {
+        label: "ad landing page: a cold visitor from one search or ad, one pain, one promise",
+        minWords: 700,
+        minSections: 5,
+        sectionsPerCta: 2,
+        problemWords: 50,
+        problemFirst: true,
+      },
+      home: {
+        label: "the home page: every kind of visitor, the whole product, the most careful page on the site",
+        minWords: 500,
+        minSections: 5,
+        sectionsPerCta: null,
+        problemWords: 50,
+        problemFirst: true,
+      },
+      product: {
+        label: "product page: home-page care for one product, for a visitor who searched its category",
+        minWords: 700,
+        minSections: 5,
+        sectionsPerCta: 2,
+        problemWords: 50,
+        problemFirst: true,
+      },
+      guide: {
+        label: "guide or tutorial for search and ads: a visitor who wants to get a task done, taught step by step",
+        minWords: 900,
+        minSections: 4,
+        sectionsPerCta: null,
+        problemWords: 60,
+        problemFirst: true,
+      },
+      job: {
+        label: "page with one job: pricing, a comparison, the iceberg; a visitor who is already deciding",
+        problemWords: 50,
+        problemFirst: false,
+      },
+    },
   },
   deck: {
     label: "slides: few-word titles, at most three short bullets, narrative in speaker notes",
@@ -52,6 +90,20 @@ export const MODE_NAMES = Object.keys(MODES);
 
 /** A rule written for a mode also binds every mode that is `like` it. */
 export const modeFamily = (mode) => [mode, ...(MODES[mode]?.like ?? [])];
+
+export const pageNames = (mode) => Object.keys(MODES[mode]?.pages ?? {});
+
+/** The landing kind a draft is: `--page`, then `page:` in the front matter, then the mode's default. */
+export function pageOf({ mode, page, frontmatter = {} }) {
+  const pages = MODES[mode]?.pages;
+  if (!pages) return null;
+  const kind = page ?? frontmatter.page?.value ?? MODES[mode].defaultPage;
+  if (!pages[kind]) throw new Error(`unknown page kind ${kind} for mode ${mode}; one of ${Object.keys(pages).join(", ")}`);
+  return kind;
+}
+
+/** A mode's limits with its page kind's on top. */
+export const settingsOf = (mode, page) => ({ ...MODES[mode], ...(page ? MODES[mode].pages[page] : {}) });
 
 /** Modes that sell or pitch: the copy rules bind hardest here. */
 export const PITCH = ["ads", "landing", "deck", "investor"];

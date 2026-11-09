@@ -21,6 +21,7 @@ const USAGE = `inkling: content writing framework for agents
 
   inkling check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
       step 5, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
+      --mode landing --page <ad|home|product|guide|job>: the kind of landing page (or page: in the front matter; ad by default)
       --mode script --minutes 3: a spoken script against its time budget (or minutes: in the front matter)
   inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--json]
       step 6, judge: Jev; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
@@ -80,6 +81,7 @@ export function main(argv) {
     allowPositionals: true,
     options: {
       mode: { type: "string" },
+      page: { type: "string" },
       audience: { type: "string" },
       context: { type: "string" },
       json: { type: "boolean" },
@@ -113,6 +115,7 @@ export function main(argv) {
       return timed(values.run, "check", () => runCheck({
         paths: positionals,
         mode: values.mode,
+        page: values.page,
         audience: values.audience,
         minutes: values.minutes ? Number(values.minutes) : undefined,
         house: values.house ?? [],
@@ -171,7 +174,10 @@ export function main(argv) {
       return 0;
     }
     case "modes":
-      for (const [name, m] of Object.entries(MODES)) process.stdout.write(`${name.padEnd(9)} ${m.label}\n`);
+      for (const [name, m] of Object.entries(MODES)) {
+        process.stdout.write(`${name.padEnd(9)} ${m.label}\n`);
+        for (const [kind, p] of Object.entries(m.pages ?? {})) process.stdout.write(`  --page ${kind.padEnd(8)} ${p.label}${kind === m.defaultPage ? " (default)" : ""}\n`);
+      }
       return 0;
     default:
       return usage(`unknown command ${command}`);

@@ -11,6 +11,7 @@ const TABLE_ROW = /^\s*\|.*\|\s*$/;
 const TABLE_SEP = /^\s*\|?[\s:|-]+\|?\s*$/;
 const QUOTE = /^(\s*>\s?)(.*)$/;
 const IGNORE = /<!--\s*inkling-ignore(-file)?\s+([^:>]*?)\s*(?::[^>]*)?-->/;
+const LAYOUT_MARKERS = /^\s*(?:\[(?:mock:[^\]]*|problem)\]\s*)+$/i;
 const ABBREVIATIONS = new Set(["e.g", "i.e", "etc", "vs", "mr", "mrs", "dr", "no", "fig", "cf", "approx"]);
 
 /** Replace a span with spaces, keeping newlines so line mapping still works. */
@@ -235,6 +236,8 @@ export function parse(text) {
   }
   close();
 
+  // A paragraph of only [mock: ...] or [problem] markers is a note on the page's layout, not prose the visitor reads.
+  for (const block of blocks) if (block.type === "paragraph" && LAYOUT_MARKERS.test(block.text)) block.type = "marker";
   for (const block of blocks) block.sentences = block.type === "rule" ? [] : splitSentences(block);
 
   const titleBlock = blocks.find((b) => b.type === "heading" && b.level === 1) ?? null;

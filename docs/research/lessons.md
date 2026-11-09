@@ -43,6 +43,17 @@ A pushback on one piece is a correction to that piece. It becomes a rule here on
 - Long description lines under a control get cut to one line; say each thing once.
 - Copy shown to people who do not work in tech never names technical security states. A real failure gets one plain line and a retry.
 
+## Landing pages
+
+From the founder's review of the Claude Code ad pages, 2026-11-09. The rules are in [landing pages](../process/landing-mode.md).
+
+- The visitor searched because they know the problem and why it happens. Never explain the mechanism back to them ("Why it stops when you close the lid").
+- The problem is short: two or three sentences, left-aligned like a blog post, an image beside it, no button. Buttons and feature blocks belong to the solution, later.
+- Never show the same visual twice on a page, the hero included.
+- A section title sells the gain or names the pain in the reader's words ("You've become the relay"). Titles about what other people do ("What people hand it...", "The usual ways to share it") sell nothing.
+- A row of look-alike option cards, ours unmarked among them, reads as a survey. Move from the problem to the solution with a section that frames ours as the answer.
+- Each section sells a concrete gain; the page says each thing once.
+
 ## Slides
 
 - A few-word title, at most three bullets of two to four words, and a number or an image.

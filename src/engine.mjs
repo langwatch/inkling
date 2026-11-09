@@ -1,7 +1,7 @@
 // Runs rules over a parsed document. A rule is data: an id, a scope, and either a
 // `pattern` or a `check(unit, ctx)`, and an optional severity: "warning" (default "error").
 import { mask, parse, words } from "./markdown.mjs";
-import { MODES, modeFamily } from "./modes.mjs";
+import { MODES, modeFamily, pageOf, settingsOf } from "./modes.mjs";
 
 const PROSE = new Set(["paragraph", "list-item", "quote", "cell", "heading"]);
 
@@ -68,8 +68,9 @@ function ignored(set, rule) {
   return set.has("*") || set.has(rule.id) || set.has(rule.family) || set.has(short);
 }
 
-export function ruleApplies(rule, mode) {
+export function ruleApplies(rule, mode, page = null) {
   if (rule.notModes?.includes(mode)) return false;
+  if (rule.pages && page && !rule.pages.includes(page)) return false;
   return !rule.modes || modeFamily(mode).some((m) => rule.modes.includes(m));
 }
 
@@ -88,14 +89,15 @@ function founderDecision(block, at) {
 }
 
 /** Lint one document. Returns findings sorted by position. */
-export function lint({ text, file = "-", mode = "post", rules, audience, minutes }) {
+export function lint({ text, file = "-", mode = "post", page, rules, audience, minutes }) {
   if (!MODES[mode]) throw new Error(`unknown mode ${mode}; one of ${Object.keys(MODES).join(", ")}`);
   const doc = parse(text);
   if (MODES[mode].firstBlockIsTitle && !doc.title) doc.title = doc.blocks.find((b) => PROSE.has(b.type)) ?? null;
-  const ctx = { doc, mode, audience, minutes, settings: MODES[mode], words };
+  const kind = pageOf({ mode, page, frontmatter: doc.frontmatter });
+  const ctx = { doc, mode, page: kind, audience, minutes, settings: settingsOf(mode, kind), words };
   const findings = [];
   for (const rule of rules) {
-    if (!ruleApplies(rule, mode)) continue;
+    if (!ruleApplies(rule, mode, kind)) continue;
     if (ignored(doc.fileIgnore, rule)) continue;
     for (const unit of unitsFor(rule.scope ?? "sentence", doc)) {
       if (unit.block?.ignore && ignored(unit.block.ignore, rule)) continue;

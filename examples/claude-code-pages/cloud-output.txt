@@ -1,0 +1,80 @@
+inkling check: 1 file, mode landing (landing page: a story from the reader's search to the result, short problem text, a different visual per section, calls to action where they help. Pick the kind with --page or `page:` in the front matter)
+
+examples/claude-code-pages/cloud.md:9:7  pitch/free-cta
+  > cta: Start for free]
+  why: "for free" on a call to action reads as a gimmick to developers.
+  fix: Say the action alone: "Sign up", "Start". Put the free plan on the pricing page.
+  from: Founder note 2026-09-13 on README buttons
+
+examples/claude-code-pages/cloud.md:13:4  landing/known-mechanism
+  > Why it stops when you close the lid
+  why: The section explains why the problem happens. The visitor searched because they already know: it reads as if they did not, and it spends the first section on what they came past.
+  fix: Name what the problem costs them in their words (the work that waits, the requests that pile up) and move on to the fix. Leave the mechanism to the docs.
+  from: Founder review of the Claude Code landing pages, 2026-11-09 (point 1, "Why it stops when you close the lid": "people KNOW why their claude stops, otherwise they wouldn't have gone looking for this page")
+
+examples/claude-code-pages/cloud.md:13:4  landing/problem-cta
+  > Why it stops when you close the lid
+  why: A call to action sits in the problem section. The visitor has not seen the fix yet, so the button asks before the page has given anything, and it turns a short story into a feature block.
+  fix: Drop the button here. Calls to action start in the solution part, after the page has shown what the visitor gets.
+  from: Founder review of the Claude Code landing pages, 2026-11-09 (points 6 and 8: no CTA while showing the problem); Laze landing review, 2026-10-17 (no mid-page CTAs)
+
+examples/claude-code-pages/cloud.md:13:4  landing/problem-wall
+  > Why it stops when you close the lid
+  why: The problem section is a wall of text. The visitor already lives with this problem; a long telling of it delays the fix they came for.
+  fix: Show the problem in two or three short sentences of plain, left-aligned text with an image beside it, the way a blog post opens. Move the rest to the solution sections or cut it.
+  from: Founder review of the Claude Code landing pages, 2026-11-09 (points 2, 6 and 8: the problem text is a wall, still too long under "You've become the relay")
+
+examples/claude-code-pages/cloud.md:23:4  landing/crowd-title
+  > What people hand it before closing the lid
+  why: The title describes what other people do. It sells nothing to the visitor and turns the section into a survey of options, where our own option is one card among the rest.
+  fix: Title the gain or the pain in the visitor's words ("You've become the relay"). If the section compares options, say which one wins and why, frame ours as the answer, and keep it out of a row of look-alike cards.
+  from: Founder review of the Claude Code landing pages, 2026-11-09 (points 3, 9 and 10: "What people hand it before closing the lid" is a stupid title; "The ways people keep it running" and "The usual ways to share it" look useless)
+
+examples/claude-code-pages/cloud.md:29:1  landing/repeated-visual
+  why: This mock shows the same scene as one earlier on the page. A visitor who sees the same picture twice reads the section as filler, and the claim beside it gets no proof of its own. Same scene as the mock on line 11.
+  fix: Give the section its own visual: a different screen, a different moment, or a different person using it. Name the scene before the colon in `[mock: scene: what it shows]` so the check can compare.
+  from: Founder review of the Claude Code landing pages, 2026-11-09 (point 3: the section reused the image the visitor saw first in the hero; never repeat a visual on the same page)
+
+examples/claude-code-pages/cloud.md:31:4  landing/crowd-title
+  > The ways people keep it running
+  why: The title describes what other people do. It sells nothing to the visitor and turns the section into a survey of options, where our own option is one card among the rest.
+  fix: Title the gain or the pain in the visitor's words ("You've become the relay"). If the section compares options, say which one wins and why, frame ours as the answer, and keep it out of a row of look-alike cards.
+  from: Founder review of the Claude Code landing pages, 2026-11-09 (points 3, 9 and 10: "What people hand it before closing the lid" is a stupid title; "The ways people keep it running" and "The usual ways to share it" look useless)
+
+examples/claude-code-pages/cloud.md:31:4  landing/mock-per-claim
+  > The ways people keep it running
+  why: This section makes a claim with no product mock. A cold visitor believes what they see working, and a block of text reads as a promise.
+  fix: Add a `[mock: ...]` that shows the claim happening in the product (a chat, a status, a setting), drawn like the main landing page, never a screenshot of real data.
+  from: Founder review of the Claude Code landing pages, 2026-11-09 (more product mocks, a dynamic element per value)
+
+examples/claude-code-pages/cloud.md:45:7  pitch/free-cta
+  > cta: Start for free]
+  why: "for free" on a call to action reads as a gimmick to developers.
+  fix: Say the action alone: "Sign up", "Start". Put the free plan on the pricing page.
+  from: Founder note 2026-09-13 on README buttons
+
+examples/claude-code-pages/cloud.md:57:176  pitch/today-timeframe
+  > You can hand over a failing test on the train, ask what changed on main today, or have it open a pull request.
+  why: "Today" as a time frame says nothing a visitor can use.
+  fix: Drop it, or name the real one: right now, in the last 30 days.
+  from: Landing page writing rules, rule 15
+
+examples/claude-code-pages/cloud.md:61:7  pitch/free-cta
+  > cta: Start for free]
+  why: "for free" on a call to action reads as a gimmick to developers.
+  fix: Say the action alone: "Sign up", "Start". Put the free plan on the pricing page.
+  from: Founder note 2026-09-13 on README buttons
+
+examples/claude-code-pages/cloud.md:100:7  pitch/free-cta
+  > cta: Start for free]
+  why: "for free" on a call to action reads as a gimmick to developers.
+  fix: Say the action alone: "Sign up", "Start". Put the free plan on the pricing page.
+  from: Founder note 2026-09-13 on README buttons
+
+examples/claude-code-pages/cloud.md:119:7  pitch/free-cta
+  > cta: Start for free]
+  why: "for free" on a call to action reads as a gimmick to developers.
+  fix: Say the action alone: "Sign up", "Start". Put the free plan on the pricing page.
+  from: Founder note 2026-09-13 on README buttons
+
+13 findings from 8 rules.

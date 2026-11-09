@@ -35,6 +35,44 @@ export const STANCES = {
   warm: "You already know who wrote this and you are mostly generous: busy, reading with the attention described, and one real source is enough for you to trust a claim.",
 };
 
+/**
+ * What a visitor to each kind of landing page already knows and came for (docs/process/landing/).
+ * `context.page` in the readers file adds it to the reader prompt, with one more question.
+ */
+export const PAGE_VISITORS = {
+  ad: {
+    state: "You already live with this problem and know why it happens: that is why you searched. You came for the fix and for what it gets you, and you have little patience for being told what you already know.",
+    question: "What would you get from this that you do not have now, in your own words?",
+    leaves: "A reader who says the page explained their own problem back to them, or who names no concrete gain for themselves, is trust_breaking.",
+  },
+  home: {
+    state: "You heard of this company somewhere (a link, a colleague, an ad) and opened the home page to work out what it is, who it is for and whether it is for you.",
+    question: "Who is this for, and is it for you?",
+    leaves: "A reader who cannot say what the product is or who it is for is trust_breaking.",
+  },
+  product: {
+    state: "You searched this product's category and have other vendors open. You know the category; you want to see what this one does better and whether it fits how you work.",
+    question: "What does this product do that the others you know do not?",
+    leaves: "A reader who cannot name one thing this product does better than the others is trust_breaking.",
+  },
+  guide: {
+    state: "You searched how to get a task done. You want the steps, and you will follow them if they look like they work.",
+    question: "Could you do the task from this page alone? Where would you get stuck?",
+    leaves: "A reader who could not do the task from the page, or who felt sold to before being taught, is trust_breaking.",
+  },
+  job: {
+    state: "You already know the product and opened this page for one answer: the price, how it compares, what sits under the surface.",
+    question: "Did you get the answer you came for? What was it?",
+    leaves: "A reader who did not find the answer they came for is trust_breaking.",
+  },
+};
+
+function pageOfContext(context = {}) {
+  const page = context.page;
+  if (page && !PAGE_VISITORS[page]) throw new Error(`unknown page kind ${page}; one of ${Object.keys(PAGE_VISITORS).join(", ")}`);
+  return page ?? null;
+}
+
 export function stanceOf(context = {}) {
   const stance = context.stance ?? "cold";
   if (!STANCES[stance]) throw new Error(`unknown stance ${stance}; one of ${Object.keys(STANCES).join(", ")}`);
@@ -42,7 +80,7 @@ export function stanceOf(context = {}) {
 }
 
 export const readerRules = (context) =>
-  `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. ${STANCES[stanceOf(context)]} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
+  `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. ${STANCES[stanceOf(context)]}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].state}` : ""} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
 
 /** The questions a comparison reader answers when the readers file names the other results. */
 export const compareQuestions = (search) => [
@@ -77,14 +115,17 @@ export function readReadersFile(path) {
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
   const context = { ...(data.context ?? {}) };
   if (data.stance) context.stance = data.stance;
+  if (data.page) context.page = data.page;
   stanceOf(context);
+  const page = pageOfContext(context);
   const competitors = (data.competitors ?? []).map((c) => {
     if (!c.name || !c.file) throw new Error(`${path}: every competitor needs name and file (the page text as a visitor sees it)`);
     return { ...c, text: readFileSync(resolve(path, "..", c.file), "utf8").trim() };
   });
   if (competitors.length && !context.search) throw new Error(`${path}: competitors need context.search, the search they came from`);
   const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS;
-  const questions = competitors.length ? [...base, ...compareQuestions(context.search)] : base;
+  const withPage = page && !data.questions?.length ? [...base, PAGE_VISITORS[page].question] : base;
+  const questions = competitors.length ? [...withPage, ...compareQuestions(context.search)] : withPage;
   return { ...data, context, competitors, personas, expectations, questions };
 }
 
@@ -197,7 +238,7 @@ export function judgePrompt({ persona, questions, expectations, answers, context
   const classes = Object.entries(DOUBT_CLASSES).map(([k, v]) => `- ${k}: ${v}`).join("\n");
   return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. Do not read files or research; use only what is below.
 
-Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.${stanceOf(context) === "cold" ? " This reader arrived cold from a search: a page that looks thin, fake or like no real company is behind it, or a reader picking another result over it, is trust_breaking." : ""}
+Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.${stanceOf(context) === "cold" ? " This reader arrived cold from a search: a page that looks thin, fake or like no real company is behind it, or a reader picking another result over it, is trust_breaking." : ""}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].leaves}` : ""}
 ${classes}
 
 Persona:
