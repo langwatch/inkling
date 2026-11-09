@@ -62,6 +62,7 @@ export default [
     id: "number-without-measure",
     severity: "warning",
     check: (unit) => {
+      if (unit.block.type === "cell") return [];
       const out = [];
       const re = /\b\d[\d,.]*\s*(?:%|x\b|times\b)(?:\s+(?:less|more|fewer|lower|higher|faster|slower|cheaper|better|worse))?/gi;
       const MEASURE = /\b(?:cost|costs|price|spend|bill|money|time|latency|seconds?|minutes?|hours?|days?|errors?|mistakes?|accuracy|recall|precision|tokens?|requests?|calls?|traffic|users?|people|teams?|customers?|revenue|signups?|sign-ups?|clicks?|conversions?|memory|cpu|storage|disk|size|failures?|bugs?|tickets?|messages?|emails?|traces?|of\b)/i;
@@ -76,7 +77,7 @@ export default [
     source: "Founder review of the Doubleword post, 2026-11-09 (\"at 82% less per email\", \"both score 99%\")",
     examples: {
       fail: ["Swap the model and it runs at 82% less per email.", "On the hard set both score 99%."],
-      pass: ["Swap the model and it costs 82% less per email.", "On the hard set both score 99% accuracy.", "It answers 3x faster, in under a second."],
+      pass: ["Swap the model and it costs 82% less per email.", "On the hard set both score 99% accuracy.", "It answers 3x faster, in under a second.", "| Model | Cost per email |\n| --- | --- |\n| Gemma | $0.000160 (82% cheaper than Terra) |"],
     },
   },
   {
