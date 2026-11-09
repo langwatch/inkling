@@ -1,6 +1,12 @@
 // Ads, landing pages and investor material: the reader's moment first, one claim, take a side.
 import { words } from "../src/markdown.mjs";
 
+// A benefit offered to the reader: "Let your colleagues...", "Keep your...", "you can...".
+const OFFER = /\b(?:let|lets|keep|you can|you could|you'll)\b/i;
+// A benefit told as a bare fact about someone or something else: "Your colleagues message...", "It runs...".
+const BARE_BENEFIT = /^(?:(?:your|our)\s+(?:[\w'-]+\s+){0,2}?|it\s+|they\s+|colleagues\s+|teammates\s+|the agent\s+)(?:message|run|work|talk|ask|get|reach|use|send|see|answer|take|handle|do|finish|keep)s?\b/i;
+const SETUP_STEPS = /^(?:sign (?:in|up)|log in|install|paste|connect|run|open|add|create|download)\b.*,?\s*then\b/i;
+
 export default [
   {
     id: "writer-side-headline",
@@ -13,6 +19,52 @@ export default [
     examples: {
       fail: [{ text: "# Our compaction engine keeps context for weeks", mode: "ads" }, { text: "# Introducing ACME", mode: "ads" }],
       pass: [{ text: "# Laptop shut? It still works", mode: "ads" }],
+    },
+  },
+  {
+    id: "category-headline",
+    modes: ["ads"],
+    scope: "title",
+    pattern: /\b(?:in the cloud|on the cloud|as a service|for (?:teams|business|enterprises?)|platform|hosting|hosted)\b/i,
+    message: "Headline names a category (\"Claude Code in the cloud\"). It reads like the vendor's own product page, and the reader still has to work out what they get.",
+    fix: "Say the plain value as an offer to the reader: \"Keep your Claude Code working when your laptop is shut\". Put the search words in the page title and the subtitle.",
+    source: "Founder review of the Claude Code cloud landing page, 2026-11-09",
+    examples: {
+      fail: [{ text: "# Claude Code in the cloud, still working when your laptop is shut", mode: "ads" }, { text: "# The agent platform for teams", mode: "ads" }],
+      pass: [{ text: "# Keep your Claude Code working when your laptop is shut", mode: "ads" }, { text: "# Laptop shut? It still works", mode: "ads" }],
+    },
+  },
+  {
+    id: "bare-benefit-lede",
+    modes: ["ads"],
+    scope: "document",
+    check: (_u, { doc }) => {
+      const first = doc.subtitle?.sentences?.[0];
+      if (!first || OFFER.test(first.clean)) return [];
+      return BARE_BENEFIT.test(first.clean.trim()) ? [{ block: first.block, index: first.start }] : [];
+    },
+    message: "Subtitle states the benefit as a bare fact about someone else (\"Your colleagues message your Claude Code\"). It reads as a description, and the reader has to turn it into something they can have.",
+    fix: "Offer it to the reader with \"Let\", \"Keep\" or \"you can\": \"Let your colleagues message your Claude Code in a team chat\".",
+    source: "Founder review of the Claude Code team landing page, 2026-11-09 (the you-can and let rule)",
+    examples: {
+      fail: [{ text: "# Stop being your team's Claude Code proxy\n\nYour colleagues message your Claude Code in a team chat, no terminal.", mode: "ads" }, { text: "# Laptop shut?\n\nIt runs on its own computer while you sleep.", mode: "ads" }],
+      pass: [{ text: "# Stop being your team's Claude Code proxy\n\nLet your colleagues message your Claude Code in a team chat", mode: "ads" }, { text: "# Laptop shut?\n\nYou can hand it tasks from your phone.", mode: "ads" }],
+    },
+  },
+  {
+    id: "setup-steps-lede",
+    modes: ["ads"],
+    scope: "document",
+    check: (_u, { doc }) => {
+      const first = doc.subtitle?.sentences?.[0];
+      return first && SETUP_STEPS.test(first.clean.trim()) ? [{ block: first.block, index: first.start }] : [];
+    },
+    message: "Subtitle reads as setup steps (\"Sign in with your Claude account, then message it\"). The reader came for what they get, not how to start.",
+    fix: "Say what they get as an offer: \"Let it take tasks from your phone, on your own Claude login\". Steps belong in the docs.",
+    source: "Founder review of the Claude Code cloud landing page, 2026-11-09",
+    examples: {
+      fail: [{ text: "# Keep your Claude Code working\n\nSign in with your Claude account, then message it from your phone.", mode: "ads" }],
+      pass: [{ text: "# Keep your Claude Code working\n\nLet it take tasks from your phone, on your own Claude login.", mode: "ads" }],
     },
   },
   {

@@ -373,7 +373,7 @@ export default [
   },
   {
     id: "instruction-register",
-    modes: ["post", "script"],
+    modes: ["post", "script", "ads"],
     scope: "document",
     severity: "warning",
     check: (_u, { doc }) =>

@@ -82,6 +82,7 @@ How far you trim depends on the mode. Docs end strictly technical, ads end at on
 
   > This video you're watching went through Inkling too. My agent started a writer, a fresh subagent with only Inkling and the brief. The writer drafted the script, and then the style checker read it and sent back warnings. Then blind readers and listeners tried it. When they got lost, or could tell a model wrote it, it went back. And that repeated until it passed.
 - Take a side. Concessions, hedges and apologies belong in the docs, never in copy.
+- In an ad, offer the benefit to the reader. "Let your colleagues message your Claude Code in a team chat" is something they can have; "Your colleagues message your Claude Code" is a description they have to turn into one. And a headline says the plain value ("Keep your Claude Code working when your laptop is shut"), never a category name such as "Claude Code in the cloud", which reads like the vendor's own product page. The search words go in the page title and the subtitle.
 - Make one claim per title, and let each paragraph follow from the one before it.
 - Leave out slogans: taglines, twist imperatives such as "Fail your copy before your readers do", and clipped fragments such as "Less noise. More signal.".
 
