@@ -31,15 +31,15 @@ const USAGE = `inkling: content writing framework for agents
   inkling readers grade <dir>
       step 7, reader panel, subagent backend: one prompt per persona, your agent runs each as a fresh
       subagent and saves <dir>/<persona>.answer.md; grade writes judge prompts the same way
-  inkling readers run <draft> <readers.yaml> --out <dir> [--runs N] [--reader sonnet] [--judge opus]
+  inkling readers run <draft> <readers.yaml> --out <dir> [--runs N] [--reader opus] [--judge opus]
       --runs N reads each persona N times; a fail counts only in at least half the runs (2 or 3 for a decision)
       step 7, claude -p backend on the subscription, isolated config, tools off
   inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude] [--notes 2]
       a spoken script heard once by busy viewers: 30 s chunks, three probes after each, examples and
       parts recalled at the end; fails on a skip, a lost viewer or an unexplained example
-  inkling readers listen --calibrate [--out <dir>] [--reader sonnet]
+  inkling readers listen --calibrate [--out <dir>] [--reader opus]
       rerun calibration/listen.json: each target must hold in 2 of 3 runs
-  inkling readers report <run...> [--out <file>] [--backend claude] [--reader sonnet]
+  inkling readers report <run...> [--out <file>] [--backend claude] [--reader opus]
       what each reader said, retold version by version for the writer; takes run directories or a
       panel run; the subagent backend writes reader-report.prompt.md for a fresh subagent to answer
   inkling readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]
@@ -292,7 +292,7 @@ async function listenCommand([script], values) {
       process.stdout.write(r.report);
       return r.all ? 0 : 1;
     }
-    if (!script) return usage("inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude] [--reader sonnet] [--notes 2] | --calibrate");
+    if (!script) return usage("inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude] [--reader opus] [--notes 2] | --calibrate");
     const resume = existsSync(join(script, "listen.json"));
     const out = values.out ?? (resume ? script : defaultListenOut(script));
     const args = { script: resume ? null : script, readersFile: values.readers, out, notesKept };

@@ -80,7 +80,7 @@ export function reportPrompt(runs) {
 }
 
 /** Write the report prompt next to the runs; with run, answer it on the claude subscription. */
-export function readerReport({ paths, out, run = false, model = "sonnet" }) {
+export function readerReport({ paths, out, run = false, model = "opus" }) {
   const runs = runDirs(paths);
   const target = out ?? join(existsSync(join(paths[0], "manifest.json")) && paths.length > 1 ? dirname(paths[0]) : paths[0], "reader-report.md");
   const promptFile = target.replace(/\.md$/, "") + ".prompt.md";

@@ -75,7 +75,7 @@ export function hasClaudeLogin() {
  * with no CLAUDE.md above it, no tools, no MCP, no settings, no skills, no saved session.
  */
 export class ClaudeCli {
-  constructor({ model = "sonnet", workdir }) {
+  constructor({ model = "opus", workdir }) {
     this.model = model;
     this.name = `claude-${model}`;
     this.login = claudeLogin();

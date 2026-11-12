@@ -466,7 +466,7 @@ export function writePrompts({ draft, readersFile, out, runs = 1 }) {
 }
 
 /** The claude -p backend: answer and judge every prompt in a run directory. */
-export function runWithClaude({ out, reader = "sonnet", judge = "opus" }) {
+export function runWithClaude({ out, reader = "opus", judge = "opus" }) {
   const login = claudeLogin();
   if (!login.kind) throw new Error(`claude -p can't run: ${login.why}; or ${"use the subagent backend: inkling readers prompts, then inkling readers grade"}`);
   const base = join(homedir(), ".cache", "inkling");

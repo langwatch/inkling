@@ -43,9 +43,9 @@ Agent(subagent_type: "general-purpose", prompt: <contents of runs/r1/engineer.pr
   -> write the reply to runs/r1/engineer.answer.md
 ```
 
-Each prompt is self-contained: persona, context, the full text, the questions, the instruction to answer only from the text, and the answer format. Use a fresh subagent per prompt, never a fork, since a fork starts with the caller's whole conversation. A fresh subagent still loads the project's `CLAUDE.md`, so run the loop from a folder whose instructions say nothing about the draft.
+Each prompt is self-contained: persona, context, the full text, the questions, the instruction to answer only from the text, and the answer format. Use a fresh subagent per prompt, never a fork, since a fork starts with the caller's whole conversation. Leave the model out so readers and graders run the caller's model (Opus); never pick Sonnet or Haiku for them. A fresh subagent still loads the project's `CLAUDE.md`, so run the loop from a folder whose instructions say nothing about the draft.
 
-**`claude -p`.** `inkling readers run draft.md draft.readers.yaml --out runs/r1` does both steps itself. Each reader gets a new config folder with a copy of the access token and no refresh token, `HOME` pointed there, an empty working folder, no tools, no MCP servers, no settings and no saved session. Pick models with `--reader sonnet --judge opus`.
+**`claude -p`.** `inkling readers run draft.md draft.readers.yaml --out runs/r1` does both steps itself. Each reader gets a new config folder with a copy of the access token and no refresh token, `HOME` pointed there, an empty working folder, no tools, no MCP servers, no settings and no saved session. Readers and the judge run Opus by default; pass `--reader` or `--judge` to pick another.
 
 `grade` exits 0 when everything passes, 1 on a failure and 3 while prompts are still waiting for replies.
 

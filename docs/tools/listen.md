@@ -61,4 +61,4 @@ The default viewers are in `modes/script/readers.yaml`: a team lead with a meeti
 Like the [reader panel](panel.md), `listen` runs on a Claude subscription only and refuses to start when a paid provider key or base URL is set.
 
 - **Subagents** (default). Each call writes the next prompt per viewer and exits 3. Run each prompt as a fresh subagent, save the reply next to it as `<name>.answer.md` (or `<persona>.verdict.json` for a judge prompt), and run `inkling readers listen <run dir>` again.
-- **`claude -p`** (`--backend claude`). Runs every turn itself with an isolated config, viewers in parallel, `--reader sonnet --judge opus` by default.
+- **`claude -p`** (`--backend claude`). Runs every turn itself with an isolated config, viewers in parallel, `--reader opus --judge opus` by default.

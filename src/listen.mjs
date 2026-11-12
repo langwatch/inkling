@@ -373,7 +373,7 @@ function report({ out, state }) {
 export const defaultListenOut = (script) => join("runs", `listen-${basename(script, extname(script))}`);
 
 /** The claude -p backend: answer every pending prompt, one listener per process at a time, until the run finishes. */
-export async function listenWithClaude({ script, readersFile, out, reader = "sonnet", judge = "opus", notesKept, pauses, log = () => {} }) {
+export async function listenWithClaude({ script, readersFile, out, reader = "opus", judge = "opus", notesKept, pauses, log = () => {} }) {
   const login = claudeLogin();
   if (!login.kind) throw new Error(`claude -p can't run: ${login.why}; or ${"run inkling readers listen without --backend claude and answer the prompts as fresh subagents"}`);
   const base = join(homedir(), ".cache", "inkling");

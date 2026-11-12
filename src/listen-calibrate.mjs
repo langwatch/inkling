@@ -75,6 +75,6 @@ export async function calibrateListen({ file = LISTEN_CALIBRATION, out, reader, 
   lines.push("", all ? "all required targets hold: stop tuning." : `${required - held} of ${required} required targets miss.`);
   const report = lines.join("\n") + "\n";
   writeFileSync(join(out, "calibration.md"), report);
-  writeFileSync(join(out, "calibration.json"), JSON.stringify({ at: new Date().toISOString(), reader: reader ?? "sonnet", judge: judge ?? "opus", notesKept, targets, all }, null, 1));
+  writeFileSync(join(out, "calibration.json"), JSON.stringify({ at: new Date().toISOString(), reader: reader ?? "opus", judge: judge ?? "opus", notesKept, targets, all }, null, 1));
   return { report, all, targets };
 }
