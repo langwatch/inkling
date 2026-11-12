@@ -8,11 +8,13 @@ inkling plan --budget standard --mode post --out runs/launch --topic agent-vms
 
 `inkling plan` prints every level, marks the chosen one and saves `plan.json` with the deadline in the run directory:
 
-| Budget | Time | Runs | Skips |
-| --- | --- | --- | --- |
-| quick | about 5 min | lints, Jev | readers |
-| standard | about 15 min | lints, Jev, one panel read, one fix, clean eyes | the A/B rounds |
-| deep | 30 to 60 min | lints, Jev, a panel read, up to 2 A/B rounds with shrinking edits, clean eyes | nothing |
+| Budget | Time | Directions | Runs | Skips |
+| --- | --- | --- | --- | --- |
+| quick | about 5 min | 1 | lints, Jev | directions, readers |
+| standard | about 15 min | 3, one restart | readers pick a direction, lints, Jev, one panel read, one fix, clean eyes | the A/B rounds |
+| deep | 30 to 60 min | 5, two restarts | readers pick one or two directions, full drafts, readers pick one, lints, Jev, a panel read, up to 2 A/B rounds with shrinking edits, clean eyes | nothing |
+
+A longer budget buys more directions before it buys more rounds: on a piece worth an hour, five first screens cost a few minutes and keep the rounds from polishing the wrong angle. See [directions](../process/5-directions.md).
 
 These estimates are initial. `inkling timings` prints what real runs took, and the numbers in `src/budget.mjs` get recalibrated from it.
 

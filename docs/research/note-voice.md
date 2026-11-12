@@ -33,7 +33,7 @@ The listeners in `readers listen` check whether a viewer follows and keeps watch
 
 The draft step now starts by explaining the topic to someone who asked, the way you would say it, in the voice of the [reference excerpts](../voice/reference.md), from memory and with no outline.
 
-Structure (previews, part openers) is added to that explanation afterwards, and trimming cuts whole repeats and asides, never the connectives. The script rules' fixes now suggest sentences that say what happens ("The model also hedges every claim"), shown as moves rather than lines to copy, and a test checks that the shape rules raise nothing on the reference excerpts. See [draft](../process/5-draft.md) and [spoken scripts](../process/script-mode.md).
+Structure (previews, part openers) is added to that explanation afterwards, and trimming cuts whole repeats and asides, never the connectives. The script rules' fixes now suggest sentences that say what happens ("The model also hedges every claim"), shown as moves rather than lines to copy, and a test checks that the shape rules raise nothing on the reference excerpts. See [draft](../process/6-draft.md) and [spoken scripts](../process/script-mode.md).
 
 ## What the talk pass still wrote
 

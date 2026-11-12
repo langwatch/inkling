@@ -48,6 +48,37 @@ export function editTooBig(size, allowed) {
   return size.sentences > 3 ? `${size.sentences} sentences changed; this round allows 3` : null;
 }
 
+/** Failures a line edit can fix: they never count as fundamental. */
+const LINE_LEVEL = new Set(["names_explained", "sounds_like_author"]);
+
+/**
+ * Feedback about the piece rather than its lines: a core expectation (not a line-level one) fails for
+ * at least half the readers, or a trust-breaking doubt holds. Polishing cannot fix that, so the
+ * panel sends the writer back to directions instead of another edit. Null when the round is fine.
+ */
+export function fundamental(roundDir) {
+  const g = grade(roundDir);
+  if (g.pending) return null;
+  const manifest = JSON.parse(readFileSync(join(roundDir, "manifest.json"), "utf8"));
+  const core = new Set(manifest.expectations.filter((e) => e.core).map((e) => e.id));
+  const all = !core.size;
+  const report = readFileSync(join(roundDir, "report.md"), "utf8");
+  const reasons = [];
+  let readers = 0;
+  let failing = 0;
+  for (const section of report.split(/\n(?=## )/).filter((x) => x.startsWith("## ") && !x.startsWith("## text checks") && !x.startsWith("## content gaps"))) {
+    readers += 1;
+    const fails = [...section.matchAll(/^- FAIL ([\w-]+)[^:]*: (.*)$/gm)].filter(([, id]) => !LINE_LEVEL.has(id) && (all || core.has(id) || id === "doubt"));
+    if (fails.length) failing += 1;
+    for (const [, id, why] of fails) reasons.push(`${id}: ${why.slice(0, 160)}`);
+  }
+  if (!readers || 2 * failing < readers) return null;
+  return [...new Set(reasons)].slice(0, 4).join("; ");
+}
+
+export const restartMessage = (out, why) =>
+  `restart: the feedback is about the piece, not its lines (${why}). Throw this draft away instead of polishing it: inkling directions start <brief> --out ${out} --restart --because "<what failed, in one sentence>". The new writers get the reason and never see this draft.`;
+
 const statePath = (dir) => join(dir, "panel.json");
 export const loadState = (dir) => JSON.parse(readFileSync(statePath(dir), "utf8"));
 const saveState = (dir, state) => writeFileSync(statePath(dir), JSON.stringify(state, null, 1));
@@ -121,6 +152,8 @@ export function panelRound({ out, draft, force = false, random = Math.random }) 
   const prev = grade(join(out, `round-${state.round}`));
   if (prev.pending) throw new Error(`round ${state.round} is not graded yet: run inkling readers grade ${join(out, `round-${state.round}`)}`);
   settleTimings(out, state);
+  const deep = fundamental(join(out, `round-${state.round}`));
+  if (deep && !force) return { restart: restartMessage(out, deep) };
   const stop = budgetStop({ out, round: state.round + 1 });
   if (stop) return { stopped: stopRun({ out, state, why: stop }) };
   const src = draft ?? state.draft;
@@ -193,6 +226,8 @@ export function panelStatus(out) {
     if (Object.values(k).includes("old")) lines.push(`  a reader preferred the old version in round ${r}: revert that change or rethink it`);
     if (Object.values(k).includes("new-with-skip")) lines.push(`  a reader kept the new version in round ${r} but would still skip part of it: that win does not count`);
   }
+  const deep = fundamental(join(out, `round-${state.round}`));
+  if (deep) lines.push(restartMessage(out, deep));
   if (state.holdout) lines.push(`holdout: ${state.holdout}`);
   const plan = readPlan(out);
   if (plan) {

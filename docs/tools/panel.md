@@ -20,6 +20,8 @@ inkling readers panel status runs/launch
 - **Absolute question.** Every read also asks "Would you finish this? Where would you skip?", and from round 2 each reader ends the A/B pick with a "Finish:" and a "Skip:" line. When a reader keeps the new version but would still skip part of it, or not finish it, that pick does not count as a win: `panel status` says so, and the [budget](budget.md) stop ships the version before.
 - **Shrinking edits.** Round 2 may change whole sections, round 3 paragraphs (at most two, headings untouched), round 4 and later only lines (at most three sentences, no paragraphs added or removed). `panel round` measures the diff and refuses an edit over the allowed size unless you pass `--force`.
 
+- **Restart.** When a round's core fails for at least half of the readers, or a trust-breaking doubt holds, `panel round` refuses the edit (exit 4) and `panel status` prints the restart line: `inkling directions start <brief> --out <run> --restart --because "..."`. The failed attempt moves to `attempt-<n>/`. `--force` edits anyway.
+
 Every round directory is an ordinary run directory, so `inkling readers grade` and both backends work on it. The [budget](budget.md) sets how many rounds you get.
 
 ## Backends, both on the subscription

@@ -1,6 +1,6 @@
 # Writing a spoken script
 
-A script for a narrated lesson or video is heard once, in order. Your listener cannot see the headings, cannot look back a paragraph, and decides every half minute whether to keep listening. Text that reads well on a page can lose them. Run the eight steps as usual with `--mode script`, and add the points below.
+A script for a narrated lesson or video is heard once, in order. Your listener cannot see the headings, cannot look back a paragraph, and decides every half minute whether to keep listening. Text that reads well on a page can lose them. Run the nine steps as usual with `--mode script`, and add the points below.
 
 The limits below are defaults. A listen run shows where a viewer drifted. Use it with judgement and write down why when you move a limit for one script.
 
@@ -12,7 +12,7 @@ Decide the length before the first line: `minutes: 3` in the front matter, or `-
 
 ## Talk each part first
 
-Draft the way [step 5](5-draft.md) says: explain each part aloud to one listener who asked about it, in the [reference voice](../voice/reference.md), before any agenda, headings or part openers exist. Then add the agenda and the openers below to that talk. A script built from a list of headings, each expanded into a paragraph, comes out as labels and definitions however many times you fix its lines.
+Draft the way [step 6](6-draft.md) says: explain each part aloud to one listener who asked about it, in the [reference voice](../voice/reference.md), before any agenda, headings or part openers exist. Then add the agenda and the openers below to that talk. A script built from a list of headings, each expanded into a paragraph, comes out as labels and definitions however many times you fix its lines.
 
 ## Say the agenda
 

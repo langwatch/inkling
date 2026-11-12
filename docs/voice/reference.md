@@ -2,7 +2,7 @@
 
 <!-- inkling-ignore-file hedges, contrast, negation, vague-majority: the excerpts are kept as said -->
 
-This page collects explanations people gave each other in chat while building Inkling, written the way they would have said them. Some come from the founder, some from the agent replying to him, and two are points of the analysis that started Inkling. They are what a draft in [step 5](../process/5-draft.md) should sound like before anyone trims it: a person explaining something to someone who asked.
+This page collects explanations people gave each other in chat while building Inkling, written the way they would have said them. Some come from the founder, some from the agent replying to him, and two are points of the analysis that started Inkling. They are what a draft in [step 6](../process/6-draft.md) should sound like before anyone trims it: a person explaining something to someone who asked.
 
 Read them before you draft. Then explain your topic the same way. Names of companies and people are replaced with ACME or removed, swearing is dropped, and typos are fixed. Everything else is as said.
 

@@ -17,23 +17,24 @@ import { listen, listenWithClaude, defaultListenOut } from "./listen.mjs";
 import { calibrateListen } from "./listen-calibrate.mjs";
 import { measure, compare, report, spokenSentences } from "./voice.mjs";
 import { parse } from "./markdown.mjs";
+import { directionsStart, directionsPick, directionsEvolve, directionsFinal, answerWithClaude } from "./directions.mjs";
 
 const USAGE = `inkling: content writing framework for agents
 
   inkling check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
-      step 5, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
+      step 7, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
       --mode landing --page <ad|home|product|guide|job>: the kind of landing page (or page: in the front matter; ad by default)
       --mode script --minutes 3: a spoken script against its time budget (or minutes: in the front matter)
   inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--first-screen] [--json]
       --first-screen: judge the title, subtitle and first paragraph line by line with the copy checks (writer's side, concession, surprise)
-      step 6, judge: Jev; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
+      step 7, judge: Jev; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
   inkling readers prompts <draft> <readers.yaml> --out <dir> [--runs N]
   inkling readers grade <dir>
-      step 7, reader panel, subagent backend: one prompt per persona, your agent runs each as a fresh
+      step 8, reader panel, subagent backend: one prompt per persona, your agent runs each as a fresh
       subagent and saves <dir>/<persona>.answer.md; grade writes judge prompts the same way
   inkling readers run <draft> <readers.yaml> --out <dir> [--runs N] [--reader opus] [--judge opus]
       --runs N reads each persona N times; a fail counts only in at least half the runs (2 or 3 for a decision)
-      step 7, claude -p backend on the subscription, isolated config, tools off
+      step 8, claude -p backend on the subscription, isolated config, tools off
   inkling readers listen <script> [--readers <yaml>] [--out <dir>] [--backend claude] [--notes 2]
       a spoken script heard once by busy viewers: 30 s chunks, three probes after each, examples and
       parts recalled at the end; fails on a skip, a lost viewer or an unexplained example
@@ -51,6 +52,14 @@ const USAGE = `inkling: content writing framework for agents
   inkling voice <file|-> [--json]
       a spoken script against the talking-voice profile (docs/voice/profile.md): sentence length and
       spread, contractions, written-only words, I/we/you, questions, then versus next, one name per thing
+  inkling directions start <brief> <readers.yaml> --out <run> [--count N] [--fixed headline] [--backend claude]
+  inkling directions start <brief> <readers.yaml> --out <run> --restart --because "<what failed>"
+  inkling directions pick <run> [--force] [--backend claude]
+  inkling directions evolve <run> [--keep d1,d3] [--backend claude]
+  inkling directions final <run> [--backend claude]
+      step 5, directions before drafts: one fresh writer per lens writes a first screen, readers pick,
+      the best one or two grow into full drafts, readers pick the one that goes to the panel; the
+      budget sets how many (quick 1, standard 3, deep 5); --restart after fundamental feedback
   inkling plan --budget <quick|standard|deep> --mode <mode> [--out <run>] [--topic <topic>]
       pick a time budget up front; quick needs a calibrated mode
   inkling timings [<run dirs>...]        real minutes per layer against the estimates
@@ -112,6 +121,11 @@ export function main(argv) {
       backend: { type: "string" },
       calibrate: { type: "boolean" },
       notes: { type: "string" },
+      count: { type: "string" },
+      restart: { type: "boolean" },
+      because: { type: "string" },
+      keep: { type: "string" },
+      fixed: { type: "string" },
     },
   });
   if (values.mode && !MODES[values.mode]) {
@@ -169,6 +183,8 @@ export function main(argv) {
     }
     case "readers":
       return readers(positionals, values);
+    case "directions":
+      return directionsCommand(positionals, values);
     case "prefer":
       return prefer(positionals, values);
     case "rules": {
@@ -243,6 +259,10 @@ function panel([sub, ...pos], values) {
         process.stderr.write(`inkling: ${r.refused}\n`);
         return 1;
       }
+      if (r.restart) {
+        process.stdout.write(`${r.restart} Pass --force to edit this draft anyway.\n`);
+        return 4;
+      }
       if (r.stopped) {
         process.stdout.write(r.stopped.text + "\n");
         return 0;
@@ -280,6 +300,69 @@ function pendingMessage(pending, what, save) {
     pending.map((p) => `  ${p}`).join("\n") +
     "\nThen run grade again.\n"
   );
+}
+
+/**
+ * Directions: each step writes prompts for fresh subagents (or answers them with claude -p under
+ * --backend claude), and running the same step again moves on once the answers are in.
+ */
+async function directionsCommand([sub, ...pos], values) {
+  const refused = refuseIfPaid(`directions ${sub ?? ""}`.trim());
+  if (refused) {
+    process.stderr.write(refused + "\n");
+    return 2;
+  }
+  const claude = values.backend === "claude";
+  const say = (t) => process.stdout.write(t.endsWith("\n") ? t : t + "\n");
+  const step = async (run, again) => {
+    let r = run();
+    while (r.pending && claude) {
+      await answerWithClaude({ prompts: r.pending, model: values.reader ?? "opus" });
+      r = again();
+    }
+    return r;
+  };
+  const waiting = (r, next) => say(pendingMessage(r.pending, r.stage === "writers" ? "writer prompts" : "reader prompts", "<name>.answer.md").replace("Then run grade again.", `Then run ${next}.`));
+  if (sub === "start") {
+    const [brief, readersFile] = pos;
+    if (!brief || !readersFile || !values.out) return usage('inkling directions start <brief> <readers.yaml> --out <run> [--count N] [--restart --because "<what failed>"]');
+    if (values.restart && !values.because) return usage('--restart needs --because "<what failed, in one sentence>"');
+    const r = directionsStart({ brief, readersFile, out: values.out, count: values.count ? Number(values.count) : undefined, because: values.restart ? values.because : null, fixed: list(values.fixed) ?? [] });
+    say(`directions round ${r.round}: ${r.prompts.length} writers, one lens each.`);
+    if (!claude) return waiting({ pending: r.prompts, stage: "writers" }, `inkling directions pick ${values.out}`), 3;
+    return directionsCommand(["pick", values.out], values);
+  }
+  const out = pos[0];
+  if (!out) return usage("inkling directions start|pick|evolve|final <run>");
+  if (sub === "pick") {
+    const r = await step(() => directionsPick({ out, force: values.force }), () => directionsPick({ out, force: values.force }));
+    for (const w of r.warnings ?? []) say(`note: ${w.a} and ${w.b} share the image idea (${w.overlap} overlap); readers will see one picture twice`);
+    if (r.pending) return waiting(r, `inkling directions pick ${out}`), 3;
+    if (r.close) {
+      say(r.close.map((c) => `too close: ${c.a} and ${c.b} share the ${c.field} (${c.overlap} overlap)`).join("\n"));
+      say(`Two directions with one idea are one direction. Delete the answer of one in each pair and run its writer again as a fresh subagent, or pass --force to keep them. Then run inkling directions pick ${out}.`);
+      return 1;
+    }
+    say(`board: ${r.board}`);
+    say(r.ranked.map((d) => `  ${d.id} (${d.lens}) ${d.points} points: ${d.headline}`).join("\n"));
+    say(`evolve: ${r.keep.join(", ")}${r.clear ? " (a clear first pick)" : ""}. If a person is directing, show them the board now; they may pick other directions with --keep. Then run inkling directions evolve ${out}${claude ? " --backend claude" : ""}.`);
+    return 0;
+  }
+  if (sub === "evolve") {
+    const r = directionsEvolve({ out, keep: list(values.keep) });
+    if (!claude) return waiting({ pending: r.prompts, stage: "writers" }, `inkling directions final ${out}`), 3;
+    await answerWithClaude({ prompts: r.prompts, model: values.reader ?? "opus" });
+    return directionsCommand(["final", out], values);
+  }
+  if (sub === "final") {
+    const r = await step(() => directionsFinal({ out }), () => directionsFinal({ out }));
+    if (r.pending) return waiting(r, `inkling directions final ${out}`), 3;
+    say(`winner: ${r.winner}${r.votes ? ` (${Object.entries(r.votes).map(([k, v]) => `${k} ${v}`).join(", ")})` : ""} -> ${r.file}`);
+    if (r.skips?.length) say(`readers would still skip: ${r.skips.join("; ")}`);
+    say(`Next: inkling check ${r.file} --mode <mode>, then inkling readers panel start ${r.file} <readers.yaml> --out ${out}.`);
+    return 0;
+  }
+  return usage("inkling directions start|pick|evolve|final");
 }
 
 async function listenCommand([script], values) {

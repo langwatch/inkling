@@ -15,7 +15,8 @@ const fresh = () => mkdtempSync(join(tmpdir(), "inkling-readers-"));
 test("readers file parses from YAML", () => {
   const spec = readReadersFile(file);
   assert.deepEqual(spec.personas.map((p) => p.id), ["engineer", "skimmer"]);
-  assert.equal(spec.expectations.length, 4);
+  assert.equal(spec.expectations.length, 5);
+  assert.ok(spec.expectations.some((e) => e.id === "names_explained" && e.core));
   assert.equal(spec.context.arrived_from, "a link in a Hacker News comment");
   assert.ok(spec.questions.length >= 5);
 });
@@ -212,7 +213,7 @@ test("a voice persona sees the author's samples, is asked for any line the autho
   const rf = join(dir, "voice.readers.yaml");
   writeFileSync(rf, "personas:\n  - id: friend\n    voice: true\n    background: Someone who knows how the author talks.\n  - id: other\n    background: b\nexpectations: []\n");
   const spec = readReadersFile(rf);
-  assert.deepEqual(spec.expectations.map((e) => [e.id, e.applies_to]), [["sounds_like_author", ["friend"]]]);
+  assert.deepEqual(spec.expectations.map((e) => [e.id, e.applies_to]), [["sounds_like_author", ["friend"]], ["names_explained", undefined]]);
   const out = fresh();
   writePrompts({ draft, readersFile: rf, out, runs: 2 });
   const prompt = readFileSync(join(out, "friend-r1.prompt.md"), "utf8");

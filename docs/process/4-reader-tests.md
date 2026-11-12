@@ -1,6 +1,6 @@
 # Reader tests
 
-A reader test checks whether a stranger gets what the writer meant. You write it before the draft, in a readers file: who reads, where they come from, what each of them must take away. In step 7, simulated readers with no context read the draft, and a grader checks their answers against these expectations.
+A reader test checks whether a stranger gets what the writer meant. You write it before the draft, in a readers file: who reads, where they come from, what each of them must take away. In step 8, simulated readers with no context read the draft, and a grader checks their answers against these expectations.
 
 You write the test first so it checks the reader and the claim from steps 1 to 3, because a test written after the draft ends up describing the draft.
 
@@ -45,6 +45,32 @@ expectations:
 - `core: true` marks the expectations that decide whether the draft is done. With none marked, all of them are core.
 - `questions` overrides the default questions; JSON works as well as YAML.
 - `competitors` lists the other results for the same search (`name`, `url`, `file` with the page text as a visitor sees it) and needs `context.search`. Readers see them beside the draft and answer two more questions: which one they would sign up on, and whether this page looks like a real company with a real product.
+
+- `purpose:` says what the page is meant to be, in one line ("a benchmark of token-saving add-ons, not an ad for any one tool"). With it, every reader gets the `reads_as_purpose` expectation, core: they take the page for that, and a reader who calls it an ad for something it covers fails it. Every reader is asked what the page is for and whether any part reads like an ad, with or without it.
+
+## What the reader knows
+
+The reader is a model, and a model knows every tool on GitHub. Without a rule, a reader playing an engineer happily explains rtk or a ten-week-old plugin, so a page that headlines a name only its author knows passes every test. The writer has the same blind spot, because they spent weeks with that name.
+
+So every reader prompt says to know only what the persona knows, and every reader is asked which names they would have to look up: each product, tool, company, acronym or term the persona can't place, where they met it and whether the text had said what it is by then.
+
+Where to draw the line is the reader's call, against one bar: does this person use it or hear of it every week? React, Docker or ChatGPT for an engineer, Excel or Stripe for a finance lead pass. A niche open-source tool, a young startup, a product's own feature name or an internal name does not, unless it was in what they searched for or where they came from.
+
+Every readers file gets the `names_explained` expectation, core. It fails when a name the reader can't place sits in the title, the subtitle, a heading, a headline number or the result, or the reader needed it to follow the point, and the text had not said what it is by then.
+
+A bare name in a headline tells a newcomer nothing, and a result about an unexplained name reads like an ad for it. A name met only in the details passes as a note.
+
+`names: false` turns it off, for a piece written for insiders.
+
+Calibration on 2026-11-12, two runs per reader:
+
+| Page | Old readers | New readers |
+| --- | --- | --- |
+| a Claude Code token-saving benchmark that headlines "−21% cost a session with rtk" and explains rtk only in the tool cards | all pass, stop editing | `names_explained` fails 2/2 for the engineer and the skimmer, on rtk in the headline |
+| a comparison page for people who searched for an alternative to OpenClaw | | passes 2/2: OpenClaw is in their search, and Laze is explained in the title |
+| a comparison with Slack for a founder whose team lives in Slack | | Slack, ChatGPT and Claude Code pass; fails on Agentforce in the price row and on the page's own feature labels |
+
+The fix for a name is a line: say what it is the first time it appears ("rtk, an open-source tool that shortens shell output before Claude reads it"). So a `names_explained` fail never sends the piece back to directions on its own.
 
 ## Voice readers
 

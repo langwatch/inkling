@@ -9,6 +9,19 @@ import { parseYaml } from "./yaml.mjs";
 import { blankFrontmatter } from "./markdown.mjs";
 import { ClaudeCli, claudeLogin } from "./subscription.mjs";
 
+/**
+ * The curse of knowledge: the reader is a model that knows every tool on GitHub, so it has to be told
+ * to know only what the persona knows, and asked which names it would have to look up.
+ */
+export const KNOWLEDGE_RULE =
+  "You know only what this person would know, not what you happen to know. Count a product, tool, company, acronym or term as known only when most people with this background use it or hear of it every week (for a software engineer: React, Docker, GitHub, Postgres, ChatGPT; for a finance lead: Excel, Stripe, an invoice). A niche open-source tool, a young startup, a product's own feature name or an internal name is unknown to you, even when you happen to know it, unless the text says what it is or it is in what you searched for or where you came from.";
+
+export const NAMES_QUESTION =
+  "List every name or term you read that this person would have to look up (a product, tool, company, acronym or jargon), and for each say where you first met it and whether the text had told you what it is by then. Ignore names this person uses or hears of every week. If there are none, say none.";
+
+export const PURPOSE_QUESTION =
+  "What is this page for, and who gains if you do what it asks? Does any part read like an ad, and if so for what?";
+
 // No question primes fault-finding: readers say what they would do and whether anything made them stop.
 export const DEFAULT_QUESTIONS = [
   "From this text only, what is this about, and what is offered, in one line?",
@@ -19,6 +32,8 @@ export const DEFAULT_QUESTIONS = [
   "Quote, word for word, the line you liked most, and any line you had to read twice or that sounded odd. If no line did either, say so.",
   "Quote, word for word, any line that does not sound like something a person would say out loud to you. If every line does, say so.",
   "Where would you start skimming, and what had you grasped by then?",
+  NAMES_QUESTION,
+  PURPOSE_QUESTION,
 ];
 
 /** Every reason a reader gives for stopping or questioning gets one class; only trust_breaking fails by default. */
@@ -82,7 +97,7 @@ export function stanceOf(context = {}) {
 }
 
 export const readerRules = (context) =>
-  `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. ${STANCES[stanceOf(context)]}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].state}` : ""} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
+  `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. ${KNOWLEDGE_RULE} ${STANCES[stanceOf(context)]}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].state}` : ""} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
 
 /** The questions a comparison reader answers when the readers file names the other results. */
 export const compareQuestions = (search) => [
@@ -90,7 +105,7 @@ export const compareQuestions = (search) => [
   "Does this page look like a real company with a real product behind it? What made you decide?",
 ];
 
-function contextLines({ context = {}, persona }) {
+export function contextLines({ context = {}, persona }) {
   const lines = [];
   if (context.author) lines.push(`Who wrote it: ${context.author}`);
   if (context.size) lines.push(`How big they are: ${context.size}`);
@@ -132,6 +147,21 @@ export const VOICE_EXPECTATION = {
   expect: "The reader quotes no line, or answers yes or close enough for each. Read only the first two quotes; ignore any after them. It fails only on one of those with a clear no, they would not write that; the quote is the evidence. \"Probably not exactly, but close\" or \"tidier than they talk\" is a pass.",
 };
 
+/** Every persona gets it: a name the reader cannot place, where the reader needs it, fails the draft. */
+export const NAMES_EXPECTATION = {
+  id: "names_explained",
+  core: true,
+  expect:
+    "Every name the reader says they would have to look up is explained where they need it. It fails when such a name sits in the title, the subtitle, a heading, a headline number or the result, or the reader needed it to follow the point, and the text had not said what it is by then (a bare name in a headline tells a newcomer nothing, and a result about an unexplained name reads like an ad for it). A name met only in the details, or one the reader could guess from the sentence around it, passes as a note. A name the persona would plainly know (React for an engineer) is no fail even when listed.",
+};
+
+/** With `purpose:` set, the reader must read the page as what it is meant to be, not as an ad for something in it. */
+export const purposeExpectation = (purpose) => ({
+  id: "reads_as_purpose",
+  core: true,
+  expect: `The reader takes the page for what it is meant to be: ${purpose.trim()} It fails when they say it reads mainly as something else, such as an ad for one of the things it covers or a pitch that hides behind the content. A short plug for the author at the end that the reader notices and accepts passes.`,
+});
+
 /** With `result:` set, every skimmer must get that result from what a skim shows: a visual and at most one number. */
 export const skimResultExpectation = (result) => ({
   id: "skim_gets_result",
@@ -157,6 +187,8 @@ export function readReadersFile(path) {
   if (voiced.length && !expectations.some((e) => e.id === VOICE_EXPECTATION.id)) expectations.push({ ...VOICE_EXPECTATION, applies_to: voiced });
   const skimmers = personas.filter((p) => p.view === "skim").map((p) => p.id);
   if (data.result && skimmers.length && !expectations.some((e) => e.id === "skim_gets_result")) expectations.push({ ...skimResultExpectation(data.result), applies_to: skimmers });
+  if (data.names !== false && !expectations.some((e) => e.id === NAMES_EXPECTATION.id)) expectations.push({ ...NAMES_EXPECTATION });
+  if (data.purpose && !expectations.some((e) => e.id === "reads_as_purpose")) expectations.push(purposeExpectation(data.purpose));
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
   const context = { ...(data.context ?? {}) };
   if (data.stance) context.stance = data.stance;
@@ -168,9 +200,11 @@ export function readReadersFile(path) {
     return { ...c, text: readFileSync(resolve(path, "..", c.file), "utf8").trim() };
   });
   if (competitors.length && !context.search) throw new Error(`${path}: competitors need context.search, the search they came from`);
-  const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS;
+  const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS.filter((q) => data.names !== false || q !== NAMES_QUESTION);
   const withPage = page && !data.questions?.length ? [...base, PAGE_VISITORS[page].question] : base;
-  const questions = competitors.length ? [...withPage, ...compareQuestions(context.search)] : withPage;
+  const always = [data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
+  const asked = [...withPage, ...always];
+  const questions = competitors.length ? [...asked, ...compareQuestions(context.search)] : asked;
   return { ...data, context, competitors, personas, expectations, questions };
 }
 

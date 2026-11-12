@@ -8,6 +8,10 @@ Then the agent grades the answers against the expectations you wrote before the 
 
 Each round allows smaller edits than the last: whole sections first, then paragraphs, then single lines. See the [panel tool](../tools/panel.md).
 
+Shrinking edits only make sense when the direction is right. When a core expectation fails, or a trust-breaking doubt holds, for at least half of the readers, the feedback is about the piece, and `panel round` refuses the next edit: throw the draft away and go back to [directions](5-directions.md) with the reason. The same goes for a person who says the piece is wrong at its root. Line-level fails, such as an unexplained name, stay line edits.
+
+Each reader plays the person in the readers file and knows only what that person knows, so they also list the names they would have to look up. A name that carries the headline or the result without saying what it is fails `names_explained`; see [what the reader knows](4-reader-tests.md#what-the-reader-knows).
+
 Fix what stopped a reader, never what a reader forgot to name. A reader who explains the idea but can't recall the term for it has understood it; adding a line that repeats the terms makes the piece sound like a summary.
 
 Watch how readers retell the piece. A reader who answers "what did you take away" with the writer's story ("they picked this model because it was safe") and no line about what it means for them is telling you the piece is written from our side. Write an expectation for it when the piece explains a choice: "The reader says what the choice means for them."

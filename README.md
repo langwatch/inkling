@@ -20,16 +20,17 @@ A narrated video (6:50) on the six ways AI writing goes wrong and how this proce
 
 ## The process
 
-When your agent writes something people will read, it goes through eight steps:
+When your agent writes something people will read, it goes through nine steps:
 
 1. **[Who reads.](docs/process/1-who-reads.md)** A line on the reader: who they are, where they come from, what they know, what they are deciding.
 2. **[Which mind.](docs/process/2-which-mind.md)** Pick the mind the reader needs: a seller, an engineer, a lawyer, an investor, or more than one.
 3. **[The claim.](docs/process/3-one-claim.md)** The one thing the piece has to land, and what this reader would not expect.
 4. **[Reader tests first.](docs/process/4-reader-tests.md)** Before any draft, write what each reader must take away.
-5. **[Draft.](docs/process/5-draft.md)** Explain it to one reader who asked, the way you would say it, in the [reference voice](docs/voice/reference.md), from memory and with no outline. Then shape it for the reader and trim whole repeats, never the "so" and "because".
-6. **[Check.](docs/process/6-check.md)** Look for the phrasing reviewers rejected before: hedges, slogans, contrast formulas, crammed headlines.
-7. **[Reader test.](docs/process/7-reader-test.md)** Simulated readers read the draft and say what they would do next and where they would stop. Fix what stopped them.
-8. **[Stop.](docs/process/8-stop.md)** Stop when the readers pass, or when the time you set runs out, and keep what readers still asked for the next piece.
+5. **[Directions.](docs/process/5-directions.md)** Fresh writers, each with one lens, write first screens that start from different places. Readers pick, and the best one or two grow into full drafts. The budget sets how many: one for a quick piece, five for one worth an hour.
+6. **[Draft.](docs/process/6-draft.md)** Explain it to one reader who asked, the way you would say it, in the [reference voice](docs/voice/reference.md), from memory and with no outline. Then shape it for the reader and trim whole repeats, never the "so" and "because".
+7. **[Check.](docs/process/7-check.md)** Look for the phrasing reviewers rejected before: hedges, slogans, contrast formulas, crammed headlines.
+8. **[Reader test.](docs/process/8-reader-test.md)** Simulated readers read the draft as the person they play, knowing only what that person knows, and say what they would do next, where they would stop and which names they would have to look up. Fix what stopped them. When the feedback is about the piece rather than its lines, throw the draft away and go back to directions.
+9. **[Stop.](docs/process/9-stop.md)** Stop when the readers pass, or when the time you set runs out, and keep what readers still asked for the next piece.
 
 ## Start
 
@@ -49,6 +50,7 @@ The agent can pick these up at any step. None of them is required to follow the 
 | --- | --- | --- |
 | [Lint](docs/tools/lint.md) | flags the phrasing reviewers rejected, with line, reason and fix | free, under a second |
 | [Judge](docs/tools/judge.md) | asks Jev, a small paid model, one yes or no question per rule and line, for problems a pattern cannot see | about 0.0003 USD a paragraph, needs an application programming interface (API) key |
+| [Directions](docs/process/5-directions.md) | one fresh writer per lens writes a first screen, readers pick, the best grow into full drafts | Claude subscription |
 | [Reader panel](docs/tools/panel.md) | runs simulated readers from your reader tests, grades their answers, compares versions unlabelled, then one clean-eyes round | Claude subscription |
 | [Budget](docs/tools/budget.md) | sets the time, stops at the best version, lists what is open | free |
 | [Calibration](docs/tools/calibration.md) | measures the rules on lines people already approved and rejected | free |
@@ -113,4 +115,4 @@ More tools: [preference judge](docs/tools/preference.md), [surprise](docs/tools/
 
 ## What works today
 
-The lint, judge, reader panel, budget and calibration tools work and have tests (`npm test`). The preference judge is advisory until its pair set reaches 30 held-out pairs. Surprise is a design with a prototype. No preset is calibrated yet. The [self-check](docs/dogfood.md) records Inkling run on its own docs; see also the [roadmap](docs/roadmap.md) and [credits](docs/credits.md).
+The lint, judge, directions, reader panel, budget and calibration tools work and have tests (`npm test`). The preference judge is advisory until its pair set reaches 30 held-out pairs. Surprise is a design with a prototype. No preset is calibrated yet. The [self-check](docs/dogfood.md) records Inkling run on its own docs; see also the [roadmap](docs/roadmap.md) and [credits](docs/credits.md).

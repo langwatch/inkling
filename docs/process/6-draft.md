@@ -52,7 +52,7 @@ Now read the talk back as the reader from step 1 and add what they need to follo
 
 ## Trim it
 
-Read the claim from step 2 again before you cut. A line that carries part of it, the cause or what works, stays; cut something else, or run over.
+Read the claim from step 3 again before you cut. A line that carries part of it, the cause or what works, stays; cut something else, or run over.
 
 Cut by deleting, never by rewriting. Delete whole things: a repeat, an aside, a second example that proves the same point, a part the claim doesn't need. Keep the connectives, the "I" and "you", the question and its answer, and the case that comes before the name. A sentence that loses its "because" to save four words has lost the part that explained something.
 

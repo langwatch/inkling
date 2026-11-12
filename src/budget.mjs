@@ -9,31 +9,37 @@ export const BUDGETS = {
     minutes: 5,
     label: "Quick, about 5 min",
     steps: ["check (lints)", "judge (Jev)"],
-    skips: "reader panel and clean eyes",
+    skips: "directions, reader panel and clean eyes",
     panelRounds: 0,
     holdout: false,
+    directions: 1,
+    restarts: 0,
   },
   standard: {
     minutes: 15,
     label: "Standard, about 15 min",
-    steps: ["check (lints)", "judge (Jev)", "one panel read", "one fix", "clean eyes"],
+    steps: ["3 directions, readers pick one", "check (lints)", "judge (Jev)", "one panel read", "one fix", "clean eyes"],
     skips: "the A/B rounds where the panel compares versions",
     panelRounds: 0,
     holdout: true,
+    directions: 3,
+    restarts: 1,
   },
   deep: {
     minutes: 60,
     label: "Deep, 30 to 60 min",
-    steps: ["check (lints)", "judge (Jev)", "a panel read plus up to 2 A/B rounds with shrinking edits", "clean eyes"],
+    steps: ["5 directions, readers pick 1 or 2, those grow into full drafts, readers pick one", "check (lints)", "judge (Jev)", "a panel read plus up to 2 A/B rounds with shrinking edits", "clean eyes"],
     skips: "nothing",
     panelRounds: 2,
     holdout: true,
+    directions: 5,
+    restarts: 2,
   },
 };
 export const BUDGET_NAMES = Object.keys(BUDGETS);
 
 /** Initial per-layer estimates in minutes; `inkling timings` shows how real runs compare. */
-export const ESTIMATES = { check: 0.1, judge: 1, "panel-round": 5, holdout: 4 };
+export const ESTIMATES = { directions: 6, check: 0.1, judge: 1, "panel-round": 5, holdout: 4 };
 
 export function describeBudgets(chosen) {
   return BUDGET_NAMES.map((name) => {
