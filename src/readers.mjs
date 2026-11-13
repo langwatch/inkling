@@ -171,6 +171,24 @@ export const purposeExpectation = (purpose) => ({
 export const ENGINEERING_QUESTION =
   "Who do you think wrote this: a person writing from their own work, or a writer or model filling a page? Readers like you tend to rate model prose above human prose, so correct for it. Signs of a person: paragraphs of very different sizes, an opinion they take a side on, asides, run-on sentences, rough or casual phrasing, examples from their own projects told loosely. Treat those as evidence of a person, never as flaws. Signs of a model: every paragraph the same size and shape, tidy groups of three, balanced hedging, 'not X but Y' turns, polished lines that say little, a made-up example company, a race between models narrated as a story. Name one detail only someone who did the work would know, and quote the lines that read machine-written. If none, say none.";
 
+// Founder review 2026-11-13: an explainer opens with what the product does for the reader and describes how it works now.
+export const EXPLAINER_QUESTION =
+  "How does the first paragraph open: with what you get or the problem you have, or with how the thing works step by step, or with what went wrong before? Then: does the page explain what the thing does for you now, or does it spend time on the product's own failures, past bugs, rebuilds or how it handles its own internal errors (error codes, retries, recovery)? Quote the lines that show it.";
+
+export const OPENS_WITH_VALUE_EXPECTATION = {
+  id: "opens_with_value",
+  core: true,
+  expect:
+    "The first paragraph opens with what the reader gets or with the reader's own problem or stakes. It fails only when it opens by walking through how the product works step by step (a mechanism opener: when you give it X, it does Y), or with what went wrong before. A premise the reader already agrees with is fine.",
+};
+
+export const NO_FAILURE_STORY_EXPECTATION = {
+  id: "no_failure_story",
+  core: true,
+  expect:
+    "The page explains what the product does for the reader now. It fails when the reader says it is framed around the product's own past failures, bugs or a rebuild, or when a section explains how the product handles its own internal failure modes (error codes, retries, recovery, robustness work), even framed positively; a quoted line is the evidence. A failure of other tools or of an unstructured approach, used as contrast, is fine, and so is how the product handles the reader's data (long traces, big inputs).",
+};
+
 export const ENGINEERING_EXPECTATION = {
   id: "engineering_voice",
   core: true,
@@ -202,8 +220,10 @@ export function readReadersFile(path) {
   if (data.engineering) {
     const marked = personas.filter((p) => p.engineer);
     const engineers = marked.length ? marked : personas.filter((p) => p.view === "full");
-    for (const p of engineers) p.extraQuestions = [...(p.extraQuestions ?? []), ENGINEERING_QUESTION];
-    if (!expectations.some((e) => e.id === ENGINEERING_EXPECTATION.id)) expectations.push({ ...ENGINEERING_EXPECTATION, applies_to: engineers.map((p) => p.id) });
+    for (const p of engineers) p.extraQuestions = [...(p.extraQuestions ?? []), ENGINEERING_QUESTION, EXPLAINER_QUESTION];
+    for (const x of [ENGINEERING_EXPECTATION, OPENS_WITH_VALUE_EXPECTATION, NO_FAILURE_STORY_EXPECTATION]) {
+      if (!expectations.some((e) => e.id === x.id)) expectations.push({ ...x, applies_to: engineers.map((p) => p.id) });
+    }
   }
   const voiced = personas.filter((p) => p.voice).map((p) => p.id);
   if (voiced.length && !expectations.some((e) => e.id === VOICE_EXPECTATION.id)) expectations.push({ ...VOICE_EXPECTATION, applies_to: voiced });

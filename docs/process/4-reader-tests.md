@@ -70,6 +70,8 @@ A bare name in a headline tells a newcomer nothing, and a result about an unexpl
 
 An expectation that grades something no question asks for, such as why a step exists, carries `ask:` with the question; every persona it applies to gets it. Without it, readers summarise what the page does and the grader fails them for leaving out a reason nobody asked for.
 
+Engineering posts also get two core checks from the founder's review of the Langy post (2026-11-13). `opens_with_value` fails a first paragraph that walks through how the product works step by step, or opens with what went wrong; an opening on the reader's problem or stakes passes. `no_failure_story` fails a page framed around the product's own past failures or rebuilds, and a section on how the product handles its own internal errors (error codes, retries, recovery), even framed positively ("no documenting of langy fails"). Round five: the rejected post failed both 3/3; five approved posts passed all checks 3/3.
+
 So the `engineering_voice` expectation is core: it fails when the reader calls the post a generic tutorial or a staged experiment, or cannot name one mechanism and why it exists.
 
 Calibration on 2026-11-12, two runs per reader:
