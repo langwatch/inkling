@@ -46,19 +46,26 @@ export default [
       if (!terms?.length) return [];
       const prose = doc.blocks.filter((b) => b.text && !/^\s*</.test(b.text));
       const all = [doc.title?.text, doc.subtitle?.text, ...prose.map((b) => b.text)].filter(Boolean).join("\n");
-      const first = prose[0];
-      const rare = terms.flatMap((term) => {
-        const esc = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const n = (all.match(new RegExp(`\\b${esc}(?:s|es)?\\b`, "gi")) ?? []).length;
+      const word = (w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:s|es)?\\b`, "gi");
+      const rare = terms.flatMap(({ term }) => {
+        const n = (all.match(word(term)) ?? []).length;
         return n >= 2 ? [] : [`"${term}" ${n === 0 ? "nowhere" : "once"}`];
       });
-      return rare.length ? [{ block: first, index: 0, note: `Missing or rare: ${rare.join(", ")}.` }] : [];
+      const hits = rare.length ? [{ block: prose[0], index: 0, note: `Missing or rare: ${rare.join(", ")}.` }] : [];
+      for (const { term, standIns } of terms)
+        for (const alt of standIns)
+          for (const block of prose)
+            for (const m of block.text.matchAll(word(alt))) hits.push({ block, index: m.index, match: m[0], note: `"${m[0]}" stands in for "${term}": say ${term} every time.` });
+      return hits;
     },
-    message: "One of the audience's own words is missing or used once. Readers and search find a post by the words they already use.",
-    fix: "Say the term itself where the text now says a generic stand-in (\"evals\" where it says \"a record\" or \"a measurement\"), and let it come back. Repeating the reader's word is not a style slip here.",
+    message: "One of the audience's own words is missing, used once, or swapped for a stand-in (\"measurements\" for evals). Readers and search find a post by the words they already use.",
+    fix: "Say the term every time, where the text now says a generic stand-in (\"evals\" where it says \"a record\" or \"a measurement\"), and let it come back. Repeating the reader's word is not a style slip here.",
     source: "Founder edit of an engineering post, 2026-11-13: \"it uses evals a word that is on their zeitgeist not record\"; \"we should use more repeated keywords for the content we are writing and trying to index, even thinking of SEO but not only\".",
     examples: {
-      fail: [{ text: "---\nterms: evals\n---\n\nThe agent changed its prompt and nobody kept a record of which change helped.", mode: "post" }],
+      fail: [
+        { text: "---\nterms: evals\n---\n\nThe agent changed its prompt and nobody kept a record of which change helped.", mode: "post" },
+        { text: "---\nterms: evals=measurements|scores\n---\n\nRun the evals before every change. The measurements show which change helped, and the evals catch regressions.", mode: "post" },
+      ],
       pass: [
         { text: "---\nterms: evals\n---\n\nThe agent changed its prompt with no evals measuring if it helped. Run the evals before every change.", mode: "post" },
         { text: "The agent changed its prompt and nobody kept a record.", mode: "post" },

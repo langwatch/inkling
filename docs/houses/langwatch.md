@@ -21,4 +21,8 @@ The scenario script is the one place where code is the clearest thing: a test wr
 
 ## Their words
 
-AI engineers say evals, traces, regressions, LLM-as-a-judge, scenarios, datasets, prompts. Pass them as `--terms` on posts.
+AI engineers say evals, traces, regressions, LLM-as-a-judge, scenarios, datasets, prompts. The default list for a post to them, with the stand-ins models swap in:
+
+```sh
+--terms "evals=measurements|measurement|scores|assessments,traces=records|logs,regressions=breakages,LLM-as-a-judge=grader model|judge model"
+```

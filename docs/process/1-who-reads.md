@@ -20,7 +20,7 @@ What the readers want also sets the opening and the length. A reader deciding wh
 
 ## Their words
 
-Write down the words this audience uses for the subject, the ones they search for and say to each other: for AI engineers that is evals, traces, regressions, LLM-as-a-judge, not "records" or "measurements". Use those words in the piece and let them come back; a generic synonym chosen for variety makes the reader stop recognising their own problem, and search stops finding it. Pass them to the check with `--terms` or `terms:` in the front matter.
+Write down the words this audience uses for the subject, the ones they search for and say to each other: for AI engineers that is evals, traces, regressions, LLM-as-a-judge, not "records" or "measurements". Use those words in the piece and let them come back; a generic synonym chosen for variety makes the reader stop recognising their own problem, and search stops finding it. Pass them to the check with `--terms` or `terms:` in the front matter, each with the stand-ins a writer tends to swap in after `=`: `--terms "evals=measurements|scores,traces=records|logs"`. The `audience-terms` warning then flags a term that is missing or used once, and every stand-in, with "say evals every time".
 
 ## When the request doesn't say
 

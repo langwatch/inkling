@@ -95,7 +95,9 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
   const doc = parse(text);
   if (MODES[mode].firstBlockIsTitle && !doc.title) doc.title = doc.blocks.find((b) => PROSE.has(b.type)) ?? null;
   const kind = pageOf({ mode, page, frontmatter: doc.frontmatter });
-  const termList = (terms ?? doc.frontmatter.terms?.value ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+  // "evals=measurements|scores": the audience's term, then the stand-ins a writer swaps in for it.
+  const termList = (terms ?? doc.frontmatter.terms?.value ?? "").split(",").map((t) => t.trim()).filter(Boolean)
+    .map((t) => { const [term, alts = ""] = t.split("="); return { term: term.trim(), standIns: alts.split("|").map((a) => a.trim()).filter(Boolean) }; });
   const ctx = { doc, mode, page: kind, audience, minutes, terms: termList, settings: settingsOf(mode, kind), words };
   const findings = [];
   for (const rule of rules) {

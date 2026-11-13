@@ -21,7 +21,7 @@ Each run gets its own folder under `INKLING_SCENARIO_ROOT` (default `$TMPDIR/ink
 - `conclusions.md`: what the grader checks, each YES, PARTIAL or NO with the line that decides it, and a `SCORE n/m`. If it mentions the inkling check output, the run's `output.md` is checked in post mode and the findings go to the grader.
 - `scrub.sed`, optional: hides mentions of the scenario's own case in the copied docs and rules. Rules learned from a real review often quote it, and an agent that reads the answer is not reaching it.
 
-Write the conclusions from what the person said. Conclusions taken from a draft that passed will pass that draft by construction. Add a scenario when a review teaches something Inkling should have led to.
+Write the conclusions from what the person said. Conclusions taken from a draft that passed will pass that draft by construction. Add a scenario when a review shows a conclusion Inkling should have led to.
 
 ## The suite
 
