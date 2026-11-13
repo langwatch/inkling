@@ -6,8 +6,13 @@ export const MODES = {
     paragraphWords: 80,
   },
   post: {
-    label: "technical or founder post: an engineer writing to engineers, a person telling a story",
+    label: "technical or founder post: an engineer writing to engineers, a person telling a story. Pick the kind with --page or `page:` in the front matter",
     paragraphWords: 70,
+    defaultPage: "article",
+    pages: {
+      article: { label: "how our system works, a launch, an opinion: no staged contest between models" },
+      experiment: { label: "write-up of an experiment we ran: comparing models or agents is the point" },
+    },
   },
   ads: {
     label: "marketing, ads, landing copy, titles: a business mind, lead with strengths, never concede",
@@ -93,7 +98,7 @@ export const modeFamily = (mode) => [mode, ...(MODES[mode]?.like ?? [])];
 
 export const pageNames = (mode) => Object.keys(MODES[mode]?.pages ?? {});
 
-/** The landing kind a draft is: `--page`, then `page:` in the front matter, then the mode's default. */
+/** The page kind a draft is (landing or post): `--page`, then `page:` in the front matter, then the mode's default. */
 export function pageOf({ mode, page, frontmatter = {} }) {
   const pages = MODES[mode]?.pages;
   if (!pages) return null;

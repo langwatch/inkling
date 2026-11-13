@@ -97,4 +97,6 @@ Notes: when one person builds an agent, the rest of the team has to ask that per
 
 In `--mode post`, paragraphs cap at 70 words, and `structure/wall-of-text` fails three paragraphs in a row over 45 words with no heading, list, table or figure between them (founder review, 2026-11-13: "those are walls of text"; the rejected post had two such stretches, the approved Doubleword post none).
 
+A post is an `article` by default: how our system works, a launch, an opinion. There `blog/staged-experiment` and `blog/contest-heading` fail "We gave three models..." framing. A post that really is an experiment write-up sets `page: experiment` in the front matter (or `--page experiment`) and those two rules stay off (founder, 2026-11-13: "it would be ok if I was writing an experiment, that's not the case").
+
 For posts, the lint is the gate. In the first calibration (2026-11-13, three readers per post), the reader checks `engineering_voice` and `reads_as_purpose` gave the same verdict on the rejected auto-improving agents post and the approved Doubleword post, while the lint gave 18 errors against 2. Treat reader verdicts on posts as notes until they are calibrated on more posts the founder approved and rejected.
