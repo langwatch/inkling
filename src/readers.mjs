@@ -166,14 +166,16 @@ export const purposeExpectation = (purpose) => ({
  * With `engineering: true`, the engineer personas (`engineer: true`, or every full reader when none is marked)
  * check the post reads as the builders explaining their own system, not a staged tutorial.
  */
+// Model readers prefer model prose (Meta, "Unslopping AI": 63 to 85% of pairs), so the question names
+// the human signals and the model tells, and calibration runs on posts the founder wrote by hand.
 export const ENGINEERING_QUESTION =
-  "Who do you think wrote this, and does it read like the engineers who built this system explaining how it works? Name one mechanism you could now explain to a colleague (a tool, an endpoint, a setting, a step and why it exists). Quote any line that reads like a staged experiment, a contest between products, a made-up example company or marketing. If none, say none.";
+  "Who do you think wrote this: a person writing from their own work, or a writer or model filling a page? Readers like you tend to rate model prose above human prose, so correct for it. Signs of a person: paragraphs of very different sizes, an opinion they take a side on, asides, run-on sentences, rough or casual phrasing, examples from their own projects told loosely. Treat those as evidence of a person, never as flaws. Signs of a model: every paragraph the same size and shape, tidy groups of three, balanced hedging, 'not X but Y' turns, polished lines that say little, a made-up example company, a race between models narrated as a story. Name one detail only someone who did the work would know, and quote the lines that read machine-written. If none, say none.";
 
 export const ENGINEERING_EXPECTATION = {
   id: "engineering_voice",
   core: true,
   expect:
-    "The reader says it reads like the engineers who built the system explaining it, and names at least one real mechanism (a tool, endpoint, setting or step) with why it exists. It fails when they say it reads like a generic tutorial, a staged experiment or a race between models, a made-up example company, or marketing, or when they cannot name any mechanism; a quoted line is the evidence. One odd line they quote while still calling it an engineering post is a note, not a fail.",
+    "The reader judges that a person wrote it from their own work. It fails only when they say it reads machine-written and quote lines with model tells (even rhythm, tidy triads, balanced hedging, polished lines that say little), or when it rests on a made-up example company or a race between models narrated as a story set up for the post. Loose or unnumbered examples, opinions, missing data or code, a launch or product plug, and a benchmark the writers ran on their own data are doubts, not fails.",
 };
 
 /** With `result:` set, every skimmer must get that result from what a skim shows: a visual and at most one number. */

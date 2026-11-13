@@ -258,8 +258,8 @@ test("engineering: true asks the engineer personas the engineering-voice questio
   assert.deepEqual(eng.applies_to, ["builder"]);
   const out = fresh();
   writePrompts({ draft, readersFile: rf, out });
-  assert.match(readFileSync(join(out, "builder.prompt.md"), "utf8"), /engineers who built this system/);
-  assert.doesNotMatch(readFileSync(join(out, "buyer.prompt.md"), "utf8"), /engineers who built this system/);
+  assert.match(readFileSync(join(out, "builder.prompt.md"), "utf8"), /writing from their own work/);
+  assert.doesNotMatch(readFileSync(join(out, "buyer.prompt.md"), "utf8"), /writing from their own work/);
 });
 
 test("engineering: true with no marked engineer asks every full reader, never a skimmer", () => {
