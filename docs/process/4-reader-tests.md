@@ -67,6 +67,16 @@ Write these from what the person who asked for the piece wants, not from the dra
 
 Every full reader of a draft over 800 words gets the `holds_attention` expectation, core: they read to the end because they wanted to. It fails when they stopped, started skimming before the last part, or found a stretch dull, repetitive or too long. There is no length cap; a long piece passes when it holds the reader, and the grader is stricter the longer it is. `holds: false` turns it off, for docs and references people search rather than read.
 
+Calibration on 2026-11-13, an engineer and a CTO arriving cold from LinkedIn, two runs each:
+
+| Post | engineer | CTO |
+| --- | --- | --- |
+| launch post the founder approved (Instant Evals, 1,566 words) | pass 2/2 | pass 2/2 |
+| launch post the founder approved (Langy, 1,437 words) | pass 2/2 | pass 2/2 |
+| engineering post the founder rejected (2,988 words) | pass 2/2 | fail 2/2: lost interest in the middle, "too long for a few minutes" |
+
+A first wording that failed any skimmed stretch failed all three posts: real readers skim somewhere even in a post they like. The bar is losing interest, not skimming.
+
 ## Figures
 
 Readers see figures through their alt text unless you give them the real thing. List screenshots of the figures as rendered under `figures:`, each with `where` it sits, and every reader opens them before answering (the `claude -p` backend gives readers the Read tool for those files only):

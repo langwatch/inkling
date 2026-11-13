@@ -513,7 +513,7 @@ export const HOLDS_FROM = 800;
 export const HOLDS_EXPECTATION = {
   id: "holds_attention",
   core: true,
-  expect: "The reader read to the end because they wanted to. Fails if they say they stopped, started skimming before the last part, or found a stretch dull, repetitive or too long. The longer the piece, the stricter: every section has to keep them.",
+  expect: "The reader stayed with the piece to the end and found it worth the time it asked. Skimming one stretch and reading on with interest passes. Fails if they lost interest, stopped or would leave, or call the piece as a whole too long, a slog or not worth the time; the longer the piece, the less a stretch where they lost interest is forgiven.",
 };
 const wordsOf = (md) => blankFrontmatter(md).replace(/```[\s\S]*?```/g, "").split(/\s+/).filter((w) => /\w/.test(w)).length;
 
