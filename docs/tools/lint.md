@@ -33,7 +33,7 @@ Today one rule warns: `narrator/question-opener`, a piece that opens with a ques
 | Family | What it catches |
 | --- | --- |
 | punctuation | em dashes, spaced dashes, arrow calls to action, ellipsis shrugs, a second exclamation mark |
-| banned-words | mannered words such as `load-bearing` and `seam`, vibe phrases, marketing words, price as a verb |
+| banned-words | mannered words such as `load-bearing` and `seam`, vibe phrases, marketing words, price as a verb, written-only connectors (otherwise, thus, whereas, therefore) in every mode but legal |
 | negation | claims defined by what something does not do; headlines that say what a thing is not |
 | hedges | softeners such as `almost` and `fairly`, casual hedges outside posts, modal hedges such as `can help` |
 | contrast | `not X, but Y`, `it wasn't X. It was Y.`, `X, not Y` closers, mirrored pairs, rule-of-three anaphora |

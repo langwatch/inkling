@@ -105,7 +105,7 @@ test("a verbless fragment is an error; one marked on purpose is kept, a second m
 });
 
 test("written-only phrasing is a script warning", () => {
-  const f = check("Left alone, the model drifts towards the average of every marketing line it has read.").filter((x) => x.rule === "script/written-register");
+  const f = check("Left alone, the model drifts towards the average of every marketing line it has read.").filter((x) => x.rule === "banned-words/written-register");
   assert.equal(f[0]?.severity, "warning");
-  assert.ok(!check("On its own, the model drifts towards the average.").some((x) => x.rule === "script/written-register"));
+  assert.ok(!check("On its own, the model drifts towards the average.").some((x) => x.rule === "banned-words/written-register"));
 });

@@ -3,6 +3,32 @@ import { ALL_BUT_LEGAL } from "../src/modes.mjs";
 
 export default [
   {
+    id: "written-register",
+    modes: [...ALL_BUT_LEGAL, "script", "x"],
+    severity: "warning",
+    pattern: /\b(?:left alone|otherwise|thus|hence|whereas|whereby|thereby|therefore|moreover|furthermore|nevertheless|nonetheless|notwithstanding|consequently|accordingly|albeit|in order to|in short|as such|one might|it is worth noting)\b|(?:^|[.;:]\s+)rather,/i,
+    message: "Written-only connector or word. People write it but rarely say it, so the reader has to parse it like a document.",
+    fix: "Say it the way you would out loud, with the condition stated: \"If it fails, Langy writes down what it learned\" for \"Otherwise, Langy writes down...\", \"so\" for \"thus\" or \"therefore\", \"but\" for \"whereas\", \"to\" for \"in order to\", \"on its own\" for \"left alone\".",
+    source: "Founder review of lesson script v12, 2026-11-08, on \"left alone, the model drifts\"; founder note 2026-11-13: \"Sometimes the writing is too fancy and hard to parse, use simpler words, people are simple\".",
+    examples: {
+      fail: [
+        "Otherwise, Langy writes down what it learned.",
+        { text: "Left alone, the model drifts towards the average of every marketing line it has read.", mode: "script" },
+        { text: "We cut the intro in order to save time.", mode: "docs" },
+        "The run failed; thus the pull request stayed closed.",
+        "Small models skip the measurement, whereas Opus runs it.",
+        "It is not a bug. Rather, it is the default.",
+      ],
+      pass: [
+        "If the fix fails, Langy writes down what it learned.",
+        { text: "On its own, the model drifts towards the average.", mode: "script" },
+        "We cut the intro to save time.",
+        "I'd rather run the evals first.",
+        { text: "The licensee shall not, whereas the licensor may.", mode: "legal" },
+      ],
+    },
+  },
+  {
     id: "mannered-words",
     pattern: /\bload[- ]bearing\b|\bseams?\b|\bharvest(?:s|ed|ing)?\b|\bloud(?:ly|er|est)?\b|\bhonest(?:ly|y)?\b|\bnobody\b/i,
     message: "Mannered word. The reader has to translate it back into the plain thing.",

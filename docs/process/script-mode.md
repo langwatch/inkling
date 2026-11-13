@@ -42,7 +42,7 @@ Each connective claims a relation. "So why is AI copy weak?" right after the fra
 
 Talk to the listener. Use "we", "you" and "let's" at least every few sentences: six sentences in a row without them sound like a lecture about a third party. Skip lines about your own material, such as "the rules fit on one screen": say why the next part matters to the listener.
 
-Use spoken words. "Left alone", "thus", "hence", "in order to" and "it is worth noting" sound read off a page; say "on its own", "so" and "to". `script/written-register` warns on them, and the last listen question asks viewers to quote any phrase a person would not say.
+Use spoken words. "Left alone", "thus", "hence", "in order to" and "it is worth noting" sound read off a page; say "on its own", "so" and "to". `banned-words/written-register` warns on them, and the last listen question asks viewers to quote any phrase a person would not say.
 
 Repeat on purpose. Keep one name for each thing and say it again, because a listener who hears "the model", then "the AI", then "the system" wonders whether those are three things. `script/elegant-variation` warns when a script rotates synonyms within four sentences.
 

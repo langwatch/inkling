@@ -438,19 +438,6 @@ export default [
     },
   },
   {
-    id: "written-register",
-    modes: SCRIPT,
-    severity: "warning",
-    pattern: /\b(?:left alone|thus|hence|in short|one might|whereby|therefore|moreover|furthermore|notwithstanding|in order to|as such|it is worth noting)\b/i,
-    message: "Written-only phrasing. People write it but rarely say it, so it sounds read off a page.",
-    fix: "Say what you would say when talking: \"on its own\" for \"left alone\", \"so\" for \"thus\" or \"therefore\", \"to\" for \"in order to\".",
-    source: "Founder review of lesson script v12, 2026-11-08, on \"left alone, the model drifts\"",
-    examples: {
-      fail: [{ text: "Left alone, the model drifts towards the average of every marketing line it has read.", mode: "script" }, { text: "We cut the intro in order to save time.", mode: "script" }],
-      pass: [{ text: "On its own, the model drifts towards the average of every marketing line it has read.", mode: "script" }, { text: "We cut the intro to save time.", mode: "script" }],
-    },
-  },
-  {
     id: "heading-dependence",
     modes: SCRIPT,
     scope: "document",
