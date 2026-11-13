@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { writerPrompt, parseDirection, tooClose, directionsStart, directionsPick, directionsEvolve, directionsFinal, loadDirections, LENSES, directionCount } from "../src/directions.mjs";
 import { startPlan } from "../src/budget.mjs";
 import { panelStart, panelRound, fundamental } from "../src/panel.mjs";
-import { grade, readReadersFile, writePrompts, NAMES_QUESTION, PURPOSE_QUESTION } from "../src/readers.mjs";
+import { grade, readReadersFile, writePrompts, NAMES_QUESTION, PURPOSE_QUESTION, UNPACK_QUESTION } from "../src/readers.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const readersFile = join(FIX, "draft.readers.yaml");
@@ -170,7 +170,7 @@ test("a line-level fail such as an unexplained name never counts as fundamental"
   assert.equal(fundamental(dir), null);
 });
 
-test("every reader is asked which names they would have to look up and what the page is for, even with custom questions", () => {
+test("every reader is asked about unpacking, which names they would have to look up and what the page is for, even with custom questions", () => {
   const spec = readReadersFile(readersFile);
   assert.ok(spec.questions.includes(NAMES_QUESTION));
   assert.ok(spec.questions.includes(PURPOSE_QUESTION));
@@ -178,7 +178,7 @@ test("every reader is asked which names they would have to look up and what the 
   const custom = join(dir, "custom.readers.yaml");
   writeFileSync(custom, "purpose: a benchmark, not an ad for any tool.\nquestions:\n  - What is it?\npersonas:\n  - id: dev\n    background: A developer.\nexpectations: []\n");
   const c = readReadersFile(custom);
-  assert.deepEqual(c.questions, ["What is it?", NAMES_QUESTION, PURPOSE_QUESTION]);
+  assert.deepEqual(c.questions, ["What is it?", UNPACK_QUESTION, NAMES_QUESTION, PURPOSE_QUESTION]);
   assert.deepEqual(c.expectations.map((e) => e.id), ["names_explained", "reads_as_purpose"]);
   const out = fresh();
   writePrompts({ draft: join(FIX, "draft.md"), readersFile: custom, out });

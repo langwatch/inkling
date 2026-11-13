@@ -21,7 +21,7 @@ The same four shapes came back in every version:
 
 **The rule fixes suggested label sentences.** `script/label-opener` fixed "The fourth problem." with "The fourth problem is <name>.", `script/heading-dependence` with "The next problem is that...", and `script/section-no-intro` with "That was the first problem; the second is...". The writer applied them, and the v12 problems section is those fixes, one per part. If you name a thing before the listener has heard what it does, you have to define it in the next sentence.
 
-**The time budget squeezed each part.** Version 11 measured 8.8 minutes against a 3 minute budget, so the next draft cut words inside every part instead of cutting parts. Fitting six problems into about four minutes leaves 40 to 60 words each: room for a name, a claim and one example, and no room for the "because" that explains it.
+**The time budget squeezed each part.** Version 11 ran 8.8 minutes against a 3 minute budget, so the next draft cut words inside every part instead of cutting parts. Fitting six problems into about four minutes leaves 40 to 60 words each: room for a name, a claim and one example, and no room for the "because" that explains it.
 
 **The fixing loop worked line by line.** Each review comment became a patch to one line, and each patch was checked by the lint and the listening test.
 
@@ -63,4 +63,4 @@ That's why the pass rule is set against the control. The section passes a run wh
 
 The test is done after two passing runs in a row.
 
-Until run 5 the listeners ranked the three texts instead. With three texts, one always comes last, and real writing has tells no generator copies in full, so "ranked last" measured distance from one person's style. The question we care about is whether a listener hears a machine, and a single odd phrase one listener noticed is noise until a second one notices it too.
+Until run 5 the listeners ranked the three texts instead. With three texts, one always comes last, and real writing has tells no generator copies in full, so "ranked last" showed distance from one person's style. The question we care about is whether a listener hears a machine, and a single odd phrase one listener noticed is noise until a second one notices it too.

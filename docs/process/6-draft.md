@@ -39,6 +39,19 @@ Picture one person from step 1 sitting across the table. They asked you the ques
 - **Show it, don't define it.** When the listener needs to know what a thing is, give one moment where they would see it happen, not a colon and a list of what it covers. A list of parallel items ("what they know, what they want and what they care about") is a dictionary shape, and two adjectives stacked before a noun ("a polite, complete tour") are a writer's polish. Pick the one that matters.
 - **Say what "it" is.** A pronoun more than a sentence away from its noun loses a listener: "I catch it" two lines after the problem leaves them guessing. Say the noun again.
 
+### No unpacking
+
+Each sentence should sound the way you would say it to someone across the table, so the reader gets it on the first read. If they have to stop and work out what a sentence means, it failed, however correct it is. Chew it for them and talk like people do: "Langy only opens a PR when the evals prove it's better", not "A PR only on a measured win".
+
+The main headline and a marketing punch line may stay short and punchy. Section titles and body text may not. Four checks catch the usual ways a sentence needs unpacking:
+
+- `shorthand-heading`: a heading squeezed into a phrase with no verb.
+- `measured` (banned): say what ran and what it showed.
+- `written-register`: connectors people write but don't say, like "otherwise" or "thus". Say the condition: "If it fails, ...".
+- Jev's `dramatic_never`: "never" for emphasis. Say what happened: "cases it didn't look at".
+
+The reader test asks the same thing from the other side ([step 4](4-reader-tests.md#no-unpacking)).
+
 The example sentences in Inkling's pages and rule messages show a move; they are not lines to copy. Say the move in your own words, for your own case.
 
 Don't trim while you talk. A long, loose first pass is fine; the next two passes fix length.

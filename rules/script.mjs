@@ -153,7 +153,7 @@ export default [
     scope: "document",
     severity: "warning",
     check: (_u, ctx) => (budgetMinutes(ctx) || spokenWords(ctx.doc) < 50 ? [] : [{ index: 0, note: `${spokenWords(ctx.doc)} spoken words, about ${(spokenWords(ctx.doc) / WORDS_PER_MINUTE).toFixed(1)} minutes.` }]),
-    message: "A script with no time budget: \"too long\" has nothing to be measured against.",
+    message: "A script with no time budget: \"too long\" has nothing to compare against.",
     fix: "Set the budget before drafting: `minutes: 3` in the front matter or `--minutes 3` (about 150 spoken words a minute).",
     source: "Founder review of lesson video v11, 2026-11-08: \"it's too long, it needs to be shorter\"",
     examples: {

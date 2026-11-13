@@ -73,19 +73,20 @@ export default [
     id: "shorthand-heading",
     modes: ["post", "docs"],
     scope: "headline",
-    check: (unit) => {
+    check: (unit, ctx) => {
+      if (unit.block === ctx.doc.title || unit.block === ctx.doc.subtitle) return [];
       const h = unit.clean.trim().replace(/^\d+\\?\.\s*/, "");
       if (words(h).length > 14 || /\?$/.test(h)) return [];
       const tail = h.includes(":") ? h.slice(h.lastIndexOf(":") + 1).trim() : h;
       if (!SHORTHAND.test(h) || HAS_VERB.test(h) || TOPIC_OPENER.test(tail)) return [];
       return [{ index: 0 }];
     },
-    message: "Headline shorthand: a claim squeezed into a phrase with no verb (\"A pull request only on a measured win\", \"Evals without the guesswork\"). The reader has to unpack who does what.",
+    message: "Headline shorthand: a claim squeezed into a phrase with no verb (\"Evals without the guesswork\", \"A flywheel, not a checklist\"). The reader has to unpack who does what. Breaks \"No unpacking\" (step 6); only the main title may stay a punch line.",
     fix: "Write it as a plain sentence with a subject and a verb: \"Langy only opens a PR when the evals prove it's better\". A plain topic label (\"Pricing\", \"How it works\") or an instruction (\"Start from a hypothesis\") is fine.",
     source: "Founder note on post headings, 2026-11-13: \"It's a weird way to write ... isn't that a rule against this writing style\". Calibration on 2lang-2watch blog and Inkling docs headings: 11 flagged, all shorthand claims (\"Control without the complexity\", \"A Flywheel, Not a Checklist\").",
     examples: {
-      fail: ["## A pull request only on a measured win", "## Evals without the guesswork", "## A flywheel, not a checklist", { text: "## Measuring behaviour instead of quality", mode: "docs" }],
-      pass: ["## Langy only opens a PR when the evals prove it's better", "## Pricing", "## How it works", "## Start from a hypothesis", "## Without a Claude login", "## LLM monitoring vs LLM tracing", "## Why look beyond LangSmith?"],
+      fail: ["## A pull request only on a proven win", "## Evals without the guesswork", "## A flywheel, not a checklist", { text: "## Measuring behaviour instead of quality", mode: "docs" }],
+      pass: ["## Langy only opens a PR when the evals prove it's better", "# Evals without the guesswork", "## Pricing", "## How it works", "## Start from a hypothesis", "## Without a Claude login", "## LLM monitoring vs LLM tracing", "## Why look beyond LangSmith?"],
     },
   },
   {

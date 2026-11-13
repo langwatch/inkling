@@ -24,7 +24,7 @@ Inkling blanks YAML front matter (a leading `---` block such as `minutes: 4.5`) 
 
 Jev costs 0.042 USD per million input tokens, about 0.0003 USD per paragraph. It is the only paid call in inkling.
 
-What the Content agent measured on its labelled sets:
+What the Content agent found on its labelled sets:
 
 | Signal | Use |
 | --- | --- |
@@ -60,7 +60,7 @@ Every flag prints its fix:
 | written_register (scripts) | Say it the way you would when talking: "on its own" for "left alone", "so" for "thus" or "therefore", "to" for "in order to". |
 | weak_opening | The opening is a windup: background, a claim about the world or a line about the piece. Start on what the reader came for. |
 | weak_ending | End on the last fact or cut the closer. No moral, summary or product aside. |
-| dramatic_never | Say it plainly: "cases it didn't look at", not "cases it never looked at". Keep "never" for a real, lasting rule. |
+| dramatic_never | Say it plainly: "cases it didn't look at", not "cases it never looked at". Keep "never" for a real, lasting rule. Part of [No unpacking](../process/6-draft.md#no-unpacking). |
 
 The table is `REWRITES` in `src/judge.mjs`.
 

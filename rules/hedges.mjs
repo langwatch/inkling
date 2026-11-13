@@ -18,7 +18,7 @@ export default [
     modes: ["docs", "ads", "deck", "investor", "legal"],
     pattern: /\b(?:probably|maybe|(?<!\b(?:the|a|this|that|what|which|each|any|every|one|some|same) )(?:kind|sort) of|a bit|a little|I think|we think|we believe)\b/i,
     message: "Casual hedge. Fine in a story told at a bar, not here.",
-    fix: "State the fact, or the measured uncertainty.",
+    fix: "State the fact, or the real error bar with its source.",
     source: "Nexus writing-rules (hedge colloquially in posts only); docs-writing-rules rule 6",
     examples: {
       fail: [{ text: "The import is probably done in a minute.", mode: "docs" }, { text: "We believe the market is large.", mode: "investor" }],

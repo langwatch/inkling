@@ -27,7 +27,7 @@ Results that matter for Inkling:
 | Paper | Finding | Number |
 | --- | --- | --- |
 | [Panickssery et al. 2024, LLM Evaluators Recognize and Favor Their Own Generations](https://arxiv.org/abs/2404.13076) | Judges recognise their own text and self-preference grows with that ability | GPT-4 picks its own text out of a lineup 73.5% of the time |
-| [Wataoka et al. 2024, Self-Preference Bias in LLM-as-a-Judge](https://arxiv.org/abs/2410.21819) | The bias tracks perplexity: judges score low-perplexity (familiar) text higher than humans do, whoever wrote it | Measured over 8 LLMs; GPT-4 shows a significant bias |
+| [Wataoka et al. 2024, Self-Preference Bias in LLM-as-a-Judge](https://arxiv.org/abs/2410.21819) | The bias tracks perplexity: judges score low-perplexity (familiar) text higher than humans do, whoever wrote it | Tested on 8 LLMs; GPT-4 shows a significant bias |
 | [Laurito et al. 2025, AI-AI bias (PNAS)](https://arxiv.org/abs/2407.12856) | LLMs choosing between items described by humans or by LLMs pick the LLM descriptions, more strongly than human raters do | Consistent across GPT-3.5, GPT-4 and open-weight models |
 | [Haverals and Martin 2025, Everyone prefers human writers, including AI](https://arxiv.org/abs/2510.08831) | Labelling a text as AI-written lowers its score with human and model raters alike | Blind preferences close to even; labels move them |
 | [Zheng et al. 2023, Judging LLM-as-a-Judge](https://arxiv.org/abs/2306.05685) | Position and verbosity bias in pairwise judges | Swap positions and count disagreement as a tie |
@@ -36,7 +36,7 @@ Results that matter for Inkling:
 
 Wataoka et al. connect this page to [surprise.md](surprise-study.md): a judge that prefers familiar text prefers predictable text. A calibrated judge and a surprise metric push in the same direction.
 
-## What we measured before Inkling
+## What the tests showed before Inkling
 
 The Content workspace built an XAR-style judge on 30 pairs of approved human text versus earlier model drafts of the same piece (19 train, 11 validation, split by piece):
 

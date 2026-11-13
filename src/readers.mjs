@@ -19,6 +19,8 @@ export const KNOWLEDGE_RULE =
 export const NAMES_QUESTION =
   "List every name or term you read that this person would have to look up (a product, tool, company, acronym or jargon), and for each say where you first met it and whether the text had told you what it is by then. Ignore names this person uses or hears of every week. If there are none, say none.";
 
+export const UNPACK_QUESTION = "Did you have to stop and unpack any sentence to get what it meant? Quote it. If none, say so.";
+
 export const PURPOSE_QUESTION =
   "What is this page for, and who gains if you do what it asks? Does any part read like an ad, and if so for what?";
 
@@ -32,6 +34,7 @@ export const DEFAULT_QUESTIONS = [
   "Quote, word for word, the line you liked most, and any line you had to read twice or that sounded odd. If no line did either, say so.",
   "Quote, word for word, any line that does not sound like something a person would say out loud to you. If every line does, say so.",
   "Where would you start skimming, and what had you grasped by then?",
+  UNPACK_QUESTION,
   NAMES_QUESTION,
   PURPOSE_QUESTION,
 ];
@@ -39,7 +42,7 @@ export const DEFAULT_QUESTIONS = [
 /** Every reason a reader gives for stopping or questioning gets one class; only trust_breaking fails by default. */
 export const DOUBT_CLASSES = {
   trust_breaking: "it would make this reader stop or leave: they stop believing the authors, read it as an ad pretending to be something else, or lose the thread",
-  skepticism: "normal skepticism: wants more data or asks how something was measured, and keeps reading",
+  skepticism: "normal skepticism: wants more data or asks how something was tested, and keeps reading",
   content_gap: "a question only evidence we do not have yet would answer (a benchmark, a customer number, a public inkling)",
 };
 
@@ -232,9 +235,9 @@ export function readReadersFile(path) {
     if (!existsSync(file)) throw new Error(`${path}: figure ${f.file} not found`);
     return { file, where: f.where ?? "" };
   });
-  const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS.filter((q) => data.names !== false || q !== NAMES_QUESTION);
+  const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS.filter((q) => (data.names !== false || q !== NAMES_QUESTION) && (data.unpacking !== false || q !== UNPACK_QUESTION));
   const withPage = page && !data.questions?.length ? [...base, PAGE_VISITORS[page].question] : base;
-  const always = [data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
+  const always = [data.unpacking !== false && UNPACK_QUESTION, data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
   const asked = [...withPage, ...always];
   const questions = competitors.length ? [...asked, ...compareQuestions(context.search)] : asked;
   return { ...data, context, competitors, figures, personas, expectations, questions };
@@ -445,6 +448,7 @@ export function grade(dir) {
   const lines = ["# reader test report", ""];
   let failed = 0;
   const core = new Set(expectations.filter((e) => e.core).map((e) => e.id));
+  const advisory = new Set(expectations.filter((e) => e.advisory).map((e) => e.id));
   let coreFailed = 0;
   const checks = manifest.textChecks ?? [];
   if (checks.length) {
@@ -474,9 +478,15 @@ export function grade(dir) {
     for (const v of verdicts) for (const g of v.grades) byId.set(g.id, [...(byId.get(g.id) ?? []), g]);
     for (const [gid, gs] of byId) {
       const fails = gs.filter((g) => !g.pass);
-      const fail = fails.length > 0 && agreed(fails.length);
-      const pool = fail ? fails : gs.filter((g) => g.pass);
+      const missed = fails.length > 0 && agreed(fails.length);
+      const pool = missed ? fails : gs.filter((g) => g.pass);
       const shown = { ...(pool[0] ?? gs[0]), evidence: [...new Set(pool.map((g) => g.evidence).filter(Boolean))].join('" | "') };
+      if (advisory.has(gid)) {
+        const quotes = shown.evidence ? ` ("${shown.evidence}")` : "";
+        lines.push(`- note ${gid}${tally(missed ? fails.length : gs.length - fails.length)}: ${[missed && "advisory miss", shown.note].filter(Boolean).join(", ")}${quotes}`);
+        continue;
+      }
+      const fail = missed;
       failed += fail;
       if (fail && (!core.size || core.has(gid))) coreFailed += 1;
       const noise = !fail && fails.length ? `; failed in ${fails.length}/${n}, below half: noise` : "";
@@ -515,6 +525,12 @@ export const HOLDS_EXPECTATION = {
   core: true,
   expect: "The reader stayed with the piece to the end and found it worth the time it asked. Skimming one stretch and reading on with interest passes. Fails if they lost interest, stopped or would leave, or call the piece as a whole too long, a slog or not worth the time; the longer the piece, the less a stretch where they lost interest is forgiven.",
 };
+/** Every full reader is asked whether a sentence made them stop and unpack it; graded as a note, never a fail. */
+export const UNPACK_EXPECTATION = {
+  id: "no_unpacking",
+  advisory: true,
+  expect: "The reader quotes no sentence they had to stop and unpack to get its meaning. Passes when they quote none, or only a technical term they would look up anyway. Misses when they quote a sentence whose plain meaning they had to work out (a squeezed heading, a written-only connector, a word like \"measured\" standing for something that ran); the quote is the evidence.",
+};
 const wordsOf = (md) => blankFrontmatter(md).replace(/```[\s\S]*?```/g, "").split(/\s+/).filter((w) => /\w/.test(w)).length;
 
 /** Write one self-contained prompt per persona plus the manifest the grader reads. */
@@ -535,6 +551,8 @@ export function writePrompts({ draft, readersFile, out, runs = 1 }) {
   const full = spec.personas.filter((p) => p.view === "full").map((p) => p.id);
   if (wordsOf(text) > HOLDS_FROM && full.length && spec.holds !== false && !spec.expectations.some((e) => e.id === HOLDS_EXPECTATION.id))
     spec.expectations = [...spec.expectations, { ...HOLDS_EXPECTATION, applies_to: full }];
+  if (full.length && spec.unpacking !== false && spec.questions.includes(UNPACK_QUESTION) && !spec.expectations.some((e) => e.id === UNPACK_EXPECTATION.id))
+    spec.expectations = [...spec.expectations, { ...UNPACK_EXPECTATION, applies_to: full }];
   Object.assign(spec, repeatPersonas({ personas: spec.personas, expectations: spec.expectations, runs }));
   mkdirSync(out, { recursive: true });
   const textChecks = runTextChecks(text, spec.expectations);

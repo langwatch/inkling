@@ -88,7 +88,7 @@ export default [
       return hits;
     },
     message: "Made-up placeholder company (ACME, Contoso, Northwind). On a blog it reads as a staged example nobody ran, and the reader stops believing the numbers next to it.",
-    fix: "Describe the real system and what you measured on it: \"a retrieval agent\", \"the agent under test\", \"our own support agent\". Leave customer names out.",
+    fix: "Describe the real system and what your evals showed on it: \"a retrieval agent\", \"the agent under test\", \"our own support agent\". Leave customer names out.",
     source: SOURCE,
     examples: {
       fail: [

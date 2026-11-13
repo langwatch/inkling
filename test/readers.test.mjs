@@ -320,3 +320,34 @@ test("a long draft gets holds_attention for every full reader; a short one does 
   writePrompts({ draft, readersFile: spec, out: join(dir, "s") });
   assert.ok(!JSON.parse(readFileSync(join(dir, "s", "manifest.json"), "utf8")).expectations.some((e) => e.id === "holds_attention"));
 });
+
+test("every full reader is asked about unpacking, and a miss is a note that never fails the run", () => {
+  const dir = fresh();
+  const spec = join(dir, "r.yaml");
+  writeFileSync(spec, "personas:\n  - id: a\n    background: b\n  - id: s\n    view: skim\n    background: b\nexpectations:\n  - id: what_is_it\n    core: true\n    expect: says what it is\n");
+  const out = join(dir, "o");
+  writePrompts({ draft, readersFile: spec, out });
+  const manifest = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8"));
+  assert.deepEqual(manifest.expectations.find((e) => e.id === "no_unpacking").applies_to, ["a"]);
+  assert.match(readFileSync(join(out, "a.prompt.md"), "utf8"), /stop and unpack any sentence/);
+  for (const id of ["a", "s"]) {
+    writeFileSync(join(out, `${id}.answer.md`), "1. A VM per agent.");
+    writeFileSync(join(out, `${id}.verdict.json`), JSON.stringify({ grades: [{ id: "what_is_it", pass: true }, ...(id === "a" ? [{ id: "no_unpacking", pass: false, evidence: "A PR only on a measured win" }] : [])], doubts: [] }));
+  }
+  const state = grade(out);
+  assert.equal(state.failed, 0);
+  assert.equal(state.coreFailed, 0);
+  assert.match(state.report, /- note no_unpacking: advisory miss \("A PR only on a measured win"\)/);
+  assert.match(state.report, /ALL PASS/);
+});
+
+test("unpacking: false drops the question and the note", () => {
+  const dir = fresh();
+  const spec = join(dir, "r.yaml");
+  writeFileSync(spec, "unpacking: false\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  const out = join(dir, "o");
+  writePrompts({ draft, readersFile: spec, out });
+  const manifest = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8"));
+  assert.ok(!manifest.expectations.some((e) => e.id === "no_unpacking"));
+  assert.ok(!manifest.questions.some((q) => /unpack/.test(q)));
+});

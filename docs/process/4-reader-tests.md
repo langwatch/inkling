@@ -77,6 +77,10 @@ Calibration on 2026-11-13, an engineer and a CTO arriving cold from LinkedIn, tw
 
 A first wording that failed any skimmed stretch failed all three posts: real readers skim somewhere even in a post they like. The bar is losing interest, not skimming.
 
+## No unpacking
+
+Every reader is asked: "Did you have to stop and unpack any sentence to get what it meant? Quote it." Full readers get the `no_unpacking` expectation on that answer. It is advisory: a miss shows in the report as a note with the quote, and it never fails the run or blocks "stop editing". Fix the quoted sentence the way [step 6](6-draft.md#no-unpacking) says, by writing it the way you would say it. `unpacking: false` drops the question and the note.
+
 ## Figures
 
 Readers see figures through their alt text unless you give them the real thing. List screenshots of the figures as rendered under `figures:`, each with `where` it sits, and every reader opens them before answering (the `claude -p` backend gives readers the Read tool for those files only):

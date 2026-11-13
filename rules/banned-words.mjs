@@ -7,7 +7,7 @@ export default [
     modes: [...ALL_BUT_LEGAL, "script", "x"],
     severity: "warning",
     pattern: /\b(?:left alone|otherwise|thus|hence|whereas|whereby|thereby|therefore|moreover|furthermore|nevertheless|nonetheless|notwithstanding|consequently|accordingly|albeit|in order to|in short|as such|one might|it is worth noting)\b|(?:^|[.;:]\s+)rather,/i,
-    message: "Written-only connector or word. People write it but rarely say it, so the reader has to parse it like a document.",
+    message: "Written-only connector or word. People write it but rarely say it, so the reader has to parse it like a document. Breaks \"No unpacking\" (step 6).",
     fix: "Say it the way you would out loud, with the condition stated: \"If it fails, Langy writes down what it learned\" for \"Otherwise, Langy writes down...\", \"so\" for \"thus\" or \"therefore\", \"but\" for \"whereas\", \"to\" for \"in order to\", \"on its own\" for \"left alone\".",
     source: "Founder review of lesson script v12, 2026-11-08, on \"left alone, the model drifts\"; founder note 2026-11-13: \"Sometimes the writing is too fancy and hard to parse, use simpler words, people are simple\".",
     examples: {
@@ -25,6 +25,27 @@ export default [
         "We cut the intro to save time.",
         "I'd rather run the evals first.",
         { text: "The licensee shall not, whereas the licensor may.", mode: "legal" },
+      ],
+    },
+  },
+  {
+    id: "measured",
+    modes: [...ALL_BUT_LEGAL, "script", "x"],
+    severity: "error",
+    pattern: /\bmeasured\b(?!\s+in\s+(?:ms|milliseconds?|seconds?|minutes?|hours?|days?|tokens?|bytes?|[kmg]i?b|requests?|percent|%|usd|eur|dollars?|euros?)\b)/i,
+    message: "\"Measured\" sounds like lab report shorthand. The reader has to unpack what ran and what it showed. Breaks \"No unpacking\" (step 6).",
+    fix: "Say what ran and what it showed: \"the evals show it's better\", \"run the evals\", \"only when the evals prove it's better\". \"Measured in ms\" and other units stay.",
+    source: "Founder note 2026-11-13: \"Measured is VERY weird I think it should be a hard banned word\"; parent principle \"no unpacking\": \"chew for them, talk like people do\".",
+    examples: {
+      fail: [
+        "Langy opens a pull request only on a measured win.",
+        { text: "## A PR only on a measured win", mode: "docs" },
+        "We measured the new prompt against the old one.",
+      ],
+      pass: [
+        "Langy only opens a pull request when the evals prove it's better.",
+        { text: "Latency is measured in ms at the gateway.", mode: "docs" },
+        { text: "The parties measured the premises.", mode: "legal" },
       ],
     },
   },
@@ -54,7 +75,7 @@ export default [
     id: "mystery-framing",
     pattern: /\bhinges? on\b|\b(?:nobody|no one) (?:can|tells you|talks about)\b|\bshows up nowhere\b|\bthe (?:metric|thing|part) no one\b/i,
     message: "Mystery framing. Pretends to let the reader in on a secret.",
-    fix: "State the fact and who measured it.",
+    fix: "State the fact and who found it.",
     source: "Nexus writing-rules, banned words 2026-08-02; conspiratorial hooks",
     examples: {
       fail: ["The answer hinges on one number.", "Here is the part no one can measure."],

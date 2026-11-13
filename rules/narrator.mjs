@@ -176,7 +176,7 @@ export default [
   {
     id: "vague-majority",
     pattern: /(?<!\b(?:the|at)\s)\bmost\b(?!\s+(?:likely|recent|recently|important|common|commonly|often|of the time|of (?:a|an|the) (?:day|week|month|year|morning|afternoon|evening|night|hour))\b)|\beveryone knows\b/i,
-    message: "\"Most\" as a vague majority. Sounds measured without measuring anything.",
+    message: "\"Most\" as a vague majority. Sounds like a count without counting anything.",
     fix: "State the direct claim, or give the real quantity.",
     source: "Nexus writing-rules, banned words 2026-08-12",
     examples: {
