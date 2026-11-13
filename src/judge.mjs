@@ -48,11 +48,11 @@ export function judgeInput(text) {
 }
 
 /** Per-flag thresholds. A draft passes only when no named flag is over its threshold. */
-export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75, wrong_register: 0.8 };
+export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75, wrong_register: 0.8, dramatic_never: 0.5 };
 /** A score this close to its threshold gets a second run; a split between the runs is advisory. */
 export const NEAR = 0.05;
 const NAMED = new Set(["unsurprising", "concedes_or_hedges", "writer_side", "formula_shape", "crammed_claims", "wrong_register",
-  "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register", "weak_opening", "weak_ending"]);
+  "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register", "weak_opening", "weak_ending", "dramatic_never"]);
 
 /** How to rewrite a line each flag hit. Shown as the fix under every Jev finding. */
 export const REWRITES = {
@@ -69,6 +69,7 @@ export const REWRITES = {
   written_register: "Say it the way you would when talking: \"on its own\" for \"left alone\", \"so\" for \"thus\" or \"therefore\", \"to\" for \"in order to\".",
   weak_opening: "The opening is a windup: background, a claim about the world or a line about the piece. Start on what the reader came for.",
   weak_ending: "End on the last fact or cut the closer. No moral, summary or product aside.",
+  dramatic_never: "Say it plainly: \"cases it didn't look at\", not \"cases it never looked at\". Keep \"never\" for a real, lasting rule (\"the key never leaves the vault\").",
 };
 
 const thresholdOf = (flag) => THRESHOLDS[flag] ?? THRESHOLDS.default;

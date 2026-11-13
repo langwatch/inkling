@@ -60,8 +60,23 @@ Every flag prints its fix:
 | written_register (scripts) | Say it the way you would when talking: "on its own" for "left alone", "so" for "thus" or "therefore", "to" for "in order to". |
 | weak_opening | The opening is a windup: background, a claim about the world or a line about the piece. Start on what the reader came for. |
 | weak_ending | End on the last fact or cut the closer. No moral, summary or product aside. |
+| dramatic_never | Say it plainly: "cases it didn't look at", not "cases it never looked at". Keep "never" for a real, lasting rule. |
 
 The table is `REWRITES` in `src/judge.mjs`.
+
+## Dramatic "never"
+
+"Never" is almost a banned word: models use it for drama where plain past tense or "not" says the same thing ("cases it never looked at" for "cases it didn't look at"). It stays for a real, lasting rule ("the key never leaves the vault"). Only sentences that contain the word go to Jev, one question each, in every mode, so a draft without it costs nothing extra. The founder asked for it on 2026-11-13: "Why is never not a banned word on inkling? It should be almost a banned word... Can we do a jev lint against it".
+
+Calibration on 26 real sentences from posts and drafts, 12 dramatic and 14 real rules, labelled by hand:
+
+| Threshold | Caught | False flags | Precision | Recall |
+| --- | --- | --- | --- | --- |
+| 0.3 | 12 | 3 | 0.80 | 1.00 |
+| 0.5 (used) | 9 | 0 | 1.00 | 0.75 |
+| 0.7 | 1 | 0 | 1.00 | 0.08 |
+
+Jev scores this question low overall, so the flag uses 0.5, not the default 0.7.
 
 ## Writing questions
 

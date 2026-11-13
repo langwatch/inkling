@@ -64,7 +64,7 @@ NAMED = ["numbers_no_takeaway", "overprecise_number", "results_list_no_perspecti
 SCORE_WEIGHTS = {"numbers_no_takeaway": 2.0, "overprecise_number": 1.0, "results_list_no_perspective": 2.0,
                  "tells_what_visuals_show": 1.0, "written_register": 1.0, "weak_opening": 2.0, "weak_ending": 2.0, "tic": 0.5, "regex": 0.5,
                  "unsurprising": 2.0, "concedes_or_hedges": 2.0, "writer_side": 2.0, "formula_shape": 2.0,
-                 "crammed_claims": 2.0, "wrong_register": 2.0}
+                 "crammed_claims": 2.0, "wrong_register": 2.0, "dramatic_never": 1.0}
 
 # ---- definitions shared by both backends. His rules in his words, with made-up examples: no text from the
 # validation sets (tmp/xar-judge/v2/checkset.jsonl) is quoted here.
@@ -101,6 +101,30 @@ DEFS = {
         "step is a good ending.",
 }
 JEV_Q = {k: f"Answer yes only if this paragraph has this problem. {d}" for k, d in DEFS.items()}
+
+# "never" as drama: only sentences that contain the word go to Jev, one question each, in every mode.
+NEVER_THRESHOLD = 0.5  # 26 labelled lines, 2026-11-13: precision 1.0, recall 0.75
+NEVER = re.compile(r"\bnever\b", re.I)
+NEVER_Q = ("Answer yes only if this sentence uses 'never' for dramatic emphasis, where plain past tense or a plain "
+           "'not' says the same thing. Yes: 'Langy also runs the evals on cases it never looked at' (it means 'didn't "
+           "look at'); 'The agent never saw the trace'; 'We never asked for that'. No when 'never' states a real, "
+           "lasting rule or guarantee: 'the key never leaves the vault'; 'never commit secrets'; 'the proxy never "
+           "logs request bodies'.")
+
+
+def never_checks(units, key):
+    jobs = [(i, s.strip()) for i, u in enumerate(units) for s in re.split(r"(?<=[.!?])\s+", u["text"]) if NEVER.search(s)]
+    def one(job):
+        r = v1.ask_jev(job[1], {"dramatic_never": NEVER_Q}, key)
+        return job, round(r["answers"]["dramatic_never"].get("noul", 0.0), 3), r.get("usage", {}).get("input_tokens", 0)
+    out = [dict() for _ in units]
+    tokens = 0
+    with ThreadPoolExecutor(4) as ex:
+        for (i, sent), pr, t in ex.map(one, jobs):
+            tokens += t
+            if pr > out[i].get("dramatic_never", {}).get("p", -1):
+                out[i]["dramatic_never"] = {"p": pr, "quote": sent, "fix": ""}
+    return out, tokens
 
 CLAUDE_SYS = ("You are the founder's line editor at LangWatch. He likes casual, spoken, opinionated writing: "
               "his own drafts are loose, with typos and long run-on sentences, and that is fine. You do not rate "
@@ -475,8 +499,16 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
               ex.submit(checks_jev, units, script, op, end, key))
         # Jev's prose tics (gravitas_closer, rhetorical_question_hook...) misfire on one-line titles: off in copy mode
         ft = ex.submit(jev_tics, units, key, with_ai) if jev and not copy else None
+        fn = ex.submit(never_checks, units, key) if key else None
         named = fc.result()
         if isinstance(named, tuple): named, t = named; tokens += t
+        if fn:
+            nevers, t = fn.result(); tokens += t
+            for i, n in enumerate(nevers):
+                if n and copy:  # copy flags carry p 1.0 once over threshold; the raw score goes with the others
+                    named[i].setdefault("_probs", {})["dramatic_never"] = n["dramatic_never"]["p"]
+                    if n["dramatic_never"]["p"] >= NEVER_THRESHOLD: named[i]["dramatic_never"] = {**n["dramatic_never"], "p": 1.0}
+                else: named[i].update(n)
         tics = [{} for _ in units]
         if ft: tics, t = ft.result(); tokens += t
     report = []
@@ -486,7 +518,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
                        "checks": {k: v for k, v in named[i].items() if not k.startswith("_")},
                        "extract": named[i].get("_extract"), "probs": named[i].get("_probs"),
                        "tics": tics[i], "regex": v1.regex_hits(u["text"])})
-    names = COPY if copy else NAMED
+    names = (COPY if copy else NAMED) + ["dramatic_never"]
     if copy:  # per line: 10 minus 2 per copy flag, so lines can be ranked against each other
         for it in report:
             it["line_score"] = max(0.0, 10.0 - sum(SCORE_WEIGHTS[k] for k in it["checks"]) - 0.5 * len(it["regex"]))
