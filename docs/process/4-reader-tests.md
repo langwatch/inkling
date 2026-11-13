@@ -48,7 +48,20 @@ expectations:
 
 - `purpose:` says what the page is meant to be, in one line ("a benchmark of token-saving add-ons, not an ad for any one tool"). With it, every reader gets the `reads_as_purpose` expectation, core: they take the page for that, and a reader who calls it an ad for something it covers fails it. Every reader is asked what the page is for and whether any part reads like an ad, with or without it.
 
-  Write `purpose:` from the words of the person who asked for the piece, quoted or as close as you can, never from your own summary of the draft. A purpose the writer derives from the draft passes the draft by construction: a post asked to "document how our self-improvement loop works" that turned into a model comparison still passes a purpose of "how auto-improving agents work".
+  Write `purpose:` from the words of the person who asked for the piece, quoted or as close as you can, never from your own summary of the draft. A purpose the writer derives from the draft passes the draft by construction: a post asked to "document how our billing pipeline works" that turned into a vendor comparison still passes a purpose of "how billing pipelines work".
+
+## Tests for what we want
+
+The goals from [step 1](1-who-reads.md) are tests too, ours as much as the readers'. For each reader, write what they should believe about the product and about us when they finish, and ask it:
+
+```yaml
+  - id: believes_it_works
+    core: true
+    ask: What do you now think of this product and the people who made it? Would you trust it with your own work?
+    expect: The reader thinks it does what it says and would try it. Fails if they come away thinking it is fragile, unfinished or not for them.
+```
+
+Write these from what the person who asked for the piece wants, not from the draft, the same way as `purpose:`. A draft can teach a reader every detail and still fail here.
 
 ## What the reader knows
 
@@ -69,8 +82,6 @@ A bare name in a headline tells a newcomer nothing, and a result about an unexpl
 `engineering: true` is for a post that documents a system the authors built. Each persona marked `engineer: true` (every full reader when none is marked) is asked whether a person wrote it from their own work, which detail only someone who did the work would know, and which lines read machine-written or staged. Model readers rate model prose above human prose, so the question names human signals (uneven paragraphs, a side taken, asides, rough phrasing) as evidence and model tells as fails.
 
 An expectation that grades something no question asks for, such as why a step exists, carries `ask:` with the question; every persona it applies to gets it. Without it, readers summarise what the page does and the grader fails them for leaving out a reason nobody asked for.
-
-Engineering posts also get two core checks from the founder's review of the Langy post (2026-11-13). `opens_with_value` fails a first paragraph that walks through how the product works step by step, or opens with what went wrong; an opening on the reader's problem or stakes passes. `no_failure_story` fails a page framed around the product's own past failures or rebuilds, and a section on how the product handles its own internal errors (error codes, retries, recovery), even framed positively ("no documenting of langy fails"). Round five: the rejected post failed both 3/3; five approved posts passed all checks 3/3.
 
 So the `engineering_voice` expectation is core: it fails when the reader calls the post a generic tutorial or a staged experiment, or cannot name one mechanism and why it exists.
 

@@ -6,6 +6,18 @@ Start from the moment the reader arrives instead of from what you built. A reade
 
 Name every reader the piece has to work for. A product page read by a buyer and by the engineer the buyer forwards it to has two readers, and each gets a line.
 
+## Who has a stake
+
+The readers are not the only side. Every piece has at least two: the people who read it and us, the business that puts it out. Some have more: the person whose name is on it, a customer it mentions, a partner who will forward it.
+
+The kind of piece the person names ("an engineering post", "a launch post", "a tutorial") sets the voice and the depth, not who reads it. A piece on a company's blog or site is read by everyone who could use, buy, build on or recommend what it describes: the engineer, their lead or CTO, the person building the platform it would sit in, the buyer. Name the ones who will land there, not only the one the request names.
+
+Next to each reader, write why they would open this and what they want to be able to do after: decide to try it, trust the vendor enough to book a call, copy a setup, explain it to their boss. Then write what we want from the piece, as what each reader should believe when they finish: that the product does something they need, that it works, that we know what we are doing. If the request doesn't say what we want and you can't tell, ask, with your best guess in the question.
+
+These goals decide what goes in, and [step 4](4-reader-tests.md) turns them into tests. Read your plan as each reader: for the opening and every section, write one line of what that reader now thinks of the product and of us. A line we would not want a reader to think ("it breaks a lot", "this is complicated", "this is not for me", "they are talking about themselves") means the section changes or goes, however true, hard-won or interesting it is. "It shows our work" is not a line a reader thinks; say what they conclude from it. A hotel page that lists every complaint behind the renovation tells the guest what used to be wrong and makes them wonder what still is. Your own reading leans toward your plan, so treat it as a first pass: the fresh readers in steps 5 and 8 answer the same question, and they decide.
+
+What the readers want also sets the opening and the length. A reader deciding whether something is worth their time needs what it does for them first, and stops reading the moment a section stops serving that.
+
 ## When the request doesn't say
 
 Work out the reader from what the person asked for. "A launch post for our Discord" tells you who reads it; "write me a post" doesn't.

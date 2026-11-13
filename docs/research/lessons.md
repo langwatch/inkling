@@ -28,7 +28,7 @@ A pushback on one piece is a correction to that piece. It becomes a rule here on
 ## Blog posts
 
 - The lede under the title is at most two lines, about 28 words. A paragraph-sized lede reads as a wall of text (founder, 2026-11-13).
-- An engineering post documents the system the authors built: real names, endpoints, settings, the failure each piece fixes, and numbers stated as what was measured. A generic tutorial with a staged experiment ("We gave three improver models...", "Where each improver broke") reads as fake and AI-written, even when every number is real.
+- A generic tutorial with a staged experiment ("We gave three improver models...", "Where each improver broke") reads as fake and AI-written, even when every number is real.
 - No made-up companies (ACME, Contoso, Northwind). Describe the subject neutrally: "a retrieval agent", "the agent under test".
 - No "Short answer:" opener unless the title asks a question.
 

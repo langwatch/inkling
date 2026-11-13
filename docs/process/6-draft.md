@@ -6,7 +6,7 @@ You draft in three passes: talk it, shape it, trim it. The order matters. A draf
 
 Answer four questions in the draft's notes. The notes hold answers and the case you will tell, never finished sentences: a line drafted in the notes comes back in the talk pass as a written line.
 
-1. Who reads this, from where, knowing what, deciding what? If the request doesn't answer it, ask the person before you go on ([step 1](1-who-reads.md)).
+1. Who reads this, from where, knowing what, deciding what? What does each reader want to do after, and what do we want from the piece? If the request doesn't answer it, ask the person before you go on ([step 1](1-who-reads.md)). Check every section you plan against those goals.
 2. What is the one claim? If it explains a failure, say the cause and what works. Don't pick the most surprising sentence in your sources as the claim; pick the cause.
 3. What would this reader not expect?
 4. What does the first line tell a newcomer about where they are and why they should care?

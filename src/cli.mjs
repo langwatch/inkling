@@ -24,7 +24,7 @@ const USAGE = `inkling: content writing framework for agents
   inkling check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
       step 7, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
       --mode landing --page <ad|home|product|guide|job>: the kind of landing page (or page: in the front matter; ad by default)
-      --mode post --page <article|experiment|research>: article by default; experiment allows "we gave three models" framing, research allows long data write-ups
+      --mode post --page <article|experiment>: experiment allows "we gave three models" framing (article by default)
       --mode script --minutes 3: a spoken script against its time budget (or minutes: in the front matter)
   inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--first-screen] [--json]
       --first-screen: judge the title, subtitle and first paragraph line by line with the copy checks (writer's side, concession, surprise)
