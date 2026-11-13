@@ -11,6 +11,8 @@ const TABLE_ROW = /^\s*\|.*\|\s*$/;
 const TABLE_SEP = /^\s*\|?[\s:|-]+\|?\s*$/;
 const QUOTE = /^(\s*>\s?)(.*)$/;
 const IGNORE = /<!--\s*inkling-ignore(-file)?\s+([^:>]*?)\s*(?::[^>]*)?-->/;
+// MDX module lines: `import { X } from "./x"` and `export const meta = ...` are code, not prose.
+const MDX_MODULE = /^(?:import\s.+\sfrom\s+['"][^'"]+['"]|import\s+['"][^'"]+['"]|export\s+(?:const|let|default|function)\b.*);?\s*$/;
 const LAYOUT_MARKERS = /^\s*(?:\[(?:mock:[^\]]*|problem)\]\s*)+$/i;
 const ABBREVIATIONS = new Set(["e.g", "i.e", "etc", "vs", "mr", "mrs", "dr", "no", "fig", "cf", "approx"]);
 
@@ -173,6 +175,7 @@ export function parse(text) {
       close();
       continue;
     }
+    if (!current && MDX_MODULE.test(line)) continue;
     const hh = line.match(HTML_HEADING);
     const h = line.match(HEADING);
     if (h || hh) {

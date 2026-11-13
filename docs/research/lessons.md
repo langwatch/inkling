@@ -25,6 +25,13 @@ A pushback on one piece is a correction to that piece. It becomes a rule here on
 - Paraphrasing a tic is keeping it. If a sentence existed only to do the banned move, cut it.
 - Numbers go in a picture. A post that scatters figures through its paragraphs loses the reader, who can't tell which one is the result (founder, 2026-11-09: "Claude is teeerrible terrible with numbers"). Show the result in a chart, a comparison table or an image, and say at most one headline number with its comparison in the prose.
 
+## Blog posts
+
+- The lede under the title is at most two lines, about 28 words. A paragraph-sized lede reads as a wall of text (founder, 2026-11-13).
+- An engineering post documents the system the authors built: real names, endpoints, settings, the failure each piece fixes, and numbers stated as what was measured. A generic tutorial with a staged experiment ("We gave three improver models...", "Where each improver broke") reads as fake and AI-written, even when every number is real.
+- No made-up companies (ACME, Contoso, Northwind). Describe the subject neutrally: "a retrieval agent", "the agent under test".
+- No "Short answer:" opener unless the title asks a question.
+
 ## Docs
 
 - Answer first. A task page may open with the goal and outcome; a contentless announcement goes.

@@ -43,6 +43,7 @@ Today one rule warns: `narrator/question-opener`, a piece that opens with a ques
 | docs | rollout flags, future tense, artifacts as subjects of thinking verbs, title rules |
 | deck | slide titles, bullet counts and lengths, prose on slides |
 | pitch | headlines from the writer's side, concessions, worry lines, crammed headlines, investor and legal precision |
+| blog | in `post` mode: made-up placeholder companies (ACME, Contoso, Northwind, frontmatter included), `Short answer:` labels under a title that asks nothing, contest headings such as `Where each improver broke`, `We gave three models...` framing. A blog lede over 28 words (two lines) is an error from `pitch/long-subtitle` |
 | slogan | taglines such as `Fail your copy before your readers do`, chiasmus, clipped fragments, `The X is the Y`, `more than a X` |
 | house-langwatch | LangWatch product names, only with `--house langwatch` |
 

@@ -247,3 +247,24 @@ test("result: adds a skim expectation the skimmer must carry from a visual", () 
   assert.match(e.expect, /chart, an image, a table/);
   assert.equal(readReadersFile(file).expectations.some((x) => x.id === "skim_gets_result"), false, "no result, no expectation");
 });
+
+test("engineering: true asks the engineer personas the engineering-voice question and grades it as core", () => {
+  const dir = fresh();
+  const rf = join(dir, "eng.readers.yaml");
+  writeFileSync(rf, "engineering: true\npersonas:\n  - id: builder\n    engineer: true\n    background: A platform engineer.\n  - id: buyer\n    background: A product lead.\nexpectations: []\n");
+  const spec = readReadersFile(rf);
+  const eng = spec.expectations.find((e) => e.id === "engineering_voice");
+  assert.ok(eng?.core);
+  assert.deepEqual(eng.applies_to, ["builder"]);
+  const out = fresh();
+  writePrompts({ draft, readersFile: rf, out });
+  assert.match(readFileSync(join(out, "builder.prompt.md"), "utf8"), /engineers who built this system/);
+  assert.doesNotMatch(readFileSync(join(out, "buyer.prompt.md"), "utf8"), /engineers who built this system/);
+});
+
+test("engineering: true with no marked engineer asks every full reader, never a skimmer", () => {
+  const dir = fresh();
+  const rf = join(dir, "eng2.readers.yaml");
+  writeFileSync(rf, "engineering: true\npersonas:\n  - id: a\n    background: An engineer.\n  - id: s\n    view: skim\n    background: A skimmer.\nexpectations: []\n");
+  assert.deepEqual(readReadersFile(rf).expectations.find((e) => e.id === "engineering_voice").applies_to, ["a"]);
+});

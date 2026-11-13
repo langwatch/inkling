@@ -62,6 +62,12 @@ A bare name in a headline tells a newcomer nothing, and a result about an unexpl
 
 `names: false` turns it off, for a piece written for insiders.
 
+## Engineering posts
+
+`engineering: true` is for a post that documents a system the authors built. Each persona marked `engineer: true` (every full reader when none is marked) is asked who they think wrote it, which mechanism they could now explain to a colleague, and which line reads like a staged experiment, a race between models, a made-up company or marketing.
+
+So the `engineering_voice` expectation is core: it fails when the reader calls the post a generic tutorial or a staged experiment, or cannot name one mechanism and why it exists.
+
 Calibration on 2026-11-12, two runs per reader:
 
 | Page | Old readers | New readers |

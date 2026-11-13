@@ -5,6 +5,8 @@ import { words } from "../src/markdown.mjs";
 const OFFER = /\b(?:let|lets|keep|you can|you could|you'll)\b/i;
 // A benefit told as a bare fact about someone or something else: "Your colleagues message...", "It runs...".
 const BARE_BENEFIT = /^(?:(?:your|our)\s+(?:[\w'-]+\s+){0,2}?|it\s+|they\s+|colleagues\s+|teammates\s+|the agent\s+)(?:message|run|work|talk|ask|get|reach|use|send|see|answer|take|handle|do|finish|keep)s?\b/i;
+/** Words a blog lede may run before it blocks: two lines under the title. */
+export const POST_LEDE_WORDS = 28;
 const SETUP_STEPS = /^(?:sign (?:in|up)|log in|install|paste|connect|run|open|add|create|download)\b.*,?\s*then\b/i;
 
 export default [
@@ -71,17 +73,27 @@ export default [
     id: "long-subtitle",
     severity: "warning",
     scope: "document",
-    check: (_u, { doc }) => {
+    check: (_u, { doc, mode }) => {
       const s = doc.subtitle?.sentences ?? [];
-      const words = s.map((x) => x.clean).join(" ").split(/\s+/).filter(Boolean).length;
-      return s.length && (words > 25 || (s.length > 1 && words > 20)) ? [{ block: s[0].block, index: s[0].start }] : [];
+      const n = s.map((x) => x.clean).join(" ").split(/\s+/).filter(Boolean).length;
+      if (!s.length) return [];
+      const at = { block: s[0].block, index: s[0].start, note: `${n} words over ${s.length} sentence${s.length > 1 ? "s" : ""}.` };
+      // A blog lede renders at 19px in a 656px column: about 13 words a line, so 28 words is two lines.
+      if (mode === "post" && (n > POST_LEDE_WORDS || s.length > 2)) return [{ ...at, severity: "error" }];
+      return n > 25 || (s.length > 1 && n > 20) ? [at] : [];
     },
-    message: "Subtitle runs past one sentence of about 20 words. Under a title, a long subtitle reads as a paragraph the reader skips.",
+    message: "Subtitle runs past one sentence of about 20 words. Under a title, a long subtitle reads as a paragraph the reader skips. On a blog post it blocks past two lines (28 words).",
     fix: "Keep one sentence of about 20 words with the one thing the title leaves open; move the rest into the body.",
-    source: "Founder review of the Doubleword post, 2026-11-09 (46 words over two sentences, \"incredibly long\"; he kept one sentence of about 20)",
+    source: "Founder review of the Doubleword post, 2026-11-09 (46 words over two sentences, \"incredibly long\"; he kept one sentence of about 20); auto-improving agents post, 2026-11-13 (a 53-word lede the warning let through: \"a wall of text\", at most two lines)",
     examples: {
-      fail: ["# Swap the model, keep the quality\n\nWe moved our email agent to an open model and checked every answer against the old one. The bill dropped by most of it, and the scores held on both the easy and the hard set."],
-      pass: ["# Swap the model, keep the quality\n\nWe moved our email agent to an open model and it costs 82% less with the same scores."],
+      fail: [
+        "# Swap the model, keep the quality\n\nWe moved our email agent to an open model and checked every answer against the old one. The bill dropped by most of it, and the scores held on both the easy and the hard set.",
+        { text: "---\ntitle: \"Auto-improving agents with LangWatch\"\nintro: \"Auto-improving agents read your AI agent's production traces, find what fails, change the code and open a pull request with no person in the loop. The working method that keeps that loop from drifting: a hypothesis, tests written first, a measurement in your CI, and a pull request only on a measured win.\"\n---\n\nBody.", mode: "post" },
+      ],
+      pass: [
+        "# Swap the model, keep the quality\n\nWe moved our email agent to an open model and it costs 82% less with the same scores.",
+        { text: "---\ntitle: \"Auto-improving agents with LangWatch\"\nintro: \"How Langy changes an agent's code unattended and opens a pull request only when its own CI run shows a win.\"\n---\n\nBody.", mode: "post" },
+      ],
     },
   },
   {

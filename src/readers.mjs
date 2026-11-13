@@ -162,6 +162,20 @@ export const purposeExpectation = (purpose) => ({
   expect: `The reader takes the page for what it is meant to be: ${purpose.trim()} It fails when they say it reads mainly as something else, such as an ad for one of the things it covers or a pitch that hides behind the content. A short plug for the author at the end that the reader notices and accepts passes.`,
 });
 
+/**
+ * With `engineering: true`, the engineer personas (`engineer: true`, or every full reader when none is marked)
+ * check the post reads as the builders explaining their own system, not a staged tutorial.
+ */
+export const ENGINEERING_QUESTION =
+  "Who do you think wrote this, and does it read like the engineers who built this system explaining how it works? Name one mechanism you could now explain to a colleague (a tool, an endpoint, a setting, a step and why it exists). Quote any line that reads like a staged experiment, a contest between products, a made-up example company or marketing. If none, say none.";
+
+export const ENGINEERING_EXPECTATION = {
+  id: "engineering_voice",
+  core: true,
+  expect:
+    "The reader says it reads like the engineers who built the system explaining it, and names at least one real mechanism (a tool, endpoint, setting or step) with why it exists. It fails when they say it reads like a generic tutorial, a staged experiment or a race between models, a made-up example company, or marketing, or when they cannot name any mechanism; a quoted line is the evidence. One odd line they quote while still calling it an engineering post is a note, not a fail.",
+};
+
 /** With `result:` set, every skimmer must get that result from what a skim shows: a visual and at most one number. */
 export const skimResultExpectation = (result) => ({
   id: "skim_gets_result",
@@ -182,6 +196,12 @@ export function readReadersFile(path) {
       p.voiceSamples = voiceSamples(p.voice === true ? undefined : resolve(path, "..", p.voice));
       p.extraQuestions = [...(p.extraQuestions ?? []), VOICE_QUESTION];
     }
+  }
+  if (data.engineering) {
+    const marked = personas.filter((p) => p.engineer);
+    const engineers = marked.length ? marked : personas.filter((p) => p.view === "full");
+    for (const p of engineers) p.extraQuestions = [...(p.extraQuestions ?? []), ENGINEERING_QUESTION];
+    if (!expectations.some((e) => e.id === ENGINEERING_EXPECTATION.id)) expectations.push({ ...ENGINEERING_EXPECTATION, applies_to: engineers.map((p) => p.id) });
   }
   const voiced = personas.filter((p) => p.voice).map((p) => p.id);
   if (voiced.length && !expectations.some((e) => e.id === VOICE_EXPECTATION.id)) expectations.push({ ...VOICE_EXPECTATION, applies_to: voiced });

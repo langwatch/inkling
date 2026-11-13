@@ -1,5 +1,6 @@
 // Runs rules over a parsed document. A rule is data: an id, a scope, and either a
 // `pattern` or a `check(unit, ctx)`, and an optional severity: "warning" (default "error").
+// A check may set `severity` on one hit, when the same rule blocks in one mode and warns in another.
 import { mask, parse, words } from "./markdown.mjs";
 import { MODES, modeFamily, pageOf, settingsOf } from "./modes.mjs";
 
@@ -121,7 +122,7 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
           line: pos.line,
           col: pos.col,
           rule: rule.id,
-          severity: rule.severity ?? "error",
+          severity: hit.severity ?? rule.severity ?? "error",
           family: rule.family,
           match: hit.match?.trim(),
           excerpt: hit.excerpt ?? excerpt(base, at),
