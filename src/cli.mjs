@@ -25,6 +25,7 @@ const USAGE = `inkling: content writing framework for agents
       step 7, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
       --mode landing --page <ad|home|product|guide|job>: the kind of landing page (or page: in the front matter; ad by default)
       --mode post --page <article|experiment>: experiment allows "we gave three models" framing (article by default)
+      --terms "evals,traces": the words the audience uses and searches for (or terms: in the front matter); posts warn when one is missing or rare
       --mode script --minutes 3: a spoken script against its time budget (or minutes: in the front matter)
   inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--first-screen] [--json]
       --first-screen: judge the title, subtitle and first paragraph line by line with the copy checks (writer's side, concession, surprise)
@@ -99,6 +100,7 @@ export function main(argv) {
       mode: { type: "string" },
       page: { type: "string" },
       audience: { type: "string" },
+      terms: { type: "string" },
       context: { type: "string" },
       json: { type: "boolean" },
       house: { type: "string", multiple: true },
@@ -140,6 +142,7 @@ export function main(argv) {
         mode: values.mode,
         page: values.page,
         audience: values.audience,
+        terms: values.terms,
         minutes: values.minutes ? Number(values.minutes) : undefined,
         house: values.house ?? [],
         only: list(values.only),

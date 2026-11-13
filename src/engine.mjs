@@ -90,12 +90,13 @@ function founderDecision(block, at) {
 }
 
 /** Lint one document. Returns findings sorted by position. */
-export function lint({ text, file = "-", mode = "post", page, rules, audience, minutes }) {
+export function lint({ text, file = "-", mode = "post", page, rules, audience, minutes, terms }) {
   if (!MODES[mode]) throw new Error(`unknown mode ${mode}; one of ${Object.keys(MODES).join(", ")}`);
   const doc = parse(text);
   if (MODES[mode].firstBlockIsTitle && !doc.title) doc.title = doc.blocks.find((b) => PROSE.has(b.type)) ?? null;
   const kind = pageOf({ mode, page, frontmatter: doc.frontmatter });
-  const ctx = { doc, mode, page: kind, audience, minutes, settings: settingsOf(mode, kind), words };
+  const termList = (terms ?? doc.frontmatter.terms?.value ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+  const ctx = { doc, mode, page: kind, audience, minutes, terms: termList, settings: settingsOf(mode, kind), words };
   const findings = [];
   for (const rule of rules) {
     if (!ruleApplies(rule, mode, kind)) continue;

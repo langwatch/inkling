@@ -18,6 +18,10 @@ These goals decide what goes in, and [step 4](4-reader-tests.md) turns them into
 
 What the readers want also sets the opening and the length. A reader deciding whether something is worth their time needs what it does for them first, and stops reading the moment a section stops serving that.
 
+## Their words
+
+Write down the words this audience uses for the subject, the ones they search for and say to each other: for AI engineers that is evals, traces, regressions, LLM-as-a-judge, not "records" or "measurements". Use those words in the piece and let them come back; a generic synonym chosen for variety makes the reader stop recognising their own problem, and search stops finding it. Pass them to the check with `--terms` or `terms:` in the front matter.
+
 ## When the request doesn't say
 
 Work out the reader from what the person asked for. "A launch post for our Discord" tells you who reads it; "write me a post" doesn't.
