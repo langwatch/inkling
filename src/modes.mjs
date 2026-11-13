@@ -12,6 +12,7 @@ export const MODES = {
     pages: {
       article: { label: "how our system works, a launch, an opinion: no staged contest between models" },
       experiment: { label: "write-up of an experiment we ran: comparing models or agents is the point" },
+      research: { label: "long data write-up of a study we ran: length and numbers are the point" },
     },
   },
   ads: {

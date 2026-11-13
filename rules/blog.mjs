@@ -1,3 +1,4 @@
+import { words } from "../src/markdown.mjs";
 // Blog posts: what the founder rejected in an engineering post written as a staged tutorial (2026-11-13).
 const SOURCE = "Founder review of the auto-improving agents post, 2026-11-13 (\"throw it all in the trash\")";
 
@@ -108,6 +109,60 @@ export default [
         "We gave the judge a window of lines around each match.",
         { text: "---\npage: experiment\n---\n\nWe gave three improver models the same failing answers.", mode: "post" },
       ],
+    },
+  },
+  {
+    id: "too-technical",
+    modes: ["post"],
+    pages: ["article"],
+    scope: "document",
+    check: (_u, { doc }) => {
+      const INLINE = /`[^`\n]+`/g;
+      const hits = [];
+      let total = 0;
+      let section = { block: null, n: 0 };
+      const close = () => {
+        if (section.n > 6) hits.push({ block: section.block, index: 0, note: `${section.n} inline code spans in this section.` });
+      };
+      for (const block of doc.blocks) {
+        if (block.type === "heading") {
+          close();
+          section = { block, n: 0 };
+          continue;
+        }
+        const n = (block.text?.match(INLINE) ?? []).length;
+        total += n;
+        section.n += n;
+        section.block ??= block;
+      }
+      close();
+      const all = doc.blocks.reduce((sum, b) => sum + words(b.text ?? "").length, 0);
+      if (!hits.length && all >= 300 && (1000 * total) / all > 10) hits.push({ block: doc.blocks.find((b) => INLINE.test(b.text ?? "")) ?? doc.blocks[0], index: 0, note: `${total} inline code spans in ${all} words.` });
+      return hits;
+    },
+    message: "Reads like documentation: commands, paths, env vars and permission names in the prose. A post explains what the system does and why; the reader of an explainer does not run these.",
+    fix: "Say what the step does in words (\"Langy opens the pull request and watches CI\"). Move commands, paths and settings to the docs and link there.",
+    source: "Founder review 2026-11-13 of the Langy post: \"too technical who cares nobody reads code anymore\" (a section with gh commands, env vars and permission names). Calibration: rejected post 24 inline code spans per 1000 words, worst section 23; approved posts 0 to 5 per 1000, at most 3 in a section.",
+    examples: {
+      fail: [{ text: "# Post\n\n## Setup\n\nRun `gh pr list`, set `GITHUB_TOKEN`, grant `contents:write`, `pull_requests:write` and `checks:read`, then read `.langy/skills/improve.md` and `LANGY_MODE`.", mode: "post" }],
+      pass: [{ text: "# Post\n\n## Setup\n\nLangy opens the pull request and watches CI until the checks pass.", mode: "post" }, { text: "---\npage: experiment\n---\n\n## Setup\n\nRun `a`, `b`, `c`, `d`, `e`, `f` and `g`.", mode: "post" }],
+    },
+  },
+  {
+    id: "too-long",
+    modes: ["post"],
+    pages: ["article"],
+    scope: "document",
+    check: (_u, { doc }) => {
+      const n = doc.blocks.reduce((sum, b) => sum + words(b.text ?? "").length, 0);
+      return n > 2000 ? [{ block: doc.blocks[0], index: 0, note: `${n} words; an article stops near 1,500.` }] : [];
+    },
+    message: "Too long for a blog article: past 2,000 words the reader is bored before the end.",
+    fix: "Cut to the one thing the post explains. Steps the reader will not run go to the docs; detail that only proves you did the work goes. A long data write-up sets `page: research`.",
+    source: "Founder review 2026-11-13 of the Langy post (about 2,500 words): \"incredibly long im bored\". Calibration: approved articles 800 to 1,500 words; the 3,700-word context tax post is a research write-up.",
+    examples: {
+      fail: [{ text: "# Post\n\n" + Array.from({ length: 30 }, () => Array.from({ length: 70 }, (_, i) => `w${i}`).join(" ") + ".").join("\n\n"), mode: "post" }],
+      pass: [{ text: "# Post\n\nA short post.", mode: "post" }, { text: "---\npage: research\n---\n\n" + Array.from({ length: 30 }, () => Array.from({ length: 70 }, (_, i) => `w${i}`).join(" ") + ".").join("\n\n"), mode: "post" }],
     },
   },
 ];
