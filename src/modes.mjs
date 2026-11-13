@@ -7,7 +7,7 @@ export const MODES = {
   },
   post: {
     label: "technical or founder post: an engineer writing to engineers, a person telling a story. Pick the kind with --page or `page:` in the front matter",
-    paragraphWords: 70,
+    paragraphWords: 80,
     defaultPage: "article",
     pages: {
       article: { label: "how our system works, a launch, an opinion: no staged contest between models" },

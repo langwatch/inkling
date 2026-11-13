@@ -63,6 +63,8 @@ export default [
       if (!["paragraph", "heading"].includes(unit.block.type)) return [];
       const s = unit.sentences;
       if (s.length < 2 || words(unit.raw).length > 10) return [];
+      // "1. Ask Langy" is a numbered step, split at the dot.
+      if (/^\s*\d+\\?\.\s/.test(unit.raw)) return [];
       return s.every((x) => words(x.clean).length <= 3 && !/\?\s*$/.test(x.clean)) ? [{ index: 0 }] : [];
     },
     message: "A line of clipped fragments (\"Less noise. More signal.\"): a tagline, not a sentence.",
@@ -70,7 +72,7 @@ export default [
     source: "Nexus writing-rules: arrow CTAs and imperative signoffs (\"Stop waiting. Start building.\"), staccato",
     examples: {
       fail: ["Less noise. More signal.", "# Draft. Test. Ship.", "Stop guessing. Start writing."],
-      pass: ["The panel reads the draft, and the report lists where readers stopped.", "# Write the reader tests first", "# Laptop shut? It still works", "First line here. It worked well enough."],
+      pass: ["The panel reads the draft, and the report lists where readers stopped.", "# Write the reader tests first", "# Laptop shut? It still works", "First line here. It worked well enough.", "### 1. Ask Langy"],
     },
   },
   {

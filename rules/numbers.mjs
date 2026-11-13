@@ -26,8 +26,12 @@ export default [
     id: "number-opener",
     check: (unit, { mode }) => {
       if (unit.block.type === "cell") return [];
+      // "1." on its own is a list marker the parser split off, not a sentence.
+      if (/^\s*\d+\\?\.?\s*$/.test(unit.clean)) return [];
       const m = unit.clean.match(OPENER);
       if (!m) return [];
+      // In a post, "Three of the four measurements agree" is narration; the flex is digits up front.
+      if (mode === "post" && !/\d/.test(m[0])) return [];
       // Spoken, "Two things are going on here" is how people open an explanation, not a status flex.
       if (mode === "script" && /^\s*(?:two|three|four|five)$/i.test(m[0])) return [];
       // "One lived 10.7 hours": "one" as a pronoun doing something is not a count.
@@ -41,21 +45,21 @@ export default [
     fix: "Lead with the value to the reader, and put the number after it with its comparison.",
     source: "Rejected line, \"Dashboards come with 77 ready-made questions\"; founder note 2026-10-31",
     examples: {
-      fail: ["77 ready-made questions come with every dashboard.", "# 10 ways to cut your agent bill", "Three of the four measurements agree."],
-      pass: ["Every dashboard starts with the questions teams ask most often, 77 of them.", "- One dataset. The prompts and the answers live in the same table.", "Neither stopped. One lived 10.7 hours and made 1,301 API calls.", { text: "Two things are going on here, and one makes the other worse.", mode: "script" }],
+      fail: ["77 ready-made questions come with every dashboard.", "# 10 ways to cut your agent bill", { text: "Three of the four measurements agree.", mode: "ads" }],
+      pass: [{ text: "Three of the four measurements point to the same place.", mode: "post" }, { text: "1.\n\nAgents become the main interface.", mode: "post" },"Every dashboard starts with the questions teams ask most often, 77 of them.", "- One dataset. The prompts and the answers live in the same table.", "Neither stopped. One lived 10.7 hours and made 1,301 API calls.", { text: "Two things are going on here, and one makes the other worse.", mode: "script" }],
     },
   },
   {
     id: "number-in-title",
     scope: "headline",
     modes: ["ads", "deck", "post"],
-    pattern: /\b\d{2,}[\d,.]*\b(?!\s*(?:USD|EUR|%))/,
+    pattern: /\b(?!(?:19|20)\d{2}\b)\d{2,}[\d,.]*\b(?!\s*(?:USD|EUR|%))/,
     message: "A bare count in the title reads as a listicle.",
     fix: "Title the claim; carry the count in the body with its comparison.",
     source: "Founder note 2026-10-31 (\"never start the sentence with a number\", counts as headlines)",
     examples: {
       fail: ["# Dashboards come with 77 ready-made questions", "# Intro\n\n## Dashboards come with 77 ready-made questions"],
-      pass: ["# Ask your traces anything", "# Cut the bill by 40%"],
+      pass: ["# Ask your traces anything", "# Cut the bill by 40%", "# Predictions for AI in 2025"],
     },
   },
   {
