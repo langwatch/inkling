@@ -25,11 +25,12 @@ export default [
       const prose = doc.blocks.filter((b) => b.text && !/^\s*</.test(b.text));
       const all = [doc.title?.text, doc.subtitle?.text, ...prose.map((b) => b.text)].filter(Boolean).join("\n");
       const first = prose[0];
-      return terms.flatMap((term) => {
+      const rare = terms.flatMap((term) => {
         const esc = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const n = (all.match(new RegExp(`\\b${esc}(?:s|es)?\\b`, "gi")) ?? []).length;
-        return n >= 2 ? [] : [{ block: first, index: 0, note: `"${term}" appears ${n === 0 ? "nowhere" : "once"}.` }];
+        return n >= 2 ? [] : [`"${term}" ${n === 0 ? "nowhere" : "once"}`];
       });
+      return rare.length ? [{ block: first, index: 0, note: `Missing or rare: ${rare.join(", ")}.` }] : [];
     },
     message: "One of the audience's own words is missing or used once. Readers and search find a post by the words they already use.",
     fix: "Say the term itself where the text now says a generic stand-in (\"evals\" where it says \"a record\" or \"a measurement\"), and let it come back. Repeating the reader's word is not a style slip here.",
