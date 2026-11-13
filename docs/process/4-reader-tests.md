@@ -81,6 +81,16 @@ A first wording that failed any skimmed stretch failed all three posts: real rea
 
 Every reader is asked: "Did you have to stop and unpack any sentence to get what it meant? Quote it." Full readers get the `no_unpacking` expectation on that answer. It is advisory: a miss shows in the report as a note with the quote, and it never fails the run or blocks "stop editing". Fix the quoted sentence the way [step 6](6-draft.md#no-unpacking) says, by writing it the way you would say it. `unpacking: false` drops the question and the note.
 
+Calibration on 2026-11-13, the same two readers and posts as Length, two runs each:
+
+| Post | misses | distinct sentences quoted |
+| --- | --- | --- |
+| Instant Evals, approved | 2/4 | 2, a batching line and a cost line |
+| Langy, approved | 4/4 | 1, the lede's punch line, in every run |
+| engineering post, rejected | 4/4 | 4 body sentences |
+
+As a pass or fail it doesn't separate the posts: readers find one sentence to quote in almost any post. The quotes do: the rejected post's are body sentences that each need work, the approved Langy post's only quote is its punch line, which the step 6 exception allows. That is why it stays a note. Read the quotes and fix the body sentences.
+
 ## Figures
 
 Readers see figures through their alt text unless you give them the real thing. List screenshots of the figures as rendered under `figures:`, each with `where` it sits, and every reader opens them before answering (the `claude -p` backend gives readers the Read tool for those files only):
