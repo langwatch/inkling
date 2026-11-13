@@ -65,6 +65,8 @@ Some edits look like trimming and turn talk into notes. Never make these five:
 - Summing up an example in a short closing line ("It knew, and it still wrote about the retries."). The listener got the point from the example; the summary sounds like a punchline. Go on to the next thought.
 - Polishing a plain sentence into two matching halves ("that's what it knows, so that's what it writes"), or building up to a short closing line that lands like a punchline ("It just doesn't ask itself."). Listeners hear both as composed. Say the halves as two plain thoughts, and stop when the explanation is done, or hand on to what comes next.
 
+Length has no cap of its own. What a piece has to do is keep its reader to the end, and the longer it runs the harder that gets: a 3,000-word post has to be more engaging than an 800-word one, not just as good. Past 800 words every full reader in the [reader test](4-reader-tests.md#length) is graded on whether they read to the end because they wanted to.
+
 When the piece is still too long after deleting, say fewer things: drop an idea or an example. If that would lose the claim, run over and say so in the notes; a length target is a default, and squeezing every sentence costs more than ten seconds.
 
 Before you ship, read the talk pass and the final version one after the other, aloud. If the talk pass sounds more like a person, go back to it and only delete.
@@ -98,3 +100,13 @@ A paragraph with three figures in it loses the reader, because they can't tell w
 ## Images
 
 Words inside a generated image follow the same rules as prose. Write the image prompt as precisely as the copy: [images](../tools/images.md) has the prompt pattern and real prompts.
+
+## Figures and code
+
+Readers need to grasp how a thing works, not copy it. Readers no longer paste code from a post: their coding agent writes it. So show the idea in a picture first, and keep code for the few places where it is the clearest thing on the page.
+
+- **A flow, a loop or an architecture: draw it.** Brief the figure like a motion designer would: one picture a reader gets at a glance, steps that light up in order as it scrolls into view, and the real logos wherever a brand exists (a model, a cloud, a tool the reader runs). A box labelled "LLM provider" asks the reader to imagine what the logo would have told them.
+- **Something done in the product: mock the screen.** When the text says "you can do this", show where. A focused, simplified view of the real screen (a phone-sized one is fine) makes the reader believe they could do it there; an abstract diagram of the same step reads as a concept. Keep abstract figures for the high-level flow. Your [house](../houses/README.md) names the components to build mocks from.
+- **Code: rarely, big, and only the meat.** Use it when it is the point: the two lines that show how little an integration takes, a script that is itself the surprise (a test written as a conversation), or pseudo-code where a flow would otherwise be ambiguous. Large type, a handful of lines, no imports, setup or error handling around it. The `code-heavy` warning flags a block over 8 lines or more than 3 blocks in a post.
+
+Then test the figures as readers see them: screenshot each one as rendered and pass the files to the reader test as [`figures:`](4-reader-tests.md#figures). A figure passes when readers can say what it shows, and for a product mock, where it happens and that they could do it themselves.

@@ -3,7 +3,7 @@
 // Two backends, both on a Claude subscription: fresh subagents of the calling agent
 // (`prompts` then `grade`), or `claude -p` with an isolated config (`run`).
 import { existsSync, mkdirSync, readFileSync, writeFileSync, mkdtempSync, rmSync, readdirSync } from "node:fs";
-import { join, resolve, extname } from "node:path";
+import { join, resolve, extname, dirname } from "node:path";
 import { homedir } from "node:os";
 import { parseYaml } from "./yaml.mjs";
 import { blankFrontmatter } from "./markdown.mjs";
@@ -96,8 +96,8 @@ export function stanceOf(context = {}) {
   return stance;
 }
 
-export const readerRules = (context) =>
-  `Rules: you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above. ${KNOWLEDGE_RULE} ${STANCES[stanceOf(context)]}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].state}` : ""} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
+export const readerRules = (context, figures = false) =>
+  `Rules: ${figures ? "your only tool is Read, for the figure files listed above; read nothing else, and do not search or research. Answer only from the text and those figures." : "you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above."} ${KNOWLEDGE_RULE} ${STANCES[stanceOf(context)]}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].state}` : ""} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
 
 /** The questions a comparison reader answers when the readers file names the other results. */
 export const compareQuestions = (search) => [
@@ -226,12 +226,18 @@ export function readReadersFile(path) {
     return { ...c, text: readFileSync(resolve(path, "..", c.file), "utf8").trim() };
   });
   if (competitors.length && !context.search) throw new Error(`${path}: competitors need context.search, the search they came from`);
+  const figures = (data.figures ?? []).map((f) => {
+    if (!f.file) throw new Error(`${path}: every figure needs file (a screenshot of it as rendered)`);
+    const file = resolve(path, "..", f.file);
+    if (!existsSync(file)) throw new Error(`${path}: figure ${f.file} not found`);
+    return { file, where: f.where ?? "" };
+  });
   const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS.filter((q) => data.names !== false || q !== NAMES_QUESTION);
   const withPage = page && !data.questions?.length ? [...base, PAGE_VISITORS[page].question] : base;
   const always = [data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
   const asked = [...withPage, ...always];
   const questions = competitors.length ? [...asked, ...compareQuestions(context.search)] : asked;
-  return { ...data, context, competitors, personas, expectations, questions };
+  return { ...data, context, competitors, figures, personas, expectations, questions };
 }
 
 const blocksOf = (md) => md.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
@@ -332,6 +338,13 @@ export function runTextChecks(md, expectations) {
     });
 }
 
+/** Screenshots of the piece's figures as rendered: the reader opens each with Read, the one tool it gets. */
+export function figureBlock(figures = []) {
+  if (!figures.length) return "";
+  const list = figures.map((f, i) => `${i + 1}. ${f.file}${f.where ? ` (${f.where})` : ""}`).join("\n");
+  return `The page also shows these figures. Each file is a screenshot of one as rendered. Open every one with the Read tool before you answer, and judge them as part of what you read:\n${list}`;
+}
+
 const MARKER_NOTE = "On the page, each [mock: ...] line is an animated product mock drawn as described, and each [cta: ...] line is a sign-up button with that label.";
 
 /** The other results the reader has open, each as plain page text. */
@@ -349,7 +362,7 @@ const voiceBlock = (persona) =>
 /** The questions one persona answers: the shared ones, then its own (the voice question). */
 export const questionsFor = (persona, questions) => [...questions, ...(persona.extraQuestions ?? [])];
 
-export function readerPrompt({ persona, text, questions: shared, context, competitors }) {
+export function readerPrompt({ persona, text, questions: shared, context, competitors, figures = [] }) {
   const questions = questionsFor(persona, shared);
   const view = persona.view === "skim" ? skimView(text) : asRendered(text);
   const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings, the first sentence of each section, and the images, charts and tables you glanced at; an image shows as its description). Judge only from it." : "";
@@ -360,7 +373,8 @@ export function readerPrompt({ persona, text, questions: shared, context, compet
     `Here is what you read:\n\n<text>\n${view}\n</text>`,
     /\[mock:/i.test(text) ? MARKER_NOTE : "",
     competitorBlock(competitors),
-    readerRules(context),
+    figureBlock(figures),
+    readerRules(context, figures.length > 0),
     `Questions:\n${questions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`,
     ANSWER_FORMAT,
   ]
@@ -494,6 +508,15 @@ export function grade(dir) {
   return { report, failed, coreFailed };
 }
 
+/** Length has no cap; a long piece has to hold its reader to the end, and the longer it is the less a dull stretch is forgiven. */
+export const HOLDS_FROM = 800;
+export const HOLDS_EXPECTATION = {
+  id: "holds_attention",
+  core: true,
+  expect: "The reader read to the end because they wanted to. Fails if they say they stopped, started skimming before the last part, or found a stretch dull, repetitive or too long. The longer the piece, the stricter: every section has to keep them.",
+};
+const wordsOf = (md) => blankFrontmatter(md).replace(/```[\s\S]*?```/g, "").split(/\s+/).filter((w) => /\w/.test(w)).length;
+
 /** Write one self-contained prompt per persona plus the manifest the grader reads. */
 /** Each persona N times as `<id>-r<k>`, so one reader's mood can't fail a draft on its own. */
 export function repeatPersonas({ personas, expectations, runs = 1 }) {
@@ -509,6 +532,9 @@ export function repeatPersonas({ personas, expectations, runs = 1 }) {
 export function writePrompts({ draft, readersFile, out, runs = 1 }) {
   const text = readFileSync(draft, "utf8");
   const spec = { ...readReadersFile(readersFile) };
+  const full = spec.personas.filter((p) => p.view === "full").map((p) => p.id);
+  if (wordsOf(text) > HOLDS_FROM && full.length && spec.holds !== false && !spec.expectations.some((e) => e.id === HOLDS_EXPECTATION.id))
+    spec.expectations = [...spec.expectations, { ...HOLDS_EXPECTATION, applies_to: full }];
   Object.assign(spec, repeatPersonas({ personas: spec.personas, expectations: spec.expectations, runs }));
   mkdirSync(out, { recursive: true });
   const textChecks = runTextChecks(text, spec.expectations);
@@ -520,12 +546,13 @@ export function writePrompts({ draft, readersFile, out, runs = 1 }) {
     expectations: spec.expectations,
     failOn: spec.doubts?.fail_on ?? ["trust_breaking"],
     context: spec.context ?? {},
+    figures: spec.figures,
     textChecks,
   };
   writeFileSync(join(out, "manifest.json"), JSON.stringify(manifest, null, 1));
   const prompts = spec.personas.map((persona) => {
     const file = join(out, `${persona.id}.prompt.md`);
-    writeFileSync(file, readerPrompt({ persona, text, questions: spec.questions, context: spec.context, competitors: spec.competitors }));
+    writeFileSync(file, readerPrompt({ persona, text, questions: spec.questions, context: spec.context, competitors: spec.competitors, figures: spec.figures }));
     return file;
   });
   return { prompts, textChecks };
@@ -539,7 +566,8 @@ export function runWithClaude({ out, reader = "opus", judge = "opus" }) {
   mkdirSync(base, { recursive: true });
   const workdir = mkdtempSync(join(base, "run-"));
   try {
-    const r = new ClaudeCli({ model: reader, workdir });
+    const { figures = [] } = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8"));
+    const r = new ClaudeCli({ model: reader, workdir, read: [...new Set(figures.map((f) => dirname(f.file)))] });
     const j = new ClaudeCli({ model: judge, workdir });
     const system = "Answer as the person described in the message. Plain text only.";
     for (const f of readdirSync(out).filter((f) => f.endsWith(".prompt.md") && !f.endsWith(".judge.prompt.md"))) {

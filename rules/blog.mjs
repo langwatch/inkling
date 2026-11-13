@@ -1,6 +1,9 @@
 // Blog posts: what the founder rejected in an engineering post written as a staged tutorial (2026-11-13).
 const SOURCE = "Founder review of the auto-improving agents post, 2026-11-13 (\"throw it all in the trash\")";
 
+// A post shows code only as a glimpse: a few lines, a few times.
+const CODE_LINES = 8;
+const CODE_BLOCKS = 3;
 const PLACEHOLDER = /\b(?:acme|contoso|northwind)(?:['’]s)?\b/gi;
 const ANSWER_LABEL = /^(?:the\s+)?(?:short|quick|simple|brief|one[- ]line|tl;?dr)(?:\s+(?:answer|version))?\s*:/i;
 // A title or heading that asks: a question mark, an interrogative opener, or a pick between options.
@@ -15,6 +18,25 @@ const frontmatterBlock = (entry) => ({
 });
 
 export default [
+  {
+    id: "code-heavy",
+    modes: ["post"],
+    scope: "document",
+    severity: "warning",
+    check: (_u, { doc }) => {
+      const at = (c) => ({ block: { text: "", sentences: [], pos: () => ({ line: c.line, col: 1 }) }, index: 0 });
+      const long = (doc.code ?? []).filter((c) => c.lines > CODE_LINES).map((c) => ({ ...at(c), note: `${c.lines} lines of code.` }));
+      const many = (doc.code ?? []).length > CODE_BLOCKS ? [{ ...at(doc.code[CODE_BLOCKS]), note: `${doc.code.length} code blocks.` }] : [];
+      return [...long, ...many];
+    },
+    message: `Code the reader is meant to read: a block over ${CODE_LINES} lines, or more than ${CODE_BLOCKS} blocks. Readers don't copy code any more, their agent writes it; they need to grasp what happens.`,
+    fix: "Draw the flow instead, or mock the screen where it happens. Keep code only where it is the clearest thing: the few lines that show how little it takes, a script that is itself the point, or pseudo-code that makes a flow unambiguous. Just the meat, no imports or setup.",
+    source: "Founder note on blog posts, 2026-11-13: \"people will ONLY, EVER code through their agents right now\"; code \"very little and strategically and very rarely\", \"very few lines, no boilerplate around just the meat\".",
+    examples: {
+      fail: [{ text: "Set it up:\n\n```python\nimport os\nimport langwatch\nfrom openai import OpenAI\n\nclient = OpenAI()\nlangwatch.setup(api_key=os.environ[\"KEY\"])\n\n@langwatch.trace()\ndef answer(q):\n    r = client.chat.completions.create(model=\"m\", messages=[{\"role\": \"user\", \"content\": q}])\n    return r.choices[0].message.content\n\nprint(answer(\"hi\"))\n```\n", mode: "post" }],
+      pass: [{ text: "One decorator is all it takes:\n\n```python\n@langwatch.trace()\ndef answer(question):\n    ...\n```\n", mode: "post" }],
+    },
+  },
   {
     id: "audience-terms",
     modes: ["post"],

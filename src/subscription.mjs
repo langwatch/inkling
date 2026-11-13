@@ -75,7 +75,8 @@ export function hasClaudeLogin() {
  * with no CLAUDE.md above it, no tools, no MCP, no settings, no skills, no saved session.
  */
 export class ClaudeCli {
-  constructor({ model = "opus", workdir }) {
+  constructor({ model = "opus", workdir, read = [] }) {
+    this.read = read;
     this.model = model;
     this.name = `claude-${model}`;
     this.login = claudeLogin();
@@ -109,9 +110,15 @@ export class ClaudeCli {
     if (this.login.kind === "token") this.env.CLAUDE_CODE_OAUTH_TOKEN = process.env.CLAUDE_CODE_OAUTH_TOKEN;
   }
 
-  ask(system, prompt) {
-    const args = ["-p", "--model", this.model, "--tools", "", "--strict-mcp-config", "--setting-sources", "",
+  /** No tools, unless the reader was given folders to Read (screenshots of figures): then Read, only there. */
+  args(system) {
+    const tools = this.read.length ? ["--tools", "Read", "--allowedTools", "Read", ...this.read.flatMap((d) => ["--add-dir", d])] : ["--tools", ""];
+    return ["-p", "--model", this.model, ...tools, "--strict-mcp-config", "--setting-sources", "",
       "--disable-slash-commands", "--no-session-persistence", "--system-prompt", system];
+  }
+
+  ask(system, prompt) {
+    const args = this.args(system);
     let last;
     for (let attempt = 0; attempt < 3; attempt++) {
       last = spawnSync(this.bin, args, { input: prompt, cwd: this.cwd, env: this.env, encoding: "utf8", timeout: 600_000 });
@@ -122,8 +129,7 @@ export class ClaudeCli {
 
   /** Same call as ask, without blocking, so several readers can run at once. */
   async askAsync(system, prompt) {
-    const args = ["-p", "--model", this.model, "--tools", "", "--strict-mcp-config", "--setting-sources", "",
-      "--disable-slash-commands", "--no-session-persistence", "--system-prompt", system];
+    const args = this.args(system);
     let last = "";
     for (let attempt = 0; attempt < 3; attempt++) {
       const { status, stdout, stderr } = await new Promise((done) => {

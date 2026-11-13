@@ -286,3 +286,37 @@ test("an expectation with ask: puts its question to the personas it applies to",
   assert.ok(eng.extraQuestions.includes("Where is the change measured, and why there?"));
   assert.ok(!(buyer.extraQuestions ?? []).includes("Where is the change measured, and why there?"));
 });
+
+test("figures hand the reader screenshots to open with Read, and only those", () => {
+  const dir = fresh();
+  writeFileSync(join(dir, "shot.png"), "png");
+  const spec = join(dir, "r.yaml");
+  writeFileSync(spec, "figures:\n  - file: shot.png\n    where: the experiment view\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  const out = join(dir, "out");
+  writePrompts({ draft, readersFile: spec, out });
+  const prompt = readFileSync(join(out, "a.prompt.md"), "utf8");
+  assert.match(prompt, /Open every one with the Read tool/);
+  assert.ok(prompt.includes(`${join(dir, "shot.png")} (the experiment view)`));
+  assert.match(prompt, /your only tool is Read/);
+  assert.equal(JSON.parse(readFileSync(join(out, "manifest.json"), "utf8")).figures[0].file, join(dir, "shot.png"));
+});
+
+test("a figure file that does not exist is refused", () => {
+  const dir = fresh();
+  const spec = join(dir, "r.yaml");
+  writeFileSync(spec, "figures:\n  - file: missing.png\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.throws(() => readReadersFile(spec), /figure missing.png not found/);
+});
+
+test("a long draft gets holds_attention for every full reader; a short one does not", () => {
+  const dir = fresh();
+  const spec = join(dir, "r.yaml");
+  writeFileSync(spec, "personas:\n  - id: a\n    background: b\n  - id: s\n    view: skim\n    background: b\nexpectations: []\n");
+  const long = join(dir, "long.md");
+  writeFileSync(long, "# T\n\n" + "The agent reads the trace and changes the prompt. ".repeat(100));
+  writePrompts({ draft: long, readersFile: spec, out: join(dir, "l") });
+  const hold = JSON.parse(readFileSync(join(dir, "l", "manifest.json"), "utf8")).expectations.find((e) => e.id === "holds_attention");
+  assert.deepEqual(hold.applies_to, ["a"]);
+  writePrompts({ draft, readersFile: spec, out: join(dir, "s") });
+  assert.ok(!JSON.parse(readFileSync(join(dir, "s", "manifest.json"), "utf8")).expectations.some((e) => e.id === "holds_attention"));
+});

@@ -128,6 +128,7 @@ export function parse(text) {
   let current = null;
   let fence = null;
   let comment = false;
+  const code = [];
 
   const close = () => {
     if (current && current.parts.length) blocks.push(current);
@@ -148,12 +149,14 @@ export function parse(text) {
     const n = i + 1;
     if (fence) {
       if (line.trim().startsWith(fence)) fence = null;
+      else if (line.trim()) code.at(-1).lines += 1;
       continue;
     }
     const f = line.match(FENCE);
     if (f) {
       close();
       fence = f[1];
+      code.push({ line: n, lang: line.trim().slice(3).trim(), lines: 0 });
       continue;
     }
     if (comment) {
@@ -262,5 +265,5 @@ export function parse(text) {
     db.sentences = splitSentences(db);
     subtitle = db;
   }
-  return { blocks, frontmatter: fm, title, subtitle, fileIgnore, lines };
+  return { blocks, frontmatter: fm, title, subtitle, fileIgnore, lines, code };
 }

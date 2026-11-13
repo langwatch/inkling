@@ -63,6 +63,25 @@ The goals from [step 1](1-who-reads.md) are tests too, ours as much as the reade
 
 Write these from what the person who asked for the piece wants, not from the draft, the same way as `purpose:`. A draft can teach a reader every detail and still fail here.
 
+## Length
+
+Every full reader of a draft over 800 words gets the `holds_attention` expectation, core: they read to the end because they wanted to. It fails when they stopped, started skimming before the last part, or found a stretch dull, repetitive or too long. There is no length cap; a long piece passes when it holds the reader, and the grader is stricter the longer it is. `holds: false` turns it off, for docs and references people search rather than read.
+
+## Figures
+
+Readers see figures through their alt text unless you give them the real thing. List screenshots of the figures as rendered under `figures:`, each with `where` it sits, and every reader opens them before answering (the `claude -p` backend gives readers the Read tool for those files only):
+
+```yaml
+figures:
+  - file: shots/experiment.png
+    where: the run view, after "the evals ran"
+expectations:
+  - id: can_do_it_here
+    core: true
+    ask: Looking at the figures, where does this happen? Could you do it yourself?
+    expect: The reader places it in the product and says they could do it there. Fails if it reads as a concept or an illustration.
+```
+
 ## What the reader knows
 
 The reader is a model, and a model knows every tool on GitHub. Without a rule, a reader playing an engineer happily explains rtk or a ten-week-old plugin, so a page that headlines a name only its author knows passes every test. The writer has the same blind spot, because they spent weeks with that name.
