@@ -41,6 +41,27 @@ export const CLIPPED_CONDITION = new RegExp(
 
 export default [
   {
+    id: "uniform-paragraphs",
+    scope: "document",
+    modes: ["post"],
+    check: (_u, { doc }) => {
+      const paras = doc.blocks.filter((b) => b.type === "paragraph").map((block) => ({ block, n: words(block.text).length }));
+      if (paras.length < 8) return [];
+      const same = paras.slice(1).map((p, i) => Math.min(p.n, paras[i].n) > 35 && Math.abs(p.n - paras[i].n) <= 0.25 * Math.max(p.n, paras[i].n));
+      const share = same.filter(Boolean).length / same.length;
+      if (share <= 0.35) return [];
+      const at = paras[same.indexOf(true)].block;
+      return [{ block: at, index: 0, note: `${Math.round(share * 100)}% of neighbouring paragraphs are dense and within a quarter of each other's length.` }];
+    },
+    message: "Paragraph after paragraph of about the same dense size: the even block rhythm of model prose, which reads as a wall of text. A person's paragraphs swing between a long one that builds and a short one.",
+    fix: "Vary the sizes where the thought changes: let one paragraph run, cut the next to a sentence or two, turn a sequence into a list. Do not pad short ones.",
+    source: "Founder review 2026-11-13: \"my paragraphs vary a lot in size, ai tends to have many walls of text\". Calibration: the rejected auto-improving agents post had 43% same-size dense neighbours, seven approved posts 9 to 31%.",
+    examples: {
+      fail: [{ text: Array.from({ length: 9 }, (_, k) => Array.from({ length: 50 + (k % 3) * 4 }, (_, i) => `w${i}`).join(" ") + ".").join("\n\n"), mode: "post" }],
+      pass: [{ text: Array.from({ length: 9 }, (_, k) => Array.from({ length: [70, 12, 45, 20, 90, 8, 55, 15, 60][k] }, (_, i) => `w${i}`).join(" ") + ".").join("\n\n"), mode: "post" }],
+    },
+  },
+  {
     id: "clipped-condition",
     modes: ["script", "post"],
     scope: "paragraph",

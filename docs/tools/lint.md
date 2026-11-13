@@ -95,7 +95,7 @@ Notes: when one person builds an agent, the rest of the team has to ask that per
 
 `--mode` picks the preset described in [which mind](../process/2-which-mind.md). `.mdx` files default to `docs` and everything else to `post`. `inkling modes` prints the list.
 
-In `--mode post`, paragraphs cap at 80 words. Paragraph length and density do not tell a rejected post from an approved one: the founder's own approved posts run longer paragraphs and longer prose stretches than the rejected auto-improving agents post (calibration 2026-11-13). What the reader calls a wall of text there is the voice, not the layout, so the reader checks own it.
+In `--mode post`, paragraphs cap at 80 words. Paragraph length and density do not tell a rejected post from an approved one: the founder's own approved posts run longer paragraphs and longer prose stretches than the rejected auto-improving agents post (calibration 2026-11-13). What separates them is rhythm: `structure/uniform-paragraphs` fails a post where over 35% of neighbouring paragraphs are dense (over 35 words) and within a quarter of each other's length. The rejected post scored 43%, the approved posts 9 to 31% (founder: "my paragraphs vary a lot in size, ai tends to have many walls of text").
 
 A post is an `article` by default: how our system works, a launch, an opinion. There `blog/staged-experiment` and `blog/contest-heading` fail "We gave three models..." framing. A post that really is an experiment write-up sets `page: experiment` in the front matter (or `--page experiment`) and those two rules stay off (founder, 2026-11-13: "it would be ok if I was writing an experiment, that's not the case").
 
