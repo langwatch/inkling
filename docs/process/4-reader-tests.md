@@ -66,7 +66,9 @@ A bare name in a headline tells a newcomer nothing, and a result about an unexpl
 
 ## Engineering posts
 
-`engineering: true` is for a post that documents a system the authors built. Each persona marked `engineer: true` (every full reader when none is marked) is asked who they think wrote it, which mechanism they could now explain to a colleague, and which line reads like a staged experiment, a race between models, a made-up company or marketing.
+`engineering: true` is for a post that documents a system the authors built. Each persona marked `engineer: true` (every full reader when none is marked) is asked whether a person wrote it from their own work, which detail only someone who did the work would know, and which lines read machine-written or staged. Model readers rate model prose above human prose, so the question names human signals (uneven paragraphs, a side taken, asides, rough phrasing) as evidence and model tells as fails.
+
+An expectation that grades something no question asks for, such as why a step exists, carries `ask:` with the question; every persona it applies to gets it. Without it, readers summarise what the page does and the grader fails them for leaving out a reason nobody asked for.
 
 So the `engineering_voice` expectation is core: it fails when the reader calls the post a generic tutorial or a staged experiment, or cannot name one mechanism and why it exists.
 

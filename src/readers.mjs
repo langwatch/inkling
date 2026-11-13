@@ -212,6 +212,10 @@ export function readReadersFile(path) {
   if (data.names !== false && !expectations.some((e) => e.id === NAMES_EXPECTATION.id)) expectations.push({ ...NAMES_EXPECTATION });
   if (data.purpose && !expectations.some((e) => e.id === "reads_as_purpose")) expectations.push(purposeExpectation(data.purpose));
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
+  // An expectation that grades something no question asks for (a reason, a why) carries its own `ask:`.
+  for (const e of expectations.filter((x) => x.ask)) {
+    for (const p of personas.filter((x) => !e.applies_to || e.applies_to.includes(x.id))) p.extraQuestions = [...(p.extraQuestions ?? []), e.ask];
+  }
   const context = { ...(data.context ?? {}) };
   if (data.stance) context.stance = data.stance;
   if (data.page) context.page = data.page;

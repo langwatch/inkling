@@ -275,3 +275,14 @@ test("MDX: imports vanish and components render as figures, with their caption w
   assert.match(out, /\[Figure: ImproverChart, no caption\]/);
   assert.match(out, /\[Image: Cost per answer\]/);
 });
+
+test("an expectation with ask: puts its question to the personas it applies to", () => {
+  const dir = mkdtempSync(join(tmpdir(), "inkling-ask-"));
+  const file = join(dir, "r.yaml");
+  writeFileSync(file, "personas:\n  - id: eng\n    background: An engineer.\n  - id: buyer\n    background: A buyer.\nexpectations:\n  - id: where_measured\n    applies_to: [eng]\n    ask: Where is the change measured, and why there?\n    expect: The reader says where and why.\n");
+  const spec = readReadersFile(file);
+  const eng = spec.personas.find((p) => p.id === "eng");
+  const buyer = spec.personas.find((p) => p.id === "buyer");
+  assert.ok(eng.extraQuestions.includes("Where is the change measured, and why there?"));
+  assert.ok(!(buyer.extraQuestions ?? []).includes("Where is the change measured, and why there?"));
+});

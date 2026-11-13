@@ -45,9 +45,10 @@ export default [
     scope: "document",
     modes: ["post"],
     check: (_u, { doc }) => {
-      const paras = doc.blocks.filter((b) => b.type === "paragraph").map((block) => ({ block, n: words(block.text).length }));
+      // A heading, list, code block or figure between two paragraphs breaks the wall, so they are not neighbours.
+      const paras = doc.blocks.map((block, i) => ({ block, i, n: words(block.text ?? "").length })).filter((p) => p.block.type === "paragraph" && !/^\s*<|^\s*!\[/.test(p.block.text));
       if (paras.length < 8) return [];
-      const same = paras.slice(1).map((p, i) => Math.min(p.n, paras[i].n) > 35 && Math.abs(p.n - paras[i].n) <= 0.25 * Math.max(p.n, paras[i].n));
+      const same = paras.slice(1).map((p, i) => p.i === paras[i].i + 1 && Math.min(p.n, paras[i].n) > 35 && Math.abs(p.n - paras[i].n) <= 0.25 * Math.max(p.n, paras[i].n));
       const share = same.filter(Boolean).length / same.length;
       if (share <= 0.35) return [];
       const at = paras[same.indexOf(true)].block;
