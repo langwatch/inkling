@@ -48,6 +48,8 @@ expectations:
 
 - `purpose:` says what the page is meant to be, in one line ("a benchmark of token-saving add-ons, not an ad for any one tool"). With it, every reader gets the `reads_as_purpose` expectation, core: they take the page for that, and a reader who calls it an ad for something it covers fails it. Every reader is asked what the page is for and whether any part reads like an ad, with or without it.
 
+  Write `purpose:` from the words of the person who asked for the piece, quoted or as close as you can, never from your own summary of the draft. A purpose the writer derives from the draft passes the draft by construction: a post asked to "document how our self-improvement loop works" that turned into a model comparison still passes a purpose of "how auto-improving agents work".
+
 ## What the reader knows
 
 The reader is a model, and a model knows every tool on GitHub. Without a rule, a reader playing an engineer happily explains rtk or a ten-week-old plugin, so a page that headlines a name only its author knows passes every test. The writer has the same blind spot, because they spent weeks with that name.

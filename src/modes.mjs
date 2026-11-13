@@ -7,7 +7,7 @@ export const MODES = {
   },
   post: {
     label: "technical or founder post: an engineer writing to engineers, a person telling a story",
-    paragraphWords: 80,
+    paragraphWords: 70,
   },
   ads: {
     label: "marketing, ads, landing copy, titles: a business mind, lead with strengths, never concede",

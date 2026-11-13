@@ -4,7 +4,7 @@
 
 This page collects explanations people gave each other in chat while building Inkling, written the way they would have said them. Some come from the founder, some from the agent replying to him, and two are points of the analysis that started Inkling. They are what a draft in [step 6](../process/6-draft.md) should sound like before anyone trims it: a person explaining something to someone who asked.
 
-Read them before you draft. Then explain your topic the same way. Names of companies and people are replaced with ACME or removed, swearing is dropped, and typos are fixed. Everything else is as said.
+Read them before you draft. Then explain your topic the same way. Names of companies and people are removed or replaced with what they are ("a security vendor"), swearing is dropped, and typos are fixed. Everything else is as said. Never carry a placeholder company name such as ACME, Contoso or Northwind into your piece: describe the system by what it does, or use your own.
 
 ## What the excerpts do
 
@@ -111,8 +111,8 @@ What happened, then why that hid the problem, with the "so" at the end carrying 
 
 It thanks the listener for the clue, gives the likely cause marked as likely, and admits the gap in its own testing.
 
-### What ACME's extra check does
+### What a security vendor's extra check does
 
-> A normal permission check says who may act. ACME adds a second check on every action: does this fit what the user asked, and the whole session so far? Their own conclusion is that the strongest control was the plain one: tight rules per agent.
+> A normal permission check says who may act. One security vendor adds a second check on every action: does this fit what the user asked, and the whole session so far? Their own conclusion is that the strongest control was the plain one: tight rules per agent.
 
 It starts from the thing the listener already knows, then adds one step, and the new check is said as the question it asks.

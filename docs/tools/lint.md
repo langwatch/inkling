@@ -94,3 +94,5 @@ Notes: when one person builds an agent, the rest of the team has to ask that per
 ## Modes
 
 `--mode` picks the preset described in [which mind](../process/2-which-mind.md). `.mdx` files default to `docs` and everything else to `post`. `inkling modes` prints the list.
+
+In `--mode post`, paragraphs cap at 70 words, and `structure/wall-of-text` fails three paragraphs in a row over 45 words with no heading, list, table or figure between them (founder review, 2026-11-13: "those are walls of text"; the rejected post had two such stretches, the approved Doubleword post none).

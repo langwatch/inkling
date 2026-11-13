@@ -41,6 +41,29 @@ export const CLIPPED_CONDITION = new RegExp(
 
 export default [
   {
+    id: "wall-of-text",
+    scope: "document",
+    modes: ["post"],
+    check: (_u, { doc }) => {
+      const hits = [];
+      let run = 0;
+      for (const block of doc.blocks) {
+        if (block.type === "paragraph" && words(block.text).length > 45) {
+          run += 1;
+          if (run === 3) hits.push({ block, index: 0 });
+        } else run = 0;
+      }
+      return hits;
+    },
+    message: "Three dense paragraphs in a row, each over 45 words, with no heading, list, table or figure between them: a wall of text.",
+    fix: "Break the stretch: turn the steps into a list, give the result a table or figure, split the paragraph where the topic turns, or cut what the reader does not need.",
+    source: "Founder review of the auto-improving agents post, 2026-11-13: \"those are walls of text\" (2 such stretches; the approved Doubleword post has none)",
+    examples: {
+      fail: [{ text: Array.from({ length: 3 }, () => Array.from({ length: 50 }, (_, i) => `w${i}`).join(" ") + ".").join("\n\n"), mode: "post" }],
+      pass: [{ text: [Array.from({ length: 50 }, (_, i) => `w${i}`).join(" ") + ".", "- one\n- two", Array.from({ length: 50 }, (_, i) => `w${i}`).join(" ") + "."].join("\n\n"), mode: "post" }],
+    },
+  },
+  {
     id: "clipped-condition",
     modes: ["script", "post"],
     scope: "paragraph",

@@ -268,3 +268,10 @@ test("engineering: true with no marked engineer asks every full reader, never a 
   writeFileSync(rf, "engineering: true\npersonas:\n  - id: a\n    background: An engineer.\n  - id: s\n    view: skim\n    background: A skimmer.\nexpectations: []\n");
   assert.deepEqual(readReadersFile(rf).expectations.find((e) => e.id === "engineering_voice").applies_to, ["a"]);
 });
+
+test("MDX: imports vanish and components render as figures, with their caption when they have one", () => {
+  const out = asRendered('import { A } from "./a"\nexport const x = 1\n\nHello.\n\n<ImproverChart />\n\n<Chart caption="Cost per answer" />\n');
+  assert.ok(!/import|export/.test(out));
+  assert.match(out, /\[Figure: ImproverChart, no caption\]/);
+  assert.match(out, /\[Image: Cost per answer\]/);
+});

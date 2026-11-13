@@ -240,6 +240,12 @@ const SKIP = ["```", "[Image", ">", "1.", "- ", "<"];
 export function asRendered(md) {
   return blankFrontmatter(md)
     .replace(/<!--[\s\S]*?-->\n?/g, "")
+    // MDX: module lines are build plumbing a visitor never sees; a component renders as a figure.
+    .replace(/^(?:import|export)\s[^\n]*\n?/gm, "")
+    .replace(/<([A-Z][\w.]*)\b([^>]*?)\/>/g, (_, name, props) => {
+      const label = props.match(/\b(?:alt|caption|title|label)=["{]+([^"}]+)["}]+/)?.[1];
+      return label ? `[Image: ${label}]` : `[Figure: ${name}, no caption]`;
+    })
     .replace(/<h([1-3])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, n, t) => `${"#".repeat(Number(n))} ${t.trim()}`)
     .replace(/<img[^>]*?alt="([^"]*)"[^>]*>/gi, (_, alt) => `[Image: ${alt}]`)
     .replace(/<img[^>]*>/gi, "[Image with no alt text]")
