@@ -104,6 +104,8 @@ For a narrated lesson or video, `--mode script --minutes 3`, `inkling voice` and
 
 More tools: [preference judge](docs/tools/preference.md), [surprise](docs/tools/surprise.md), [images](docs/tools/images.md), [known false positives](docs/tools/known-false-positives.md).
 
+A company's own product names, figure components and audience words live in its [house](docs/houses/README.md), outside the core; this repo ships the [LangWatch house](docs/houses/langwatch.md).
+
 ## Research
 
 - **[Why agents write bad copy](docs/research/why.md).** The nine reasons, from an agent explaining its own rejected titles and a study showing that a large language model (LLM) asked to grade text prefers text a model wrote.
