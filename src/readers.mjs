@@ -159,7 +159,7 @@ export const NAMES_EXPECTATION = {
 export const purposeExpectation = (purpose) => ({
   id: "reads_as_purpose",
   core: true,
-  expect: `The reader takes the page for what it is meant to be: ${purpose.trim()} It fails when they say it reads mainly as something else, such as an ad for one of the things it covers or a pitch that hides behind the content. A short plug for the author at the end that the reader notices and accepts passes.`,
+  expect: `The reader's own one-line summary of the page names the same subject and job as this purpose: ${purpose.trim()} It fails when their summary is about something else, such as a comparison, a general explainer or a product pitch where the purpose asks for a write-up of a system. A reader who also calls parts of it marketing, or notices plugs for the author's products, does not fail it on that alone; those are doubts, graded with the other doubts.`,
 });
 
 /**
