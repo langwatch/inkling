@@ -1,8 +1,11 @@
 // Shape of paragraphs and sentences: walls of text, barrages, staccato, gravitas closers.
 import { words } from "../src/markdown.mjs";
+
 import { TIME_MARKER, isPastAction } from "../src/verbs.mjs";
 import { readFileSync } from "node:fs";
 import { isFragment } from "./script.mjs";
+
+const LECTURE_SUBJECT = /^(LLMs?|(Large )?language models|(AI )?models|AI agents|Agents|AI|Most (teams|companies|engineers|developers|people)|Teams|Companies|Engineers|Developers)\b/;
 
 const BURST = JSON.parse(readFileSync(new URL("../modes/script/voice-profile.json", import.meta.url), "utf8")).burstiness;
 
@@ -60,6 +63,32 @@ export default [
     examples: {
       fail: [{ text: Array.from({ length: 9 }, (_, k) => Array.from({ length: 50 + (k % 3) * 4 }, (_, i) => `w${i}`).join(" ") + ".").join("\n\n"), mode: "post" }],
       pass: [{ text: Array.from({ length: 9 }, (_, k) => Array.from({ length: [70, 12, 45, 20, 90, 8, 55, 15, 60][k] }, (_, i) => `w${i}`).join(" ") + ".").join("\n\n"), mode: "post" }],
+    },
+  },
+  {
+    id: "lecture-turn",
+    scope: "document",
+    modes: ["post", "script"],
+    severity: "warning",
+    check: (_u, { doc }) => {
+      const hits = [];
+      doc.blocks.forEach((block, i) => {
+        const prev = doc.blocks[i - 1];
+        if (block.type !== "paragraph" || prev?.type !== "paragraph" || !/\byou(r|'re|'ve)?\b/i.test(prev.text)) return;
+        const first = block.sentences[0]?.clean ?? "";
+        if (LECTURE_SUBJECT.test(first) && !/\b(you|your|we|our|I)\b/.test(first)) hits.push({ block, index: block.sentences[0].start });
+      });
+      return hits;
+    },
+    message: "The paragraph before talks to the reader; this one opens with a general law about models, agents or teams. The story stops and a lecture starts.",
+    fix: "Carry on from what the reader was doing and let the reason follow: \"By now you might have been tempted to let another agent improve yours, but agents improving agents unchecked drift...\". Give the law after the reader can see why it matters, or leave it out.",
+    source: "Founder edit of an engineering post, 2026-11-13: \"terrible way to start the paragraph ... with the explanation? Not with the action?\"; same family as leading with the value and a case before the name.",
+    examples: {
+      fail: [{ text: "If you build agents, you probably run this loop by hand.\n\nLLMs regress to the mean, so an agent that edits itself drifts toward generic behaviour.", mode: "post" }],
+      pass: [
+        { text: "If you build agents, you probably run this loop by hand.\n\nBy now you might have been tempted to let another agent improve yours, but LLMs regress to the mean.", mode: "post" },
+        { text: "We built the loop in two weeks.\n\nLLMs regress to the mean, so we measure every change.", mode: "post" },
+      ],
     },
   },
   {
