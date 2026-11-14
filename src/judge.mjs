@@ -4,6 +4,7 @@
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { blankFrontmatter, parse } from "./markdown.mjs";
+import { languageOf } from "./modes.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,13 +15,14 @@ export function jevKey(env = process.env) {
 }
 
 /** Jev judges as the reader described, so who wrote it and where the reader meets it go in too. */
-export function judgeArgs({ file, mode, audience, context, json, copy = false }) {
+export function judgeArgs({ file, mode, audience, context, json, copy = false, lang }) {
   const args = [SCRIPT, file, "--checks", "jev"];
   if (copy || mode === "ads" || mode === "deck" || mode === "x") args.push("--copy");
   if (mode === "docs") args.push("--docs");
   if (mode === "script") args.push("--script");
   const who = [audience, context && `context: ${context}`].filter(Boolean).join("; ");
   if (who) args.push("--audience", who);
+  if (lang && languageOf(lang) !== "en") args.push("--lang", languageOf(lang));
   if (json) args.push("--json");
   return args;
 }
@@ -144,7 +146,7 @@ export function firstScreen(raw, paragraphs = 3) {
   return { text: units.map((u) => u.text).join("\n\n") + "\n", lines: units.map((u) => u.line) };
 }
 
-export function runJudge({ file, mode, audience, context, json, stdin, firstScreen: lead = false }) {
+export function runJudge({ file, mode, audience, context, json, stdin, firstScreen: lead = false, lang }) {
   const key = jevKey();
   if (!key) {
     process.stderr.write(
@@ -156,7 +158,7 @@ export function runJudge({ file, mode, audience, context, json, stdin, firstScre
   const raw = file === "-" ? stdin() : readFileSync(file, "utf8");
   const json5 = file.endsWith(".json");
   const { text, lines } = json5 ? { text: raw, lines: null } : lead ? firstScreen(raw) : judgeInput(raw);
-  const args = judgeArgs({ file: json5 ? file : "-", mode, audience, context, json: true, copy: lead });
+  const args = judgeArgs({ file: json5 ? file : "-", mode, audience, context, json: true, copy: lead, lang: lang ?? (json5 ? undefined : parse(raw).frontmatter.lang?.value) });
   const input = json5 ? undefined : text;
   const one = jevJson(args, input, key);
   if (one.error) return one.error;

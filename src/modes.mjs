@@ -64,6 +64,11 @@ export const MODES = {
       },
     },
   },
+  proposal: {
+    label: "priced proposal for one named buyer who asked for it: no search query, no calls to action or mocks to count; the reader decides whether to buy",
+    paragraphWords: 60,
+    like: ["ads"],
+  },
   deck: {
     label: "slides: few-word titles, at most three short bullets, narrative in speaker notes",
     paragraphWords: 30,
@@ -93,6 +98,14 @@ export const MODES = {
 
 export const MODE_NAMES = Object.keys(MODES);
 
+/** The text's language as a base code ("pt" for pt-BR); rules with word lists pick theirs by it. English by default. */
+export const LANGUAGES = ["en", "pt"];
+export function languageOf(tag) {
+  const base = String(tag ?? "en").trim().toLowerCase().split(/[-_]/)[0] || "en";
+  if (!LANGUAGES.includes(base)) throw new Error(`unknown language ${tag}; one of ${LANGUAGES.join(", ")} (a tag like pt-BR works)`);
+  return base;
+}
+
 /** A rule written for a mode also binds every mode that is `like` it. */
 export const modeFamily = (mode) => [mode, ...(MODES[mode]?.like ?? [])];
 
@@ -111,6 +124,6 @@ export function pageOf({ mode, page, frontmatter = {} }) {
 export const settingsOf = (mode, page) => ({ ...MODES[mode], ...(page ? MODES[mode].pages[page] : {}) });
 
 /** Modes that sell or pitch: the copy rules bind hardest here. */
-export const PITCH = ["ads", "landing", "deck", "investor"];
+export const PITCH = ["ads", "landing", "proposal", "deck", "investor"];
 export const PROSE_MODES = ["docs", "post", "investor", "legal"];
-export const ALL_BUT_LEGAL = ["docs", "post", "ads", "landing", "deck", "investor"];
+export const ALL_BUT_LEGAL = ["docs", "post", "ads", "landing", "proposal", "deck", "investor"];

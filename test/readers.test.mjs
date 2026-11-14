@@ -351,3 +351,38 @@ test("unpacking: false drops the question and the note", () => {
   assert.ok(!manifest.expectations.some((e) => e.id === "no_unpacking"));
   assert.ok(!manifest.questions.some((q) => /unpack/.test(q)));
 });
+
+test("page: proposal reads warm, asks for the total and grades can_name_total as core", () => {
+  const dir = fresh();
+  const spec = join(dir, "r.yaml");
+  writeFileSync(spec, "page: proposal\nlanguage: pt-BR\npersonas:\n  - id: buyer\n    background: Head of sales at a company that builds voice agents.\nexpectations: []\n");
+  const r = readReadersFile(spec);
+  assert.ok(r.expectations.some((e) => e.id === "can_name_total" && e.core));
+  assert.ok(r.questions.some((q) => /pay in total, per month or per year/.test(q)));
+  const out = join(dir, "o");
+  writePrompts({ draft, readersFile: spec, out });
+  const prompt = readFileSync(join(out, "buyer.prompt.md"), "utf8");
+  assert.match(prompt, /written for you and your company/);
+  assert.match(prompt, /You already know who wrote this/);
+  assert.match(prompt, /Answer in pt-BR\./);
+  writeFileSync(join(out, "buyer.answer.md"), "1. Um teste de voz.");
+  grade(out);
+  const judge = readFileSync(join(out, "buyer.judge.prompt.md"), "utf8");
+  assert.match(judge, /write each note in pt-BR/);
+  assert.match(judge, /could not say what they would pay/);
+});
+
+test("price: true adds can_name_total to any piece; price: false turns it off for a proposal", () => {
+  const dir = fresh();
+  const on = join(dir, "on.yaml");
+  writeFileSync(on, "price: true\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.ok(readReadersFile(on).expectations.some((e) => e.id === "can_name_total"));
+  const off = join(dir, "off.yaml");
+  writeFileSync(off, "page: proposal\nprice: false\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  const r = readReadersFile(off);
+  assert.ok(!r.expectations.some((e) => e.id === "can_name_total"));
+  assert.ok(!r.questions.some((q) => /pay in total/.test(q)));
+  const plain = join(dir, "plain.yaml");
+  writeFileSync(plain, "personas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.ok(!readReadersFile(plain).expectations.some((e) => e.id === "can_name_total"));
+});

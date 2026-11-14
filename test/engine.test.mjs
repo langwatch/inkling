@@ -76,3 +76,16 @@ test("a Founder decision comment exempts its sentence and only that sentence", (
   assert.equal(found.length, 1);
   assert.match(found[0].excerpt, /Setup is seamless/);
 });
+
+test("the text's language comes from lang: in the front matter or the lang option, English by default", async () => {
+  const { lint } = await import("../src/engine.mjs");
+  const { languageOf } = await import("../src/modes.mjs");
+  const rule = { id: "t/t", family: "t", scope: "sentence", pattern: { pt: /portanto/i }, message: "m", fix: "f", source: "s" };
+  const pt = "Os testes rodam no CI, portanto o time vê a falha.";
+  assert.equal(lint({ text: pt, rules: [rule] }).length, 0);
+  assert.equal(lint({ text: `---\nlang: pt-BR\n---\n\n${pt}`, rules: [rule] }).length, 1);
+  assert.equal(lint({ text: pt, lang: "pt", rules: [rule] }).length, 1);
+  assert.equal(languageOf("pt-BR"), "pt");
+  assert.equal(languageOf(undefined), "en");
+  assert.throws(() => languageOf("klingon"), /unknown language/);
+});

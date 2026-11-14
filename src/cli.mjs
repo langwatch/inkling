@@ -25,6 +25,8 @@ const USAGE = `inkling: content writing framework for agents
       step 7, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
       --mode landing --page <ad|home|product|guide|job>: the kind of landing page (or page: in the front matter; ad by default)
       --mode post --page <article|experiment>: experiment allows "we gave three models" framing (article by default)
+      --mode proposal: a priced proposal written for one named buyer who asked for it (no search query, no CTA or mock rules)
+      --lang pt-BR: the text's language (or lang: in the front matter); word lists and verb checks follow it, English by default
       --terms "evals,traces": the words the audience uses and searches for (or terms: in the front matter); posts warn when one is missing or rare
       --mode script --minutes 3: a spoken script against its time budget (or minutes: in the front matter)
   inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--first-screen] [--json]
@@ -101,6 +103,7 @@ export function main(argv) {
       page: { type: "string" },
       audience: { type: "string" },
       terms: { type: "string" },
+      lang: { type: "string" },
       context: { type: "string" },
       json: { type: "boolean" },
       house: { type: "string", multiple: true },
@@ -143,6 +146,7 @@ export function main(argv) {
         page: values.page,
         audience: values.audience,
         terms: values.terms,
+        lang: values.lang,
         minutes: values.minutes ? Number(values.minutes) : undefined,
         house: values.house ?? [],
         only: list(values.only),
@@ -153,7 +157,7 @@ export function main(argv) {
       }));
     case "judge":
       if (!positionals[0]) return usage("inkling judge needs a file or -");
-      return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin, firstScreen: values["first-screen"] }));
+      return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin, firstScreen: values["first-screen"], lang: values.lang }));
     case "voice": {
       if (!positionals[0]) return usage("inkling voice needs a file or -");
       const text = positionals[0] === "-" ? stdin() : readFileSync(positionals[0], "utf8");

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { RULES } from "../rules/index.mjs";
 import { lint } from "../src/engine.mjs";
 
-const example = (rule, ex) => (typeof ex === "string" ? { text: ex, mode: rule.modes?.[0] ?? "post" } : ex);
+const example = (rule, ex) => ({ mode: rule.modes?.[0] ?? "post", ...(typeof ex === "string" ? { text: ex } : ex) });
 
 for (const rule of RULES) {
   test(`${rule.id} is complete`, () => {
@@ -13,16 +13,16 @@ for (const rule of RULES) {
     assert.ok(rule.examples?.pass?.length, `${rule.id} needs a passing example`);
   });
   for (const ex of rule.examples?.fail ?? []) {
-    const { text, mode } = example(rule, ex);
+    const { text, mode, lang } = example(rule, ex);
     test(`${rule.id} flags: ${text.slice(0, 60)}`, () => {
-      const hits = lint({ text, mode, rules: [rule] });
+      const hits = lint({ text, mode, lang, rules: [rule] });
       assert.ok(hits.length > 0, `expected ${rule.id} to flag ${JSON.stringify(text)} in ${mode} mode`);
     });
   }
   for (const ex of rule.examples?.pass ?? []) {
-    const { text, mode } = example(rule, ex);
+    const { text, mode, lang } = example(rule, ex);
     test(`${rule.id} passes: ${text.slice(0, 60)}`, () => {
-      const hits = lint({ text, mode, rules: [rule] });
+      const hits = lint({ text, mode, lang, rules: [rule] });
       assert.deepEqual(hits.map((h) => `${h.rule} ${h.excerpt}`), []);
     });
   }

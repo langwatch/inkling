@@ -78,6 +78,8 @@ Calibration on 26 real sentences from posts and drafts, 12 dramatic and 14 real 
 
 Jev scores this question low overall, so the flag uses 0.5, not the default 0.7.
 
+For Portuguese (`--lang pt-BR` or `lang:` in the front matter), sentences with nunca or jamais go to Jev too, with the same question. A first check on four lines, 2026-11-14: "casos que ela nunca viu" (0.77) and "o agente nunca recebeu o trace" (0.82) flag; "a chave nunca sai do cofre" and "o que nunca é cobrado", both real rules, stay under 0.5.
+
 ## Writing questions
 
 Jev matches quoted examples literally: putting a concrete fragment of the failing shape in a question moved one rule from 0.59 to 0.9. Write judge questions with real examples in them.

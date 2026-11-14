@@ -9,6 +9,12 @@ import { isFragment } from "./script.mjs";
 const SHORTHAND = /\bonly (?:on|when|after|with|if|for)\b|\bwithout\b|\bover\b|,\s*not\b|\binstead of\b|\bno more\b|\bbeyond\b/i;
 const HAS_VERB = /\b(?:is|are|was|were|be|been|being|do|does|did|has|have|had|can|could|will|would|should|must|may|might|gets?|got|ran|opens?|makes?|made|keeps?|kept|lets?|takes?|took|goes|went|saw|sees?|finds?|found|built|builds?|breaks?|broke|fails?|failed|stops?|stopped|starts?|started|showed|tells?|told|reads?|writes?|wrote|paid|won|catches|caught|learns?|learned|knows?|knew|happens?|happened|means?|meant|helps?|comes?|came|becomes?|became|gives?|gave|sends?|sent|changed)\b|\w(?:'s|n't|'re|'ll|'ve)\b/i;
 const TOPIC_OPENER = /^(?:how|why|what|when|where|who|which|should|can|do|does|is|are|with|without|start|restart|run|use|keep|stop|ask|add|set|pick|choose|write|read|test|measure|ship|try|get|make|let|give|send|open|check|build|connect|install|bring|turn|move|cut|drop|don't|never|always)\b/i;
+// The same three checks for Portuguese: a squeeze marker, a finite verb, a topic or instruction opener.
+const L = (body) => new RegExp(`(?<![\\p{L}])(?:${body})(?![\\p{L}])`, "iu");
+const SHORTHAND_PT = L("s[oó] (?:quando|com|se|em|no|na|depois)|apenas (?:quando|com|se|em)|sem|em vez de|ao inv[eé]s de|nada de|al[eé]m d[eoa]s?|,\\s*n[aã]o");
+const HAS_VERB_PT = L("[eé]|s[aã]o|foi|foram|era|est[aá]|est[aã]o|tem|t[eê]m|teve|h[aá]|pode|podem|vai|v[aã]o|faz|fazem|fez|fica|ficam|ficou|roda|rodam|liga|ligam|abre|abrem|toca|tocam|confere|conferem|mostra|mostram|paga|pagam|custa|custam|conta|contam|precisa|precisam|cabe|cabem|entra|entram|sai|saem|chega|chegam|v[eê]|veem|sabe|sabem|deu|d[aá]|d[aã]o|acompanha|acompanham|cresce|crescem|muda|mudam|passa|passam|funciona|funcionam|escolhe|escolhem|decide|decidem|ganha|ganham|perde|perdem|quebra|quebram|falha|falham|aprende|aprendem|come[cç]a|come[cç]am|para|param");
+const TOPIC_OPENER_PT = L("^(?:como|por que|porque|o que|quando|onde|quem|qual|quais|quanto|quantos|com|sem|comece|escreva|rode|use|compare|monte|veja|ou[cç]a|simule|teste|envie|exclua|adicione|conecte|instale|escolha|leia|abra|fa[cç]a|confira|defina|pare|evite|n[aã]o)");
+
 const LECTURE_SUBJECT = /^(LLMs?|(Large )?language models|(AI )?models|AI agents|Agents|AI|Most (teams|companies|engineers|developers|people)|Teams|Companies|Engineers|Developers)\b/;
 
 const BURST = JSON.parse(readFileSync(new URL("../modes/script/voice-profile.json", import.meta.url), "utf8")).burstiness;
@@ -71,22 +77,23 @@ export default [
   },
   {
     id: "shorthand-heading",
-    modes: ["post", "docs"],
+    modes: ["post", "docs", "proposal"],
     scope: "headline",
     check: (unit, ctx) => {
       if (unit.block === ctx.doc.title || unit.block === ctx.doc.subtitle) return [];
       const h = unit.clean.trim().replace(/^\d+\\?\.\s*/, "");
       if (words(h).length > 14 || /\?$/.test(h)) return [];
       const tail = h.includes(":") ? h.slice(h.lastIndexOf(":") + 1).trim() : h;
-      if (!SHORTHAND.test(h) || HAS_VERB.test(h) || TOPIC_OPENER.test(tail)) return [];
+      const pt = ctx.lang === "pt";
+      if (!(pt ? SHORTHAND_PT : SHORTHAND).test(h) || (pt ? HAS_VERB_PT : HAS_VERB).test(h) || (pt ? TOPIC_OPENER_PT : TOPIC_OPENER).test(tail)) return [];
       return [{ index: 0 }];
     },
     message: "Headline shorthand: a claim squeezed into a phrase with no verb (\"Evals without the guesswork\", \"A flywheel, not a checklist\"). The reader has to unpack who does what. Breaks \"No unpacking\" (step 6); only the main title may stay a punch line.",
     fix: "Write it as a plain sentence with a subject and a verb: \"Langy only opens a PR when the evals prove it's better\". A plain topic label (\"Pricing\", \"How it works\") or an instruction (\"Start from a hypothesis\") is fine.",
     source: "Founder note on post headings, 2026-11-13: \"It's a weird way to write ... isn't that a rule against this writing style\". Calibration on 2lang-2watch blog and Inkling docs headings: 11 flagged, all shorthand claims (\"Control without the complexity\", \"A Flywheel, Not a Checklist\").",
     examples: {
-      fail: ["## A pull request only on a proven win", "## Evals without the guesswork", "## A flywheel, not a checklist", { text: "## Measuring behaviour instead of quality", mode: "docs" }],
-      pass: ["## Langy only opens a PR when the evals prove it's better", "# Evals without the guesswork", "## Pricing", "## How it works", "## Start from a hypothesis", "## Without a Claude login", "## LLM monitoring vs LLM tracing", "## Why look beyond LangSmith?"],
+      fail: ["## A pull request only on a proven win", "## Evals without the guesswork", "## A flywheel, not a checklist", { text: "## Measuring behaviour instead of quality", mode: "docs" }, { text: "## Ligações de teste sem pagar minuto de telefonia", mode: "proposal", lang: "pt" }, { text: "## Um PR só com ganho nas avaliações", mode: "post", lang: "pt" }],
+      pass: ["## Langy only opens a PR when the evals prove it's better", "# Evals without the guesswork", "## Pricing", "## How it works", "## Start from a hypothesis", "## Without a Claude login", "## LLM monitoring vs LLM tracing", "## Why look beyond LangSmith?", { text: "## A Langy só abre um PR quando as avaliações mostram que ficou melhor", mode: "post", lang: "pt" }, { text: "## Preços", mode: "proposal", lang: "pt" }, { text: "## Sem uma conta da Claude", mode: "post", lang: "pt" }, { text: "## Filtros: exclua os hooks que não precisam de debug", mode: "proposal", lang: "pt" }],
     },
   },
   {
@@ -227,6 +234,8 @@ export default [
       const before = words(s.at(-2).clean).length;
       // "They allow for:" leads into a list; it closes nothing.
       if (/:\s*$/.test(s.at(-1).clean)) return [];
+      // A link or doc path closing the paragraph is a reference, not a closer.
+      if (/^(?:https?:\/\/\S+|(?:www\.)?[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}(?:\/\S*)?|\/?[\w.-]+(?:\/[\w.#-]+)+\/?)\.?$/i.test(s.at(-1).clean.trim())) return [];
       // A long sentence that builds, then a short one that lands a concrete time or number, is the approved move.
       if (before >= 20 && (TIME_MARKER.test(s.at(-1).clean) || /\d/.test(s.at(-1).clean))) return [];
       return last <= 3 && before >= 8 ? [{ index: s.at(-1).start - unit.start }] : [];
@@ -236,7 +245,7 @@ export default [
     source: "Nexus writing-rules, Watch the short gravitas closer",
     examples: {
       fail: ["Most setups throw the context away after every task and start again. Ours stays."],
-      pass: ["The context stays between tasks, so the agent remembers last week's fix.", "Simulations run the whole conversation against a simulated user and a judge. They allow for:", "The handler caught the exception and returned an empty list instead of raising, so every query silently retrieved nothing and the model answered from its own guesses. For eighteen hours."],
+      pass: ["The context stays between tasks, so the agent remembers last week's fix.", "Simulations run the whole conversation against a simulated user and a judge. They allow for:", "The handler caught the exception and returned an empty list instead of raising, so every query silently retrieved nothing and the model answered from its own guesses. For eighteen hours.", "O cenário pode nascer no código ou na plataforma, onde quem conhece o negócio revisa e roda. langwatch.ai/docs/agent-testing/voice-agents", "Each scenario runs in CI on every pull request and fails the build when a criterion breaks. docs/scenario/ci-cd-integration"],
     },
   },
   {

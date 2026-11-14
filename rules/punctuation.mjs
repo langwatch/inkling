@@ -1,4 +1,21 @@
 // Punctuation that reads as machine-made.
+
+const ARROW = /\u2192|-->|=>(?!\s*\{)/g;
+const LINK_AFTER = /^\s*(?:https?:\/\/|www\.|\[|[\w-]+(?:\.[\w-]+)+\/|[\w-]+\.(?:com|ai|io|dev|so|org|net|app|sh)\b|$)/i;
+const CTA_BEFORE = /(?<![\p{L}])(?:try|read|learn|sign up|get started|start|see|book|join|download|install|watch|more|here|saiba|veja|leia|comece|teste|experimente|baixe|confira|assista|aqui|mais)\s*$/iu;
+
+/** An arrow that points at a link or ends the line is a call to action; one between steps ("A → B → C") is a flow. */
+function arrowCtas(unit) {
+  const text = unit.clean;
+  const hits = [];
+  for (const m of text.matchAll(ARROW)) {
+    const before = text.slice(0, m.index).replace(/[\s:]+$/, "");
+    const after = text.slice(m.index + m[0].length).replace(/^[\s.]*$/, "");
+    if (LINK_AFTER.test(after) || CTA_BEFORE.test(before.split(/[.!?]\s/).at(-1))) hits.push({ index: m.index, match: m[0] });
+  }
+  return hits;
+}
+
 export default [
   {
     id: "em-dash",
@@ -27,13 +44,13 @@ export default [
   {
     id: "arrow-cta",
     scope: "block",
-    pattern: /\u2192|-->|=>(?!\s*\{)/,
+    check: arrowCtas,
     message: "Arrow call to action. Reads as a LinkedIn-influencer template.",
     fix: "Write the link as a normal sentence, or drop it.",
     source: "Nexus writing-rules, Arrow CTAs and imperative signoffs",
     examples: {
-      fail: ["Try it \u2192 github.com/acme/tool"],
-      pass: ["The code is on GitHub at github.com/acme/tool."],
+      fail: ["Try it \u2192 github.com/acme/tool", "Read the full story \u2192", "Saiba mais \u2192 langwatch.ai/docs", "Get started \u2192 [the quickstart](https://example.com)"],
+      pass: ["The code is on GitHub at github.com/acme/tool.", "Simulador \u2192 Twilio \u2192 SBC \u2192 Asterisk \u2192 LiveKit \u2192 Agente.", "The trace flows from the SDK \u2192 the collector \u2192 ClickHouse."],
     },
   },
   {

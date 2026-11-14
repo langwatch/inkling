@@ -38,14 +38,14 @@ function format(findings, { color }) {
     .join("\n\n");
 }
 
-export function runCheck({ paths, mode, page, audience, terms, house, only, skip, json, stdin, color, minutes }) {
+export function runCheck({ paths, mode, page, audience, terms, lang, house, only, skip, json, stdin, color, minutes }) {
   const rules = selectRules({ house, only, skip });
   const files = expand(paths.length ? paths : ["-"]);
   const all = [];
   for (const file of files) {
     const text = file === "-" ? stdin() : readFileSync(file, "utf8");
     const m = mode ?? (file.endsWith(".mdx") ? "docs" : "post");
-    all.push(...lint({ text, file, mode: m, page, rules, audience, minutes, terms }));
+    all.push(...lint({ text, file, mode: m, page, rules, audience, minutes, terms, lang }));
   }
   if (json) {
     process.stdout.write(JSON.stringify({ mode, audience, findings: all }, null, 1) + "\n");

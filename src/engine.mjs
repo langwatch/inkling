@@ -2,7 +2,7 @@
 // `pattern` or a `check(unit, ctx)`, and an optional severity: "warning" (default "error").
 // A check may set `severity` on one hit, when the same rule blocks in one mode and warns in another.
 import { mask, parse, words } from "./markdown.mjs";
-import { MODES, modeFamily, pageOf, settingsOf } from "./modes.mjs";
+import { MODES, modeFamily, pageOf, settingsOf, languageOf } from "./modes.mjs";
 
 const PROSE = new Set(["paragraph", "list-item", "quote", "cell", "heading"]);
 
@@ -90,7 +90,7 @@ function founderDecision(block, at) {
 }
 
 /** Lint one document. Returns findings sorted by position. */
-export function lint({ text, file = "-", mode = "post", page, rules, audience, minutes, terms }) {
+export function lint({ text, file = "-", mode = "post", page, rules, audience, minutes, terms, lang }) {
   if (!MODES[mode]) throw new Error(`unknown mode ${mode}; one of ${Object.keys(MODES).join(", ")}`);
   const doc = parse(text);
   if (MODES[mode].firstBlockIsTitle && !doc.title) doc.title = doc.blocks.find((b) => PROSE.has(b.type)) ?? null;
@@ -98,7 +98,7 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
   // "evals=measurements|scores": the audience's term, then the stand-ins a writer swaps in for it.
   const termList = (terms ?? doc.frontmatter.terms?.value ?? "").split(",").map((t) => t.trim()).filter(Boolean)
     .map((t) => { const [term, alts = ""] = t.split("="); return { term: term.trim(), standIns: alts.split("|").map((a) => a.trim()).filter(Boolean) }; });
-  const ctx = { doc, mode, page: kind, audience, minutes, terms: termList, settings: settingsOf(mode, kind), words };
+  const ctx = { doc, mode, page: kind, audience, minutes, terms: termList, lang: languageOf(lang ?? doc.frontmatter.lang?.value), settings: settingsOf(mode, kind), words };
   const findings = [];
   for (const rule of rules) {
     if (!ruleApplies(rule, mode, kind)) continue;
@@ -106,8 +106,10 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
     for (const unit of unitsFor(rule.scope ?? "sentence", doc)) {
       if (unit.block?.ignore && ignored(unit.block.ignore, rule)) continue;
       const hits = [];
-      if (rule.pattern) {
-        for (const m of unit.clean.matchAll(globalise(rule.pattern))) hits.push({ index: m.index, match: m[0] });
+      // A word-list rule may give one pattern per language ({ en, pt }); with none for the text's language it stays quiet.
+      const pattern = rule.pattern instanceof RegExp ? rule.pattern : rule.pattern?.[ctx.lang];
+      if (pattern) {
+        for (const m of unit.clean.matchAll(globalise(pattern))) hits.push({ index: m.index, match: m[0] });
       }
       if (rule.check) {
         const result = rule.check(unit, ctx);

@@ -58,7 +58,7 @@ Rules are data. Each family is one file in `rules/`, and each entry has:
   id: "softener",
   modes: ["docs", "post"],          // omit for every mode
   scope: "sentence",                // sentence, body-sentence, block, paragraph, heading, headline, title, document
-  pattern: /\b(?:almost|nearly)\b/i,  // or check(unit, ctx) returning hits
+  pattern: /\b(?:almost|nearly)\b/i,  // or { en: /.../, pt: /.../ } per language, or check(unit, ctx) returning hits
   message: "Hedge. It softens the claim instead of bounding it.",
   fix: "Commit to the claim, then bound it with a number.",
   source: "where the rule came from",
@@ -66,7 +66,9 @@ Rules are data. Each family is one file in `rules/`, and each entry has:
 }
 ```
 
-Every example runs as a unit test: `npm test` fails when a rule misses a fail example or flags a pass example.
+Every example runs as a unit test: `npm test` fails when a rule misses a fail example or flags a pass example. An example object may set `mode` and `lang`.
+
+A word list is language-specific. Give it as `pattern: { en, pt }`; the engine picks the one for the text's language (`lang:` in the front matter or `--lang`, English by default, `ctx.lang` in a check) and skips the rule when there is none. Patterns that look at punctuation or shapes stay a plain regex and run in every language.
 
 ## Adding a rule
 
@@ -93,7 +95,7 @@ Notes: when one person builds an agent, the rest of the team has to ask that per
 
 ## Modes
 
-`--mode` picks the preset described in [which mind](../process/2-which-mind.md). `.mdx` files default to `docs` and everything else to `post`. `inkling modes` prints the list.
+`--mode` picks the preset described in [which mind](../process/2-which-mind.md). `.mdx` files default to `docs` and everything else to `post`. `inkling modes` prints the list. `--mode proposal` is for a priced proposal to one buyer; see [proposals](../process/proposal-mode.md).
 
 In `--mode post`, paragraphs cap at 80 words. Paragraph length and density do not tell a rejected post from an approved one: the founder's own approved posts run longer paragraphs and longer prose stretches than the rejected auto-improving agents post (calibration 2026-11-13). What separates them is rhythm: `structure/uniform-paragraphs` fails a post where over 35% of neighbouring paragraphs are dense (over 35 words) and within a quarter of each other's length. The rejected post scored 43%, the approved posts 9 to 31% (founder: "my paragraphs vary a lot in size, ai tends to have many walls of text").
 

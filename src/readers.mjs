@@ -21,6 +21,15 @@ export const NAMES_QUESTION =
 
 export const UNPACK_QUESTION = "Did you have to stop and unpack any sentence to get what it meant? Quote it. If none, say so.";
 
+export const PRICE_QUESTION = "What would you pay in total, per month or per year, for what you would use? Give the number, or say you could not work it out.";
+
+/** Priced pieces (`price: true`, on by default for `page: proposal`): the reader must be able to say the total. */
+export const PRICE_EXPECTATION = {
+  id: "can_name_total",
+  core: true,
+  expect: "The reader names one total they would pay per month or per year (a single figure, or a range with a clear top), worked out from the text, for what they would use. Fails if they cannot name a total, give only unit prices or a per-item rate, say the total depends on something the text does not settle, or guess a number the text does not support.",
+};
+
 export const PURPOSE_QUESTION =
   "What is this page for, and who gains if you do what it asks? Does any part read like an ad, and if so for what?";
 
@@ -80,6 +89,11 @@ export const PAGE_VISITORS = {
     question: "Could you do the task from this page alone? Where would you get stuck?",
     leaves: "A reader who could not do the task from the page, or who felt sold to before being taught, is trust_breaking.",
   },
+  proposal: {
+    state: "This proposal was written for you and your company after a conversation with the authors. You asked for it, you know who they are, and you will use it to decide whether to buy, so you read the prices closely and take numbers to an internal meeting.",
+    question: "What would you decide after reading this, and what would you still ask the authors before deciding?",
+    leaves: "A reader who could not say what they would pay or what happens next is trust_breaking.",
+  },
   job: {
     state: "You already know the product and opened this page for one answer: the price, how it compares, what sits under the surface.",
     question: "Did you get the answer you came for? What was it?",
@@ -94,13 +108,13 @@ function pageOfContext(context = {}) {
 }
 
 export function stanceOf(context = {}) {
-  const stance = context.stance ?? "cold";
+  const stance = context.stance ?? (context.page === "proposal" ? "warm" : "cold");
   if (!STANCES[stance]) throw new Error(`unknown stance ${stance}; one of ${Object.keys(STANCES).join(", ")}`);
   return stance;
 }
 
 export const readerRules = (context, figures = false) =>
-  `Rules: ${figures ? "your only tool is Read, for the figure files listed above; read nothing else, and do not search or research. Answer only from the text and those figures." : "you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above."} ${KNOWLEDGE_RULE} ${STANCES[stanceOf(context)]}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].state}` : ""} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.`;
+  `Rules: ${figures ? "your only tool is Read, for the figure files listed above; read nothing else, and do not search or research. Answer only from the text and those figures." : "you have no tools and no memory of anything outside the text above. Do not read files, search or research; answer only from the text above."} ${KNOWLEDGE_RULE} ${STANCES[stanceOf(context)]}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].state}` : ""} Read the way this person really reads, neither hunting for faults nor polite on the author's behalf. If something would make you stop or leave, say so plainly.${context.language ? ` Answer in ${context.language}.` : ""}`;
 
 /** The questions a comparison reader answers when the readers file names the other results. */
 export const compareQuestions = (search) => [
@@ -222,6 +236,9 @@ export function readReadersFile(path) {
   const context = { ...(data.context ?? {}) };
   if (data.stance) context.stance = data.stance;
   if (data.page) context.page = data.page;
+  if (data.language) context.language = data.language;
+  const priced = data.price ?? context.page === "proposal";
+  if (priced && !expectations.some((e) => e.id === PRICE_EXPECTATION.id)) expectations.push({ ...PRICE_EXPECTATION });
   stanceOf(context);
   const page = pageOfContext(context);
   const competitors = (data.competitors ?? []).map((c) => {
@@ -237,7 +254,7 @@ export function readReadersFile(path) {
   });
   const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS.filter((q) => (data.names !== false || q !== NAMES_QUESTION) && (data.unpacking !== false || q !== UNPACK_QUESTION));
   const withPage = page && !data.questions?.length ? [...base, PAGE_VISITORS[page].question] : base;
-  const always = [data.unpacking !== false && UNPACK_QUESTION, data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
+  const always = [priced && PRICE_QUESTION, data.unpacking !== false && UNPACK_QUESTION, data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
   const asked = [...withPage, ...always];
   const questions = competitors.length ? [...asked, ...compareQuestions(context.search)] : asked;
   return { ...data, context, competitors, figures, personas, expectations, questions };
@@ -397,7 +414,7 @@ export function judgePrompt({ persona, questions: shared, expectations, answers,
   const classes = Object.entries(DOUBT_CLASSES).map(([k, v]) => `- ${k}: ${v}`).join("\n");
   return `You grade a reader test for a piece of writing. The expectations were written before the test ran. Decide each one strictly from the reader's answers and quote the words that decide it. An expectation about a line passes only when the reader quotes the line's words; naming a section or retelling the idea is no quote. A line the reader quotes as odd, read twice or not spoken is a note for the writer, class skepticism, unless the reader says it made them stop or leave. Do not read files or research; use only what is below.
 
-Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.${stanceOf(context) === "cold" ? " This reader arrived cold from a search: a page that looks thin, fake or like no real company is behind it, or a reader picking another result over it, is trust_breaking." : ""}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].leaves}` : ""}
+${context.language ? `The answers are in ${context.language}: keep the evidence in the reader's own words and write each note in ${context.language}.\n\n` : ""}Then list every reason the reader gave for stopping, slowing down or questioning the text, each with one class. Fail only what would make a real reader stop or leave; a careful reader's fair question is skepticism, not a failure.${stanceOf(context) === "cold" ? " This reader arrived cold from a search: a page that looks thin, fake or like no real company is behind it, or a reader picking another result over it, is trust_breaking." : ""}${pageOfContext(context) ? ` ${PAGE_VISITORS[context.page].leaves}` : ""}
 ${classes}
 
 Persona:

@@ -9,6 +9,7 @@ Pick the mind for each reader from step 1 and write it next to them. Then pick t
 | `docs` | product documentation | 80 words | strictly technical, no voice: present tense, tasks in the imperative, no marketing words |
 | `post` | technical and founder posts | 80 words | an engineer talking to engineers: casual hedges allowed, no staccato or grand closing lines, every name introduced |
 | `ads` | ads, landing pages, titles | 40 words | a business mind: lead with strengths, never concede or apologise, one claim per headline, the benefit offered to the reader ("Let...", "Keep your..."), no category name as the headline |
+| `proposal` | a priced proposal for one named buyer who asked for it | 60 words | the ads rules without the landing ones: no search query, no calls to action or mocks to count; see [proposals](proposal-mode.md) |
 | `deck` | slides | 30 words | titles of six words or fewer, three bullets of two to four words, the story in the speaker notes |
 | `legal` | order forms and terms | 120 words | exact periods and amounts, no "and/or" or "etc." |
 | `investor` | investor updates and decks | 60 words | every number with its comparison, no hype words, no "we believe" |

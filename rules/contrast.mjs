@@ -8,10 +8,13 @@ const NOT_SUBJECT = /^(?:it|this|that|these|those|they|we|i|you|he|she|so|but|an
 function mirroredPairs(unit) {
   const hits = [];
   const s = unit.sentences;
+  // "**Label.** Body." is a list label and its text, not two claims.
+  const label = /^\s*\*\*([^*]+)\*\*/.exec(unit.block.parts?.[0]?.text ?? "")?.[1]?.trim();
   for (let i = 0; i + 1 < s.length; i++) {
     const a = s[i].clean.trim();
     const b = s[i + 1].clean.trim();
     if (/\?\s*$/.test(a) || /\?\s*$/.test(b)) continue;
+    if (i === 0 && label && label.startsWith(a.replace(/\s+$/, ""))) continue;
     const wa = words(a);
     const wb = words(b);
     if (wa.length < 2 || wb.length < 2 || wa.length > 10 || wb.length > 10) continue;
@@ -106,7 +109,11 @@ export default [
     source: "Approved analysis point 5",
     examples: {
       fail: [{ text: "OpenClaw gave us the idea. Claude Code made it real.", mode: "ads" }],
-      pass: [{ text: "Stop being a meat-proxy, let your colleagues talk directly to your agent.", mode: "ads" }],
+      pass: [
+        { text: "Stop being a meat-proxy, let your colleagues talk directly to your agent.", mode: "ads" },
+        { text: "- **Retenção sob controle.** Prazo de retenção definido por organização, time ou projeto.", mode: "proposal", lang: "pt" },
+        { text: "- **Annual pentest.** Done by an outside firm, with every finding fixed and retested.", mode: "ads" },
+      ],
     },
   },
   {

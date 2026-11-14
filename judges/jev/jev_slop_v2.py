@@ -104,16 +104,18 @@ JEV_Q = {k: f"Answer yes only if this paragraph has this problem. {d}" for k, d 
 
 # "never" as drama: only sentences that contain the word go to Jev, one question each, in every mode.
 NEVER_THRESHOLD = 0.5  # 26 labelled lines, 2026-11-13: precision 1.0, recall 0.75
-NEVER = re.compile(r"\bnever\b", re.I)
+NEVER = {"en": re.compile(r"\bnever\b", re.I), "pt": re.compile(r"\b(?:never|nunca|jamais)\b", re.I)}
 NEVER_Q = ("Answer yes only if this sentence uses 'never' for dramatic emphasis, where plain past tense or a plain "
            "'not' says the same thing. Yes: 'Langy also runs the evals on cases it never looked at' (it means 'didn't "
            "look at'); 'The agent never saw the trace'; 'We never asked for that'. No when 'never' states a real, "
            "lasting rule or guarantee: 'the key never leaves the vault'; 'never commit secrets'; 'the proxy never "
-           "logs request bodies'.")
+           "logs request bodies'. In Portuguese, 'nunca' and 'jamais' are 'never': yes for 'casos que ele nunca viu' "
+           "(it means 'não viu'), no for 'a chave nunca sai do cofre'.")
 
 
-def never_checks(units, key):
-    jobs = [(i, s.strip()) for i, u in enumerate(units) for s in re.split(r"(?<=[.!?])\s+", u["text"]) if NEVER.search(s)]
+def never_checks(units, key, lang="en"):
+    word = NEVER.get(lang, NEVER["en"])
+    jobs = [(i, s.strip()) for i, u in enumerate(units) for s in re.split(r"(?<=[.!?])\s+", u["text"]) if word.search(s)]
     def one(job):
         r = v1.ask_jev(job[1], {"dramatic_never": NEVER_Q}, key)
         return job, round(r["answers"]["dramatic_never"].get("noul", 0.0), 3), r.get("usage", {}).get("input_tokens", 0)
@@ -481,7 +483,7 @@ def v2_score(report, threshold):
 
 
 def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=False, xar_task=None, docs=False,
-        copy=None, copy_backend="jev", audience=None):
+        copy=None, copy_backend="jev", audience=None, lang="en"):
     units, script = load_units(path, script)
     copy = is_copy(units) and not script if copy is None else copy
     if copy:  # titles and ad lines: one per line, even without blank lines between them
@@ -499,7 +501,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
               ex.submit(checks_jev, units, script, op, end, key))
         # Jev's prose tics (gravitas_closer, rhetorical_question_hook...) misfire on one-line titles: off in copy mode
         ft = ex.submit(jev_tics, units, key, with_ai) if jev and not copy else None
-        fn = ex.submit(never_checks, units, key) if key else None
+        fn = ex.submit(never_checks, units, key, lang) if key else None
         named = fc.result()
         if isinstance(named, tuple): named, t = named; tokens += t
         if fn:
@@ -553,10 +555,11 @@ def main():
     ap.add_argument("--show-ai", action="store_true", help="also ask v1's generic ai_sounding (not used in the score)")
     ap.add_argument("--xar", action="store_true", help="also score with the XAR rubric judge (needs --task)")
     ap.add_argument("--task", help="for --xar: genre, sender, reader and the facts the text must carry")
+    ap.add_argument("--lang", default="en", help="text language base code (en, pt): picks the word the dramatic_never prefilter looks for")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
     if a.xar and not a.task: ap.error("--xar needs --task")
-    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience)
+    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience, a.lang)
     if a.json:
         print(json.dumps(r, indent=1, ensure_ascii=False)); return
     clean = 0
