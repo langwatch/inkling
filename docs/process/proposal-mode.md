@@ -40,3 +40,19 @@ personas:
     background: CTO who will integrate and run the tool; distrusts vendors that promise too much.
 expectations: []
 ```
+
+## Calibration
+
+On a 9-page Portuguese pricing proposal for a company that builds voice agents, 2026-11-14:
+
+| Check | Before | After |
+| --- | --- | --- |
+| `--mode landing` (the closest mode before) | 34 findings, 11 rules | 20 findings: the landing rules (mocks, calls to action, search) still fire because they don't fit a proposal |
+| `--mode proposal --lang pt-BR` | not available | 7 findings, 6 rules |
+| arrows in pipeline diagrams ("A → B → C") | 6 flagged as calls to action | 0 |
+| doc links closing a paragraph | 5 flagged as closers | 0 |
+| "**Label.** Text" list items | 3 flagged as mirrored pairs | 0 |
+
+The 7 remaining findings are lines readers also stopped on: a crammed subtitle, a contents line run on as one paragraph, a heading squeezed around "sem", a formula opening on a number and a slogan pair ("Vocês decidem quanto disso enviar, e a conta acompanha").
+
+The reader test ran with `page: proposal` and `language: pt-BR` and two readers, each read twice. Readers answered and the grader wrote its notes in Portuguese. `can_name_total` failed for both readers: the event estimate came from a different agent than the one the buyer is selling, and the discount was "to be confirmed", so neither could name the total for their own client. An earlier run with only hand-written price questions missed this: one reader passed them, and the other failed on a different worry, the yearly true-up.
