@@ -55,4 +55,6 @@ On a 9-page Portuguese pricing proposal for a company that builds voice agents, 
 
 The 7 remaining findings are lines readers also stopped on: a crammed subtitle, a contents line run on as one paragraph, a heading squeezed around "sem", a formula opening on a number and a slogan pair ("Vocês decidem quanto disso enviar, e a conta acompanha").
 
-The reader test ran with `page: proposal` and `language: pt-BR` and two readers, each read twice. Readers answered and the grader wrote its notes in Portuguese. `can_name_total` failed for both readers: the event estimate came from a different agent than the one the buyer is selling, and the discount was "to be confirmed", so neither could name the total for their own client. An earlier run with only hand-written price questions missed this: one reader passed them, and the other failed on a different worry, the yearly true-up.
+The reader test ran with `page: proposal` and `language: pt-BR` and two readers, each read twice. Readers answered and the grader wrote its notes in Portuguese.
+
+`can_name_total` failed for both readers: the event estimate came from a different agent than the one the buyer is selling, and the discount was "to be confirmed", so neither could name the total for their own client. An earlier run with only hand-written price questions missed this: one reader passed them, and the other failed on a different worry, the yearly true-up.
