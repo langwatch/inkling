@@ -57,6 +57,14 @@ With `--backend claude`, each step answers its own prompts with `claude -p` on t
 - **Evolve one or two.** A direction that two thirds of the readers picked first goes on alone. Otherwise the top two grow into full drafts, each by a fresh writer that gets the brief, its own direction, what readers said about all of them, and the [draft rules](6-draft.md). They never see each other's draft.
 - **Final.** Readers get the full drafts side by side, shuffled and unlabelled, and keep one. The winner goes to the panel loop in [step 8](8-reader-test.md), where edits shrink round by round.
 
+## Someone else's draft
+
+A piece you adopt counts as a start, whoever wrote it: a draft from a teammate, a page already live, the output of another agent. Go to directions first instead of polishing it. Put the existing piece in the brief as one direction among the others, so readers can pick it if it is the best start, and the fresh writers still start from their own places.
+
+## Big moves first, small ones later
+
+Early rounds take big jumps: new directions, restarts, a different claim. As rounds go on, the changes get smaller, down to single lines. The budget and the time cap decide how long the back and forth runs. After strong pushback late, from readers or from a person, a restart can still be the right move. As the agent driving the piece, you decide which kind of move to make, and you write down why in the run log.
+
 ## When a person is directing
 
 `board.md` lists every direction with its first screen, its image idea, the picks and what each reader said, in under a page. If a person is directing the piece, show them the board before `evolve`. They may keep other directions (`--keep d2,d4`) or point out what all of them miss. If they don't answer, go on with the readers' pick: the board is there for them, never a gate.

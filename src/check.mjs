@@ -42,13 +42,16 @@ export function runCheck({ paths, mode, page, audience, terms, lang, house, only
   const rules = selectRules({ house, only, skip });
   const files = expand(paths.length ? paths : ["-"]);
   const all = [];
+  const waived = [];
   for (const file of files) {
     const text = file === "-" ? stdin() : readFileSync(file, "utf8");
     const m = mode ?? (file.endsWith(".mdx") ? "docs" : "post");
-    all.push(...lint({ text, file, mode: m, page, rules, audience, minutes, terms, lang }));
+    const found = lint({ text, file, mode: m, page, rules, audience, minutes, terms, lang });
+    all.push(...found);
+    waived.push(...found.waived);
   }
   if (json) {
-    process.stdout.write(JSON.stringify({ mode, audience, findings: all }, null, 1) + "\n");
+    process.stdout.write(JSON.stringify({ mode, audience, findings: all, waived }, null, 1) + "\n");
   } else {
     const head = `inkling check: ${files.length} file${files.length === 1 ? "" : "s"}, mode ${mode ?? "auto"} (${mode ? MODES[mode].label : ".mdx is docs, the rest post"})` +
       (audience ? `\naudience: ${audience}` : "");
@@ -57,6 +60,11 @@ export function runCheck({ paths, mode, page, audience, terms, lang, house, only
     const rulesHit = new Set(all.map((f) => f.rule)).size;
     const warnings = all.filter((f) => f.severity === "warning").length;
     const tail = warnings ? `, ${warnings} warning${warnings === 1 ? "" : "s"} (exit 0 unless an error remains; keep a warned line only with a reason)` : "";
+    if (waived.length) {
+      out.push(`waivers (${waived.length}): kept on purpose, each with its reason. They count only once \`inkling waivers <file>\` accepts the reason.`);
+      for (const w of waived) out.push(`  ${w.file}:${w.line}:${w.col}  ${w.rule}: ${w.waived}`);
+      out.push("");
+    }
     out.push(all.length ? `${all.length} finding${all.length === 1 ? "" : "s"} from ${rulesHit} rule${rulesHit === 1 ? "" : "s"}${tail}.` : "clean: no findings.");
     process.stdout.write(out.join("\n") + "\n");
   }

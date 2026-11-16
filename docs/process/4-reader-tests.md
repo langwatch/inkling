@@ -63,6 +63,20 @@ The goals from [step 1](1-who-reads.md) are tests too, ours as much as the reade
 
 Write these from what the person who asked for the piece wants, not from the draft, the same way as `purpose:`. A draft can teach a reader every detail and still fail here.
 
+## The feeling it should leave
+
+Every reader answers one open question first, before any targeted one: what they felt while reading, and where it changed. We name no feeling in the question, so the reader picks their own words.
+
+`feeling:` in the readers file states the feeling the piece should leave, derived from its goal in [step 1](1-who-reads.md). The grader compares what each reader reported with it, as `felt_as_intended`. A mismatch is a finding: the note says what the reader felt instead and the line where it changed. It is advisory while it is calibrated.
+
+On 2026-11-16 the holds_attention set ran with one intended feeling for all three posts (the reader wants to try the product on their own agent soon), an engineer and a CTO, two runs each. `felt_as_intended` missed on all three, the two approved posts as much as the rejected one: readers ended curious or cautious and wanted proof first.
+
+So it does not separate approved from rejected yet, so it stays a note. In every answer, readers named the line where the feeling changed. Without `feeling:` the readers still report and nothing is compared; `feeling: false` drops the question.
+
+```yaml
+feeling: <what a reader has to feel at the end to do what the goal asks>
+```
+
 ## Length
 
 Every full reader of a draft over 800 words gets the `holds_attention` expectation, core: they read to the end because they wanted to. It fails when they stopped, started skimming before the last part, or found a stretch dull, repetitive or too long. There is no length cap; a long piece passes when it holds the reader, and the grader is stricter the longer it is. `holds: false` turns it off, for docs and references people search rather than read.

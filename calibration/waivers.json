@@ -1,0 +1,62 @@
+[
+  {
+    "expect": "accept",
+    "rule": { "id": "lead-with-the-benefit", "message": "Lead with what the reader gets. A headline that tells the searcher they are wrong argues with them instead of offering the benefit.", "fix": "State the benefit the reader gets." },
+    "line": "You don't need an agent sandbox",
+    "reason": "The page answers people searching for an agent sandbox. Telling them they don't need one contradicts the search on purpose: it is the one claim they didn't expect, so they click to find out why, and the page then shows what they need instead. A benefit headline would read like every sandbox vendor's page in the same results."
+  },
+  {
+    "expect": "accept",
+    "rule": "question-opener",
+    "line": "Laptop shut? It still works",
+    "reason": "The question is the reader's own worry, said the way they would think it, and the answer comes in the next three words. Rewritten as a statement it loses the moment of recognition that makes the line land."
+  },
+  {
+    "expect": "accept",
+    "rule": "em-dash",
+    "line": "\"We ran it on Friday — by Monday the bill was gone,\" one engineer told us.",
+    "reason": "It is a quote kept exactly as the person wrote it in their message. Changing their punctuation would put words in their mouth."
+  },
+  {
+    "expect": "reject",
+    "rule": { "id": "lead-with-the-benefit", "message": "Lead with what the reader gets. A headline that tells the searcher they are wrong argues with them instead of offering the benefit.", "fix": "State the benefit the reader gets." },
+    "line": "You don't need an agent sandbox",
+    "reason": "It's catchy."
+  },
+  {
+    "expect": "reject",
+    "rule": "gravitas-closer",
+    "line": "Ours stays.",
+    "reason": "Sounds better as an ending."
+  },
+  {
+    "expect": "reject",
+    "rule": "mirrored-pair",
+    "line": "The old tool gave us the idea. The new one made it real.",
+    "reason": "Style. I like the rhythm."
+  },
+  {
+    "expect": "reject",
+    "rule": "measured",
+    "line": "It opens a PR only on a measured win.",
+    "reason": "It's shorter than spelling out what ran."
+  },
+  {
+    "expect": "reject",
+    "rule": "written-register",
+    "line": "Otherwise, the agent retries with the next model.",
+    "reason": "The rule is too strict, writers use otherwise all the time."
+  },
+  {
+    "expect": "reject",
+    "rule": "em-dash",
+    "line": "The judge reads every trace — and flags the slow ones.",
+    "reason": "Em dashes are fine, real writers use them."
+  },
+  {
+    "expect": "reject",
+    "rule": "not-x-but-y",
+    "line": "This isn't a dashboard. It's a teammate.",
+    "reason": "It flows and makes the point stronger."
+  }
+]

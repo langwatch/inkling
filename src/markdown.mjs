@@ -10,7 +10,8 @@ const LIST_ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const TABLE_ROW = /^\s*\|.*\|\s*$/;
 const TABLE_SEP = /^\s*\|?[\s:|-]+\|?\s*$/;
 const QUOTE = /^(\s*>\s?)(.*)$/;
-const IGNORE = /<!--\s*inkling-ignore(-file)?\s+([^:>]*?)\s*(?::[^>]*)?-->/;
+// A waiver: <!-- inkling-waive <rule ids>: <reason> --> (inkling-ignore is the same). The reason is required.
+const IGNORE = /<!--\s*inkling-(?:ignore|waive)(-file)?\s+([^:>]*?)\s*(?::\s*([^>]*?))?\s*-->/;
 // MDX module lines: `import { X } from "./x"` and `export const meta = ...` are code, not prose.
 const MDX_MODULE = /^(?:import\s.+\sfrom\s+['"][^'"]+['"]|import\s+['"][^'"]+['"]|export\s+(?:const|let|default|function)\b.*);?\s*$/;
 const LAYOUT_MARKERS = /^\s*(?:\[(?:mock:[^\]]*|problem)\]\s*)+$/i;
@@ -45,7 +46,7 @@ class Block {
   constructor(type, extra = {}) {
     this.type = type;
     this.parts = [];
-    this.ignore = new Set();
+    this.ignore = new Map();
     Object.assign(this, extra);
   }
 
@@ -123,8 +124,9 @@ export function parse(text) {
   const lines = text.split(/\r?\n/);
   const { data: fm, end: bodyStart } = frontmatter(lines);
   const blocks = [];
-  const fileIgnore = new Set();
+  const fileIgnore = new Map();
   let pendingIgnore = null;
+  let tableIgnore = null;
   let current = null;
   let fence = null;
   let comment = false;
@@ -138,7 +140,7 @@ export function parse(text) {
     close();
     current = new Block(type, extra);
     if (pendingIgnore) {
-      pendingIgnore.forEach((id) => current.ignore.add(id));
+      pendingIgnore.ids.forEach((id) => current.ignore.set(id, pendingIgnore.why));
       pendingIgnore = null;
     }
     return current;
@@ -147,6 +149,7 @@ export function parse(text) {
   for (let i = bodyStart; i < lines.length; i++) {
     const line = lines[i];
     const n = i + 1;
+    if (!TABLE_ROW.test(line)) tableIgnore = null;
     if (fence) {
       if (line.trim().startsWith(fence)) fence = null;
       else if (line.trim()) code.at(-1).lines += 1;
@@ -166,8 +169,9 @@ export function parse(text) {
     const ig = line.match(IGNORE);
     if (ig) {
       const ids = ig[2].split(/[\s,]+/).filter(Boolean);
-      if (ig[1]) ids.forEach((id) => fileIgnore.add(id));
-      else pendingIgnore = ids.length ? ids : ["*"];
+      const why = { reason: (ig[3] ?? "").trim(), line: n };
+      if (ig[1]) ids.forEach((id) => fileIgnore.set(id, why));
+      else pendingIgnore = { ids: ids.length ? ids : ["*"], why };
       continue;
     }
     if (/^\s*<!--/.test(line) && !line.includes("-->")) {
@@ -194,13 +198,17 @@ export function parse(text) {
     }
     if (TABLE_ROW.test(line)) {
       close();
+      // A waiver above a table covers every cell of it.
+      if (pendingIgnore) [tableIgnore, pendingIgnore] = [pendingIgnore, null];
       if (TABLE_SEP.test(line)) continue;
       let col = line.indexOf("|") + 1;
       const cells = line.slice(col).replace(/\|\s*$/, "").split(/(?<!\\)\|/);
       for (const cell of cells) {
         const lead = cell.search(/\S/);
+        if (tableIgnore) pendingIgnore = tableIgnore;
         if (lead >= 0) open("cell").add(cell.trim(), n, col + lead);
         close();
+        pendingIgnore = null;
         col += cell.length + 1;
       }
       continue;

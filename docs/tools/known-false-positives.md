@@ -15,7 +15,7 @@ A known false positive is a rule firing on text a reviewer would pass. These cam
 
 `hedges/casual-hedge` used to fire on "the kind of writing"; it now skips "kind of" and "sort of" after a determiner.
 
-To silence a rule for one block, put `<!-- inkling-ignore <rule ids>: <reason> -->` on the line before it. For a whole file, use `<!-- inkling-ignore-file <rule ids> -->`. Always give the reason.
+To keep a block that a rule flags wrongly, put `<!-- inkling-waive <rule ids>: <reason> -->` on the line before it, or `<!-- inkling-waive-file <rule ids>: <reason> -->` for a whole file. A waiver without a reason stays a finding. See [waivers](waivers.md).
 
 ## Jev
 

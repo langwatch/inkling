@@ -19,6 +19,9 @@ export const KNOWLEDGE_RULE =
 export const NAMES_QUESTION =
   "List every name or term you read that this person would have to look up (a product, tool, company, acronym or jargon), and for each say where you first met it and whether the text had told you what it is by then. Ignore names this person uses or hears of every week. If there are none, say none.";
 
+// Asked first, before any targeted question, so nothing primes what the reader should feel.
+export const FEEL_QUESTION = "Before the other questions, in your own words: what did you feel while reading, and where did it change? Quote the line where it changed, if it did.";
+
 export const UNPACK_QUESTION = "Did you have to stop and unpack any sentence to get what it meant? Quote it. If none, say so.";
 
 export const PRICE_QUESTION = "What would you pay in total, per month or per year, for what you would use? Give the number, or say you could not work it out.";
@@ -172,6 +175,13 @@ export const NAMES_EXPECTATION = {
     "Every name the reader says they would have to look up is explained where they need it. It fails when such a name sits in the title, the subtitle, a heading, a headline number or the result, or the reader needed it to follow the point, and the text had not said what it is by then (a bare name in a headline tells a newcomer nothing, and a result about an unexplained name reads like an ad for it). A name met only in the details, or one the reader could guess from the sentence around it, passes as a note. A name the persona would plainly know (React for an engineer) is no fail even when listed.",
 };
 
+/** With `feeling:` set (the feeling the piece should leave, derived from its goal), the readers' own report is compared with it. Advisory while calibrated. */
+export const feelingExpectation = (feeling) => ({
+  id: "felt_as_intended",
+  advisory: true,
+  expect: `What the reader says they felt, in their first, unprompted answer and in the rest, matches the feeling the piece should leave: ${feeling.trim()} It fails when they felt something else, felt nothing, or felt it only for a stretch and then lost it; the note names what they felt instead and the line where it changed.`,
+});
+
 /** With `purpose:` set, the reader must read the page as what it is meant to be, not as an ad for something in it. */
 export const purposeExpectation = (purpose) => ({
   id: "reads_as_purpose",
@@ -227,6 +237,7 @@ export function readReadersFile(path) {
   const skimmers = personas.filter((p) => p.view === "skim").map((p) => p.id);
   if (data.result && skimmers.length && !expectations.some((e) => e.id === "skim_gets_result")) expectations.push({ ...skimResultExpectation(data.result), applies_to: skimmers });
   if (data.names !== false && !expectations.some((e) => e.id === NAMES_EXPECTATION.id)) expectations.push({ ...NAMES_EXPECTATION });
+  if (typeof data.feeling === "string" && data.feeling.trim() && !expectations.some((e) => e.id === "felt_as_intended")) expectations.push(feelingExpectation(data.feeling));
   if (data.purpose && !expectations.some((e) => e.id === "reads_as_purpose")) expectations.push(purposeExpectation(data.purpose));
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
   // An expectation that grades something no question asks for (a reason, a why) carries its own `ask:`.
@@ -255,7 +266,7 @@ export function readReadersFile(path) {
   const base = data.questions?.length ? data.questions : DEFAULT_QUESTIONS.filter((q) => (data.names !== false || q !== NAMES_QUESTION) && (data.unpacking !== false || q !== UNPACK_QUESTION));
   const withPage = page && !data.questions?.length ? [...base, PAGE_VISITORS[page].question] : base;
   const always = [priced && PRICE_QUESTION, data.unpacking !== false && UNPACK_QUESTION, data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
-  const asked = [...withPage, ...always];
+  const asked = [...(data.feeling !== false ? [FEEL_QUESTION] : []), ...withPage.filter((q) => q !== FEEL_QUESTION), ...always];
   const questions = competitors.length ? [...asked, ...compareQuestions(context.search)] : asked;
   return { ...data, context, competitors, figures, personas, expectations, questions };
 }

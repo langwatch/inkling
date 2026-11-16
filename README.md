@@ -12,6 +12,12 @@ Agents are great at writing code now, but still terrible at copy. This framework
 
 Agents stop once copy is accurate, because no test fails on it. You get a writing process your agent follows, tools it can pick up along the way, and the research behind both.
 
+## Floor and ceiling
+
+The floor is what a model writes by default: grammatical, average, AI slop. Inkling's lints and rules are a ratchet: as the piece climbs, they keep it from sliding back down. They don't lift it. The ceiling comes from contest: fresh writers start from different places, readers pick, and a draft gets thrown away when a better one wins.
+
+Breaking the model's own default habits is the main point. Breaking an Inkling rule is allowed only with a strong reason, written into the draft as a [waiver](docs/tools/waivers.md) and checked by a judge that never saw the writer, because models skip rules they disagree with.
+
 ## Watch the lesson
 
 <a href="https://inkling-lesson--langwatch-f9de22.lazeapps.com"><img src="docs/brand/lesson-poster.jpg" width="640" alt="Title frame of the Inkling lesson video: the Inkling icon and the line a content writing framework for agents"></a>
@@ -52,6 +58,8 @@ The agent can pick these up at any step. None of them is required to follow the 
 | [Judge](docs/tools/judge.md) | asks Jev, a small paid model, one yes or no question per rule and line, for problems a pattern cannot see | about 0.0003 USD a paragraph, needs an application programming interface (API) key |
 | [Directions](docs/process/5-directions.md) | one fresh writer per lens writes a first screen, readers pick, the best grow into full drafts | Claude subscription |
 | [Reader panel](docs/tools/panel.md) | runs simulated readers from your reader tests, grades their answers, compares versions unlabelled, then one clean-eyes round | Claude subscription |
+| [Waivers](docs/tools/waivers.md) | checks each deliberate rule break: a fresh judge must accept the reason, and readers must notice the line working | Claude subscription |
+| [Predict](docs/tools/predict.md) | flags a headline or lead that a model with only the brief would write too | Claude subscription |
 | [Budget](docs/tools/budget.md) | sets the time, stops at the best version, lists what is open | free |
 | [Calibration](docs/tools/calibration.md) | measures the rules on lines people already approved and rejected | free |
 

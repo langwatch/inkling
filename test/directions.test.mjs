@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { writerPrompt, parseDirection, tooClose, directionsStart, directionsPick, directionsEvolve, directionsFinal, loadDirections, LENSES, directionCount } from "../src/directions.mjs";
 import { startPlan } from "../src/budget.mjs";
 import { panelStart, panelRound, fundamental } from "../src/panel.mjs";
-import { grade, readReadersFile, writePrompts, NAMES_QUESTION, PURPOSE_QUESTION, UNPACK_QUESTION } from "../src/readers.mjs";
+import { grade, readReadersFile, writePrompts, NAMES_QUESTION, PURPOSE_QUESTION, UNPACK_QUESTION, FEEL_QUESTION } from "../src/readers.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const readersFile = join(FIX, "draft.readers.yaml");
@@ -178,7 +178,7 @@ test("every reader is asked about unpacking, which names they would have to look
   const custom = join(dir, "custom.readers.yaml");
   writeFileSync(custom, "purpose: a benchmark, not an ad for any tool.\nquestions:\n  - What is it?\npersonas:\n  - id: dev\n    background: A developer.\nexpectations: []\n");
   const c = readReadersFile(custom);
-  assert.deepEqual(c.questions, ["What is it?", UNPACK_QUESTION, NAMES_QUESTION, PURPOSE_QUESTION]);
+  assert.deepEqual(c.questions, [FEEL_QUESTION, "What is it?", UNPACK_QUESTION, NAMES_QUESTION, PURPOSE_QUESTION]);
   assert.deepEqual(c.expectations.map((e) => e.id), ["names_explained", "reads_as_purpose"]);
   const out = fresh();
   writePrompts({ draft: join(FIX, "draft.md"), readersFile: custom, out });
@@ -187,4 +187,22 @@ test("every reader is asked about unpacking, which names they would have to look
   const off = join(dir, "off.readers.yaml");
   writeFileSync(off, "names: false\npersonas:\n  - id: dev\n    background: A developer.\nexpectations: []\n");
   assert.ok(!readReadersFile(off).questions.includes(NAMES_QUESTION));
+});
+
+test("readers report what they felt first, unprompted, and with feeling: given the grader compares it as a note", () => {
+  const dir = fresh();
+  const plain = join(dir, "plain.readers.yaml");
+  writeFileSync(plain, "personas:\n  - id: dev\n    background: A developer.\nexpectations: []\n");
+  const p = readReadersFile(plain);
+  assert.equal(p.questions[0], FEEL_QUESTION);
+  assert.equal(p.questions.filter((q) => q === FEEL_QUESTION).length, 1);
+  assert.ok(!p.expectations.some((e) => e.id === "felt_as_intended"), "no intended feeling, nothing to compare");
+  const given = join(dir, "given.readers.yaml");
+  writeFileSync(given, "feeling: ready to sign without calling anyone first\npersonas:\n  - id: dev\n    background: A developer.\nexpectations: []\n");
+  const e = readReadersFile(given).expectations.find((x) => x.id === "felt_as_intended");
+  assert.ok(e.advisory);
+  assert.match(e.expect, /ready to sign without calling anyone first/);
+  const off = join(dir, "off.readers.yaml");
+  writeFileSync(off, "feeling: false\npersonas:\n  - id: dev\n    background: A developer.\nexpectations: []\n");
+  assert.ok(!readReadersFile(off).questions.includes(FEEL_QUESTION));
 });

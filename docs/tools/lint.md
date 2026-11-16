@@ -12,13 +12,13 @@ cat titles.md | inkling check - --mode ads --json
 
 The parser splits markdown into headings, paragraphs, list items, table cells and quotes, then into sentences. Code blocks, inline code, URLs, HTML tags and anything inside double quotes are blanked before rules run. Quoting a phrase marks it as a mention: a style guide can write "load-bearing" in quotes without tripping the ban on it.
 
-To skip one block on purpose, put a comment above it with the reason:
+To break a rule on purpose, put a [waiver](waivers.md) above the block with the reason:
 
 ```md
-<!-- inkling-ignore mannered-words: this paragraph quotes a rejected draft -->
+<!-- inkling-waive mannered-words: this paragraph quotes a rejected draft -->
 ```
 
-`<!-- inkling-ignore-file <rule or family> -->` turns a rule off for the whole file.
+`<!-- inkling-waive-file <rule or family>: <reason> -->` covers the whole file. `check` lists every waiver with its reason, and a waiver with no reason stays a finding. `inkling-ignore` is the older spelling.
 
 In `.mdx` docs, a sentence carrying a `{/* Founder decision: <reason> */}` comment keeps its wording on purpose (docs-writing-rules rule 3), and no rule reports it. Put the comment inside the sentence or right after it; it exempts that sentence only.
 

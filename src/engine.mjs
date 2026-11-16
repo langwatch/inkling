@@ -64,9 +64,11 @@ function excerpt(unit, index) {
   return text.length > 140 ? text.slice(0, 137) + "..." : text;
 }
 
-function ignored(set, rule) {
+/** The waiver covering this rule, if any: { reason, line }. */
+function waiverFor(map, rule) {
+  if (!map) return null;
   const short = rule.id.slice(rule.family.length + 1);
-  return set.has("*") || set.has(rule.id) || set.has(rule.family) || set.has(short);
+  return map.get(rule.id) ?? map.get(short) ?? map.get(rule.family) ?? map.get("*") ?? null;
 }
 
 export function ruleApplies(rule, mode, page = null) {
@@ -75,21 +77,21 @@ export function ruleApplies(rule, mode, page = null) {
   return !rule.modes || modeFamily(mode).some((m) => rule.modes.includes(m));
 }
 
-const FOUNDER = /\{\/\*\s*Founder decision\b/;
 
 // A sentence carrying a {/* Founder decision: ... */} comment keeps its wording on purpose
-// (docs-writing-rules rule 3), so no rule reports it. The comment may sit inside the sentence or right after it.
+// (docs-writing-rules rule 3): a waiver whose reason is the comment. It may sit inside the sentence or right after it.
 function founderDecision(block, at) {
   const list = block.sentences ?? [];
   const i = list.findIndex((x) => at >= x.start && at < x.end);
-  if (i < 0) return false;
+  if (i < 0) return null;
   const text = block.text ?? "";
   const after = text.slice(list[i].end, list[i + 1]?.start ?? text.length);
   const before = i === 0 ? text.slice(0, list[i].start) : "";
-  return FOUNDER.test(list[i].raw) || FOUNDER.test(after) || FOUNDER.test(before);
+  const hit = [list[i].raw, after, before].map((t) => t.match(/\{\/\*\s*Founder decision:?\s*([\s\S]*?)\*\/\}/)).find(Boolean);
+  return hit ? { reason: `Founder decision: ${hit[1].trim()}`.replace(/:\s*$/, "") } : null;
 }
 
-/** Lint one document. Returns findings sorted by position. */
+/** Lint one document. Returns the findings sorted by position, with the waived ones on `.waived`. */
 export function lint({ text, file = "-", mode = "post", page, rules, audience, minutes, terms, lang }) {
   if (!MODES[mode]) throw new Error(`unknown mode ${mode}; one of ${Object.keys(MODES).join(", ")}`);
   const doc = parse(text);
@@ -100,11 +102,12 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
     .map((t) => { const [term, alts = ""] = t.split("="); return { term: term.trim(), standIns: alts.split("|").map((a) => a.trim()).filter(Boolean) }; });
   const ctx = { doc, mode, page: kind, audience, minutes, terms: termList, lang: languageOf(lang ?? doc.frontmatter.lang?.value), settings: settingsOf(mode, kind), words };
   const findings = [];
+  const waived = [];
   for (const rule of rules) {
     if (!ruleApplies(rule, mode, kind)) continue;
-    if (ignored(doc.fileIgnore, rule)) continue;
+    const fileWaiver = waiverFor(doc.fileIgnore, rule);
     for (const unit of unitsFor(rule.scope ?? "sentence", doc)) {
-      if (unit.block?.ignore && ignored(unit.block.ignore, rule)) continue;
+      const waiver = waiverFor(unit.block?.ignore, rule) ?? fileWaiver;
       const hits = [];
       // A word-list rule may give one pattern per language ({ en, pt }); with none for the text's language it stays quiet.
       const pattern = rule.pattern instanceof RegExp ? rule.pattern : rule.pattern?.[ctx.lang];
@@ -119,10 +122,12 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
       for (const hit of hits) {
         const block = hit.block ?? unit.block;
         const at = block ? (hit.block ? hit.index : unit.start + hit.index) : 0;
-        if (block && founderDecision(block, at)) continue;
+        const why = waiver ?? (block ? founderDecision(block, at) : null);
         const pos = block ? block.pos(at) : { line: 1, col: 1 };
         const base = hit.block ? { block, sentences: block.sentences, start: 0 } : unit;
-        findings.push({
+        const list = why?.reason ? waived : findings;
+        list.push({
+          ...(why?.reason ? { waived: why.reason } : why ? { unreasoned: true } : {}),
           file,
           line: pos.line,
           col: pos.col,
@@ -131,15 +136,17 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
           family: rule.family,
           match: hit.match?.trim(),
           excerpt: hit.excerpt ?? excerpt(base, at),
-          message: hit.note ? `${rule.message} ${hit.note}` : rule.message,
+          message: (hit.note ? `${rule.message} ${hit.note}` : rule.message) + (why && !why.reason ? " This line has a waiver with no reason: a waiver counts only with a stated reason." : ""),
           fix: rule.fix,
           source: rule.source,
         });
       }
     }
   }
-  findings.sort((a, b) => a.line - b.line || a.col - b.col || a.rule.localeCompare(b.rule));
-  return dedupe(findings);
+  const byPos = (a, b) => a.line - b.line || a.col - b.col || a.rule.localeCompare(b.rule);
+  const out = dedupe(findings.sort(byPos));
+  out.waived = dedupe(waived.sort(byPos));
+  return out;
 }
 
 function dedupe(findings) {

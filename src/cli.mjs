@@ -17,6 +17,8 @@ import { listen, listenWithClaude, defaultListenOut } from "./listen.mjs";
 import { calibrateListen } from "./listen-calibrate.mjs";
 import { measure, compare, report, spokenSentences } from "./voice.mjs";
 import { parse } from "./markdown.mjs";
+import { judgeWaivers, waiverItems, formatWaivers } from "./waivers.mjs";
+import { predict, formatPrediction } from "./predict.mjs";
 import { directionsStart, directionsPick, directionsEvolve, directionsFinal, answerWithClaude } from "./directions.mjs";
 
 const USAGE = `inkling: content writing framework for agents
@@ -29,6 +31,11 @@ const USAGE = `inkling: content writing framework for agents
       --lang pt-BR: the text's language (or lang: in the front matter); word lists and verb checks follow it, English by default
       --terms "evals,traces": the words the audience uses and searches for (or terms: in the front matter); posts warn when one is missing or rare
       --mode script --minutes 3: a spoken script against its time budget (or minutes: in the front matter)
+  inkling waivers <file>... --mode <mode> [--readers <reader test dir>] [--runs 2]
+      a fresh Opus judge (Claude subscription) decides whether each waiver's reason is strong; with --readers, a reader must
+      have quoted the line working too. Exit 1 when a waiver doesn't count. --cases <file.json> runs the calibration cases instead
+  inkling predict <draft> --brief <brief.md> [--runs 2]
+      the average detector: a fresh model writes the headline and claim from the brief alone; a draft close to it is flagged
   inkling judge <file|-> --mode <mode> --audience "<who reads>" [--context "<who wrote it, how big, channel>"] [--first-screen] [--json]
       --first-screen: judge the title, subtitle and first paragraph line by line with the copy checks (writer's side, concession, surprise)
       step 7, judge: Jev; needs TYPESAFE_API_KEY or JEV_SLOP_API_KEY, skips without one
@@ -132,6 +139,8 @@ export function main(argv) {
       because: { type: "string" },
       keep: { type: "string" },
       fixed: { type: "string" },
+      cases: { type: "string" },
+      brief: { type: "string" },
     },
   });
   if (values.mode && !MODES[values.mode]) {
@@ -155,6 +164,10 @@ export function main(argv) {
         stdin,
         color: values.color ?? (process.stdout.isTTY && !process.env.NO_COLOR),
       }));
+    case "waivers":
+      return waiversCommand(positionals, values);
+    case "predict":
+      return predictCommand(positionals, values);
     case "judge":
       if (!positionals[0]) return usage("inkling judge needs a file or -");
       return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin, firstScreen: values["first-screen"], lang: values.lang }));
@@ -314,6 +327,40 @@ function pendingMessage(pending, what, save) {
  * Directions: each step writes prompts for fresh subagents (or answers them with claude -p under
  * --backend claude), and running the same step again moves on once the answers are in.
  */
+async function waiversCommand(files, values) {
+  refuseIfPaid();
+  const runs = Number(values.runs ?? 1);
+  if (values.cases) {
+    const cases = JSON.parse(readFileSync(values.cases, "utf8"));
+    const byId = new Map(RULES.map((r) => [r.id, r]));
+    const items = cases.map((c, i) => ({ file: values.cases, lineNo: i + 1, rule: typeof c.rule === "string" ? byId.get(c.rule) ?? RULES.find((r) => r.id.endsWith(`/${c.rule}`)) : c.rule, line: c.line, reason: c.reason, quotes: null, expect: c.expect }));
+    const missing = items.find((it) => !it.rule);
+    if (missing) return usage(`case ${missing.lineNo}: unknown rule`);
+    const results = await judgeWaivers({ items, runs, judge: values.judge ?? "opus" });
+    let agree = 0;
+    for (const r of results) {
+      const ok = (r.expect === "accept") === r.accepted;
+      agree += ok;
+      process.stdout.write(`${ok ? "agree" : "DISAGREE"}  expect ${r.expect}, judge ${r.accepts}/${runs} accept  ${r.rule.id}: ${r.line}\n    reason: ${r.reason}\n    judge: ${r.verdicts[0].why}\n`);
+    }
+    process.stdout.write(`\n${agree} of ${results.length} cases agree.\n`);
+    return agree === results.length ? 0 : 1;
+  }
+  if (!files.length) return usage("inkling waivers needs a file");
+  const items = waiverItems({ files, mode: values.mode, lang: values.lang, house: values.house ?? [], readers: values.readers ?? null });
+  const results = items.length ? await judgeWaivers({ items, runs, judge: values.judge ?? "opus" }) : [];
+  process.stdout.write(formatWaivers(results, { readers: values.readers }));
+  return results.every((r) => r.counts) ? 0 : 1;
+}
+
+async function predictCommand([draft], values) {
+  refuseIfPaid();
+  if (!draft || !values.brief) return usage("inkling predict needs a draft and --brief <file>");
+  const result = await predict({ draft: readFileSync(draft, "utf8"), brief: readFileSync(values.brief, "utf8"), runs: Number(values.runs ?? 1), model: values.judge ?? "opus" });
+  process.stdout.write(formatPrediction(result));
+  return 0;
+}
+
 async function directionsCommand([sub, ...pos], values) {
   const refused = refuseIfPaid(`directions ${sub ?? ""}`.trim());
   if (refused) {

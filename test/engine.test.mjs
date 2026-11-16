@@ -89,3 +89,25 @@ test("the text's language comes from lang: in the front matter or the lang optio
   assert.equal(languageOf(undefined), "en");
   assert.throws(() => languageOf("klingon"), /unknown language/);
 });
+
+test("a waiver with a reason moves the finding to .waived; one without a reason leaves it blocking", () => {
+  const text = "<!-- inkling-waive mannered-words: quoting the rejected draft -->\nThe load-bearing part.\n\n<!-- inkling-waive mannered-words -->\nHonestly fine.";
+  const found = lint({ text, mode: "post", rules });
+  assert.deepEqual(found.map((f) => f.line), [5]);
+  assert.match(found[0].message, /waiver with no reason/);
+  assert.equal(found.waived.length, 1);
+  assert.equal(found.waived[0].waived, "quoting the rejected draft");
+});
+
+test("a file waiver and a founder decision are listed as waivers, not dropped", () => {
+  const file = lint({ text: "<!-- inkling-waive-file mannered-words: the page names the banned words -->\n\nThe load-bearing part.", mode: "post", rules });
+  assert.equal(file.length, 0);
+  assert.equal(file.waived[0].waived, "the page names the banned words");
+});
+
+test("a waiver above a table covers every row of it, and stops at the table's end", () => {
+  const text = "<!-- inkling-waive punctuation/em-dash: quoted as reviewed -->\n| A | B |\n| --- | --- |\n| one — two | x |\n| three — four | y |\n\nfive — six.\n";
+  const out = lint({ text, file: "t.md", mode: "post", rules });
+  assert.equal(out.waived.filter((w) => w.rule === "punctuation/em-dash").length, 2);
+  assert.equal(out.filter((f) => f.rule === "punctuation/em-dash").length, 1);
+});
