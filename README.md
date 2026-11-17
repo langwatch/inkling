@@ -112,7 +112,7 @@ For a landing page, `--mode landing --page <ad|home|product|guide|job>` picks th
 
 For a narrated lesson or video, `--mode script --minutes 3`, `inkling voice` and `inkling readers listen` check the script by ear; see [spoken scripts](docs/process/script-mode.md) and the [talking-voice profile](docs/voice/profile.md).
 
-More tools: [scenarios](docs/tools/scenarios.md) (checks Inkling itself: does a fresh agent reach the conclusions a person reached), [preference judge](docs/tools/preference.md), [surprise](docs/tools/surprise.md), [images](docs/tools/images.md), [known false positives](docs/tools/known-false-positives.md).
+More tools: [scenarios](docs/tools/scenarios.md) (checks Inkling itself: does a fresh agent reach the conclusions a person reached), [reverse brief](docs/tools/reverse.md) (how far Inkling's output is from a person's own writing, and where), [preference judge](docs/tools/preference.md), [surprise](docs/tools/surprise.md), [images](docs/tools/images.md), [known false positives](docs/tools/known-false-positives.md).
 
 A company's own product names, figure components and audience words live in its [house](docs/houses/README.md), outside the core; this repo ships the [LangWatch house](docs/houses/langwatch.md).
 
