@@ -19,9 +19,14 @@ import { measure, compare, report, spokenSentences } from "./voice.mjs";
 import { parse } from "./markdown.mjs";
 import { judgeWaivers, waiverItems, formatWaivers } from "./waivers.mjs";
 import { predict, formatPrediction } from "./predict.mjs";
+import { unseen, markSeen, formatWhatsnew, whatsnewNotice } from "./whatsnew.mjs";
 import { directionsStart, directionsPick, directionsEvolve, directionsFinal, answerWithClaude } from "./directions.mjs";
 
 const USAGE = `inkling: content writing framework for agents
+
+  inkling whatsnew
+      what changed in how to drive Inkling since you last ran it (CHANGELOG.md); check, readers run and
+      directions start print one line when there is something new
 
   inkling check <file|dir|->... --mode <mode> [--audience "<who reads>"] [--json] [--house langwatch]
       step 7, lint: deterministic rules with file:line, rule, why and fix; exit 1 on errors, warnings print and exit 0
@@ -147,7 +152,15 @@ export function main(argv) {
     process.stderr.write(`inkling: unknown mode ${values.mode}; one of ${MODE_NAMES.join(", ")}\n`);
     return 2;
   }
+  const entry = command === "check" || (command === "readers" && positionals[0] === "run") || (command === "directions" && positionals[0] === "start");
+  if (entry) process.stderr.write(whatsnewNotice());
   switch (command) {
+    case "whatsnew": {
+      const fresh = unseen();
+      process.stdout.write(formatWhatsnew(fresh));
+      markSeen();
+      return 0;
+    }
     case "check":
       return timed(values.run, "check", () => runCheck({
         paths: positionals,

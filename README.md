@@ -12,6 +12,8 @@ Agents are great at writing code now, but still terrible at copy. This framework
 
 Agents stop once copy is accurate, because no test fails on it. You get a writing process your agent follows, tools it can pick up along the way, and the research behind both.
 
+Inkling changes often. Agents that used it before run `inkling whatsnew` to see what to do differently, from the [changelog](CHANGELOG.md).
+
 ## Floor and ceiling
 
 The floor is what a model writes by default: grammatical, average, AI slop. Inkling's lints and rules are a ratchet: as the piece climbs, they keep it from sliding back down. They don't lift it. The ceiling comes from contest: fresh writers start from different places, readers pick, and a draft gets thrown away when a better one wins.
