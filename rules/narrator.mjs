@@ -226,9 +226,10 @@ export default [
       const t = unit.clean;
       const vague = t.match(/^\s*(Someone|Somebody|One of (?:them|our|their|the) [a-z]+)\s+[a-z]+/);
       if (vague) return [{ index: 0, match: vague[1] }];
-      const known = (noun) => {
+      // A singular subject is known only from a singular mention: "your customers" earlier never introduces "a customer".
+      const known = (noun, singular = false) => {
         const stem = noun.toLowerCase().replace(/ies$/, "y").replace(/(?<=[a-z]{3})s$/, "");
-        return new RegExp("\\b" + stem.replace(/y$/, "(?:y|ies)") + "s?\\b").test(textBefore(unit, doc));
+        return new RegExp("\\b" + (singular ? stem + "\\b" : stem.replace(/y$/, "(?:y|ies)") + "s?\\b")).test(textBefore(unit, doc));
       };
       const hit = (match) => [{ index: 0, match }];
       // "A founder rejected...", "A developer connects...": a singular indefinite subject doing something.
@@ -242,7 +243,7 @@ export default [
           if (!acts) continue;
           const rest = t.trimStart().slice([det, adj, noun, verb].filter(Boolean).join(" ").length);
           if (!person && /^\s+[a-z]+\s+[a-z]+s\b/.test(rest)) continue;
-          if (known(noun)) return [];
+          if (known(noun, true)) return [];
           return hit([det, adj, noun].filter(Boolean).join(" "));
         }
       }
@@ -269,6 +270,9 @@ export default [
         "A big team switched last month.",
         "A founder asks the agent for a launch post.",
         "A developer connects the agent once.",
+        "A customer told his team the dashboards were useless.",
+        "A user said the export broke.",
+        "Are your customers happy? A customer told his team the dashboards were useless.",
         "Teams ship faster when they review traces.",
         "Companies switch to self-hosting after the first audit.",
         "Small startups adopt it in a week.",
@@ -296,12 +300,17 @@ export default [
       const t = unit.clean;
       const scene =
         /\b(?:in|at|during|after) (?:the|a|your|our) (?:monday|tuesday|wednesday|thursday|friday|weekly|daily|morning|sprint|team|all-hands|quarterly|board|planning) ?(?:meeting|standup|stand-up|sync|review|call|retro|demo)?\b|\bstops by (?:your|my|the|our) desk\b|\bwalks (?:in|over|up to you)\b|\bleans over\b|\bpings you\b|\bslacks you\b|\bshows up at your desk\b|\bmessages you\b/i;
-      const opener = /^\s*(?:sooner or later|picture this|imagine (?:a|an|your|that)|one day|it'?s (?:monday|tuesday|wednesday|thursday|friday) (?:morning|afternoon))\b/i;
+      const opener = /^\s*(?:(?:so|and|ok|okay|now|well|but|then)\b\s*,?\s+)*(?:sooner or later|picture this|imagine (?:a|an|your|that)|one day|it'?s (?:monday|tuesday|wednesday|thursday|friday) (?:morning|afternoon))\b/i;
+      // "On Tuesday ... and by Friday someone asks": a time of the week, then a stranger later in the sentence.
+      const week = /\b(?:on|by|last|next|this|every|until|come) (?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|the weekend|the end of the week)\b|\b(?:monday|tuesday|wednesday|thursday|friday) (?:morning|afternoon|evening|night)\b/i;
+      const stranger = /\b(?:someone|somebody)\b|\b(?:a|an) (?:[a-z]+ )?(?:director|manager|colleague|teammate|customer|stakeholder|boss|vp|cto|ceo|exec|executive)\b|\byour (?:boss|cto|ceo|manager|director|pm|colleague|teammate)\b/i;
       const actor = /^\s*(?:someone|somebody|a (?:[a-z]+ )?(?:director|manager|colleague|teammate|customer|developer|engineer|founder|lead|user|pm|cto|ceo|vp|boss|stakeholder)|your (?:boss|cto|ceo|manager|director|pm|lead|team|colleague|teammate))\b/i;
       const m = t.match(opener);
       if (m) return [{ index: 0, match: m[0].trim() }];
       const s = t.match(scene);
-      return s && actor.test(t) ? [{ index: s.index, match: s[0] }] : [];
+      if (s && actor.test(t)) return [{ index: s.index, match: s[0] }];
+      const w = t.match(week);
+      return w && stranger.test(t) ? [{ index: w.index, match: w[0] }] : [];
     },
     message: "Invented office scene: an unnamed person in a made-up meeting is a fabricated specific.",
     fix: "Use a real case with the person named, or ask the plain question the reader would ask.",
@@ -312,12 +321,47 @@ export default [
         "Sooner or later a director stops by with a screenshot.",
         "Your CTO pings you about the bill.",
         "Picture this: the deploy is red and support is calling.",
+        "So, picture this: the deploy is red and support is calling.",
+        "And imagine a release that doubles the handoffs.",
+        "On Tuesday your team ships a new agent, and by Friday someone from finance asks why the bill doubled.",
+        "By Monday morning a manager from sales wants to know where the leads went.",
       ],
       pass: [
         "How often does the agent give up after a failed tool call?",
         "In the Monday meeting on 3 November, Priya, our billing lead, asked how often the agent gives up.",
         "The weekly review shows every failed tool call.",
+        "On Tuesday 4 November we shipped the new agent, and by Friday Priya, our billing lead, asked why the bill doubled.",
+        "By Friday the eval had read every conversation.",
+        "So we ran the eval again on Monday.",
       ],
+    },
+  },
+  {
+    id: "so-opener",
+    pattern: /^\W*so\b(?![\s-]+(?:far|called|much|many|long as)\b)/i,
+    message: "A sentence that opens with \"So\". It is a verbal tic: the sentence works without it.",
+    fix: "Drop the \"So\" and start on the subject, or say the link: \"And\", \"That's why\", \"Next\".",
+    source: "Founder review of the analytics launch video scripts, 2026-11-22: \"never a sentence starting with So\"",
+    examples: {
+      fail: ["So, look around your company.", "So what do you want to know?", "So that's where the eval starts.", { text: "So we ran it again.", mode: "script" }],
+      pass: ["Look around your company.", "So far the eval has read every conversation.", "That's why we ran it again, so the numbers would hold.", "A so-called judge grades the text."],
+    },
+  },
+  {
+    id: "unnamed-source",
+    pattern:
+      /\b(?:a|an|one|some)\s+(?:of\s+(?:our|my|their|the|your|its)\s+)?(?:[a-z-]+\s+){0,2}?(?:customers?|users?|clients?|firms?|compan(?:y|ies)|vendors?|partners?|prospects?|buyers?|founders?|engineers?|developers?|leaders?|executives?|startups?|enterprises?|banks?|labs?|agenc(?:y|ies))\b(?:\s+(?:that|who)\s+[^,.;:!?]{1,60}?)?\s+(?:once\s+|recently\s+|even\s+|actually\s+)?(?:told|said|wrote|reported|mentioned|shared|complained|explained|confided)\b/i,
+    message: "A quote or report from an unnamed third party (\"a customer told us\"). The reader can't check it, so it reads as a made-up testimonial.",
+    fix: "Use a named, public case, or say the claim yourself.",
+    source: "Founder review of the analytics launch video scripts, 2026-11-22: \"A customer told his team\" is a weird way to sell; Nexus writing-rules, vague-source constructs (2026-11-12)",
+    examples: {
+      fail: [
+        "A customer told his team the dashboards were useless.",
+        "One of our customers said the export was slow.",
+        "A firm that certifies AI systems told us the audit takes a week.",
+        "A user once said the agent felt rude.",
+      ],
+      pass: ["Dashboards that only show token counts don't help the business decide.", "We think the export is too slow.", "The customer table holds one row per account."],
     },
   },
   {

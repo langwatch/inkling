@@ -16,7 +16,7 @@ inkling readers panel status runs/launch
 ```
 
 - **Persistent readers.** From round 2, each reader's prompt includes what that reader said in earlier rounds, and asks whether what stopped them is still there.
-- **Shuffled A/B.** A reader shown a changed text is primed to praise the change. So each round shows the old and the new version as A and B in random order, with no labels, and asks which one they would keep reading. Inkling records the mapping in `panel.json` and unshuffles: `panel status` prints which version each reader kept, and warns when a reader kept the old one.
+- **Shuffled A/B.** A reader shown a changed text is primed to praise the change. That is why each round shows the old and the new version as A and B in random order, with no labels, and asks which one they would keep reading. Inkling records the mapping in `panel.json` and unshuffles: `panel status` prints which version each reader kept, and warns when a reader kept the old one.
 - **Absolute question.** Every read also asks "Would you finish this? Where would you skip?", and from round 2 each reader ends the A/B pick with a "Finish:" and a "Skip:" line. When a reader keeps the new version but would still skip part of it, or not finish it, that pick does not count as a win: `panel status` says so, and the [budget](budget.md) stop ships the version before.
 - **Shrinking edits.** Round 2 may change whole sections, round 3 paragraphs (at most two, headings untouched), round 4 and later only lines (at most three sentences, no paragraphs added or removed). `panel round` measures the diff and refuses an edit over the allowed size unless you pass `--force`.
 

@@ -116,7 +116,7 @@ Words inside a generated image follow the same rules as prose. Write the image p
 
 ## Figures and code
 
-Readers need to grasp how a thing works, not copy it. Readers no longer paste code from a post: their coding agent writes it. So show the idea in a picture first, and keep code for the few places where it is the clearest thing on the page.
+Readers need to grasp how a thing works, not copy it. Readers no longer paste code from a post: their coding agent writes it. Show the idea in a picture first, and keep code for the few places where it is the clearest thing on the page.
 
 - **A flow, a loop or an architecture: draw it.** Brief the figure like a motion designer would: one picture a reader gets at a glance, steps that light up in order as it scrolls into view, and the real logos wherever a brand exists (a model, a cloud, a tool the reader runs). A box labelled "LLM provider" asks the reader to imagine what the logo would have told them.
 - **Something done in the product: mock the screen.** When the text says "you can do this", show where. A focused, simplified view of the real screen (a phone-sized one is fine) makes the reader believe they could do it there; an abstract diagram of the same step reads as a concept. Keep abstract figures for the high-level flow. Your [house](../houses/README.md) names the components to build mocks from.

@@ -30,6 +30,6 @@ Write down the words this audience uses for the subject, the ones they search fo
 
 Work out the reader from what the person asked for. "A launch post for our Discord" tells you who reads it; "write me a post" doesn't.
 
-So when the request leaves out what the piece is or who reads it, ask before you draft, and put your best guess in the question so they only have to say yes or correct it: "Is this for founders who haven't heard of us, or for people who already use it?" If all you got was the line pointing at this repo, ask what they want you to write.
+When the request leaves out what the piece is or who reads it, ask before you draft, and put your best guess in the question so they only have to say yes or correct it: "Is this for founders who haven't heard of us, or for people who already use it?" If all you got was the line pointing at this repo, ask what they want you to write.
 
 Don't guess the reader and draft anyway. A draft for the wrong reader fails every reader test that comes after it, and the person only finds out once the work is done.

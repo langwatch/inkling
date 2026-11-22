@@ -35,7 +35,7 @@ test("short replies and imperatives are speech, labels stay fragments", () => {
 });
 
 test("repeated then and so raise nothing; step labels warn", () => {
-  const talk = "---\nminutes: 1\n---\n\nWe decide who reads it, and then we write the tests. Then we write the draft, and then we check it. So we fix what failed, so the readers try it again, and so on until it passes.\n";
+  const talk = "---\nminutes: 1\n---\n\nWe decide who reads it, and then we write the tests. Then we write the draft, and then we check it. And we fix what failed, so the readers try it again, and so on until it passes.\n";
   assert.deepEqual(lint({ text: talk, mode: "script", rules: RULES }).map((f) => `${f.rule}: ${f.excerpt}`), []);
   const label = lint({ text: "---\nminutes: 1\n---\n\nNext comes the draft.\n", mode: "script", rules: RULES });
   assert.ok(label.some((f) => f.rule === "script/step-label" && f.severity === "warning"));

@@ -31,7 +31,7 @@ Write the conclusions from what the person said. Conclusions taken from a draft 
 | `langy-post-review` | review a draft of that post that the founder rejected | the same seven conclusions, reached from the draft |
 | `human-text` | write a short post from rough notes | reads like the person who did the work explaining it: talk, no slogans, human signals, one claim, a clean check |
 
-The grader is a model, and models prefer text a model wrote ([judge bias](../research/judge-bias.md)). So the conclusions name concrete signals to quote. Compare a score with earlier runs of the suite; on its own it proves little.
+The grader is a model, and models prefer text a model wrote ([judge bias](../research/judge-bias.md)). That is why the conclusions name concrete signals to quote. Compare a score with earlier runs of the suite; on its own it proves little.
 
 ## Baseline
 

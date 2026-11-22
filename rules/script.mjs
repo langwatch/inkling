@@ -216,11 +216,11 @@ export default [
         }),
       ),
     message: "The paragraph starts with no connective and nothing that points back, so a listener hears a jump.",
-    fix: "Tie it to the last point: so, but, another, because, that is why, next, let's.",
+    fix: "Tie it to the last point: and, but, another, because, that is why, next, let's, or a word from the last paragraph. Never open the sentence with \"So\".",
     source: "Founder review of lesson video v11, 2026-11-08: \"so many just jumps without connection\"",
     examples: {
       fail: [{ text: "Judges prefer machine text.\n\nMeta tuned a rubric on expert pairs.", mode: "script" }],
-      pass: [{ text: "Judges prefer machine text.\n\nSo Meta tuned a rubric on expert pairs.", mode: "script" }],
+      pass: [{ text: "Judges prefer machine text.\n\nThat's why Meta tuned a rubric on expert pairs.", mode: "script" }],
     },
   },
   {
@@ -243,7 +243,7 @@ export default [
     source: "Founder review of lesson video v11, 2026-11-08: \"there is still a LOT of impersonal ... way of talking\"",
     examples: {
       fail: [{ text: "The model predicts words. It drifts to the average. Copy needs surprise. Surprise is unlikely. The model avoids it. The result is bland.", mode: "script" }],
-      pass: [{ text: "The model predicts words. It drifts to the average. You want surprise. Surprise is unlikely. The model avoids it. So we test for it.", mode: "script" }],
+      pass: [{ text: "The model predicts words. It drifts to the average. You want surprise. Surprise is unlikely. The model avoids it. That's why we test for it.", mode: "script" }],
     },
   },
   {
@@ -349,7 +349,7 @@ export default [
       });
     },
     message: "A new part starts with no transition: nothing says we are moving on, or which part of the agenda this is.",
-    fix: "Open the part with one sentence that ties back, in your own voice: \"Next, let's look at the judge.\" or \"So that's why the model hedges. And it also...\"",
+    fix: "Open the part with one sentence that ties back, in your own voice: \"Next, let's look at the judge.\" or \"That's why the model hedges. And it also...\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"during switch between them, something showing moving from one to the next\"",
     examples: {
       fail: [{ text: "We'll look at the judge and the readers.\n\n## Judge\n\nThe judge grades text.\n\n## Readers\n\nPersonas answer questions.", mode: "script" }],
@@ -430,7 +430,7 @@ export default [
     severity: "warning",
     pattern: /\b(?:next comes|next up|subsequently|following that|lastly|last but not least)\b/i,
     message: "A tutorial step label. It comes from manuals and slide decks, where the model learned to sound organised; people explaining something just say \"then\" again.",
-    fix: "Say \"then\" or \"and then\": \"Then we write the draft.\" Repeating then, so and and is normal in speech.",
+    fix: "Say \"then\" or \"and then\": \"Then we write the draft.\" Repeating then and and is normal in speech.",
     source: "Founder review of the lesson script, 2026-11-08: \"Next comes the draft\", no one talked like that before AI",
     examples: {
       fail: [{ text: "Next comes the draft.", mode: "script" }, { text: "Lastly, the readers try it.", mode: "script" }],
@@ -450,11 +450,11 @@ export default [
         return overlaps(heading, contentStems(s.clean)) ? [] : [{ ...at(s), note: `The heading "${section.heading.text.trim()}" is never said.` }];
       }),
     message: "The section only makes sense through its heading, and a listener never hears the heading.",
-    fix: "Say the topic in the first sentence, as a sentence about what happens: \"So why not ask another AI to judge the writing?\" or \"And the judge prefers the machine's text, which surprised us.\"",
+    fix: "Say the topic in the first sentence, as a sentence about what happens: \"And why not ask another AI to judge the writing?\" or \"And the judge prefers the machine's text, which surprised us.\"",
     source: "Founder review of lesson video v11, 2026-11-08: \"it needs a better introduction of the topic for each topic\"",
     examples: {
-      fail: [{ text: "## The judge prefers the machine\n\nSo why not ask another AI to grade the writing?", mode: "script" }],
-      pass: [{ text: "## The judge prefers the machine\n\nSo why not ask another AI judge to grade the writing?", mode: "script" }],
+      fail: [{ text: "## The judge prefers the machine\n\nAnd why not ask another AI to grade the writing?", mode: "script" }],
+      pass: [{ text: "## The judge prefers the machine\n\nAnd why not ask another AI judge to grade the writing?", mode: "script" }],
     },
   },
   {

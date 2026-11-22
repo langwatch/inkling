@@ -45,7 +45,7 @@ Later runs showed written lines that came from the talk pass itself, before any 
 
 The claim went wrong once even with the right diagnosis in the sources. The writer read the research page and took its surprising opening fact ("asking it who reads gets a decent answer") as the claim. It then trimmed the line that said what works, because the claim didn't include it.
 
-So the research page now leads with the cause, the claim step says the cause and what works, and the trim re-reads the claim before each cut.
+The research page now leads with the cause, the claim step says the cause and what works, and the trim re-reads the claim before each cut.
 
 Example lines in Inkling's own pages were copied word for word ("a minute ago", "Another thing that goes wrong"), so the pages now say examples show a move and are not lines to reuse.
 
@@ -57,7 +57,7 @@ The human pieces are the founder's own explanations of a why, 145 and 166 words,
 
 Each listener answers two things. Which text, if any, did an AI write, and how sure are they? And which phrases would a person not say out loud?
 
-A control run put a human-written lesson section, the founder's own wording, in the candidate's place. Listeners still named it as AI three times out of four, all with low confidence, and all four flagged one coined phrase. So a bare pick partly catches the format and topic of a lesson section about AI.
+A control run put a human-written lesson section, the founder's own wording, in the candidate's place. Listeners still named it as AI three times out of four, all with low confidence, and all four flagged one coined phrase. That means a bare pick partly catches the format and topic of a lesson section about AI.
 
 That's why the pass rule is set against the control. The section passes a run when at most one of four listeners names it as AI with medium or high confidence, and no more of its phrases are flagged by two or more listeners than the control had (one).
 

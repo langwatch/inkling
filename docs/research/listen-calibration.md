@@ -41,7 +41,7 @@ In attempt 7 the drift fell on the tools and the two rounds (chunks 11 and 14) i
 
 ## Back-references belong to the lint
 
-Simulated listeners resolve back-references from context better than a person hearing a script once: in 18 runs with Sonnet viewers, none was lost at "A smaller version". Making them miss it would mean priming them. So `v11-lost-at-c` is an info target, reported and not required, and referent problems go to the lint: `script/dangling-back-reference` errors on that line. `test/script.test.mjs` checks the `lint` entries in `calibration/listen.json` on v11: the C line and "The rules fit on one screen".
+Simulated listeners resolve back-references from context better than a person hearing a script once: in 18 runs with Sonnet viewers, none was lost at "A smaller version". Making them miss it would mean priming them. That makes `v11-lost-at-c` an info target, reported and not required, and referent problems go to the lint: `script/dangling-back-reference` errors on that line. `test/script.test.mjs` checks the `lint` entries in `calibration/listen.json` on v11: the C line and "The rules fit on one screen".
 
 The viewers did catch "The rules fit on one screen" on their own: at least one of them was lost at that chunk in every run of attempts 5 to 7, which matches the founder's "who asked that?".
 

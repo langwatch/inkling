@@ -36,7 +36,7 @@ export default [
     severity: "warning",
     pattern: /\bthat'?s what \w+ [^,.;]{1,40},?\s+so that'?s what\b|\b(?:and|but|while),?\s+at the same time,\s|\bthe (?:more|less|fewer|better|worse) [^,.;]{1,40},\s+the (?:more|less|fewer|better|worse)\b|\b(?:holding|knowing|keeping)\b[^.;]{3,60}\bwhile\s+(?:reading|being|seeing|thinking|acting)\b/i,
     message: "A line built in two matching halves (\"that's what it knows, so that's what it writes\", \"the more you paste, the more leaks\", \"knowing X and, at the same time, Y\"). Listeners hear the symmetry as a written, composed line.",
-    fix: "Say the two halves as two plain thoughts, in the order they happen: \"It knows about the billing change. So it writes about the billing change.\" Or keep the half that carries the point.",
+    fix: "Say the two halves as two plain thoughts, in the order they happen: \"It knows about the billing change. That's why it writes about the billing change.\" Or keep the half that carries the point.",
     source: "Blind listener tests of the lesson's theory of mind section, runs 3 and 4, 2026-11-08",
     examples: {
       fail: [{ text: "That's what the model knows about, so that's what it writes.", mode: "script" }, { text: "The hard part is knowing everything and, at the same time, reading it fresh.", mode: "script" }, { text: "The more you paste in, the more leaks out.", mode: "script" }, { text: "Catching it means holding everything it knows while reading as someone who knows none of it.", mode: "script" }],
@@ -85,8 +85,8 @@ export default [
     fix: "Pick one word and repeat it: \"the model\" every time, \"then\" every time. Some repetition anchors the listener on what you are talking about.",
     source: "Founder review of the lesson script, 2026-11-08: some repetition is fine, it anchors people back on what they are talking about",
     examples: {
-      fail: [{ text: "The model predicts the next word. So the AI drifts to the average. The system never surprises.", mode: "script" }, { text: "We decide who reads it. Next, we write the tests. After that, we write the draft.", mode: "script" }],
-      pass: [{ text: "The model predicts the next word. So the model drifts to the average, and the model never surprises you.", mode: "script" }, { text: "We decide who reads it. Then we write the tests, and then we write the draft.", mode: "script" }],
+      fail: [{ text: "The model predicts the next word. And the AI drifts to the average. The system never surprises.", mode: "script" }, { text: "We decide who reads it. Next, we write the tests. After that, we write the draft.", mode: "script" }],
+      pass: [{ text: "The model predicts the next word. And the model drifts to the average, and the model never surprises you.", mode: "script" }, { text: "We decide who reads it. Then we write the tests, and then we write the draft.", mode: "script" }],
     },
   },
   {
@@ -106,7 +106,7 @@ export default [
     source: "Talking-voice profile, docs/voice/profile.md (2026-11-08)",
     examples: {
       fail: [{ text: `Subsequently, the system evaluates the submission. ${"The evaluation determines the classification of the submission in accordance with the documented criteria and the established organisational procedures. ".repeat(8)}`, mode: "script" }],
-      pass: [{ text: "We'll look at one thing today. ".repeat(2) + "So why does the model hedge? I think it's because it was trained to stay fair, and you can hear it in every line. ".repeat(10), mode: "script" }],
+      pass: [{ text: "We'll look at one thing today. ".repeat(2) + "And why does the model hedge? I think it's because it was trained to stay fair, and you can hear it in every line. ".repeat(10), mode: "script" }],
     },
   },
 ];

@@ -14,13 +14,13 @@ inkling check script.md --mode script --minutes 3
 | `section-no-intro` | a part whose first sentence has no transition and no words from the agenda | open with one line that ties back |
 | `heading-dependence` | a part whose first sentence never says the heading's topic | say the topic in that first sentence |
 | `bare-opener-after-break` | a paragraph that opens on a fragment such as "Cramming." | say how it connects |
-| `paragraph-no-connective` | a paragraph inside a part with no connective and no word pointing back to the paragraph before | start with so, but, another, next or a word from the last paragraph |
+| `paragraph-no-connective` | a paragraph inside a part with no connective and no word pointing back to the paragraph before | start with and, but, another, next or a word from the last paragraph |
 | `dangling-back-reference` | an opener such as "A smaller version is" or "This is" that points at a paragraph already gone (also in `deck`) | name the thing again |
 | `impersonal-run` | 6 or more sentences in a row with no we, you, I or let's; the finding gives the run length | bring the listener in |
 | `fragment` | each verbless fragment, such as "Beige soup."; one per script may carry `<!-- fragment: on purpose -->`; quoted titles and list items are exempt | join it to the sentence before |
 | `label-opener` | an ordinal or count label said as its own sentence or before a colon: "The fourth problem.", "Problem two:" | say what happens: "The model also hedges every claim." |
 | `stiff-logic` (warning) | follows from, it follows that, ergo, thereby, consequently, which implies | say the link the way you would to a friend |
-| `step-label` (warning) | tutorial step labels: next comes, next up, subsequently, following that, lastly, last but not least | say "then" or "and then"; repeating then, so and and is fine |
+| `step-label` (warning) | tutorial step labels: next comes, next up, subsequently, following that, lastly, last but not least | say "then" or "and then"; repeating then and and is fine |
 | `instruction-register` (warning, posts too) | a step said as an order outside a list: "You start a fresh model.", "Open a new chat." | "you can start...", "you could...", or what you do: "I usually..." |
 | `punchline-closer` (warning) | a short last line that sums up the paragraph's example: "It just doesn't ask itself." | delete it, or carry on into the next thought |
 | `balanced-line` (warning) | two matching halves: "that's what it knows, so that's what it writes", "the more X, the more Y", "and, at the same time," | say the halves as two plain thoughts |
@@ -31,6 +31,8 @@ inkling check script.md --mode script --minutes 3
 | `structure/sentence-variance` (warning, also in `post`) | a stretch of 10 sentences at one steady length: no complete sentence of 6 words or fewer, none of 20 or more, or a length sd under 4 | mix in a short full sentence or a longer one that runs on with and, so, because; never a fragment |
 | `banned-words/written-register` (warning, every mode but legal) | written-only connectors and words: otherwise, thus, hence, whereas, therefore, moreover, furthermore, a sentence-opening "Rather,", left alone, in order to and more | say "on its own", "so", "but", "to", and state the condition: "if it fails" for "otherwise" |
 | `banned-words/measured` (error, every mode but legal) | "measured" for something that ran ("a measured win") | say what ran and what it showed: "the evals show it is better". "Measured in ms" and other units stay |
+| `structure/repeated-opener` (warning, every mode but legal) | the same connective (so, and, but, then and others) opens 3 or more paragraphs and more than a third of them | vary or drop the connective; a paragraph can usually start on the subject itself |
+| `narrator/so-opener` (every mode) | any sentence that opens with "So": "So, look around.", "So what do you want?", "So that's where it starts." "So far" and "so-called" pass | drop it and start on the subject, or say the link: "And", "That's why", "Next" |
 | `staccato-overuse` | more than 2 fragments per 300 spoken words, unless `<!-- staccato: on purpose -->` is in the file | join them into sentences |
 | `structure/clipped-condition` (warning, posts too) | a cause and effect said as an ad: a bare verb, "and", a timeless present: "But ask them for copy, and it usually comes out weak", "Hand them a PDF and they skim the first page"; a step in a numbered list is exempt | keep the connector and the real tense: "if you ask them for copy, it will come out weak" |
 | `agenda-count-only` (warning) | a count of parts or items, such as "six main problems" or "four steps", anywhere in the script, with no names in the same sentence or the next | name each item briefly |

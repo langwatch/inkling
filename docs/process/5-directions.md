@@ -8,7 +8,7 @@ If you ask one model for five options, you get one idea five ways: the same clai
 
 And when you tell a writer that already drafted to start over, it brings its old idea back, because it is still in its context. A post that came back three times with the same picture of a building had this problem: each redo was told to start fresh, and each one started from the draft before.
 
-So each direction comes from a fresh writer that sees only the brief and one lens. A lens is where the piece starts:
+That's why each direction comes from a fresh writer that sees only the brief and one lens. A lens is where the piece starts:
 
 | Lens | Starts from |
 | --- | --- |

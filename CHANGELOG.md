@@ -6,6 +6,10 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 ## 2026-11-22
 
 - Use `--mode message` and `page: message` for a chat message, a thread reply, an email to a teammate or a talk to people who know you. The reader shares your context, so keep your order and their names, end where the thought ends, and keep the channel's register. See [messages](docs/process/message-mode.md).
+- Never open a sentence with "So", in any mode: `narrator/so-opener` fails it ("So far" and "so-called" pass). Start on the subject, or say the link with "And", "That's why" or "Next". The script docs and rule fixes no longer suggest "So". See [script rules](docs/tools/script-rules.md).
+- Don't quote an unnamed third party ("a customer told us", "a firm that certifies AI systems told us"): `narrator/unnamed-source` fails it. Use a named, public case, or say the claim yourself. See [lint](docs/tools/lint.md#rule-families).
+- When the same connective opens 3 or more paragraphs and more than a third of them, `structure/repeated-opener` warns. Vary or drop the connective; a paragraph can usually start on the subject itself. See [script rules](docs/tools/script-rules.md).
+- `narrator/invented-scene` now catches a scene behind a connective ("So, picture this") and a time of the week with a stranger later in the sentence ("On Tuesday ... by Friday someone asks"). `narrator/undefined-subject` no longer treats "a customer" as introduced because "your customers" came earlier.
 
 ## 2026-11-17
 

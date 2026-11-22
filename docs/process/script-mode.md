@@ -30,7 +30,7 @@ Avoid opening on the name of the part followed by its definition, as in "The sec
 
 ## Put a transition at every switch
 
-Every new paragraph starts with a connective or with words that point back to the last one: so, but, because, another, next, that is why, let's. A paragraph that opens on a bare label such as "Trained to concede." reads as a bold label on a page and as a jump when spoken. Say "Another issue is that AI was trained to concede." instead.
+Every new paragraph starts with a connective or with words that point back to the last one: and, but, because, another, next, that is why, let's. Never open a sentence with "So": it is a tic, and `narrator/so-opener` fails it. A paragraph that opens on a bare label such as "Trained to concede." reads as a bold label on a page and as a jump when spoken. Say "Another issue is that AI was trained to concede." instead.
 
 A script you talked first has these already. The check catches the places you added later.
 
@@ -42,11 +42,11 @@ Each connective claims a relation. "So why is AI copy weak?" right after the fra
 
 Talk to the listener. Use "we", "you" and "let's" at least every few sentences: six sentences in a row without them sound like a lecture about a third party. Skip lines about your own material, such as "the rules fit on one screen": say why the next part matters to the listener.
 
-Use spoken words. "Left alone", "thus", "hence", "in order to" and "it is worth noting" sound read off a page; say "on its own", "so" and "to". `banned-words/written-register` warns on them, and the last listen question asks viewers to quote any phrase a person would not say.
+Use spoken words. "Left alone", "thus", "hence", "in order to" and "it is worth noting" sound read off a page; say "on its own", "so" inside the sentence, and "to". `banned-words/written-register` warns on them, and the last listen question asks viewers to quote any phrase a person would not say.
 
 Repeat on purpose. Keep one name for each thing and say it again, because a listener who hears "the model", then "the AI", then "the system" wonders whether those are three things. `script/elegant-variation` warns when a script rotates synonyms within four sentences.
 
-Step labels such as "Next comes the draft", "Subsequently" and "Lastly" are the tutorial voice. Say "then" again: repeating then, so and and is normal when people talk, and no rule flags it. `script/step-label` warns on the labels.
+Step labels such as "Next comes the draft", "Subsequently" and "Lastly" are the tutorial voice. Say "then" again: repeating then and and inside a paragraph is normal when people talk. The same connective opening paragraph after paragraph is a tic, and `structure/repeated-opener` warns on it. `script/step-label` warns on the labels.
 
 ## Use staccato only on purpose
 

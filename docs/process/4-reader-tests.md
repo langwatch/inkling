@@ -71,7 +71,7 @@ Every reader answers one open question first, before any targeted one: what they
 
 On 2026-11-16 the holds_attention set ran with one intended feeling for all three posts (the reader wants to try the product on their own agent soon), an engineer and a CTO, two runs each. `felt_as_intended` missed on all three, the two approved posts as much as the rejected one: readers ended curious or cautious and wanted proof first.
 
-So it does not separate approved from rejected yet, so it stays a note. In every answer, readers named the line where the feeling changed. Without `feeling:` the readers still report and nothing is compared; `feeling: false` drops the question.
+It does not separate approved from rejected yet, so it stays a note. In every answer, readers named the line where the feeling changed. Without `feeling:` the readers still report and nothing is compared; `feeling: false` drops the question.
 
 ```yaml
 feeling: <what a reader has to feel at the end to do what the goal asks>
@@ -124,7 +124,7 @@ expectations:
 
 The reader is a model, and a model knows every tool on GitHub. Without a rule, a reader playing an engineer happily explains rtk or a ten-week-old plugin, so a page that headlines a name only its author knows passes every test. The writer has the same blind spot, because they spent weeks with that name.
 
-So every reader prompt says to know only what the persona knows, and every reader is asked which names they would have to look up: each product, tool, company, acronym or term the persona can't place, where they met it and whether the text had said what it is by then.
+That's why every reader prompt says to know only what the persona knows, and every reader is asked which names they would have to look up: each product, tool, company, acronym or term the persona can't place, where they met it and whether the text had said what it is by then.
 
 Where to draw the line is the reader's call, against one bar: does this person use it or hear of it every week? React, Docker or ChatGPT for an engineer, Excel or Stripe for a finance lead pass. A niche open-source tool, a young startup, a product's own feature name or an internal name does not, unless it was in what they searched for or where they came from.
 
@@ -140,7 +140,7 @@ A bare name in a headline tells a newcomer nothing, and a result about an unexpl
 
 An expectation that grades something no question asks for, such as why a step exists, carries `ask:` with the question; every persona it applies to gets it. Without it, readers summarise what the page does and the grader fails them for leaving out a reason nobody asked for.
 
-So the `engineering_voice` expectation is core: it fails when the reader calls the post a generic tutorial or a staged experiment, or cannot name one mechanism and why it exists.
+That's why the `engineering_voice` expectation is core: it fails when the reader calls the post a generic tutorial or a staged experiment, or cannot name one mechanism and why it exists.
 
 Calibration on 2026-11-12, two runs per reader:
 
@@ -150,7 +150,7 @@ Calibration on 2026-11-12, two runs per reader:
 | a comparison page for people who searched for an alternative to OpenClaw | | passes 2/2: OpenClaw is in their search, and Laze is explained in the title |
 | a comparison with Slack for a founder whose team lives in Slack | | Slack, ChatGPT and Claude Code pass; fails on Agentforce in the price row and on the page's own feature labels |
 
-The fix for a name is a line: say what it is the first time it appears ("rtk, an open-source tool that shortens shell output before Claude reads it"). So a `names_explained` fail never sends the piece back to directions on its own.
+The fix for a name is a line: say what it is the first time it appears ("rtk, an open-source tool that shortens shell output before Claude reads it"). A `names_explained` fail never sends the piece back to directions on its own.
 
 ## Voice readers
 
@@ -175,7 +175,7 @@ The stance follows the audience, and every readers file states it with `stance:`
 - `cold`, the default: a visitor from a search or an ad with the other results open in tabs, deciding whether the page answers the search and whether a real company is behind it. Use it for ads, landing pages, X and anything a stranger meets first. A page that looks thin or fake, or that loses to another result, is `trust_breaking`.
 - `warm`: a reader who already knows the author, such as a newsletter subscriber or the founder's network. They are busy and generous, and one named source is enough for them to trust a claim.
 
-Cold is not nitpicking. In both stances a reader prompted to find faults always finds some, and fixing every one of them drives copy past the point where it works and back to the average. The stop rule and the rounds budget stay the same; a cold reader fails a page only on what makes a real visitor close the tab or pick another result. So:
+Cold is not nitpicking. In both stances a reader prompted to find faults always finds some, and fixing every one of them drives copy past the point where it works and back to the average. The stop rule and the rounds budget stay the same; a cold reader fails a page only on what makes a real visitor close the tab or pick another result. That shapes the test:
 
 - The prompt gives the reader the context above and asks them to read as that person reads.
 - No question asks for doubts. The questions ask what it is about, what they took away, what they would do next, whether anything made them stop or want to leave, where they would start skimming, and for two lines quoted word for word: the one they liked most and any they had to read twice or that sounded odd. A line read twice is a good place to look for one written from our side.

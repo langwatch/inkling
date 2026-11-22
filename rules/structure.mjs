@@ -3,6 +3,7 @@ import { words } from "../src/markdown.mjs";
 
 import { TIME_MARKER, isPastAction } from "../src/verbs.mjs";
 import { readFileSync } from "node:fs";
+import { ALL_BUT_LEGAL } from "../src/modes.mjs";
 import { isFragment } from "./script.mjs";
 
 // A heading that compresses a claim into a verbless phrase: "X without Y", "X, not Y", "X only on Y".
@@ -52,7 +53,31 @@ export const CLIPPED_CONDITION = new RegExp(
   "i",
 );
 
+const OPENER_WORD = /^\W*(so|and|but|then|now|also|plus|or|yet|because|well|okay|ok|next|still|again)\b/i;
+
 export default [
+  {
+    id: "repeated-opener",
+    severity: "warning",
+    scope: "document",
+    modes: ALL_BUT_LEGAL,
+    check: (_u, { doc }) => {
+      const paras = doc.blocks.filter((b) => b.type === "paragraph" && b.sentences?.[0]);
+      const by = new Map();
+      for (const b of paras) {
+        const w = b.sentences[0].clean.match(OPENER_WORD)?.[1]?.toLowerCase();
+        if (w) by.set(w, [...(by.get(w) ?? []), b]);
+      }
+      return [...by].filter(([, bs]) => bs.length >= 3 && bs.length * 3 > paras.length).map(([w, bs]) => ({ block: bs[2], index: bs[2].sentences[0].start, match: bs[2].sentences[0].clean.match(OPENER_WORD)[0].trim(), note: `${bs.length} of ${paras.length} paragraphs open with "${w}".` }));
+    },
+    message: "The same connective opens paragraph after paragraph. Heard or read in a row, it turns into a tic.",
+    fix: "Vary or drop the connective; a paragraph can usually start on the subject itself.",
+    source: "Founder review of the analytics launch video scripts, 2026-11-22: four of six paragraphs opened with \"So\"",
+    examples: {
+      fail: [{ text: "And the agent reads the ticket.\n\nAnd it writes a reply.\n\nAnd the judge grades it.\n\nThe score lands in the dashboard.", mode: "script" }, { text: "But the cache helps.\n\nThe index is new.\n\nBut the queue is slow.\n\nBut the retry fixes it.", mode: "post" }],
+      pass: [{ text: "The agent reads the ticket.\n\nAnd it writes a reply.\n\nThe judge grades it.\n\nBut the score only lands the next day.\n\nThen we chart it by release.\n\nAnd we share the chart.", mode: "script" }, { text: "And the agent reads the ticket.\n\nThe reply goes out.\n\nAnd the judge grades it.\n\nThe score lands.\n\nWe chart it.\n\nThe team reads it.\n\nAnd we share the chart.\n\nThe team waits less.\n\nIt repeats.\n\nThat's the loop.", mode: "script" }],
+    },
+  },
   {
     id: "uniform-paragraphs",
     scope: "document",
