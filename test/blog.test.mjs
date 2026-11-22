@@ -45,5 +45,5 @@ test("the rejected auto-improving agents opener trips every new blog rule", () =
     "The frontier models opened the traces.",
   ].join("\n");
   const errors = new Set(run(text).filter((f) => f.severity === "error").map((f) => f.rule));
-  for (const id of ["pitch/long-subtitle", "blog/answer-label-opener", "blog/placeholder-company", "blog/contest-heading", "blog/staged-experiment"]) assert.ok(errors.has(id), `${id} should block`);
+  for (const id of ["pitch/long-subtitle", "blog/answer-label-opener", "blog/placeholder-company", "blog/contest-heading"]) assert.ok(errors.has(id), `${id} should block`);
 });

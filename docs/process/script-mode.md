@@ -66,7 +66,7 @@ Short replies such as "No." or "Agreed." and imperatives such as "Use your judge
 
 Pick examples your listener already knows, and say what each one proved, with the cause in the same sentence: "The judges picked the model's text most of the time, because to a model, model text is the most familiar text there is."
 
-When a part lists several causes, call each one "one reason" or "the first reason". "The root cause" among six makes the other five sound like a contradiction; if one is the root of the others, say so and show how (`narrator/overclaim`). Describe training in the past tense, since it is over: "the model was trained to concede", "training rewarded passing tests". What the model does now stays in the present (the judge's `training_tense` question).
+When a part lists several causes, call each one "one reason" or "the first reason". "The root cause" among six makes the other five sound like a contradiction; if one is the root of the others, say so and show how (the judge's `overclaim` question). Describe training in the past tense, since it is over: "the model was trained to concede", "training rewarded passing tests". What the model does now stays in the present (the judge's `training_tense` question).
 
 ## Check it by ear
 

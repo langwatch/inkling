@@ -35,10 +35,9 @@ inkling check script.md --mode script --minutes 3
 | `structure/clipped-condition` (warning, posts too) | a cause and effect said as an ad: a bare verb, "and", a timeless present: "But ask them for copy, and it usually comes out weak", "Hand them a PDF and they skim the first page"; a step in a numbered list is exempt | keep the connector and the real tense: "if you ask them for copy, it will come out weak" |
 | `agenda-count-only` (warning) | a count of parts or items, such as "six main problems" or "four steps", anywhere in the script, with no names in the same sentence or the next | name each item briefly |
 | `list-no-preview` (warning) | a walk through items ("The first...", "The second...") with no line naming them in the 4 sentences before the first | name the items before the first one |
-| `aside-jump` | a new term dropped in as ", which statisticians call..." | give the name its own sentence after the thing it names |
 | `writer-side-opener` (warning) | lines about the material, such as "fits on one screen" or "a problem with a name"; runs in every mode but legal | say why the reader should care |
 
-The narrator rules that run in every mode include one written for scripts: `narrator/overclaim` (warning) flags "the root cause" or "the real reason" in a part that lists several causes. Present tense for finished training ("training rewards", "the model is trained to"), punchline closers and balanced lines ("the more X, the more Y") are [judge](judge.md#construct-questions) questions: `training_tense`, `closer` and `mirrored_pair`.
+"The root cause" or "the real reason" in a part that lists several causes, a new term dropped in as ", which statisticians call...", present tense for finished training ("training rewards", "the model is trained to"), punchline closers and balanced lines ("the more X, the more Y") are [judge](judge.md#construct-questions) questions: `overclaim`, `aside_jump`, `training_tense`, `closer` and `mirrored_pair`.
 
 `narrator/tense-match` (warning, every mode but legal) checks tense against the kind of claim from both sides: a general claim told in the past ("text that models wrote"), and a paragraph that names the piece or a date ("this video", "today", "8 Nov") and then narrates one run in the present ("my agent starts a writer... it goes back").
 

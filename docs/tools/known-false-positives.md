@@ -9,7 +9,6 @@ A known false positive is a rule firing on text a reviewer would pass. These cam
 | `narrator/vague-majority` | "shows up most when the texts are of similar length" | "most" as an adverb of degree, not a vague share of people | rephrase, or `<!-- inkling-ignore vague-majority: adverb -->` |
 | `contrast/doesnt-need-needs`, others | a rejected line quoted in a table cell or code-free example | the rule cannot tell a mention from a use unless the line is in double quotes or code | wrap the quoted line in double quotes or backticks |
 | `punctuation/spaced-dash` | `pmi = free - conditioned` | a minus sign with spaces in a formula | put the formula in backticks |
-| `docs/indefinite-event-opener` | "A rule gates once it caught..." | a generic definition reads like an event opener to the pattern | start with the plural or the subject: "Rules gate once..." |
 | `docs/artifact-verb` | "each reader knows who wrote it" | "reader" here is a simulated person, and the rule treats every noun as an artifact | rephrase with a passive ("is told") or name the person |
 | `numbers/number-opener` | "Two lessons." in a research note | a list lead-in, which carries no count worth a headline | rephrase ("The lessons:"), or ignore the rule in research notes |
 

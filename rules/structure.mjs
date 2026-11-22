@@ -122,32 +122,6 @@ export default [
     },
   },
   {
-    id: "lecture-turn",
-    scope: "document",
-    modes: ["post", "script"],
-    severity: "warning",
-    check: (_u, { doc }) => {
-      const hits = [];
-      doc.blocks.forEach((block, i) => {
-        const prev = doc.blocks[i - 1];
-        if (block.type !== "paragraph" || prev?.type !== "paragraph" || !/\byou(r|'re|'ve)?\b/i.test(prev.text)) return;
-        const first = block.sentences[0]?.clean ?? "";
-        if (LECTURE_SUBJECT.test(first) && !/\b(you|your|we|our|I)\b/.test(first)) hits.push({ block, index: block.sentences[0].start });
-      });
-      return hits;
-    },
-    message: "The paragraph before talks to the reader; this one opens with a general law about models, agents or teams. The story stops and a lecture starts.",
-    fix: "Carry on from what the reader was doing and let the reason follow: \"By now you might have been tempted to let another agent improve yours, but agents improving agents unchecked drift...\". Give the law after the reader can see why it matters, or leave it out.",
-    source: "Founder edit of an engineering post, 2026-11-13: \"terrible way to start the paragraph ... with the explanation? Not with the action?\"; same family as leading with the value and a case before the name.",
-    examples: {
-      fail: [{ text: "If you build agents, you probably run this loop by hand.\n\nLLMs regress to the mean, so an agent that edits itself drifts toward generic behaviour.", mode: "post" }],
-      pass: [
-        { text: "If you build agents, you probably run this loop by hand.\n\nBy now you might have been tempted to let another agent improve yours, but LLMs regress to the mean.", mode: "post" },
-        { text: "We built the loop in two weeks.\n\nLLMs regress to the mean, so we measure every change.", mode: "post" },
-      ],
-    },
-  },
-  {
     id: "clipped-condition",
     modes: ["script", "post"],
     scope: "paragraph",
@@ -169,7 +143,7 @@ export default [
       return n > settings.paragraphWords ? [{ index: 0, note: `${n} words; this mode allows ${settings.paragraphWords}.` }] : [];
     },
     message: "Paragraph too long for this mode.",
-    fix: "Split it where the topic turns, and start the new paragraph with the word that joined the two halves (so, but, because, that's why), so the split keeps the link.",
+    fix: "Split it where the topic turns, and start the new paragraph with the word that joined the two halves (but, because, that's why), so the split keeps the link.",
     source: "Nexus docs-writing-rules rule 13 (80 words); writing-rules, Keep paragraphs short",
     examples: {
       fail: [Array.from({ length: 90 }, (_, i) => `word${i}`).join(" ") + "."],

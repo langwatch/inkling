@@ -17,7 +17,6 @@ test("v11 fails script mode on every line the founder flagged", () => {
   assert.ok(at(f, "script/dangling-back-reference", "A smaller version is writing from the middle"));
   assert.ok(at(f, "script/writer-side-opener", "The rules fit on one screen."));
   assert.ok(at(f, "script/writer-side-opener", "each habit is a problem with a name"));
-  assert.ok(at(f, "script/aside-jump", "which psychologists call the curse of knowledge"));
   assert.ok(f.some((x) => x.rule === "script/no-agenda"));
   const runs = f.filter((x) => x.rule === "script/impersonal-run").map((x) => Number(x.message.match(/(\d+) sentences in a row/)[1]));
   assert.equal(Math.max(...runs), 18);
@@ -70,7 +69,7 @@ test("lint calibration: the lint owns the lines simulated listeners resolve too 
 
 test("v12's previews pass the soft list checks: seven reasons and four steps are named before the walk", () => {
   const f = check(fixture("v12.md"));
-  assert.ok(!f.some((x) => ["script/list-no-preview", "script/agenda-count-only", "script/over-time", "narrator/overclaim", "narrator/training-tense"].includes(x.rule)), JSON.stringify(f.map((x) => x.rule)));
+  assert.ok(!f.some((x) => ["script/list-no-preview", "script/agenda-count-only", "script/over-time"].includes(x.rule)), JSON.stringify(f.map((x) => x.rule)));
   for (const x of f.filter((y) => ["script/list-no-preview", "script/agenda-count-only"].includes(y.rule))) assert.equal(x.severity, "warning");
 });
 
@@ -84,11 +83,10 @@ test("an earlier v12 draft: the root cause among six, present-tense training, an
   ].join("\n\n");
   const f = check(text);
   const by = (id) => f.filter((x) => x.rule === id);
-  assert.equal(by("narrator/overclaim")[0]?.severity, "warning");
   assert.equal(by("script/list-no-preview")[0]?.severity, "warning");
   const fixed = text.replace("The root cause is", "The first reason, and the root of the others, is").replace("training rewards", "training rewarded").replace("goes wrong.", "goes wrong: no judge, predictable words, conceding, the curse of context, formula punch and cramming.");
   const g = check(fixed);
-  assert.ok(!g.some((x) => ["narrator/overclaim", "script/list-no-preview"].includes(x.rule)), JSON.stringify(g.map((x) => x.rule)));
+  assert.ok(!g.some((x) => ["script/list-no-preview"].includes(x.rule)), JSON.stringify(g.map((x) => x.rule)));
 });
 
 test("a verbless fragment is an error; one marked on purpose is kept, a second marked one is not", () => {

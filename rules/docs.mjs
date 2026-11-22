@@ -80,24 +80,6 @@ export default [
     },
   },
   {
-    id: "indefinite-event-opener",
-    modes: DOCS,
-    scope: "body-sentence",
-    check: (unit) => {
-      if (unit.block.type !== "paragraph") return [];
-      const m = unit.clean.match(/^\s*(?:A|An)\s+([a-z][\w-]*)\s+([a-z]+s)\b/);
-      if (!m || /^(?:is|has|was|does)$/.test(m[2])) return [];
-      return [{ index: 0, match: m[0].trim() }];
-    },
-    message: "Opens on an anonymous noun doing something: narrates a scene instead of addressing the reader.",
-    fix: "Make the reader or the product the subject: \"Connect your agent to LangWatch\".",
-    source: "Nexus docs-writing-rules rule 26",
-    examples: {
-      fail: [{ text: "A developer connects the agent to the platform once.", mode: "docs" }],
-      pass: [{ text: "Connect your agent to the platform once.", mode: "docs" }, { text: "A run parameter is a named value.", mode: "docs" }],
-    },
-  },
-  {
     id: "title-how-to",
     modes: DOCS,
     scope: "title",
@@ -160,18 +142,6 @@ export default [
     examples: {
       fail: [{ text: "The question asks how to connect.", mode: "docs" }],
       pass: [{ text: "The first run opens a browser to sign you in.", mode: "docs" }],
-    },
-  },
-  {
-    id: "timeline-when",
-    modes: DOCS,
-    pattern: /^when the [\w\s-]{1,30} (?:drops|removes|deletes|changes|expires)\b/i,
-    message: "Narrates an event on a timeline the reader does not control.",
-    fix: "State the capability: \"You can drop the conversation content and keep the cost\".",
-    source: "Nexus docs-writing-rules rule 20",
-    examples: {
-      fail: [{ text: "When the data privacy policy drops content, the session keeps its cost.", mode: "docs" }],
-      pass: [{ text: "You can drop the conversation content and keep the cost.", mode: "docs" }],
     },
   },
   {

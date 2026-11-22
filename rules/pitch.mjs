@@ -24,19 +24,6 @@ export default [
     },
   },
   {
-    id: "category-headline",
-    modes: ["ads"],
-    scope: "title",
-    pattern: /\b(?:in the cloud|on the cloud|as a service|for (?:teams|business|enterprises?)|platform|hosting|hosted)\b/i,
-    message: "Headline names a category (\"Claude Code in the cloud\"). It reads like the vendor's own product page, and the reader still has to work out what they get.",
-    fix: "Say the plain value as an offer to the reader: \"Keep your Claude Code working when your laptop is shut\". Put the search words in the page title and the subtitle.",
-    source: "Founder review of the Claude Code cloud landing page, 2026-11-09",
-    examples: {
-      fail: [{ text: "# Claude Code in the cloud, still working when your laptop is shut", mode: "ads" }, { text: "# The agent platform for teams", mode: "ads" }],
-      pass: [{ text: "# Keep your Claude Code working when your laptop is shut", mode: "ads" }, { text: "# Laptop shut? It still works", mode: "ads" }],
-    },
-  },
-  {
     id: "bare-benefit-lede",
     modes: ["ads"],
     scope: "document",
@@ -118,25 +105,6 @@ export default [
     examples: {
       fail: [{ text: "Your keys stay safe while the agent works.", mode: "ads" }],
       pass: [{ text: "Let your agent operate your inbox.", mode: "ads" }],
-    },
-  },
-  {
-    id: "crammed-headline",
-    modes: ["ads", "deck"],
-    scope: "headline",
-    check: (unit) => {
-      const n = words(unit.clean).length;
-      const claims = unit.clean.split(/[.;]|\band\b|,\s*(?:and|plus)\b/).filter((p) => words(p).length >= 3).length;
-      if (n > 12) return [{ index: 0, note: `${n} words.` }];
-      if (claims > 2) return [{ index: 0, note: `${claims} claims.` }];
-      return [];
-    },
-    message: "Headline crams more than one claim.",
-    fix: "Cut to the one claim this reader did not expect.",
-    source: "Approved analysis point 6 (one claim)",
-    examples: {
-      fail: [{ text: "# Agents that run for weeks, share memory across your team, and ask before they use your keys", mode: "ads" }],
-      pass: [{ text: "# You don't need an agent sandbox", mode: "ads" }],
     },
   },
   {

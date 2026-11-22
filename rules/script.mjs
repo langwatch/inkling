@@ -462,18 +462,6 @@ export default [
     },
   },
   {
-    id: "aside-jump",
-    modes: SCRIPT,
-    pattern: /,\s*which\s+(?:\w+\s+){0,2}(?:call|calls|name|names|dub|dubs|label|labels)\b/i,
-    message: "A new term dropped in as an aside (\"which statisticians call regression to the mean\"). Said aloud it is a jump to a second idea mid-sentence.",
-    fix: "Give the name its own sentence after the thing it names: \"Statisticians have a name for this: regression to the mean.\"",
-    source: "Founder review of lesson video v11, 2026-11-08: \"weird way to make the jump\"",
-    examples: {
-      fail: [{ text: "The model drifts to the middle, which statisticians call regression to the mean.", mode: "script" }],
-      pass: [{ text: "The model drifts to the middle. Statisticians have a name for this: regression to the mean.", mode: "script" }],
-    },
-  },
-  {
     id: "writer-side-opener",
     modes: ALL_BUT_LEGAL,
     severity: "warning",

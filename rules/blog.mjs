@@ -150,21 +150,4 @@ export default [
       pass: ["## Why Langy runs on a frontier model", "## Small models skip the measurement", { text: "---\npage: experiment\n---\n\n## Which model won", mode: "post" }],
     },
   },
-  {
-    id: "staged-experiment",
-    modes: ["post"],
-    pages: ["article"],
-    pattern: /\bwe (?:gave|handed|pitted|put|set|asked|let)\s+(?:(?:the|our)\s+)?(?:\d+|two|three|four|five|six|seven|eight|several|a few|multiple|different|rival|competing)\s+(?:[\w.-]+\s+){0,2}?(?:models|agents|llms|improvers|coding agents|contestants|teams)\b/i,
-    message: "\"We gave three models...\" frames the post as a staged experiment. Readers of an engineering post want the system you run and what you found while running it. If the post really is an experiment write-up, set `page: experiment` in the front matter.",
-    fix: "Say what the system does and what you saw it do: \"With gpt-5-mini as the improver, Langy skipped the measurement and never opened a trace\".",
-    source: SOURCE,
-    examples: {
-      fail: ["We gave three improver models the same failing answers.", "We pitted four coding agents against each other."],
-      pass: [
-        "With gpt-5-mini as the improver, Langy skipped the measurement and never opened a trace.",
-        "We gave the judge a window of lines around each match.",
-        { text: "---\npage: experiment\n---\n\nWe gave three improver models the same failing answers.", mode: "post" },
-      ],
-    },
-  },
 ];

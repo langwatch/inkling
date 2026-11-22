@@ -8,15 +8,15 @@ Some rules are patterns standing in for a meaning, so they miss the same shape i
 
 ## How it was measured
 
-For the narrator rules, the column gives the regex's recall on `calibration/jev-narrator.jsonl` instead (see [judge](../tools/judge.md#narrator-questions)). Each other construct rule's own fail examples were rephrased: another tense, another word order, a synonym, a leading connective. "Probe misses" counts the rephrasings the rule did not flag. The rephrasings, the rule's examples and near-miss negatives are in `calibration/jev-constructs.jsonl` (265 paragraphs with the approved ones). The approved paragraphs are the approved lines of `calibration/regression.jsonl`, the excerpts of the [reference voice](../voice/reference.md) and the passing script fixture.
+For the narrator rules, the column gives the regex's recall on `calibration/jev-narrator.jsonl` instead (see [judge](../tools/judge.md#narrator-questions)). Each other construct rule's own fail examples were rephrased: another tense, another word order, a synonym, a leading connective. "Probe misses" counts the rephrasings the rule did not flag. The rephrasings, the rule's examples and near-miss negatives are in `calibration/jev-constructs.jsonl` (265 paragraphs with the approved ones) for the first batch and `calibration/jev-constructs2.jsonl` (267) for the second, whose questions also see the paragraph before and run only in their modes. The approved paragraphs are the approved lines of `calibration/regression.jsonl`, the excerpts of the [reference voice](../voice/reference.md) and the passing script fixture.
 
-All the construct questions go to Jev in one call per paragraph (`jev_slop_v2.py --constructs`); the whole calibration cost under 0.10 USD. `judges/jev/calibrate_constructs.py` picks each threshold. A question is an error only with no false flag on an approved paragraph and a threshold at least 0.1 over the highest approved score, because scores drift by about 0.03 between runs. With no approved false flag but a smaller margin, it warns. A regex was deleted only where its question is an error and the regex caught nothing the question missed.
+The construct questions go to Jev in two calls per paragraph, one per batch (`jev_slop_v2.py --constructs`); the calibration cost under 0.30 USD. `judges/jev/calibrate_constructs.py` picks each threshold. A question is an error only with no false flag on an approved paragraph and a threshold at least 0.1 over the highest approved score, because scores drift by about 0.03 between runs. With no approved false flag but a smaller margin, it warns. A regex was deleted only where its question is an error and the regex caught nothing the question missed.
 
 Precision counts every labelled negative and approved paragraph; recall counts the question's own positives, 4 to 10 per question. Treat the recall of a small set as a first reading, and grow the set when a question misses a real line.
 
 ## Summary
 
-93 surface rules stay as they are. 47 are constructs: 15 moved to Jev questions and their regexes were deleted, and 32 are the next batch. 19 are mixed: the regex stays and a Jev question adds recall, warns, or found no threshold.
+94 surface rules stay as they are. 26 are constructs: 26 moved to Jev questions and their regexes were deleted. 39 are mixed: the regex stays and a Jev question adds recall, warns, or found no threshold.
 
 | Rule | Class | Probe misses | Action | Jev question |
 | --- | --- | --- | --- | --- |
@@ -46,8 +46,8 @@ Precision counts every labelled negative and approved paragraph; recall counts t
 | `banned-words/fan-voice` | a | - | kept | - |
 | `banned-words/olhando` | a | - | kept | - |
 | `negation/negative-quantity` | b | 3 of 4 | deleted | `negative_quantity` error at 0.9: P 1.00, R 1.00 |
-| `negation/is-not-definition` | b | not probed yet | next batch | - |
-| `negation/no-longer-headline` | b | not probed yet | next batch | - |
+| `negation/is-not-definition` | c | 4 of 4 | kept: no Jev threshold passed | `is_not_headline`: no threshold passed |
+| `negation/no-longer-headline` | c | - | kept: no Jev threshold passed | `is_not_headline`: no threshold passed |
 | `hedges/softener` | a | - | kept | - |
 | `hedges/casual-hedge` | a | - | kept | - |
 | `hedges/modal-hedge` | b | 2 of 4 | deleted | `modal_hedge` error at 0.5: P 1.00, R 1.00 |
@@ -58,11 +58,11 @@ Precision counts every labelled negative and approved paragraph; recall counts t
 | `contrast/doesnt-need-needs` | c | 1 of 2 | kept: no Jev threshold separates approved lines | `contrast_formula`: no threshold passed |
 | `contrast/didnt-just` | c | 2 of 2 | kept: no Jev threshold separates approved lines | `contrast_formula`: no threshold passed |
 | `contrast/mirrored-pair` | b | 3 of 3 | deleted | `mirrored_pair` error at 0.45: P 0.90, R 0.90 |
-| `contrast/mirrored-pair-copy` | b | not probed yet | next batch | - |
+| `contrast/mirrored-pair-copy` | c | 2 of 3 | kept: it adds recall | `mirrored_pair` error at 0.45: P 0.90, R 0.90 |
 | `contrast/rule-of-three` | b | 4 of 4 | deleted | `rule_of_three` error at 0.7: P 1.00, R 0.80 |
 | `numbers/number-opener` | a | - | kept | - |
 | `numbers/number-in-title` | a | - | kept | - |
-| `numbers/number-without-measure` | b | not probed yet | next batch | - |
+| `numbers/number-without-measure` | c | 0 of 2 | kept: it adds recall | `number_no_meaning` warning at 0.9: P 1.00, R 0.57 |
 | `numbers/overprecise-number` | a | - | kept | - |
 | `numbers/scattered-numbers` | a | - | kept | - |
 | `numbers/numbers-everywhere` | a | - | kept | - |
@@ -74,23 +74,23 @@ Precision counts every labelled negative and approved paragraph; recall counts t
 | `narrator/second-order-abstraction` | a | - | kept | - |
 | `narrator/stating-priors` | b | 3 of 3 | deleted | `stating_priors` error at 0.85: P 1.00, R 1.00 |
 | `narrator/self-answered-bridge` | c | 1 of 1 | kept, Jev warns | `signpost` warning at 0.9: P 1.00, R 0.70 |
-| `narrator/narrated-flow` | b | not probed yet | next batch | - |
-| `narrator/guide-preamble` | b | not probed yet | next batch | - |
+| `narrator/narrated-flow` | b | 3 of 3 | deleted | `narrated_flow` error at 0.65: P 1.00, R 1.00 |
+| `narrator/guide-preamble` | c | 3 of 3 | kept, Jev warns | `guide_preamble` warning at 0.95: P 1.00, R 0.80 |
 | `narrator/vague-majority` | c | 2 of 3 | kept: it adds recall | `vague_group` error at 0.95: P 1.00, R 0.62 |
 | `narrator/vague-attribution` | c | 3 of 3 | kept: it adds recall | `vague_group` error at 0.95: P 1.00, R 0.62 |
-| `narrator/dramatic-section-title` | b | not probed yet | next batch | - |
+| `narrator/dramatic-section-title` | b | 2 of 2 | deleted | `dramatic_heading` error at 0.85: P 1.00, R 0.89 |
 | `narrator/personified-abstraction` | c | 2 of 3 | kept: it adds recall | `personified_abstraction` error at 0.7: P 1.00, R 0.71 |
 | `narrator/undefined-subject` | c | regex recall 0.55 | kept: it adds recall | `undefined_subject` warning at 0.8: P 1.00, R 0.60 |
 | `narrator/so-opener` | a | - | kept | - |
 | `narrator/question-opener` | a | - | kept | - |
-| `narrator/overclaim` | b | not probed yet | next batch | - |
+| `narrator/overclaim` | b | 2 of 3 | deleted | `overclaim` error at 0.85: P 1.00, R 1.00 |
 | `narrator/training-tense` | b | 3 of 4 | deleted | `training_tense` error at 0.45: P 1.00, R 1.00 |
 | `narrator/instruction-register` | c | 2 of 3 | kept, Jev warns | `instruction_register` warning at 0.8: P 1.00, R 0.50 |
-| `narrator/tense-match` | b | not probed yet | next batch | - |
+| `narrator/tense-match` | c | 4 of 4 | kept: it adds recall | `tense_mismatch` warning at 0.4: P 1.00, R 0.50 |
 | `structure/repeated-opener` | a | - | kept | - |
 | `structure/uniform-paragraphs` | a | - | kept | - |
-| `structure/shorthand-heading` | b | not probed yet | next batch | - |
-| `structure/lecture-turn` | b | not probed yet | next batch | - |
+| `structure/shorthand-heading` | c | 2 of 4 | kept: it adds recall | `shorthand_heading` error at 0.6: P 0.86, R 0.86 |
+| `structure/lecture-turn` | b | 1 of 3 | deleted | `lecture_turn` error at 0.85: P 1.00, R 0.75 |
 | `structure/clipped-condition` | c | 1 of 4 | kept: it adds recall | `clipped_condition` error at 0.75: P 1.00, R 0.60 |
 | `structure/long-paragraph` | a | - | kept | - |
 | `structure/one-line-barrage` | a | - | kept | - |
@@ -104,30 +104,30 @@ Precision counts every labelled negative and approved paragraph; recall counts t
 | `docs/future-tense-behaviour` | a | - | kept | - |
 | `docs/dev-process` | a | - | kept | - |
 | `docs/artifact-verb` | c | 1 of 2 | kept: it adds recall | `personified_abstraction` error at 0.7: P 1.00, R 0.71 |
-| `docs/indefinite-event-opener` | b | not probed yet | next batch | - |
+| `docs/indefinite-event-opener` | b | 2 of 3 | deleted | `docs_scene_opener` error at 0.85: P 1.00, R 0.75 |
 | `docs/title-how-to` | a | - | kept | - |
 | `docs/title-repeated` | a | - | kept | - |
 | `docs/description-restated` | a | - | kept | - |
 | `docs/unseen-ui-element` | a | - | kept | - |
-| `docs/timeline-when` | b | not probed yet | next batch | - |
+| `docs/timeline-when` | b | 3 of 3 | deleted | `timeline_when` error at 0.8: P 1.00, R 0.75 |
 | `docs/card-without-icon` | a | - | kept | - |
 | `deck/slide-title-words` | a | - | kept | - |
 | `deck/slide-bullet-count` | a | - | kept | - |
 | `deck/slide-bullet-words` | a | - | kept | - |
 | `deck/slide-prose` | a | - | kept | - |
-| `pitch/writer-side-headline` | b | not probed yet | next batch | - |
-| `pitch/category-headline` | b | not probed yet | next batch | - |
-| `pitch/bare-benefit-lede` | b | not probed yet | next batch | - |
-| `pitch/setup-steps-lede` | b | not probed yet | next batch | - |
+| `pitch/writer-side-headline` | c | 0 of 2 | kept: exact opener words (we, our, introducing) | `writer_side_line` error at 0.75: P 0.88, R 0.88 |
+| `pitch/category-headline` | b | 3 of 3 | deleted | `category_headline` error at 0.45: P 1.00, R 1.00 |
+| `pitch/bare-benefit-lede` | c | 0 of 2 | kept: it adds recall | `lede_shape` error at 0.75: P 1.00, R 0.67 |
+| `pitch/setup-steps-lede` | c | 1 of 2 | kept: it adds recall | `lede_shape` error at 0.75: P 1.00, R 0.67 |
 | `pitch/long-subtitle` | a | - | kept | - |
 | `pitch/concession` | c | 4 of 4 | kept, Jev warns | `concession` warning at 0.9: P 1.00, R 0.80 |
-| `pitch/worry-line` | b | not probed yet | next batch | - |
-| `pitch/crammed-headline` | b | not probed yet | next batch | - |
+| `pitch/worry-line` | c | 2 of 2 | kept: no Jev threshold passed | `sells_doubt`: no threshold passed |
+| `pitch/crammed-headline` | b | 2 of 3 | deleted | `crammed_headline` error at 0.9: P 1.00, R 1.00 |
 | `pitch/today-timeframe` | a | - | kept | - |
-| `pitch/apology` | b | not probed yet | next batch | - |
+| `pitch/apology` | c | 1 of 2 | kept: no Jev threshold passed | `sells_doubt`: no threshold passed |
 | `pitch/free-cta` | a | - | kept | - |
 | `pitch/investor-hype` | a | - | kept | - |
-| `pitch/number-without-comparison` | b | not probed yet | next batch | - |
+| `pitch/number-without-comparison` | c | 1 of 2 | kept, Jev warns | `number_no_meaning` warning at 0.9: P 1.00, R 0.57 |
 | `pitch/legal-and-or` | a | - | kept | - |
 | `pitch/legal-vague-time` | a | - | kept | - |
 | `pitch/legal-vague-amount` | a | - | kept | - |
@@ -135,20 +135,20 @@ Precision counts every labelled negative and approved paragraph; recall counts t
 | `landing/thin-page` | a | - | kept | - |
 | `landing/mock-per-claim` | a | - | kept | - |
 | `landing/cta-along-page` | a | - | kept | - |
-| `landing/problem-wall` | b | not probed yet | next batch | - |
+| `landing/problem-wall` | a | - | kept | - |
 | `landing/problem-cta` | a | - | kept | - |
-| `landing/known-mechanism` | b | not probed yet | next batch | - |
+| `landing/known-mechanism` | c | 1 of 3 | kept: it adds recall | `known_mechanism` warning at 0.85: P 1.00, R 0.75 |
 | `landing/repeated-visual` | a | - | kept | - |
-| `landing/crowd-title` | b | not probed yet | next batch | - |
+| `landing/crowd-title` | c | 1 of 1 | kept: it adds recall | `dramatic_heading` error at 0.85: P 1.00, R 0.89 |
 | `blog/code-heavy` | a | - | kept | - |
 | `blog/audience-terms` | a | - | kept | - |
 | `blog/placeholder-company` | a | - | kept | - |
 | `blog/answer-label-opener` | a | - | kept | - |
-| `blog/contest-heading` | b | not probed yet | next batch | - |
-| `blog/staged-experiment` | b | not probed yet | next batch | - |
+| `blog/contest-heading` | c | 1 of 2 | kept: an experiment write-up allows it, and dramatic_heading has no page gate | `dramatic_heading` error at 0.85: P 1.00, R 0.89 |
+| `blog/staged-experiment` | b | 2 of 3 | deleted | `staged_experiment` error at 0.55: P 1.00, R 1.00 |
 | `slogan/before-they-do` | a | - | kept | - |
 | `slogan/chiasmus` | b | 2 of 2 | deleted | `mirrored_pair` error at 0.45: P 0.90, R 0.90 |
-| `slogan/fragment-tagline` | b | not probed yet | next batch | - |
+| `slogan/fragment-tagline` | b | 2 of 3 | deleted | `fragment_tagline` error at 0.65: P 0.86, R 1.00 |
 | `slogan/x-is-the-y` | b | 3 of 3 | deleted | `slogan_equation` error at 0.65: P 1.00, R 1.00 |
 | `slogan/more-than-a` | a | - | kept | - |
 | `script/no-time-budget` | a | - | kept | - |
@@ -156,7 +156,7 @@ Precision counts every labelled negative and approved paragraph; recall counts t
 | `script/bare-opener-after-break` | a | - | kept | - |
 | `script/paragraph-no-connective` | a | - | kept | - |
 | `script/impersonal-run` | a | - | kept | - |
-| `script/dangling-back-reference` | b | not probed yet | next batch | - |
+| `script/dangling-back-reference` | c | 1 of 3 | kept: it adds recall | `dangling_reference` warning at 0.85: P 1.00, R 0.20 |
 | `script/no-agenda` | a | - | kept | - |
 | `script/agenda-count-only` | a | - | kept | - |
 | `script/list-no-preview` | a | - | kept | - |
@@ -167,13 +167,13 @@ Precision counts every labelled negative and approved paragraph; recall counts t
 | `script/stiff-logic` | a | - | kept | - |
 | `script/step-label` | a | - | kept | - |
 | `script/heading-dependence` | a | - | kept | - |
-| `script/aside-jump` | b | not probed yet | next batch | - |
-| `script/writer-side-opener` | b | not probed yet | next batch | - |
+| `script/aside-jump` | b | 3 of 3 | deleted | `aside_jump` error at 0.4: P 1.00, R 1.00 |
+| `script/writer-side-opener` | c | 2 of 2 | kept: it adds recall | `writer_side_line` error at 0.75: P 0.88, R 0.88 |
 | `script/punchline-closer` | b | 1 of 1 | deleted | `closer` error at 0.5: P 0.89, R 1.00 |
 | `script/balanced-line` | b | 2 of 2 | deleted | `mirrored_pair` error at 0.45: P 0.90, R 0.90 |
 | `script/staged-reveal` | c | 2 of 2 | kept, Jev warns | `signpost` warning at 0.9: P 1.00, R 0.70 |
-| `script/colon-list` | b | not probed yet | next batch | - |
-| `script/elegant-variation` | b | not probed yet | next batch | - |
+| `script/colon-list` | c | 1 of 3 | kept: it adds recall | `colon_list` warning at 0.9: P 1.00, R 0.25 |
+| `script/elegant-variation` | c | 3 of 3 | kept: it adds recall | `elegant_variation` warning at 0.75: P 1.00, R 0.20 |
 | `script/voice-profile` | a | - | kept | - |
 | `house-langwatch/bare-ai-gateway` | a | - | kept | - |
 | `house-langwatch/product-casing` | a | - | kept | - |

@@ -1,12 +1,6 @@
 inkling check: 1 file, mode ads (marketing, ads, landing copy, titles: a business mind, lead with strengths, never concede)
 audience: founders who just searched for an agent sandbox, deciding whether to click
 
-examples/sandbox-titles/titles.md:1:3  pitch/crammed-headline
-  > A sandbox runs your agent. ACME puts it to work for your team
-  why: Headline crams more than one claim. 13 words.
-  fix: Cut to the one claim this reader did not expect.
-  from: Approved analysis point 6 (one claim)
-
 examples/sandbox-titles/titles.md:3:14  contrast/doesnt-need-needs
   > Your agent doesn't need a sandbox. It needs a team.
   why: "Doesn't need X. It needs Y." contrast formula.
@@ -19,5 +13,5 @@ examples/sandbox-titles/titles.md:5:24  numbers/number-in-title
   fix: Title the claim; carry the count in the body with its comparison.
   from: Founder note 2026-10-31 ("never start the sentence with a number", counts as headlines)
 
-3 findings from 3 rules.
+2 findings from 2 rules.
 Not checked by the lint: invented scenes, unnamed sources and the other meaning-level checks. Run `inkling judge` (needs a Jev key) before you ship.

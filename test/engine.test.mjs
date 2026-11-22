@@ -20,8 +20,8 @@ test("the fixed sentence is clean in every mode", () => {
   assert.deepEqual(ids(fixed, "landing").filter((id) => !id.startsWith("landing/")), []);
   // on a slide, a 16-word sentence belongs in the speaker notes
   assert.deepEqual(ids(fixed, "deck"), ["deck/slide-prose"]);
-  // on X the first line is the headline, and 16 words is two claims for a scroller
-  assert.deepEqual(ids(fixed, "x"), ["pitch/crammed-headline"]);
+  // a crammed headline on X is a Jev question now (jev/crammed_headline)
+  assert.deepEqual(ids(fixed, "x"), []);
 });
 
 test("approved lines raise no errors as ads", () => {

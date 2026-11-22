@@ -31,7 +31,6 @@
     { "mode": "ads", "rule": "banned-words/in-plain-words", "text": "They ask in plain words." },
     { "mode": "post", "rule": "structure/staccato", "text": "Sam gave up on it first. Overhead was high. Handoffs failed silently." },
     { "mode": "post", "rule": "narrator/undefined-subject", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
-    { "mode": "docs", "rule": "docs/indefinite-event-opener", "text": "A developer connects the agent to the platform." },
     { "mode": "post", "rule": "narrator/undefined-subject", "text": "A developer connects the agent to the platform." },
     { "mode": "post", "rule": "narrator/vague-attribution", "text": "Many companies already run their agents this way." },
     { "mode": "docs", "rule": "banned-words/marketing-hype", "text": "Scenario is the most powerful agent testing framework available." },
@@ -39,7 +38,6 @@
     { "mode": "script", "rule": "script/writer-side-opener", "text": "With no judge, the model's writing habits come from the rest of its training, and each habit is a problem with a name.", "why": "No one talks like that; a teacher says what the problems are and why they matter (founder review of lesson video v11, 2026-11-08)" },
     { "mode": "script", "rule": "script/dangling-back-reference", "text": "A smaller version is writing from the middle of a conversation.", "why": "A smaller version of what? The listener cannot look back (founder review of lesson video v11, 2026-11-08)" },
     { "mode": "script", "rule": "script/bare-opener-after-break", "text": "Trained to concede. The model was trained to be fair and safe, so it hedges and adds balance.", "why": "A bare label as a section opener comes out of the blue when heard (founder review of lesson video v11, 2026-11-08)" },
-    { "mode": "script", "rule": "script/aside-jump", "text": "The curse of context, which psychologists call the curse of knowledge.", "why": "A second term dropped in as an aside is a weird way to make the jump (founder review of lesson video v11, 2026-11-08)" },
     { "mode": "script", "rule": "narrator/undefined-subject", "text": "A human writer learned punchy from watching people react.", "why": "Which writer? An invented third party instead of talking to the listener (founder review of lesson video v11, 2026-11-08)" }
   ]
 }

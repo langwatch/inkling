@@ -115,20 +115,6 @@ export default [
     },
   },
   {
-    id: "narrated-flow",
-    modes: ["post", "ads", "deck"],
-    // A spoken explanation starts from what the listener does: "you paste it in, and what comes back is...".
-    notModes: ["script"],
-    pattern: /\bwhat comes back\b|\byou type (?:a|your|in)\b|\byou ask (?:it|in chat)\b[^.]*\band it\b/i,
-    message: "Narrated user flow: walks the reader through the UI as a story.",
-    fix: "Say what the product is and give the number; show the real input and output.",
-    source: "Nexus writing-rules changelog 2026-09-22",
-    examples: {
-      fail: ["You type a question, and what comes back is a chart."],
-      pass: ["Instant Evals judges 10,000 conversations in about a minute."],
-    },
-  },
-  {
     id: "guide-preamble",
     modes: ["docs"],
     pattern: /\bin this (?:guide|post|article|page|tutorial),? (?:we|you|I)(?:'ll| will) (?:explore|dive|look|learn|discuss|cover)\b|^learn how to\b|\bis a powerful\b/i,
@@ -160,18 +146,6 @@ export default [
     examples: {
       fail: ["Many companies already do this."],
       pass: ["Two of our customers already do this."],
-    },
-  },
-  {
-    id: "dramatic-section-title",
-    scope: "heading",
-    pattern: /^the [\w\s-]+ (?:you|we|they) (?:could(?:n'?t| not)|can'?t|never|did(?:n'?t| not))\b/i,
-    message: "Dramatic section title of the shape \"The X you could not Y\".",
-    fix: "Title the section plainly, or drop the heading.",
-    source: "Nexus writing-rules changelog 2026-09-19",
-    examples: {
-      fail: ["## The questions you could not afford to ask"],
-      pass: ["## Questions about every conversation"],
     },
   },
   {
@@ -292,22 +266,6 @@ export default [
     examples: {
       fail: ["Ever wondered why your agent forgets?\n\nIt compacts its context.", { text: "# Laptop shut? It still works", mode: "ads" }],
       pass: ["The agent forgets because it compacts its context. Why does that matter? It drops the plan.", { text: "# You don't need an agent sandbox", mode: "ads" }],
-    },
-  },
-  {
-    id: "overclaim",
-    severity: "warning",
-    scope: "document",
-    check: (_u, { doc }) =>
-      sectionsOf(doc)
-        .filter(severalCauses)
-        .flatMap((section) => section.blocks.flatMap((b) => (b.sentences ?? []).filter((x) => ONE_CAUSE.test(x.clean)).map((x) => ({ block: b, index: x.start })))),
-    message: "A single definite cause (\"the root cause\", \"the real reason\") in a part that lists several. The reader hears one cause, then meets the others.",
-    fix: "Say \"one reason\" or \"the first reason\", or name it as the root of the others and show how.",
-    source: "Founder review of lesson script v12, 2026-11-08: \"The root cause is that code has a judge\" was one of six listed causes",
-    examples: {
-      fail: ["The root cause is that code has a judge, and writing doesn't. Without that judge, our research found six main ways AI writing goes wrong."],
-      pass: ["The first reason, and the root of the others, is that code has a judge. Our research found six main ways AI writing goes wrong.", "The root cause is a missing index."],
     },
   },
   {

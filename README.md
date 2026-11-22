@@ -87,11 +87,6 @@ inkling check examples/sandbox-titles/titles.md --mode ads \
 ```
 
 ```text
-examples/sandbox-titles/titles.md:1:3  pitch/crammed-headline
-  > A sandbox runs your agent. ACME puts it to work for your team
-  why: Headline crams more than one claim. 13 words.
-  fix: Cut to the one claim this reader did not expect.
-
 examples/sandbox-titles/titles.md:3:14  contrast/doesnt-need-needs
   > Your agent doesn't need a sandbox. It needs a team.
   why: "Doesn't need X. It needs Y." contrast formula.
@@ -102,10 +97,10 @@ examples/sandbox-titles/titles.md:5:24  numbers/number-in-title
   why: A bare count in the title reads as a listicle.
   fix: Title the claim; carry the count in the body with its comparison.
 
-3 findings from 3 rules.
+2 findings from 2 rules.
 ```
 
-The fourth title, "You don't need an agent sandbox", gets no finding. The full output is in [output.txt](examples/sandbox-titles/output.txt), and the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).
+The first title crams two claims into one headline. That is a question of meaning, so the lint leaves it to the judge, which flags it as `jev/crammed_claims`. The fourth title, "You don't need an agent sandbox", gets no finding. The full output is in [output.txt](examples/sandbox-titles/output.txt), and the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).
 
 For a landing page, `--mode landing --page <ad|home|product|guide|job>` picks the kind: an ad page, the home page, a product page, a guide, or a page with one job such as pricing. Each kind has its own reader and structure checks, and all of them keep the problem short, without a button, and never show the same visual twice; see [landing pages](docs/process/landing-mode.md). Blog posts use `--mode post`. 
 
