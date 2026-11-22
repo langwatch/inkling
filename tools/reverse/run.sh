@@ -4,6 +4,7 @@
 # more like the person, with notes. See docs/tools/reverse.md.
 # Usage: tools/reverse/run.sh --corpus <dir> [--split train|heldout|all] [piece...]
 # Env: INKLING_REVERSE_ROOT (default $TMPDIR/inkling-reverse), INKLING_REVERSE_MODEL (default opus), INKLING_REVERSE_JOBS (default 4), INKLING_REVERSE_STAMP (resume a run),
+# Briefs and plain baselines are cached per piece in the root, so two runs compare against the same baseline.
 # CLAUDE_CONFIG_DIR or ~/.claude for the login. Never an API key. The corpus stays private: keep it
 # and the root outside the repo.
 set -u
@@ -24,7 +25,7 @@ done
 
 CFG="$ROOT/cfg"
 SRC_CFG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-mkdir -p "$CFG" "$ROOT/briefs"
+mkdir -p "$CFG" "$ROOT/briefs" "$ROOT/baselines"
 [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && ln -sfn "$(readlink -f "$SRC_CFG/.credentials.json")" "$CFG/.credentials.json"
 echo '{"hasCompletedOnboarding":true,"autoUpdates":false}' > "$CFG/.claude.json"
 echo '{}' > "$CFG/settings.json"
@@ -38,7 +39,9 @@ one() { # piece split
   local brief="$ROOT/briefs/$id.md"
   [ -s "$brief" ] || { cat "$HERE/brief.prompt.md" "$dir/reference.md" | ask > "$brief"; }
   cp "$brief" "$dir/brief.md"
-  cat "$HERE/baseline.prompt.md" "$brief" | ask > "$dir/baseline.md"
+  local base="$ROOT/baselines/$id.md"
+  [ -s "$base" ] || { cat "$HERE/baseline.prompt.md" "$brief" | ask > "$base.tmp" && mv "$base.tmp" "$base"; }
+  cp "$base" "$dir/baseline.md"
   rm -rf "$dir/run"; mkdir -p "$dir/run"
   cp -r "$REPO/README.md" "$REPO/CHANGELOG.md" "$REPO/package.json" "$REPO/bin" "$REPO/src" "$REPO/rules" "$REPO/modes" "$REPO/data" "$REPO/docs" "$dir/run/" 2>/dev/null
   cp "$brief" "$dir/run/brief.md"
@@ -55,6 +58,10 @@ one() { # piece split
   done
   printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$STAMP" "$id" "$part" "$v1" "$v2" "$([ "$v1" = "$v2" ] && echo consistent || echo split)" | tee -a "$ROOT/results.tsv"
 }
+
+# A dead login answers every prompt with an error line, which would be judged as a draft: stop first.
+probe="$(echo 'Answer with the single word ok.' | ask 2>/dev/null)"
+case "$(printf '%s' "$probe" | tr -d '[:space:][:punct:]' | tr '[:upper:]' '[:lower:]')" in ok) ;; *) echo "inkling reverse: the Claude login in $SRC_CFG does not answer ($probe); sign in again" >&2; exit 1 ;; esac
 
 STAMP="${INKLING_REVERSE_STAMP:-$(date -u +%Y%m%dT%H%M%S)}"
 echo "inkling reverse $STAMP: split $SPLIT, runs in $ROOT" >&2
