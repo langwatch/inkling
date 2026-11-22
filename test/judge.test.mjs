@@ -102,22 +102,30 @@ test("construct flags fail or warn by severity, and every one has a threshold an
     assert.ok(REWRITES[flag] && THRESHOLDS[flag], flag);
 });
 
-test("jev_slop asks every construct question of a paragraph in one call, with its thresholds in step with the judge's", () => {
+test("jev_slop asks every construct question of a paragraph in two calls (the second sees the paragraph before), with its thresholds in step with the judge's", () => {
   const py = `
 import importlib.util, json, sys
 sp = importlib.util.spec_from_file_location("v2", sys.argv[1]); v2 = importlib.util.module_from_spec(sp); sp.loader.exec_module(v2)
-calls = []
+calls, states = [], []
 def fake(state, qs, key):
-    calls.append(sorted(qs))
+    calls.append(sorted(qs)); states.append(state)
     return {"answers": {k: {"noul": 0.9 if k == "mirrored_pair" else 0.1} for k in qs}, "usage": {"input_tokens": 1}}
 v2.v1.ask_jev = fake
 out, _ = v2.construct_checks([{"text": "Policies attest. Evidence proves."}, {"text": "The export takes 40 seconds."}], "k")
-print(json.dumps({"calls": calls, "out": out, "thresholds": v2.CONSTRUCT_THRESHOLDS}))`;
+print(json.dumps({"calls": calls, "states": states, "out": out, "thresholds": v2.CONSTRUCT_THRESHOLDS, "thresholds2": v2.CONSTRUCT2_THRESHOLDS, "q2": sorted(v2.CONSTRUCT2_Q)}))`;
   const r = spawnSync("python3", ["-c", py, new URL("../judges/jev/jev_slop_v2.py", import.meta.url).pathname], { encoding: "utf8" });
   assert.equal(r.status, 0, r.stderr);
-  const { calls, out, thresholds } = JSON.parse(r.stdout);
-  assert.equal(calls.length, 2, "one call per paragraph");
-  assert.deepEqual(calls[0], Object.keys(thresholds).sort());
+  const { calls, states, out, thresholds, thresholds2, q2 } = JSON.parse(r.stdout);
+  assert.ok(states.some((st) => st.includes("Policies attest") && st.includes("40 seconds")), "the second paragraph's batch-2 call carries the first as context");
+  assert.equal(calls.length, 4, "two calls per paragraph");
+  const keys = calls.map((c) => c.join(","));
+  assert.equal(keys.filter((k) => k === Object.keys(thresholds).sort().join(",")).length, 2);
+  assert.equal(keys.filter((k) => k === q2.join(",")).length, 2);
+  assert.deepEqual(Object.keys(thresholds2).sort(), q2);
   assert.equal(out[0].mirrored_pair.p, 0.9);
-  for (const [k, t] of Object.entries(thresholds)) assert.equal(THRESHOLDS[k], t, k);
+  assert.equal(out[1].overclaim.p, 0.1);
+  const exp = spawnSync("python3", ["-c", py.replace('"k")', '"k", None, "post", "experiment")'), new URL("../judges/jev/jev_slop_v2.py", import.meta.url).pathname], { encoding: "utf8" });
+  assert.ok(!JSON.parse(exp.stdout).calls.flat().includes("staged_experiment"), "an experiment write-up skips staged_experiment");
+  assert.ok(calls.flat().includes("staged_experiment"));
+  for (const [k, t] of Object.entries({ ...thresholds, ...thresholds2 })) assert.equal(THRESHOLDS[k], t, k);
 });

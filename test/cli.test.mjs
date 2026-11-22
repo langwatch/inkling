@@ -43,8 +43,9 @@ test("judge asks the narrator questions in every mode but legal", () => {
 });
 
 test("judge maps modes onto jev_slop flags", () => {
-  assert.deepEqual(judgeArgs({ file: "a.md", mode: "ads", audience: "VCs" }).slice(1), ["a.md", "--checks", "jev", "--copy", "--narrator", "--constructs", "--audience", "VCs"]);
+  assert.deepEqual(judgeArgs({ file: "a.md", mode: "ads", audience: "VCs" }).slice(1), ["a.md", "--checks", "jev", "--copy", "--narrator", "--constructs", "--mode", "ads", "--audience", "VCs"]);
   assert.ok(judgeArgs({ file: "a.md", mode: "docs" }).includes("--docs"));
+  assert.deepEqual(judgeArgs({ file: "a.md", mode: "post", page: "experiment" }).slice(-2), ["--page", "experiment"]);
   assert.deepEqual(judgeArgs({ file: "a.md", mode: "proposal", lang: "pt-BR" }).slice(-2), ["--lang", "pt"]);
   assert.ok(!judgeArgs({ file: "a.md", mode: "post", lang: "en-GB" }).includes("--lang"));
   assert.equal(judgeArgs({ file: "a.md", mode: "post", audience: "HN engineers", context: "a two-person startup" }).at(-1), "HN engineers; context: a two-person startup");

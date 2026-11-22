@@ -259,13 +259,119 @@ CONSTRUCT_THRESHOLDS = {
 }
 
 
-def construct_checks(units, key, questions=None):
+# The second batch reads each paragraph with the one before it, and some of its questions belong to some modes only.
+ALL_PROSE = ("docs", "post", "ads", "landing", "proposal", "deck", "investor", "script", "message", "x")
+CONSTRUCT2_DEFS = {
+    "tense_mismatch": ("A tense that doesn't fit the claim: a general, lasting claim told in the past ('readers trusted "
+        "posts that people wrote', 'judges prefer text a model produced' is fine, 'judges preferred text models wrote' as "
+        "a general rule is a hit), or one specific dated event narrated in the present ('on 8 November the writer drafts "
+        "it and the judge flags two lines'). Not a hit for a finding with its source in the past or a routine in the present.", ALL_PROSE),
+    "lecture_turn": ("The paragraph before talks to the reader, and this paragraph opens on a general law about AI, models "
+        "or agents with no link back to the reader ('LLMs regress to the mean, so...'). Not a hit when the sentence ties "
+        "the law to the reader or to us, or follows our own story.", ("post", "script")),
+    "overclaim": ("Names one definite cause ('the root cause', 'the real reason', 'what it all comes down to') and then "
+        "lists other causes, so the reader hears one cause and meets several. Not a hit for one cause alone, for 'one "
+        "reason' or 'the first reason', or for a list with no claim of a single cause.", ALL_PROSE),
+    "shorthand_heading": ("A section heading that squeezes a claim into a verbless phrase: 'X without Y', 'X over Y', "
+        "'X, not Y', 'from X to Y', 'X beyond Y'. Not a hit for a heading with a verb, a plain topic label ('Pricing', "
+        "'How it works') or a question.", ("post", "docs", "proposal")),
+    "dramatic_heading": ("A heading that dramatises instead of naming the topic: 'The X you could not Y', 'the bill "
+        "nobody saw coming', a contest ('which model won', 'the showdown', 'where each one broke'), or what other people "
+        "do ('how teams keep it running'). Not a hit for a plain topic or a heading that says what the reader can do.", ALL_PROSE),
+    "narrated_flow": ("Walks the reader through using the product as a little story: 'you type..., and what comes back "
+        "is...', 'you open the app, pick a project, and there it is'. Not a hit for saying what the product does.", ("post", "ads", "deck")),
+    "guide_preamble": ("A docs opening that announces instead of answering: 'in this guide we will explore', 'learn how "
+        "to', 'welcome! here you will discover', 'below we take a closer look'. Not a hit for a sentence that says what "
+        "the page builds or what the thing does.", ("docs",)),
+    "category_headline": ("A headline that names a product category ('the agent platform for teams', 'X in the cloud', "
+        "'the all-in-one suite') instead of what the reader gets. Not a hit for a headline about the reader's outcome.", ("ads", "landing")),
+    "writer_side_line": ("A headline or line told from our side: what we built, launched or rebuilt, or a fact about our "
+        "own material ('our engine keeps context', 'introducing X', 'the rules fit on one screen', 'the method is four "
+        "files') with nothing about why the reader should care. Not a hit when the reader or their outcome is the point.", ALL_PROSE),
+    "crammed_headline": ("A headline that crams two or more claims or features into one line ('trace, evaluate and "
+        "monitor', 'agents that run for weeks, share memory and ask first'). Not a hit for one claim.", ("ads", "deck", "landing")),
+    "lede_shape": ("A title with a subtitle under it, where the subtitle is a bare fact about someone else ('Your "
+        "colleagues message it', 'the agent keeps running somewhere') or setup steps ('sign in, then message it'), "
+        "instead of what the reader can do or gets. Not a hit when the subtitle says what the reader can do.", ("ads", "landing")),
+    "number_no_meaning": ("A number with no measure or comparison, so the reader can't tell what it means: '300% growth', "
+        "'40% better', 'both score 99%', 'up 4x'. Not a hit when the line says of what and against what ('costs 82% less "
+        "per email', 'from 60k to 180k').", ALL_PROSE),
+    "dangling_reference": ("The paragraph opens by pointing back ('this', 'that', 'a smaller version', 'the same thing', "
+        "'the second case') at something the paragraph before never clearly said, so a listener can't tell what it "
+        "refers to. Not a hit when the paragraph before names the thing.", ("script", "deck")),
+    "elegant_variation": ("One thing or one step word rotated through synonyms within a few sentences (the model, the AI, "
+        "the system; next, after that, subsequently; customers, users, clients). Not a hit when the same word repeats "
+        "or the words name different things.", ("script",)),
+    "colon_list": ("A colon followed by a list of parallel items as a flourish ('three things: a claim, a reader and a "
+        "surprise', 'it comes down to this: context, contrast and craft'). Not a hit for a colon that gives one answer "
+        "or a list of real events.", ("script",)),
+    "aside_jump": ("A new term dropped in as an aside at the end of a sentence ('..., which statisticians call X', '..., "
+        "a bias psychologists named X', 'known in the field as X'). Not a hit when the name gets its own sentence or "
+        "the clause adds a reason.", ("script",)),
+    "docs_scene_opener": ("A docs sentence that narrates a scene with an anonymous actor ('A developer connects the "
+        "agent', 'an engineer opens the dashboard', 'someone creates the key') instead of telling the reader what to do "
+        "or what the product does. Not a hit for a definition or 'an admin can'.", ("docs",)),
+    "timeline_when": ("Docs narrate an event on a timeline the reader doesn't control ('when the policy drops content, "
+        "...', 'once the window passes, traces disappear', 'after the nightly job runs'). Not a hit for telling the "
+        "reader what to set, or a condition on the reader's own action.", ("docs",)),
+    "fragment_tagline": ("A tagline of clipped fragments with no verb or only imperatives ('Less noise. More signal.', "
+        "'Draft. Test. Ship.', 'Zero setup, full insight.'). Not a hit for a full sentence or a plain label heading.", ALL_PROSE),
+    "staged_experiment": ("Frames the piece as a staged contest or experiment ('we gave three models the same', 'we "
+        "pitted', 'head to head', 'one winner') instead of explaining how the system works. Not a hit for describing "
+        "what a model did in our system.", ("post",)),
+    "known_mechanism": ("A landing page section that explains why the reader's problem happens (the mechanism behind "
+        "it) to a visitor who already lives with it, instead of what changes for them. Not a hit for a section about "
+        "the reader's outcome.", ("landing",)),
+}
+CONSTRUCT2_Q = {k: "The text has the paragraph before, then the paragraph to judge. Judge only the paragraph after "
+                f"'Paragraph:'. Answer yes only if it has this problem. {d}" for k, (d, _) in CONSTRUCT2_DEFS.items()}
+CONSTRUCT2_THRESHOLDS = {
+    "tense_mismatch": 0.4,
+    "lecture_turn": 0.85,
+    "overclaim": 0.85,
+    "shorthand_heading": 0.6,
+    "dramatic_heading": 0.85,
+    "narrated_flow": 0.65,
+    "guide_preamble": 0.95,
+    "category_headline": 0.45,
+    "writer_side_line": 0.75,
+    "crammed_headline": 0.9,
+    "lede_shape": 0.75,
+    "number_no_meaning": 0.9,
+    "dangling_reference": 0.85,
+    "elegant_variation": 0.75,
+    "colon_list": 0.9,
+    "aside_jump": 0.4,
+    "docs_scene_opener": 0.85,
+    "timeline_when": 0.8,
+    "fragment_tagline": 0.65,
+    "staged_experiment": 0.55,
+    "known_mechanism": 0.85,
+}
+
+
+def construct2_state(before, text):
+    return (f"Paragraph before: {before[-800:]}\n\n" if before else "") + f"Paragraph: {text}"
+
+
+# An experiment write-up (page: experiment) is meant to stage its contest.
+PAGE_OFF = {"staged_experiment": lambda page: page not in (None, "article")}
+
+def construct_checks(units, key, questions=None, mode=None, page=None):
     qs = questions or CONSTRUCT_Q
-    def one(u):
+    qs2 = {k: q for k, q in CONSTRUCT2_Q.items() if (mode is None or mode in CONSTRUCT2_DEFS[k][1]) and not PAGE_OFF.get(k, lambda p: False)(page)}
+    def one(i):
+        u = units[i]
         r = v1.ask_jev(u["text"], qs, key)
-        return {k: round(v.get("noul", 0.0), 3) for k, v in r["answers"].items()}, r.get("usage", {}).get("input_tokens", 0)
+        probs = {k: round(v.get("noul", 0.0), 3) for k, v in r["answers"].items()}
+        t = r.get("usage", {}).get("input_tokens", 0)
+        if qs2:
+            r2 = v1.ask_jev(construct2_state(units[i - 1]["text"] if i else "", u["text"]), qs2, key)
+            probs.update({k: round(v.get("noul", 0.0), 3) for k, v in r2["answers"].items()})
+            t += r2.get("usage", {}).get("input_tokens", 0)
+        return probs, t
     with ThreadPoolExecutor(4) as ex:
-        res = list(ex.map(one, units))
+        res = list(ex.map(one, range(len(units))))
     return [{k: {"p": p, "quote": units[i]["text"], "fix": ""} for k, p in r[0].items()} for i, r in enumerate(res)], sum(r[1] for r in res)
 
 CLAUDE_SYS = ("You are the founder's line editor at LangWatch. He likes casual, spoken, opinionated writing: "
@@ -615,7 +721,7 @@ def jev_tics(units, key, with_ai):
 def v2_score(report, threshold):
     pen = 0.0
     for it in report:
-        pen += sum(SCORE_WEIGHTS[k] for k, v in it["checks"].items() if v["p"] >= threshold)
+        pen += sum(SCORE_WEIGHTS.get(k, 1.0) for k, v in it["checks"].items() if v["p"] >= threshold)
         pen += SCORE_WEIGHTS["tic"] * sum(1 for k, v in it["tics"].items() if k != "ai_sounding" and v >= threshold)
         pen += SCORE_WEIGHTS["regex"] * len(it["regex"])
     # normalise by length (6 paragraphs = 1 unit) and map smoothly to 0-10, so two bad drafts still get ordered
@@ -623,7 +729,7 @@ def v2_score(report, threshold):
 
 
 def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=False, xar_task=None, docs=False,
-        copy=None, copy_backend="jev", audience=None, lang="en", narrator=False, constructs=False):
+        copy=None, copy_backend="jev", audience=None, lang="en", narrator=False, constructs=False, mode=None, page=None):
     units, script = load_units(path, script)
     copy = is_copy(units) and not script if copy is None else copy
     if copy:  # titles and ad lines: one per line, even without blank lines between them
@@ -643,7 +749,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
         ft = ex.submit(jev_tics, units, key, with_ai) if jev and not copy else None
         fn = ex.submit(never_checks, units, key, lang) if key else None
         fr = ex.submit(narrator_checks, units, key) if key and narrator else None
-        fk = ex.submit(construct_checks, units, key) if key and constructs else None
+        fk = ex.submit(construct_checks, units, key, None, mode, page) if key and constructs else None
         named = fc.result()
         if isinstance(named, tuple): named, t = named; tokens += t
         if fn:
@@ -668,7 +774,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
             for i, n in enumerate(found):
                 if copy:
                     named[i].setdefault("_probs", {}).update({k: v["p"] for k, v in n.items()})
-                    named[i].update({k: {**v, "p": 1.0} for k, v in n.items() if v["p"] >= CONSTRUCT_THRESHOLDS[k]})
+                    named[i].update({k: {**v, "p": 1.0} for k, v in n.items() if v["p"] >= {**CONSTRUCT_THRESHOLDS, **CONSTRUCT2_THRESHOLDS}[k]})
                 else: named[i].update(n)
     report = []
     for i, u in enumerate(units):
@@ -677,10 +783,10 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
                        "checks": {k: v for k, v in named[i].items() if not k.startswith("_")},
                        "extract": named[i].get("_extract"), "probs": named[i].get("_probs"), "narrator": named[i].get("_narrator"),
                        "tics": tics[i], "regex": v1.regex_hits(u["text"])})
-    names = (COPY if copy else NAMED) + ["dramatic_never"] + (list(NARRATOR_DEFS) if narrator else []) + (list(CONSTRUCT_DEFS) if constructs else [])
+    names = (COPY if copy else NAMED) + ["dramatic_never"] + (list(NARRATOR_DEFS) if narrator else []) + (list(CONSTRUCT_DEFS) + list(CONSTRUCT2_DEFS) if constructs else [])
     if copy:  # per line: 10 minus 2 per copy flag, so lines can be ranked against each other
         for it in report:
-            it["line_score"] = max(0.0, 10.0 - sum(SCORE_WEIGHTS[k] for k in it["checks"]) - 0.5 * len(it["regex"]))
+            it["line_score"] = max(0.0, 10.0 - sum(SCORE_WEIGHTS.get(k, 1.0) for k in it["checks"]) - 0.5 * len(it["regex"]))
     out = {"version": 2, "script": script, "copy": copy, "audience": audience if copy else None, "checks_backend": checks, "threshold": threshold,
            "v2_score": v2_score(report, threshold), "input_tokens": tokens,
            "named_hits": {k: [it["n"] for it in report if k in it["checks"] and it["checks"][k]["p"] >= threshold] for k in names},
@@ -715,10 +821,12 @@ def main():
     ap.add_argument("--lang", default="en", help="text language base code (en, pt): picks the word the dramatic_never prefilter looks for")
     ap.add_argument("--narrator", action="store_true", help="ask the narrator questions (invented scene, unnamed source, undefined subject) per sentence, with the quote")
     ap.add_argument("--constructs", action="store_true", help="ask the construct questions (contrast formulas, closers, hedges...) per paragraph, in one Jev call")
+    ap.add_argument("--mode", help="inkling mode: picks the construct questions that belong to it")
+    ap.add_argument("--page", help="inkling page kind (article, experiment...): an experiment write-up skips staged_experiment")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
     if a.xar and not a.task: ap.error("--xar needs --task")
-    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience, a.lang, a.narrator, a.constructs)
+    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience, a.lang, a.narrator, a.constructs, a.mode, a.page)
     if a.json:
         print(json.dumps(r, indent=1, ensure_ascii=False)); return
     clean = 0

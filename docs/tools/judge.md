@@ -65,6 +65,42 @@ Calibration on `calibration/jev-constructs.jsonl` with 32 approved paragraphs, 2
 | `slogan_equation` | error | 0.65 | 1.00 | 1.00 | 4 | 0.54 |
 | `instruction_register` | warning | 0.8 | 1.00 | 0.50 | 4 | 0.77 |
 
+A second call per paragraph sends the paragraph before it as context and asks only the questions that belong to the mode. An experiment write-up (`page: experiment`) skips `staged_experiment`. The questions:
+
+- tense and claims: a tense that does not fit the claim, "the root cause" followed by other causes, a number with no measure;
+- headings and headlines: shorthand, dramatic, category and crammed headlines, a line told from our side, a subtitle that is a bare fact about someone else, a fragment tagline;
+- turns: a general law about AI right after a paragraph that talks to the reader, a walk through the product told as a story, a post staged as a contest;
+- spoken scripts: an opener that points back to what the listener cannot see, one thing rotated through synonyms, a colon list as a flourish, a new term dropped in as an aside;
+- docs and landing pages: a guide that announces instead of answering, a scene with an anonymous actor, a timeline the reader does not control, a section explaining why a problem happens to a visitor who already lives it.
+
+Calibration on `calibration/jev-constructs2.jsonl` (267 cases, the same 32 approved paragraphs), 2026-11-22, with `--batch 2`:
+
+| Question | Severity | Threshold | Precision | Recall | Positives | Highest approved |
+| --- | --- | --- | --- | --- | --- | --- |
+| `tense_mismatch` | warning | 0.4 | 1.00 | 0.50 | 6 | 0.39 |
+| `lecture_turn` | error | 0.85 | 1.00 | 0.75 | 4 | 0.40 |
+| `overclaim` | error | 0.85 | 1.00 | 1.00 | 4 | 0.21 |
+| `shorthand_heading` | error | 0.6 | 0.86 | 0.86 | 7 | 0.46 |
+| `dramatic_heading` | error | 0.85 | 1.00 | 0.89 | 9 | 0.31 |
+| `narrated_flow` | error | 0.65 | 1.00 | 1.00 | 4 | 0.30 |
+| `guide_preamble` | warning | 0.95 | 1.00 | 0.80 | 5 | 0.89 |
+| `category_headline` | error | 0.45 | 1.00 | 1.00 | 5 | 0.25 |
+| `writer_side_line` | error | 0.75 | 0.88 | 0.88 | 8 | 0.43 |
+| `crammed_headline` | error | 0.9 | 1.00 | 1.00 | 4 | 0.78 |
+| `lede_shape` | error | 0.75 | 1.00 | 0.67 | 6 | 0.63 |
+| `number_no_meaning` | warning | 0.9 | 1.00 | 0.57 | 7 | 0.22 |
+| `dangling_reference` | warning | 0.85 | 1.00 | 0.20 | 5 | 0.69 |
+| `elegant_variation` | warning | 0.75 | 1.00 | 0.20 | 5 | 0.70 |
+| `colon_list` | warning | 0.9 | 1.00 | 0.25 | 4 | 0.89 |
+| `aside_jump` | error | 0.4 | 1.00 | 1.00 | 4 | 0.21 |
+| `docs_scene_opener` | error | 0.85 | 1.00 | 0.75 | 4 | 0.47 |
+| `timeline_when` | error | 0.8 | 1.00 | 0.75 | 4 | 0.39 |
+| `fragment_tagline` | error | 0.65 | 0.86 | 1.00 | 6 | 0.38 |
+| `staged_experiment` | error | 0.55 | 1.00 | 1.00 | 5 | 0.42 |
+| `known_mechanism` | warning | 0.85 | 1.00 | 0.75 | 4 | 0.83 |
+
+The questions dropped for want of a threshold were one for lines that sell doubt (a worry line, an apology) and one for "X is not Y" headlines, because approved lines score as high as the positives. Their regexes stay.
+
 A question is an error only with no false flag on an approved paragraph and a threshold at least 0.1 over the highest approved score; with a smaller margin it warns. A contrast-formula question ("not X, but Y" in any wording) found no such threshold, because approved talk uses the same turn: the `contrast` regexes stay in the lint.
 
 ## Cost and accuracy

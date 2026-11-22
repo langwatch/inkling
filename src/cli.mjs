@@ -190,7 +190,7 @@ export function main(argv) {
       return predictCommand(positionals, values);
     case "judge":
       if (!positionals[0]) return usage("inkling judge needs a file or -");
-      return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin, firstScreen: values["first-screen"], lang: values.lang }));
+      return timed(values.run, "judge", () => runJudge({ file: positionals[0], mode: values.mode ?? "post", audience: values.audience, context: values.context, json: values.json, stdin, firstScreen: values["first-screen"], lang: values.lang, page: values.page }));
     case "voice": {
       if (!positionals[0]) return usage("inkling voice needs a file or -");
       const text = positionals[0] === "-" ? stdin() : readFileSync(positionals[0], "utf8");

@@ -61,6 +61,7 @@ def main():
     ap.add_argument("files", nargs="+")
     ap.add_argument("--approved", action="append", default=[])
     ap.add_argument("--cache")
+    ap.add_argument("--batch", type=int, default=1, help="1: the paragraph alone; 2: with the paragraph before (CONSTRUCT2)")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
     key = os.environ.get("TYPESAFE_API_KEY", "")
@@ -68,17 +69,19 @@ def main():
     cases = [c for f in a.files for c in read(f)]
     cases += [{"id": f"approved:{os.path.basename(f)}#{i}", "q": None, "yes": False, "text": t, "approved": True} for f in a.approved for i, t in enumerate(approved(f))]
     cache = json.load(open(a.cache)) if a.cache and os.path.exists(a.cache) else {}
-    qh = hashlib.sha1(json.dumps(v2.CONSTRUCT_Q, sort_keys=True).encode()).hexdigest()[:10]
+    qs = v2.CONSTRUCT_Q if a.batch == 1 else v2.CONSTRUCT2_Q
+    qh = hashlib.sha1(json.dumps(qs, sort_keys=True).encode()).hexdigest()[:10]
     def one(c):
-        k = qh + ":" + hashlib.sha1(c["text"].encode()).hexdigest()
+        state = c["text"] if a.batch == 1 else v2.construct2_state(c.get("before", ""), c["text"])
+        k = qh + ":" + hashlib.sha1(state.encode()).hexdigest()
         if k not in cache:
-            r = v2.v1.ask_jev(c["text"], v2.CONSTRUCT_Q, key)
+            r = v2.v1.ask_jev(state, qs, key)
             cache[k] = {q: round(v.get("noul", 0.0), 3) for q, v in r["answers"].items()}
         return {**c, "probs": cache[k]}
     with ThreadPoolExecutor(6) as ex: scored = list(ex.map(one, cases))
     if a.cache:
         os.makedirs(os.path.dirname(a.cache) or ".", exist_ok=True); json.dump(cache, open(a.cache, "w"))
-    out = {q: decide(scored, q) for q in v2.CONSTRUCT_DEFS}
+    out = {q: decide(scored, q) for q in (v2.CONSTRUCT_DEFS if a.batch == 1 else v2.CONSTRUCT2_DEFS) if any(c.get("q") == q for c in scored)}
     if a.json:
         print(json.dumps({"decisions": out, "scored": scored}, indent=1)); return
     print(f"{len(scored)} paragraphs, {sum(1 for c in scored if c.get('approved'))} approved")

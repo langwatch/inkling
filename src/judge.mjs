@@ -15,15 +15,16 @@ export function jevKey(env = process.env) {
 }
 
 /** Jev judges as the reader described, so who wrote it and where the reader meets it go in too. */
-export function judgeArgs({ file, mode, audience, context, json, copy = false, lang }) {
+export function judgeArgs({ file, mode, audience, context, json, copy = false, lang, page }) {
   const args = [SCRIPT, file, "--checks", "jev"];
   if (copy || mode === "ads" || mode === "deck" || mode === "x") args.push("--copy");
   if (mode === "docs") args.push("--docs");
   if (mode === "script") args.push("--script");
-  if (mode !== "legal") args.push("--narrator", "--constructs");
+  if (mode !== "legal") args.push("--narrator", "--constructs", "--mode", mode);
   const who = [audience, context && `context: ${context}`].filter(Boolean).join("; ");
   if (who) args.push("--audience", who);
   if (lang && languageOf(lang) !== "en") args.push("--lang", languageOf(lang));
+  if (page && mode !== "legal") args.push("--page", page);
   if (json) args.push("--json");
   return args;
 }
@@ -54,9 +55,11 @@ export function judgeInput(text) {
 // The narrator questions are asked per sentence in every mode but legal; thresholds from calibration/jev-narrator.jsonl (docs/tools/judge.md).
 export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75, wrong_register: 0.8, dramatic_never: 0.5, invented_scene: 0.4, unnamed_source: 0.8, undefined_subject: 0.8,
   // Construct questions, one Jev call per paragraph; thresholds from calibration/jev-constructs.jsonl (docs/research/rule-audit.md).
-  mirrored_pair: 0.45, rule_of_three: 0.7, negative_quantity: 0.9, modal_hedge: 0.5, signpost: 0.9, fake_epiphany: 0.35, closer: 0.5, engagement_bait: 0.95, vague_group: 0.95, personified_abstraction: 0.7, training_tense: 0.45, concession: 0.9, clipped_condition: 0.75, stating_priors: 0.85, slogan_equation: 0.65, instruction_register: 0.8 };
+  mirrored_pair: 0.45, rule_of_three: 0.7, negative_quantity: 0.9, modal_hedge: 0.5, signpost: 0.9, fake_epiphany: 0.35, closer: 0.5, engagement_bait: 0.95, vague_group: 0.95, personified_abstraction: 0.7, training_tense: 0.45, concession: 0.9, clipped_condition: 0.75, stating_priors: 0.85, slogan_equation: 0.65, instruction_register: 0.8,
+  // The second batch reads each paragraph with the one before; questions outside the mode are not asked.
+  tense_mismatch: 0.4, lecture_turn: 0.85, overclaim: 0.85, shorthand_heading: 0.6, dramatic_heading: 0.85, narrated_flow: 0.65, guide_preamble: 0.95, category_headline: 0.45, writer_side_line: 0.75, crammed_headline: 0.9, lede_shape: 0.75, number_no_meaning: 0.9, dangling_reference: 0.85, elegant_variation: 0.75, colon_list: 0.9, aside_jump: 0.4, docs_scene_opener: 0.85, timeline_when: 0.8, fragment_tagline: 0.65, staged_experiment: 0.55, known_mechanism: 0.85 };
 /** Flags that warn: over threshold, they are reported but never fail the draft, because an approved line scores within 0.1 of the threshold. */
-export const WARN = new Set(["undefined_subject", "signpost", "engagement_bait", "concession", "instruction_register"]);
+export const WARN = new Set(["undefined_subject", "signpost", "engagement_bait", "concession", "instruction_register", "tense_mismatch", "guide_preamble", "number_no_meaning", "dangling_reference", "elegant_variation", "colon_list", "known_mechanism"]);
 /** The checks a run without a Jev key leaves undone, named so the gap is never silent. */
 export const KEYLESS_GAP = "invented scenes, unnamed sources, undefined subjects, dramatic \"never\", the construct questions and the copy and prose checks";
 /** A score this close to its threshold gets a second run; a split between the runs is advisory. */
@@ -99,6 +102,27 @@ export const REWRITES = {
   stating_priors: "State the finding, not what you expected.",
   slogan_equation: "Say the checkable claim the equation stands for.",
   instruction_register: "Say \"you can...\", or what you do (\"I usually...\"); keep orders for a numbered how-to list.",
+  tense_mismatch: "Match the tense to the claim: a lasting fact in the present, one dated event in the past.",
+  lecture_turn: "Tie the general law to the reader or to us in the same sentence, or start from the reader's moment.",
+  overclaim: "Say \"one reason\" or \"the first reason\", or name it as the root of the others and show how.",
+  shorthand_heading: "Write the heading as a sentence with a verb, the way you would say it.",
+  dramatic_heading: "Title the section plainly: the topic, or what the reader can do.",
+  narrated_flow: "Say what the product does and give the number; show the real input and output.",
+  guide_preamble: "State what the page builds or what the thing does, in one sentence.",
+  category_headline: "Say what the reader gets, not which category the product is in.",
+  writer_side_line: "Start where the reader is: what they get or can do. Move what we built to the second line or out.",
+  crammed_headline: "Keep one claim. Move the others to the body or cut them.",
+  lede_shape: "Make the subtitle what the reader can do or gets: \"You can hand it tasks from your phone.\"",
+  number_no_meaning: "Say of what and against what: \"costs 82% less per email\", \"from 60k to 180k\".",
+  dangling_reference: "Name the thing again instead of pointing back at it.",
+  elegant_variation: "Pick one word for one thing and repeat it.",
+  colon_list: "Show the one item that matters, or give each its own sentence.",
+  aside_jump: "Give the name its own sentence after the thing it names.",
+  docs_scene_opener: "Tell the reader what to do, or say what the product does.",
+  timeline_when: "Tell the reader what to set, or state the behaviour as a rule.",
+  fragment_tagline: "Say it as one sentence with a verb.",
+  staged_experiment: "Explain how the system works; say what a model did inside it.",
+  known_mechanism: "Skip why the problem happens; show what changes for the visitor.",
   dramatic_never: "Say it plainly: \"cases it didn't look at\", not \"cases it never looked at\". Keep \"never\" for a real, lasting rule (\"the key never leaves the vault\"). See \"No unpacking\" in step 6.",
 };
 
@@ -182,7 +206,7 @@ export function firstScreen(raw, paragraphs = 3) {
   return { text: units.map((u) => u.text).join("\n\n") + "\n", lines: units.map((u) => u.line) };
 }
 
-export function runJudge({ file, mode, audience, context, json, stdin, firstScreen: lead = false, lang }) {
+export function runJudge({ file, mode, audience, context, json, stdin, firstScreen: lead = false, lang, page }) {
   const key = jevKey();
   if (!key) {
     process.stderr.write(
@@ -194,7 +218,8 @@ export function runJudge({ file, mode, audience, context, json, stdin, firstScre
   const raw = file === "-" ? stdin() : readFileSync(file, "utf8");
   const json5 = file.endsWith(".json");
   const { text, lines } = json5 ? { text: raw, lines: null } : lead ? firstScreen(raw) : judgeInput(raw);
-  const args = judgeArgs({ file: json5 ? file : "-", mode, audience, context, json: true, copy: lead, lang: lang ?? (json5 ? undefined : parse(raw).frontmatter.lang?.value) });
+  const front = json5 ? {} : parse(raw).frontmatter;
+  const args = judgeArgs({ file: json5 ? file : "-", mode, audience, context, json: true, copy: lead, lang: lang ?? front.lang?.value, page: page ?? front.page?.value });
   const input = json5 ? undefined : text;
   const one = jevJson(args, input, key);
   if (one.error) return one.error;
