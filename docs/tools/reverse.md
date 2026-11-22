@@ -27,4 +27,6 @@ The judge notes repeated the same moves across those pieces. The draft opened wi
 
 The writers also said no preset fit a chat message, so they used `post`, whose rules assume a reader who arrives cold.
 
-That became [message mode](../process/message-mode.md). The held-out run checks it on pieces it wasn't tuned on.
+That became [message mode](../process/message-mode.md). On 6 held-out pieces, the writers picked it by themselves for all 4 chat messages, and Inkling won all 4 in both orders. The version before the change won 2 of them and split the other 2, against the same plain drafts.
+
+Inkling still lost the held-out talk and the blog post. On the talk, the writer used script mode, whose agenda rule made it open with a plan of the talk. On the post, it cut long paragraphs into short ones and added a numbered list, a hook title and a closing pitch. Each of these was seen in one piece, so neither is a rule yet.
