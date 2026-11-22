@@ -12,6 +12,8 @@ The readers are not the only side. Every piece has at least two: the people who 
 
 The kind of piece the person names ("an engineering post", "a launch post", "a tutorial") sets the voice and the depth, not who reads it. A piece on a company's blog or site is read by everyone who could use, buy, build on or recommend what it describes: the engineer, their lead or CTO, the person building the platform it would sit in, the buyer. Name the ones who will land there, not only the one the request names.
 
+A message is the other way round: a chat message, a thread reply, an email to a teammate or a talk to people who know you goes to readers who already share your context. Write for them as they are, with [message mode](message-mode.md).
+
 Next to each reader, write why they would open this and what they want to be able to do after: decide to try it, trust the vendor enough to book a call, copy a setup, explain it to their boss. Then write what we want from the piece, as what each reader should believe when they finish: that the product does something they need, that it works, that we know what we are doing. If the request doesn't say what we want and you can't tell, ask, with your best guess in the question.
 
 Then derive the feeling the piece should leave from its goal: what a reader has to feel at the end to do what the goal asks. Work it out for this piece; there is no list to pick from, and the same kind of piece can need a different feeling when its goal differs. Write it in the readers file as `feeling:` ([step 4](4-reader-tests.md#the-feeling-it-should-leave)).

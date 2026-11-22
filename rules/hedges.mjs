@@ -4,6 +4,8 @@
 export default [
   {
     id: "softener",
+    // A message to someone who shares the context hedges the way people talk (docs/process/message-mode.md).
+    notModes: ["message"],
     pattern: /\b(?:almost|nearly|mostly|largely|somewhat|fairly|relatively|arguably|possibly|perhaps|presumably|seemingly|more or less|to some extent|in some cases|in many cases|to a certain degree)\b/i,
     message: "Hedge. It softens the claim instead of bounding it.",
     fix: "Commit to the claim, then bound it with a number or a condition (\"wrong about one time in twenty\").",

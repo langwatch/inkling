@@ -97,6 +97,11 @@ export const PAGE_VISITORS = {
     question: "What would you decide after reading this, and what would you still ask the authors before deciding?",
     leaves: "A reader who could not say what they would pay or what happens next is trust_breaking.",
   },
+  message: {
+    state: "Someone you work with sent you this, in the middle of something you both know: you know the people, the tools and the projects it names, and what was said before. You read it the way you read their messages, in the channel it came in.",
+    question: "What does the sender want from you, and what would you answer?",
+    leaves: "A reader who says it reads like a memo, an announcement or a lecture instead of a message from someone they work with, or who felt talked down to by things explained that they already know, is trust_breaking.",
+  },
   job: {
     state: "You already know the product and opened this page for one answer: the price, how it compares, what sits under the surface.",
     question: "Did you get the answer you came for? What was it?",
@@ -111,7 +116,7 @@ function pageOfContext(context = {}) {
 }
 
 export function stanceOf(context = {}) {
-  const stance = context.stance ?? (context.page === "proposal" ? "warm" : "cold");
+  const stance = context.stance ?? (["proposal", "message"].includes(context.page) ? "warm" : "cold");
   if (!STANCES[stance]) throw new Error(`unknown stance ${stance}; one of ${Object.keys(STANCES).join(", ")}`);
   return stance;
 }
@@ -236,7 +241,8 @@ export function readReadersFile(path) {
   if (voiced.length && !expectations.some((e) => e.id === VOICE_EXPECTATION.id)) expectations.push({ ...VOICE_EXPECTATION, applies_to: voiced });
   const skimmers = personas.filter((p) => p.view === "skim").map((p) => p.id);
   if (data.result && skimmers.length && !expectations.some((e) => e.id === "skim_gets_result")) expectations.push({ ...skimResultExpectation(data.result), applies_to: skimmers });
-  if (data.names !== false && !expectations.some((e) => e.id === NAMES_EXPECTATION.id)) expectations.push({ ...NAMES_EXPECTATION });
+  // A message's reader already knows every name in it, so names_explained is off unless `names: true`.
+  if ((data.names ?? data.page !== "message") && !expectations.some((e) => e.id === NAMES_EXPECTATION.id)) expectations.push({ ...NAMES_EXPECTATION });
   if (typeof data.feeling === "string" && data.feeling.trim() && !expectations.some((e) => e.id === "felt_as_intended")) expectations.push(feelingExpectation(data.feeling));
   if (data.purpose && !expectations.some((e) => e.id === "reads_as_purpose")) expectations.push(purposeExpectation(data.purpose));
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);

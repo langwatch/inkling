@@ -3,7 +3,7 @@
 # only Inkling writes it, a plain model writes it too, and a blind judge (both orders) says which reads
 # more like the person, with notes. See docs/tools/reverse.md.
 # Usage: tools/reverse/run.sh --corpus <dir> [--split train|heldout|all] [piece...]
-# Env: INKLING_REVERSE_ROOT (default $TMPDIR/inkling-reverse), INKLING_REVERSE_MODEL (default opus),
+# Env: INKLING_REVERSE_ROOT (default $TMPDIR/inkling-reverse), INKLING_REVERSE_MODEL (default opus), INKLING_REVERSE_JOBS (default 4), INKLING_REVERSE_STAMP (resume a run),
 # CLAUDE_CONFIG_DIR or ~/.claude for the login. Never an API key. The corpus stays private: keep it
 # and the root outside the repo.
 set -u
@@ -11,6 +11,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
 ROOT="${INKLING_REVERSE_ROOT:-${TMPDIR:-/tmp}/inkling-reverse}"
 MODEL="${INKLING_REVERSE_MODEL:-opus}"
+JOBS="${INKLING_REVERSE_JOBS:-4}"
 CORPUS="" SPLIT="train" ONLY=()
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -42,6 +43,7 @@ one() { # piece split
   cp -r "$REPO/README.md" "$REPO/CHANGELOG.md" "$REPO/package.json" "$REPO/bin" "$REPO/src" "$REPO/rules" "$REPO/modes" "$REPO/data" "$REPO/docs" "$dir/run/" 2>/dev/null
   cp "$brief" "$dir/run/brief.md"
   (cd "$dir/run" && clean claude -p --model "$MODEL" --dangerously-skip-permissions "$(cat "$HERE/inkling.prompt.md")" > agent.log 2>&1)
+  [ -s "$dir/run/output.md" ] || { [ -s "$dir/run/draft.md" ] && cp "$dir/run/draft.md" "$dir/run/output.md"; }
   [ -s "$dir/run/output.md" ] || { printf '%s\t%s\t%s\tno inkling output\n' "$STAMP" "$id" "$part" | tee -a "$ROOT/results.tsv"; return; }
   cp "$dir/run/output.md" "$dir/inkling.md"
   node "$HERE/lib.mjs" judge-prompt "$dir/reference.md" "$dir/inkling.md" "$dir/baseline.md" | ask > "$dir/judge-1.json"
@@ -54,12 +56,14 @@ one() { # piece split
   printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$STAMP" "$id" "$part" "$v1" "$v2" "$([ "$v1" = "$v2" ] && echo consistent || echo split)" | tee -a "$ROOT/results.tsv"
 }
 
-STAMP="$(date -u +%Y%m%dT%H%M%S)"
+STAMP="${INKLING_REVERSE_STAMP:-$(date -u +%Y%m%dT%H%M%S)}"
 echo "inkling reverse $STAMP: split $SPLIT, runs in $ROOT" >&2
 while read -r id part; do
   [ "$SPLIT" = all ] || [ "$part" = "$SPLIT" ] || continue
   [ ${#ONLY[@]} -eq 0 ] || [[ " ${ONLY[*]} " == *" $id "* ]] || continue
-  one "$id" "$part" &
+  while [ "$(jobs -rp | wc -l)" -ge "$JOBS" ]; do wait -n; done
+  [ -s "$ROOT/$STAMP-$id/judge-2.json" ] && continue
+  one "$id" "$part" < /dev/null &
 done < <(node "$HERE/lib.mjs" split "$CORPUS")
 wait
 node "$HERE/lib.mjs" notes "$ROOT" "$STAMP" "$SPLIT" > "$ROOT/$STAMP-notes.md"

@@ -14,6 +14,11 @@ export const MODES = {
       experiment: { label: "write-up of an experiment we ran: comparing models or agents is the point" },
     },
   },
+  message: {
+    label: "a message to people who share your context (chat, a thread reply, an email to a teammate, a talk to people who know you): your order, their names, the channel's register",
+    // A run of thought stays one block, so the limit only stops a wall nobody would send.
+    paragraphWords: 200,
+  },
   ads: {
     label: "marketing, ads, landing copy, titles: a business mind, lead with strengths, never concede",
     paragraphWords: 40,

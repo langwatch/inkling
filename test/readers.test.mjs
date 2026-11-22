@@ -386,3 +386,20 @@ test("price: true adds can_name_total to any piece; price: false turns it off fo
   writeFileSync(plain, "personas:\n  - id: a\n    background: b\nexpectations: []\n");
   assert.ok(!readReadersFile(plain).expectations.some((e) => e.id === "can_name_total"));
 });
+
+test("page: message reads warm, asks what the sender wants and drops names_explained unless names: true", () => {
+  const dir = fresh();
+  const spec = join(dir, "r.yaml");
+  writeFileSync(spec, "page: message\npersonas:\n  - id: cofounder\n    background: Co-founder who was in the meeting.\nexpectations: []\n");
+  const r = readReadersFile(spec);
+  assert.ok(!r.expectations.some((e) => e.id === "names_explained"));
+  const out = join(dir, "o");
+  writePrompts({ draft, readersFile: spec, out });
+  const prompt = readFileSync(join(out, "cofounder.prompt.md"), "utf8");
+  assert.match(prompt, /You already know who wrote this/);
+  assert.match(prompt, /Someone you work with sent you this/);
+  assert.match(prompt, /What does the sender want from you/);
+  const on = join(dir, "on.yaml");
+  writeFileSync(on, "page: message\nnames: true\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.ok(readReadersFile(on).expectations.some((e) => e.id === "names_explained"));
+});

@@ -111,3 +111,12 @@ test("a waiver above a table covers every row of it, and stops at the table's en
   assert.equal(out.waived.filter((w) => w.rule === "punctuation/em-dash").length, 2);
   assert.equal(out.filter((f) => f.rule === "punctuation/em-dash").length, 1);
 });
+
+test("message mode keeps the hedges people talk with and allows a long run of thought", () => {
+  const hedged = "I think it mostly works, no? but we should be careful with the current customers.";
+  assert.ok(!ids(hedged, "message").includes("hedges/softener"));
+  assert.ok(ids(hedged, "post").includes("hedges/softener"));
+  const run = Array.from({ length: 150 }, (_, i) => `word${i}`).join(" ") + ".";
+  assert.ok(!ids(run, "message").includes("structure/long-paragraph"));
+  assert.ok(ids(run, "post").includes("structure/long-paragraph"));
+});

@@ -3,6 +3,10 @@
 <!-- inkling-waive-file numbers/number-opener: the section headings are dates, the way a changelog is read -->
 What changed in how an agent drives Inkling, newest first, so you can run `inkling whatsnew` and see only the entries you haven't seen yet.
 
+## 2026-11-22
+
+- Use `--mode message` and `page: message` for a chat message, a thread reply, an email to a teammate or a talk to people who know you. The reader shares your context, so keep your order and their names, end where the thought ends, and keep the channel's register. See [messages](docs/process/message-mode.md).
+
 ## 2026-11-17
 
 - Read this file when Inkling changes. `inkling whatsnew` prints what's new since you last ran it, and `check`, `readers run` and `directions start` print one line when there is something new. See [the README](README.md#start).
