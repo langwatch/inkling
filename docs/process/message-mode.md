@@ -22,7 +22,9 @@ The mode allows paragraphs up to 200 words and runs the general rules without th
 
 ## Reader test
 
-Put `page: message` in the readers file. Readers default to the warm stance, read it as a message from someone they work with, and are asked what the sender wants and what they would answer. `names_explained` is off, because every name is one they know; `names: true` turns it back on. A reader who says it reads like a memo, an announcement or a lecture is trust_breaking.
+Put `page: message` in the readers file. Readers default to the warm stance, read it as a message from someone they work with, and are asked what the sender wants and what they would answer. `names_explained` is off, because every name is one they know; `names: true` turns it back on.
+
+Each reader is also asked whether the text explained, defined or translated anything they already knew, and `known_terms_left_alone` fails on any such quote (`known_terms: false` turns it off). For a talk, `page: talk` does the same with readers in the room. A reader who says it reads like a memo, an announcement or a lecture is trust_breaking.
 
 ```yaml
 page: message

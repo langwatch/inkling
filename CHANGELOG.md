@@ -5,6 +5,7 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 
 ## 2026-11-22
 
+- For a message or a talk, names, jargon and English loanwords stay as the audience says them. `page: message` and `page: talk` in the readers file add `known_terms_left_alone`: a reader who knew a term must not find it explained or translated. See [messages](docs/process/message-mode.md#reader-test).
 - Run Inkling with `npx -y @langwatch/inkling@latest`, no clone needed. `inkling docs [page]` prints the bundled docs. Once an hour Inkling checks for a newer version (npm for an install, origin/main for a clone) and prints one line on stderr when you are behind; `INKLING_NO_UPDATE=1` turns it off. See [the README](README.md#tools).
 - A talk to people who know you takes `--mode script --page talk` (or `page: talk`): no agenda, previews or part openers, drafted like a message. See [spoken scripts](docs/process/script-mode.md#a-talk-to-people-who-know-you).
 - Use `--mode message` and `page: message` for a chat message, a thread reply, an email to a teammate or a talk to people who know you. The reader shares your context, so keep your order and their names, end where the thought ends, and keep the channel's register. See [messages](docs/process/message-mode.md).

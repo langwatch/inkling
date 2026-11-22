@@ -6,7 +6,9 @@ The limits below are defaults. A listen run shows where a viewer drifted. Use it
 
 ## A talk to people who know you
 
-Everything below about agendas, previews and part openers is for listeners who don't know you yet. A talk to colleagues, a team or a community that knows you and the subject is closer to a message: put `page: talk` in the front matter, or pass `--page talk`. The agenda, preview and part-opener checks turn off, and you draft it the way [messages](message-mode.md) say: in the order you think, with the names and terms people use, ending where the thought ends. `page: lesson` is the default.
+Everything below about agendas, previews and part openers is for listeners who don't know you yet. A talk to colleagues, a team or a community that knows you and the subject is closer to a message: put `page: talk` in the front matter, or pass `--page talk`. The agenda, preview and part-opener checks turn off, and you draft it the way [messages](message-mode.md) say: in the order you think, with the names and terms people use, ending where the thought ends.
+
+In the readers file, `page: talk` makes the readers colleagues in the room and checks that nothing they already know got explained or translated. `page: lesson` is the default.
 
 ## Set the time budget first
 

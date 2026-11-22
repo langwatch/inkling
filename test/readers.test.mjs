@@ -403,3 +403,21 @@ test("page: message reads warm, asks what the sender wants and drops names_expla
   writeFileSync(on, "page: message\nnames: true\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
   assert.ok(readReadersFile(on).expectations.some((e) => e.id === "names_explained"));
 });
+
+test("page: message and page: talk ask whether a known term got explained and grade known_terms_left_alone", () => {
+  const dir = fresh();
+  for (const page of ["message", "talk"]) {
+    const spec = join(dir, `${page}.yaml`);
+    writeFileSync(spec, `page: ${page}\npersonas:\n  - id: dev\n    background: Developer in the audience.\nexpectations: []\n`);
+    const r = readReadersFile(spec);
+    assert.ok(r.expectations.some((e) => e.id === "known_terms_left_alone" && e.core), page);
+    assert.ok(r.personas[0].extraQuestions.some((q) => /explain, define or translate/.test(q)), page);
+    assert.ok(!r.expectations.some((e) => e.id === "names_explained"), page);
+  }
+  const off = join(dir, "off.yaml");
+  writeFileSync(off, "page: talk\nknown_terms: false\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.ok(!readReadersFile(off).expectations.some((e) => e.id === "known_terms_left_alone"));
+  const post = join(dir, "post.yaml");
+  writeFileSync(post, "personas:\n  - id: a\n    background: b\nexpectations: []\n");
+  assert.ok(!readReadersFile(post).expectations.some((e) => e.id === "known_terms_left_alone"));
+});

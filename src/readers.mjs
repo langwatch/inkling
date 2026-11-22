@@ -102,6 +102,11 @@ export const PAGE_VISITORS = {
     question: "What does the sender want from you, and what would you answer?",
     leaves: "A reader who says it reads like a memo, an announcement or a lecture instead of a message from someone they work with, or who felt talked down to by things explained that they already know, is trust_breaking.",
   },
+  talk: {
+    state: "You are in the room for a talk by someone from your own field, maybe someone you know: you use the same tools and words they do, the English terms included, and you hear it once, in order.",
+    question: "What did you take away, and what would you tell a colleague about it afterwards?",
+    leaves: "A reader who says it sounded like a lecture or a brochure instead of someone from their field talking to them, or who felt talked down to by things explained that they already know, is trust_breaking.",
+  },
   job: {
     state: "You already know the product and opened this page for one answer: the price, how it compares, what sits under the surface.",
     question: "Did you get the answer you came for? What was it?",
@@ -116,7 +121,7 @@ function pageOfContext(context = {}) {
 }
 
 export function stanceOf(context = {}) {
-  const stance = context.stance ?? (["proposal", "message"].includes(context.page) ? "warm" : "cold");
+  const stance = context.stance ?? (["proposal", "message", "talk"].includes(context.page) ? "warm" : "cold");
   if (!STANCES[stance]) throw new Error(`unknown stance ${stance}; one of ${Object.keys(STANCES).join(", ")}`);
   return stance;
 }
@@ -180,6 +185,14 @@ export const NAMES_EXPECTATION = {
     "Every name the reader says they would have to look up is explained where they need it. It fails when such a name sits in the title, the subtitle, a heading, a headline number or the result, or the reader needed it to follow the point, and the text had not said what it is by then (a bare name in a headline tells a newcomer nothing, and a result about an unexplained name reads like an ad for it). A name met only in the details, or one the reader could guess from the sentence around it, passes as a note. A name the persona would plainly know (React for an engineer) is no fail even when listed.",
 };
 
+/** For a message or a talk (`page: message|talk`): a reader who already knows a term must not get it explained or translated. */
+export const KNOWN_TERMS_EXPECTATION = {
+  id: "known_terms_left_alone",
+  core: true,
+  ask: "Did the text explain, define or translate any name, term or English word you already knew? Quote each one, or say none.",
+  expect: "The reader quotes no explanation, definition or translation of a name, term or English word they already knew. It fails on any such quote: the writer glossed what this reader uses every day. A term the reader says they did not know, and needed explained, is no fail.",
+};
+
 /** With `feeling:` set (the feeling the piece should leave, derived from its goal), the readers' own report is compared with it. Advisory while calibrated. */
 export const feelingExpectation = (feeling) => ({
   id: "felt_as_intended",
@@ -241,8 +254,11 @@ export function readReadersFile(path) {
   if (voiced.length && !expectations.some((e) => e.id === VOICE_EXPECTATION.id)) expectations.push({ ...VOICE_EXPECTATION, applies_to: voiced });
   const skimmers = personas.filter((p) => p.view === "skim").map((p) => p.id);
   if (data.result && skimmers.length && !expectations.some((e) => e.id === "skim_gets_result")) expectations.push({ ...skimResultExpectation(data.result), applies_to: skimmers });
-  // A message's reader already knows every name in it, so names_explained is off unless `names: true`.
-  if ((data.names ?? data.page !== "message") && !expectations.some((e) => e.id === NAMES_EXPECTATION.id)) expectations.push({ ...NAMES_EXPECTATION });
+  // A message's or a talk's reader already knows every name in it: names_explained is off unless `names: true`,
+  // and known_terms_left_alone checks nothing they know got explained (`known_terms: false` turns it off).
+  const warmPage = ["message", "talk"].includes(data.page);
+  if (warmPage && data.known_terms !== false && !expectations.some((e) => e.id === KNOWN_TERMS_EXPECTATION.id)) expectations.push({ ...KNOWN_TERMS_EXPECTATION });
+  if ((data.names ?? !warmPage) && !expectations.some((e) => e.id === NAMES_EXPECTATION.id)) expectations.push({ ...NAMES_EXPECTATION });
   if (typeof data.feeling === "string" && data.feeling.trim() && !expectations.some((e) => e.id === "felt_as_intended")) expectations.push(feelingExpectation(data.feeling));
   if (data.purpose && !expectations.some((e) => e.id === "reads_as_purpose")) expectations.push(purposeExpectation(data.purpose));
   for (const e of expectations) if (!e.id || (!e.expect && !e.forbid)) throw new Error(`${path}: every expectation needs id and expect (or forbid)`);
