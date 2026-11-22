@@ -2,7 +2,7 @@
 
 `--mode message` checks a message to people who already share your context.
 
-That covers a chat or Slack message, a reply in a thread, an email to a teammate, an internal note, or a talk to people who know you: any piece whose reader already knows the people, the project and what was said before.
+That covers a chat or Slack message, a reply in a thread, an email to a teammate, an internal note, or a talk to people who know you (`--mode script --page talk`, which keeps the time budget): any piece whose reader already knows the people, the project and what was said before.
 
 The rest of the process assumes a reader who arrives cold, and a message isn't read that way. When those habits reach a message, it comes out as a memo: tidier, longer and further from the person who sent it. In the [reverse brief](../tools/reverse.md) runs, every message Inkling lost to a plain model lost for the reasons below, so this mode turns them around.
 

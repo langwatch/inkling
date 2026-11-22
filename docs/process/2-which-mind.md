@@ -15,7 +15,7 @@ Pick the mind for each reader from step 1 and write it next to them. Then pick t
 | `legal` | order forms and terms | 120 words | exact periods and amounts, no "and/or" or "etc." |
 | `investor` | investor updates and decks | 60 words | every number with its comparison, no hype words, no "we believe" |
 | `x` | posts and replies on X | 50 words | the copy rules plus the post rules, and the first line counts as the title |
-| `script` | narrated lessons and video scripts, heard once | 150 words | the post rules plus a time budget, an agenda, transitions and a teacher's voice; see [spoken scripts](script-mode.md) |
+| `script` | narrated lessons and video scripts, heard once | 150 words | the post rules plus a time budget, an agenda, transitions and a teacher's voice; see [spoken scripts](script-mode.md); `--page talk` for people who know you drops the agenda checks |
 
 The business mind is always there, next to whichever mind writes. It decides what serves the business and how that shows in the reader's mind. On ads and landing pages it leads. On a technical post it stays in the background: engineers trust a post written by engineers in their own language, and that trust builds the brand over time, so let the engineer write freely and keep marketing out. The business mind steps in only where the text would actively hurt the business: a post that leaves the reader thinking the product is fragile, a customer exposed, a promise we can't keep.
 

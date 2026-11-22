@@ -98,6 +98,11 @@ export const MODES = {
     paragraphWords: 150,
     like: ["post"],
     wordsPerMinute: 150,
+    defaultPage: "lesson",
+    pages: {
+      lesson: { label: "a lesson or video for listeners who don't know you yet: agenda, part openers and previews" },
+      talk: { label: "a talk to people who know you and the subject: no agenda or previews, drafted like a message (docs/process/message-mode.md)" },
+    },
   },
 };
 

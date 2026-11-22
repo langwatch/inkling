@@ -4,6 +4,10 @@ A script for a narrated lesson or video is heard once, in order. Your listener c
 
 The limits below are defaults. A listen run shows where a viewer drifted. Use it with judgement and write down why when you move a limit for one script.
 
+## A talk to people who know you
+
+Everything below about agendas, previews and part openers is for listeners who don't know you yet. A talk to colleagues, a team or a community that knows you and the subject is closer to a message: put `page: talk` in the front matter, or pass `--page talk`. The agenda, preview and part-opener checks turn off, and you draft it the way [messages](message-mode.md) say: in the order you think, with the names and terms people use, ending where the thought ends. `page: lesson` is the default.
+
 ## Set the time budget first
 
 Decide the length before the first line: `minutes: 3` in the front matter, or `--minutes 3` on the command line. At about 150 spoken words a minute, three minutes is 450 words. Use the budget to decide how many parts and examples fit, before you draft: a part that explains something takes 45 to 90 seconds, so three minutes holds two or three of them.

@@ -109,3 +109,12 @@ test("written-only phrasing is a script warning", () => {
   assert.equal(f[0]?.severity, "warning");
   assert.ok(!check("On its own, the model drifts towards the average.").some((x) => x.rule === "banned-words/written-register"));
 });
+
+test("page: talk drops the agenda, preview and part-opener checks a lesson keeps", () => {
+  const rules = RULES;
+  const text = "# Talk\n\n## One\n\nThe judge grades text.\n\n## Two\n\nThe readers answer questions.\n\n## Three\n\nThe lint is free.";
+  const ids = (page) => lint({ text, mode: "script", page, rules, minutes: 1 }).map((f) => f.rule);
+  assert.ok(ids("lesson").includes("script/no-agenda"));
+  assert.ok(ids(undefined).includes("script/no-agenda"));
+  for (const id of ["script/no-agenda", "script/section-no-intro", "script/list-no-preview", "script/agenda-count-only"]) assert.ok(!ids("talk").includes(id), id);
+});

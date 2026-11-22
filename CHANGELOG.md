@@ -5,6 +5,7 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 
 ## 2026-11-22
 
+- A talk to people who know you takes `--mode script --page talk` (or `page: talk`): no agenda, previews or part openers, drafted like a message. See [spoken scripts](docs/process/script-mode.md#a-talk-to-people-who-know-you).
 - Use `--mode message` and `page: message` for a chat message, a thread reply, an email to a teammate or a talk to people who know you. The reader shares your context, so keep your order and their names, end where the thought ends, and keep the channel's register. See [messages](docs/process/message-mode.md).
 - Never open a sentence with "So", in any mode: `narrator/so-opener` fails it ("So far" and "so-called" pass). Start on the subject, or say the link with "And", "That's why" or "Next". The script docs and rule fixes no longer suggest "So". See [script rules](docs/tools/script-rules.md).
 - Don't quote an unnamed third party ("a customer told us", "a firm that certifies AI systems told us"): `narrator/unnamed-source` fails it. Use a named, public case, or say the claim yourself. See [lint](docs/tools/lint.md#rule-families).

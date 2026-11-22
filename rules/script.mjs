@@ -270,6 +270,7 @@ export default [
   {
     id: "no-agenda",
     modes: SCRIPT,
+    pages: ["lesson"],
     scope: "document",
     check: (_u, { doc }) => {
       const sections = sectionsOf(doc);
@@ -296,6 +297,7 @@ export default [
   {
     id: "agenda-count-only",
     modes: SCRIPT,
+    pages: ["lesson"],
     scope: "document",
     severity: "warning",
     check: (_u, { doc }) =>
@@ -322,6 +324,7 @@ export default [
   {
     id: "list-no-preview",
     modes: SCRIPT,
+    pages: ["lesson"],
     scope: "document",
     severity: "warning",
     check: (_u, { doc }) => unpreviewedWalks(doc).map(at),
@@ -336,6 +339,7 @@ export default [
   {
     id: "section-no-intro",
     modes: SCRIPT,
+    pages: ["lesson"],
     scope: "document",
     check: (_u, { doc }) => {
       const agenda = agendaOf(doc);
