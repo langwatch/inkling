@@ -32,10 +32,24 @@ echo '{}' > "$CFG/settings.json"
 # INKLING_NO_UPDATE: a run pins the Inkling it copied, so no update notice.
 clean() { env -u ANTHROPIC_API_KEY -u ANTHROPIC_BASE_URL -u OPENAI_API_KEY INKLING_NO_UPDATE=1 CLAUDE_CONFIG_DIR="$CFG" "$@"; }
 ask() { (cd "$ROOT" && clean claude -p --model "$MODEL" --tools ""); }
+# LangWatch (docs/tools/langwatch.md): with LANGWATCH_API_KEY set, every claude call sends its traces
+# under its piece's row trace (TRACEPARENT), and the run is logged as an experiment at the end.
+[ "${INKLING_LANGWATCH:-1}" = 0 ] && unset LANGWATCH_API_KEY
+if [ -n "${LANGWATCH_API_KEY:-}" ]; then
+  export CLAUDE_CODE_ENABLE_TELEMETRY=1 CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1 OTEL_TRACES_EXPORTER=otlp OTEL_LOGS_EXPORTER=otlp \
+    OTEL_METRICS_EXPORTER=otlp OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf OTEL_LOG_USER_PROMPTS=1 OTEL_LOG_TOOL_DETAILS=1 \
+    OTEL_EXPORTER_OTLP_ENDPOINT="${LANGWATCH_ENDPOINT:-https://app.langwatch.ai}/api/otel" OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer $LANGWATCH_API_KEY"
+fi
+hex() { od -An -tx1 -N"$1" /dev/urandom | tr -d ' \n'; }
 
 one() { # piece split
   local id=$1 part=$2 dir="$ROOT/$STAMP-$1"
   mkdir -p "$dir"; echo "$part" > "$dir/split"
+  if [ -n "${LANGWATCH_API_KEY:-}" ]; then
+    [ -s "$dir/trace" ] || echo "$(hex 16) $(hex 8)" > "$dir/trace"
+    read -r tid sid < "$dir/trace"
+    export TRACEPARENT="00-$tid-$sid-01" OTEL_RESOURCE_ATTRIBUTES="service.name=claude-code,langwatch.thread.id=reverse-$STAMP-$id"
+  fi
   node "$HERE/lib.mjs" body "$CORPUS/$id.md" > "$dir/reference.md"
   local brief="$ROOT/briefs/$id.md"
   [ -s "$brief" ] || { cat "$HERE/brief.prompt.md" "$dir/reference.md" | ask > "$brief"; }
@@ -75,4 +89,5 @@ while read -r id part; do
 done < <(node "$HERE/lib.mjs" split "$CORPUS")
 wait
 node "$HERE/lib.mjs" notes "$ROOT" "$STAMP" "$SPLIT" > "$ROOT/$STAMP-notes.md"
+[ -n "${LANGWATCH_API_KEY:-}" ] && { node "$REPO/bin/inkling.mjs" langwatch log reverse --root "$ROOT" --stamp "$STAMP" || true; }
 echo "done $STAMP: $ROOT/results.tsv, notes in $ROOT/$STAMP-notes.md" >&2

@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import importlib.util
 _spec = importlib.util.spec_from_file_location("jev_slop_v2", os.path.join(os.path.dirname(os.path.abspath(__file__)), "jev_slop_v2.py"))
 v2 = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(v2)
+import lw_hook
 
 THRESHOLDS = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
 
@@ -63,8 +64,10 @@ def main():
             r = v2.v1.ask_jev(state, v2.NARRATOR_Q, key)
             cache[k] = {q: round(v.get("noul", 0.0), 3) for q, v in r["answers"].items()}
         return {**c, "probs": cache[k]}
+    lw_hook.install(v2)
     with ThreadPoolExecutor(4) as ex:
         scored = list(ex.map(one, cases))
+    lw_hook.finish("narrator", scored, lambda c: v2.narrator_state(c.get("before", ""), c["sentence"]), v2.NARRATOR_DEFS, v2.NARRATOR_THRESHOLDS)
     if a.cache:
         os.makedirs(os.path.dirname(a.cache) or ".", exist_ok=True)
         json.dump(cache, open(a.cache, "w"))

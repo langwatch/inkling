@@ -21,6 +21,8 @@ import { judgeWaivers, waiverItems, formatWaivers } from "./waivers.mjs";
 import { predict, formatPrediction } from "./predict.mjs";
 import { unseen, markSeen, formatWhatsnew, whatsnewNotice } from "./whatsnew.mjs";
 import { docsCommand } from "./docs.mjs";
+import { langwatchCommand, LANGWATCH_USAGE } from "./lw-cli.mjs";
+import { logRegression } from "./lw-inkling.mjs";
 import { directionsStart, directionsPick, directionsEvolve, directionsFinal, answerWithClaude } from "./directions.mjs";
 
 const USAGE = `inkling: content writing framework for agents
@@ -85,6 +87,7 @@ const USAGE = `inkling: content writing framework for agents
       pick a time budget up front; quick needs a calibrated mode
   inkling timings [<run dirs>...]        real minutes per layer against the estimates
   inkling calibrate <mode>               score the lints on modes/<mode>/reference.jsonl
+${LANGWATCH_USAGE}
   inkling eval <labelled.jsonl> [--mode <mode>]
                                        recall and false positives per rule on labelled lines
   inkling topic init <topic> --from <readers.yaml>
@@ -151,6 +154,9 @@ export function main(argv) {
       fixed: { type: "string" },
       cases: { type: "string" },
       brief: { type: "string" },
+      root: { type: "string" },
+      stamp: { type: "string" },
+      all: { type: "boolean" },
     },
   });
   if (values.mode && !MODES[values.mode]) {
@@ -211,10 +217,13 @@ export function main(argv) {
     }
     case "eval": {
       if (!positionals[0]) return usage("inkling eval <labelled.jsonl> [--mode <mode>]");
-      const r = evaluate({ items: readReference(positionals[0]), mode: values.mode ?? "post", house: values.house ?? [] });
+      const items = readReference(positionals[0]);
+      const r = evaluate({ items, mode: values.mode ?? "post", house: values.house ?? [] });
       process.stdout.write(formatEval(r));
-      return 0;
+      return logRegression({ items, mode: values.mode ?? "post", house: values.house ?? [], file: positionals[0] }).then(() => 0);
     }
+    case "langwatch":
+      return langwatchCommand(positionals, values);
     case "topic": {
       const [sub, topic] = positionals;
       if (sub !== "init" || !topic) return usage("inkling topic init <topic> --from <readers.yaml>");

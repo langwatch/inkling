@@ -16,6 +16,8 @@ from concurrent.futures import ThreadPoolExecutor
 HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location("jev_slop_v2", os.path.join(HERE, "jev_slop_v2.py"))
 v2 = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(v2)
+import sys; sys.path.insert(0, HERE)
+import lw_hook
 GRID = [round(0.3 + 0.05 * i, 2) for i in range(14)]
 
 
@@ -78,10 +80,12 @@ def main():
             r = v2.v1.ask_jev(state, qs, key)
             cache[k] = {q: round(v.get("noul", 0.0), 3) for q, v in r["answers"].items()}
         return {**c, "probs": cache[k]}
+    lw_hook.install(v2)
     with ThreadPoolExecutor(6) as ex: scored = list(ex.map(one, cases))
     if a.cache:
         os.makedirs(os.path.dirname(a.cache) or ".", exist_ok=True); json.dump(cache, open(a.cache, "w"))
     out = {q: decide(scored, q) for q in (v2.CONSTRUCT_DEFS if a.batch == 1 else v2.CONSTRUCT2_DEFS) if any(c.get("q") == q for c in scored)}
+    lw_hook.finish("constructs" if a.batch == 1 else "constructs2", scored, lambda c: c["text"] if a.batch == 1 else v2.construct2_state(c.get("before", ""), c["text"]), list(out), decisions=out)
     if a.json:
         print(json.dumps({"decisions": out, "scored": scored}, indent=1)); return
     print(f"{len(scored)} paragraphs, {sum(1 for c in scored if c.get('approved'))} approved")
