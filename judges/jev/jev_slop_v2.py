@@ -65,7 +65,10 @@ SCORE_WEIGHTS = {"numbers_no_takeaway": 2.0, "overprecise_number": 1.0, "results
                  "tells_what_visuals_show": 1.0, "written_register": 1.0, "weak_opening": 2.0, "weak_ending": 2.0, "tic": 0.5, "regex": 0.5,
                  "unsurprising": 2.0, "concedes_or_hedges": 2.0, "writer_side": 2.0, "formula_shape": 2.0,
                  "crammed_claims": 2.0, "wrong_register": 2.0, "dramatic_never": 1.0,
-                 "invented_scene": 1.0, "unnamed_source": 1.0, "undefined_subject": 1.0}
+                 "invented_scene": 1.0, "unnamed_source": 1.0, "undefined_subject": 1.0,
+                 **{k: 1.0 for k in ("mirrored_pair", "rule_of_three", "negative_quantity", "modal_hedge",
+                    "signpost", "fake_epiphany", "closer", "engagement_bait", "vague_group", "personified_abstraction",
+                    "training_tense", "concession", "clipped_condition", "stating_priors", "slogan_equation", "instruction_register")}}
 
 # ---- definitions shared by both backends. His rules in his words, with made-up examples: no text from the
 # validation sets (tmp/xar-judge/v2/checkset.jsonl) is quoted here.
@@ -187,6 +190,83 @@ def narrator_checks(units, key, questions=None):
             for k, pr in probs.items():
                 if pr > out[i].get(k, {}).get("p", -1): out[i][k] = {"p": pr, "quote": sent, "fix": ""}
     return out, tokens
+
+# Construct questions: meaning-level shapes a regex only approximates (docs/research/rule-audit.md). All of them go
+# to Jev in one call per paragraph (--constructs). Examples here are made up; none comes from the labelled set.
+CONSTRUCT_DEFS = {
+    "mirrored_pair": "Two short clauses or sentences built as mirror images, one idea dressed as two: 'Logs record. "
+        "Traces explain.', a swap of the same words ('ship the docs, document the ship'), or 'the more X, the more Y'. "
+        "Not a hit for two different facts that happen to share a structure in a longer sentence.",
+    "rule_of_three": "A rhythmic list of three parallel fragments or clauses used as a punchline: 'Less toil, less "
+        "noise, less burnout', 'No forms. No calls. No waiting.' Not a hit for a plain list of three facts (languages, "
+        "steps, spans).",
+    "negative_quantity": "A claim defined by how little something does or how much it does not do ('it touches "
+        "nothing', 'barely any of the work', 'never stores anything') instead of saying what it does.",
+    "modal_hedge": "A modal or soft promise in place of a claim: 'can help', 'may improve', 'could potentially', "
+        "'is designed to help'. Not a hit for a real possibility with a condition ('the run may take a minute on large "
+        "projects') or for 'you can' describing what the reader is able to do.",
+    "signpost": "A sentence about the text instead of the subject: it announces that a point, a story, a question or a "
+        "surprise is coming ('here's what happened', 'let me walk you through', 'the funny thing is', 'that raises the "
+        "obvious question') instead of making it.",
+    "fake_epiphany": "A marker that labels a revelation instead of showing what flipped it: 'that's when it clicked', "
+        "'it suddenly made sense', 'the real lesson', 'what became clear'. Not a hit for a plain finding with its evidence.",
+    "closer": "The paragraph ends on a short line that exists for weight, not information: a two-to-five word punch "
+        "('Ours remembers.', 'Not anymore.'), a line naming what was just described ('That's the loop.'), or a "
+        "summing-up of the example ('It just never asks.'). Not a hit for a short closing fact ('The ticket closed an "
+        "hour later.').",
+    "engagement_bait": "An influencer sign-off: asks the reader to comment, agree or share ('Thoughts?', 'tell me "
+        "below'), or a 'Stop X. Start Y.' imperative pair. Not a hit for a concrete next step or a real request.",
+    "vague_group": "A vague, uncounted claim about a group: 'most teams', 'the majority of companies', 'plenty of "
+        "engineers', 'lots of people', 'everyone knows'. Not a hit for a real count ('31 of the 40 teams'), for 'most' "
+        "as in 'the most common', or for a named group.",
+    "personified_abstraction": "An abstract thing, a budget, a document or a data record does a human action as a "
+        "clever phrasing: 'the spend answers to no one', 'the log knows', 'the trace tells a story', 'the budget "
+        "decides'. Not a hit for software that really acts (an agent decides which tool to call).",
+    "training_tense": "Present tense for a model's finished training, as if it were still being trained: 'models are "
+        "rewarded for', 'RLHF teaches', 'training pushes it to'. Not a hit for the past tense ('was trained', "
+        "'training rewarded') or for what the model does now ('the model hedges').",
+    "concession": "Concedes the other option's case before taking a side: 'X is great, but', 'sure, X works, though', "
+        "'nothing wrong with X'. Not a hit when the line only states our side.",
+    "clipped_condition": "A condition said as an ad: a bare imperative, then 'and', then the result in the timeless "
+        "present ('Show it the logs and it finds the bug'). Not a hit with 'if' or 'when', a real past event, or two "
+        "separate steps.",
+    "stating_priors": "The writer states what he expected before the result ('I went in sure that...', 'my bet "
+        "was...') instead of the finding.",
+    "slogan_equation": "'The X is the Y' equation tagline that sounds deep and states nothing checkable: 'the "
+        "reader is the product', 'your logs become your roadmap'. Not a hit for a plain definition or a fact.",
+    "instruction_register": "Explaining prose says a step as an order to the reader ('Next, open the file', 'You "
+        "paste it in'), outside a numbered how-to list. Not a hit for 'you can...', 'I usually...', a condition, a "
+        "short call to action ('Try it.') or a numbered list of steps.",
+}
+CONSTRUCT_Q = {k: f"Answer yes only if this paragraph has this problem. {d}" for k, d in CONSTRUCT_DEFS.items()}
+CONSTRUCT_THRESHOLDS = {
+    "mirrored_pair": 0.45,
+    "rule_of_three": 0.7,
+    "negative_quantity": 0.9,
+    "modal_hedge": 0.5,
+    "signpost": 0.9,
+    "fake_epiphany": 0.35,
+    "closer": 0.5,
+    "engagement_bait": 0.95,
+    "vague_group": 0.95,
+    "personified_abstraction": 0.7,
+    "training_tense": 0.45,
+    "concession": 0.9,
+    "clipped_condition": 0.75,
+    "stating_priors": 0.85,
+    "slogan_equation": 0.65,
+    "instruction_register": 0.8,
+}
+
+
+def construct_checks(units, key, questions=None):
+    qs = questions or CONSTRUCT_Q
+    def one(u):
+        r = v1.ask_jev(u["text"], qs, key)
+        return {k: round(v.get("noul", 0.0), 3) for k, v in r["answers"].items()}, r.get("usage", {}).get("input_tokens", 0)
+    with ThreadPoolExecutor(4) as ex:
+        res = list(ex.map(one, units))
+    return [{k: {"p": p, "quote": units[i]["text"], "fix": ""} for k, p in r[0].items()} for i, r in enumerate(res)], sum(r[1] for r in res)
 
 CLAUDE_SYS = ("You are the founder's line editor at LangWatch. He likes casual, spoken, opinionated writing: "
               "his own drafts are loose, with typos and long run-on sentences, and that is fine. You do not rate "
@@ -543,7 +623,7 @@ def v2_score(report, threshold):
 
 
 def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=False, xar_task=None, docs=False,
-        copy=None, copy_backend="jev", audience=None, lang="en", narrator=False):
+        copy=None, copy_backend="jev", audience=None, lang="en", narrator=False, constructs=False):
     units, script = load_units(path, script)
     copy = is_copy(units) and not script if copy is None else copy
     if copy:  # titles and ad lines: one per line, even without blank lines between them
@@ -563,6 +643,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
         ft = ex.submit(jev_tics, units, key, with_ai) if jev and not copy else None
         fn = ex.submit(never_checks, units, key, lang) if key else None
         fr = ex.submit(narrator_checks, units, key) if key and narrator else None
+        fk = ex.submit(construct_checks, units, key) if key and constructs else None
         named = fc.result()
         if isinstance(named, tuple): named, t = named; tokens += t
         if fn:
@@ -582,6 +663,13 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
                     named[i].update({k: {**v, "p": 1.0} for k, v in n.items() if not k.startswith("_") and v["p"] >= NARRATOR_THRESHOLDS[k]})
                 else: named[i].update({k: v for k, v in n.items() if not k.startswith("_")})
                 named[i]["_narrator"] = n["_narrator"]
+        if fk:
+            found, t = fk.result(); tokens += t
+            for i, n in enumerate(found):
+                if copy:
+                    named[i].setdefault("_probs", {}).update({k: v["p"] for k, v in n.items()})
+                    named[i].update({k: {**v, "p": 1.0} for k, v in n.items() if v["p"] >= CONSTRUCT_THRESHOLDS[k]})
+                else: named[i].update(n)
     report = []
     for i, u in enumerate(units):
         report.append({"n": i + 1, "text": u["text"], "cue": u["cue"],
@@ -589,7 +677,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
                        "checks": {k: v for k, v in named[i].items() if not k.startswith("_")},
                        "extract": named[i].get("_extract"), "probs": named[i].get("_probs"), "narrator": named[i].get("_narrator"),
                        "tics": tics[i], "regex": v1.regex_hits(u["text"])})
-    names = (COPY if copy else NAMED) + ["dramatic_never"] + (list(NARRATOR_DEFS) if narrator else [])
+    names = (COPY if copy else NAMED) + ["dramatic_never"] + (list(NARRATOR_DEFS) if narrator else []) + (list(CONSTRUCT_DEFS) if constructs else [])
     if copy:  # per line: 10 minus 2 per copy flag, so lines can be ranked against each other
         for it in report:
             it["line_score"] = max(0.0, 10.0 - sum(SCORE_WEIGHTS[k] for k in it["checks"]) - 0.5 * len(it["regex"]))
@@ -626,10 +714,11 @@ def main():
     ap.add_argument("--task", help="for --xar: genre, sender, reader and the facts the text must carry")
     ap.add_argument("--lang", default="en", help="text language base code (en, pt): picks the word the dramatic_never prefilter looks for")
     ap.add_argument("--narrator", action="store_true", help="ask the narrator questions (invented scene, unnamed source, undefined subject) per sentence, with the quote")
+    ap.add_argument("--constructs", action="store_true", help="ask the construct questions (contrast formulas, closers, hedges...) per paragraph, in one Jev call")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
     if a.xar and not a.task: ap.error("--xar needs --task")
-    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience, a.lang, a.narrator)
+    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience, a.lang, a.narrator, a.constructs)
     if a.json:
         print(json.dumps(r, indent=1, ensure_ascii=False)); return
     clean = 0

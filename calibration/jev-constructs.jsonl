@@ -1,0 +1,234 @@
+// Paragraphs labelled for the construct questions (inkling judge). `q` is the question, `yes` the label, `rule` the regex rule whose fail example it rephrases (`orig` marks the rule's own example). Every case is also a no for the other questions it is not labelled for, when scored by judges/jev/calibrate_constructs.py.
+{"id": "contrast_formula-0", "q": "contrast_formula", "yes": true, "text": "It is not a sandbox, but a team.", "rule": "contrast/not-x-but-y", "mode": "post", "orig": true}
+{"id": "contrast_formula-1", "q": "contrast_formula", "yes": true, "text": "What you get isn't a sandbox so much as a team that works for you.", "rule": "contrast/not-x-but-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-2", "q": "contrast_formula", "yes": true, "text": "The point was never speed; it was trust.", "rule": "contrast/not-x-but-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-3", "q": "contrast_formula", "yes": true, "text": "Rather than a sandbox, it's a team.", "rule": "contrast/not-x-but-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-4", "q": "contrast_formula", "yes": true, "text": "And it's less a tool than a colleague.", "rule": "contrast/not-x-but-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-5", "q": "contrast_formula", "yes": true, "text": "It wasn't a model problem. It was the retrieval.", "rule": "contrast/isnt-x-its-y", "mode": "post", "orig": true}
+{"id": "contrast_formula-6", "q": "contrast_formula", "yes": true, "text": "The model was never the problem. The retrieval was.", "rule": "contrast/isnt-x-its-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-7", "q": "contrast_formula", "yes": true, "text": "Turns out the issue had nothing to do with the model; retrieval was to blame.", "rule": "contrast/isnt-x-its-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-8", "q": "contrast_formula", "yes": true, "text": "So it isn't really about the prompt. It's about the data.", "rule": "contrast/isnt-x-its-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-9", "q": "contrast_formula", "yes": true, "text": "Forget the model. Retrieval is what broke.", "rule": "contrast/isnt-x-its-y", "mode": "post", "orig": false}
+{"id": "contrast_formula-10", "q": "contrast_formula", "yes": true, "text": "We ship evidence, not promises.", "rule": "contrast/x-not-y-closer", "mode": "post", "orig": true}
+{"id": "contrast_formula-11", "q": "contrast_formula", "yes": true, "text": "We shipped evidence instead of promises.", "rule": "contrast/x-not-y-closer", "mode": "post", "orig": false}
+{"id": "contrast_formula-12", "q": "contrast_formula", "yes": true, "text": "Evidence over promises, every time.", "rule": "contrast/x-not-y-closer", "mode": "post", "orig": false}
+{"id": "contrast_formula-13", "q": "contrast_formula", "yes": true, "text": "We ship evidence. Promises we leave to others.", "rule": "contrast/x-not-y-closer", "mode": "post", "orig": false}
+{"id": "contrast_formula-14", "q": "contrast_formula", "yes": true, "text": "It records what agents actually did rather than what they meant.", "rule": "contrast/x-not-y-closer", "mode": "post", "orig": false}
+{"id": "contrast_formula-15", "q": "contrast_formula", "yes": true, "text": "Your agent doesn't need a sandbox. It needs a team.", "rule": "contrast/doesnt-need-needs", "mode": "post", "orig": true}
+{"id": "contrast_formula-16", "q": "contrast_formula", "yes": true, "text": "Your agent never needed a sandbox. What it needed was a team.", "rule": "contrast/doesnt-need-needs", "mode": "post", "orig": false}
+{"id": "contrast_formula-17", "q": "contrast_formula", "yes": true, "text": "What your agent lacks isn't a sandbox; it's a team around it.", "rule": "contrast/doesnt-need-needs", "mode": "post", "orig": false}
+{"id": "contrast_formula-18", "q": "contrast_formula", "yes": true, "text": "It didn't just change how we work, it changed who we are.", "rule": "contrast/didnt-just", "mode": "post", "orig": true}
+{"id": "contrast_formula-19", "q": "contrast_formula", "yes": true, "text": "It hasn't merely changed our workflow; it has changed our whole company.", "rule": "contrast/didnt-just", "mode": "post", "orig": false}
+{"id": "contrast_formula-20", "q": "contrast_formula", "yes": true, "text": "More than speeding us up, it changed who we hire.", "rule": "contrast/didnt-just", "mode": "post", "orig": false}
+{"id": "contrast_formula-21", "q": "contrast_formula", "yes": true, "text": "It's not magic, it's just a cron job.", "rule": "banned-words/magic-reframe", "mode": "post", "orig": true}
+{"id": "contrast_formula-22", "q": "contrast_formula", "yes": true, "text": "There's no magic involved here, only a cron job running every hour.", "rule": "banned-words/magic-reframe", "mode": "post", "orig": false}
+{"id": "contrast_formula-23", "q": "contrast_formula", "yes": false, "text": "The export takes 40 seconds for a thousand rows, so we moved it to a background job.", "rule": null, "mode": "post", "orig": false}
+{"id": "contrast_formula-24", "q": "contrast_formula", "yes": false, "text": "It isn't ready for production yet: the retry logic is missing.", "rule": null, "mode": "post", "orig": false}
+{"id": "contrast_formula-25", "q": "contrast_formula", "yes": false, "text": "We don't store request bodies, and the proxy logs only status codes.", "rule": null, "mode": "post", "orig": false}
+{"id": "contrast_formula-26", "q": "contrast_formula", "yes": false, "text": "The bug was in retrieval, which returned an empty context for long queries.", "rule": null, "mode": "post", "orig": false}
+{"id": "contrast_formula-27", "q": "contrast_formula", "yes": false, "text": "Not every team needs the gateway on day one; start with tracing.", "rule": null, "mode": "post", "orig": false}
+{"id": "contrast_formula-28", "q": "contrast_formula", "yes": false, "text": "The agent didn't find the order, so it handed off to a person.", "rule": null, "mode": "post", "orig": false}
+{"id": "mirrored_pair-29", "q": "mirrored_pair", "yes": true, "text": "Policies attest. Evidence proves.", "rule": "contrast/mirrored-pair", "mode": "post", "orig": true}
+{"id": "mirrored_pair-30", "q": "mirrored_pair", "yes": true, "text": "Policies only attest, while evidence actually proves.", "rule": "contrast/mirrored-pair", "mode": "post", "orig": false}
+{"id": "mirrored_pair-31", "q": "mirrored_pair", "yes": true, "text": "Dashboards count. Evals judge.", "rule": "contrast/mirrored-pair", "mode": "post", "orig": false}
+{"id": "mirrored_pair-32", "q": "mirrored_pair", "yes": true, "text": "Your sandbox runs the agent; your team puts it to work.", "rule": "contrast/mirrored-pair", "mode": "post", "orig": false}
+{"id": "mirrored_pair-33", "q": "mirrored_pair", "yes": true, "text": "Write the tests, test the writing.", "rule": "slogan/chiasmus", "mode": "post", "orig": true}
+{"id": "mirrored_pair-34", "q": "mirrored_pair", "yes": true, "text": "We wrote the tests and then we tested the writing.", "rule": "slogan/chiasmus", "mode": "post", "orig": false}
+{"id": "mirrored_pair-35", "q": "mirrored_pair", "yes": true, "text": "Read like a writer, and write the way a reader reads.", "rule": "slogan/chiasmus", "mode": "post", "orig": false}
+{"id": "mirrored_pair-36", "q": "mirrored_pair", "yes": true, "text": "The more you paste in, the more leaks out.", "rule": "script/balanced-line", "mode": "script", "orig": true}
+{"id": "mirrored_pair-37", "q": "mirrored_pair", "yes": true, "text": "Paste in more and more leaks out.", "rule": "script/balanced-line", "mode": "script", "orig": false}
+{"id": "mirrored_pair-38", "q": "mirrored_pair", "yes": true, "text": "Whatever it knows about is whatever it writes about.", "rule": "script/balanced-line", "mode": "script", "orig": false}
+{"id": "mirrored_pair-39", "q": "mirrored_pair", "yes": false, "text": "The judge reads every paragraph, and the readers answer the questions we wrote first.", "rule": null, "mode": "post", "orig": false}
+{"id": "mirrored_pair-40", "q": "mirrored_pair", "yes": false, "text": "Tracing shows what ran; evals tell you whether it was right, so you need both before a release.", "rule": null, "mode": "post", "orig": false}
+{"id": "mirrored_pair-41", "q": "mirrored_pair", "yes": false, "text": "We tried two prompts on the same 200 conversations and kept the one with fewer handoffs.", "rule": null, "mode": "post", "orig": false}
+{"id": "mirrored_pair-42", "q": "mirrored_pair", "yes": false, "text": "Sales uses it for call notes and support uses it for refunds.", "rule": null, "mode": "post", "orig": false}
+{"id": "mirrored_pair-43", "q": "mirrored_pair", "yes": false, "text": "If you paste in more context, the model writes about more of it.", "rule": null, "mode": "post", "orig": false}
+{"id": "mirrored_pair-44", "q": "mirrored_pair", "yes": false, "text": "The agent reads the ticket and writes a reply.", "rule": null, "mode": "post", "orig": false}
+{"id": "rule_of_three-45", "q": "rule_of_three", "yes": true, "text": "Too much overhead, too many handoffs, too much silent failure.", "rule": "contrast/rule-of-three", "mode": "post", "orig": true}
+{"id": "rule_of_three-46", "q": "rule_of_three", "yes": true, "text": "There was too much overhead, there were too many handoffs and there was far too much silent failure.", "rule": "contrast/rule-of-three", "mode": "post", "orig": false}
+{"id": "rule_of_three-47", "q": "rule_of_three", "yes": true, "text": "Less waiting. Less guessing. Less paging.", "rule": "contrast/rule-of-three", "mode": "post", "orig": false}
+{"id": "rule_of_three-48", "q": "rule_of_three", "yes": true, "text": "Faster reviews, cheaper runs, happier teams.", "rule": "contrast/rule-of-three", "mode": "post", "orig": false}
+{"id": "rule_of_three-49", "q": "rule_of_three", "yes": true, "text": "No setup, no keys, no waiting.", "rule": "contrast/rule-of-three", "mode": "post", "orig": false}
+{"id": "rule_of_three-50", "q": "rule_of_three", "yes": false, "text": "The trace has three spans: retrieval, the model call and the tool call.", "rule": null, "mode": "post", "orig": false}
+{"id": "rule_of_three-51", "q": "rule_of_three", "yes": false, "text": "We support Python, TypeScript and Go.", "rule": null, "mode": "post", "orig": false}
+{"id": "rule_of_three-52", "q": "rule_of_three", "yes": false, "text": "It took three tries, two rewrites and a long night to fix.", "rule": null, "mode": "post", "orig": false}
+{"id": "rule_of_three-53", "q": "rule_of_three", "yes": false, "text": "The plan costs 20 USD for up to three people.", "rule": null, "mode": "post", "orig": false}
+{"id": "rule_of_three-54", "q": "rule_of_three", "yes": false, "text": "You need a key, a project and one line of code.", "rule": null, "mode": "post", "orig": false}
+{"id": "rule_of_three-55", "q": "rule_of_three", "yes": false, "text": "The agent looked up the order, checked the refund policy and wrote the reply.", "rule": null, "mode": "post", "orig": false}
+{"id": "negative_quantity-56", "q": "negative_quantity", "yes": true, "text": "The proxy does nothing with your keys.", "rule": "negation/negative-quantity", "mode": "post", "orig": true}
+{"id": "negative_quantity-57", "q": "negative_quantity", "yes": true, "text": "Your keys are never touched by the proxy.", "rule": "negation/negative-quantity", "mode": "post", "orig": false}
+{"id": "negative_quantity-58", "q": "negative_quantity", "yes": true, "text": "The main session does hardly any of the work itself.", "rule": "negation/negative-quantity", "mode": "post", "orig": false}
+{"id": "negative_quantity-59", "q": "negative_quantity", "yes": true, "text": "Nothing about your keys is stored by the proxy.", "rule": "negation/negative-quantity", "mode": "post", "orig": false}
+{"id": "negative_quantity-60", "q": "negative_quantity", "yes": true, "text": "It barely uses any memory.", "rule": "negation/negative-quantity", "mode": "post", "orig": false}
+{"id": "negative_quantity-61", "q": "negative_quantity", "yes": false, "text": "The proxy swaps the placeholder for your key on the way out.", "rule": null, "mode": "post", "orig": false}
+{"id": "negative_quantity-62", "q": "negative_quantity", "yes": false, "text": "The main session plans and delegates the work to subagents.", "rule": null, "mode": "post", "orig": false}
+{"id": "negative_quantity-63", "q": "negative_quantity", "yes": false, "text": "It uses about 40 MB of memory.", "rule": null, "mode": "post", "orig": false}
+{"id": "negative_quantity-64", "q": "negative_quantity", "yes": false, "text": "The key stays in the vault; the agent only sees a placeholder.", "rule": null, "mode": "post", "orig": false}
+{"id": "negative_quantity-65", "q": "negative_quantity", "yes": false, "text": "No key is needed for the lint.", "rule": null, "mode": "post", "orig": false}
+{"id": "negative_quantity-66", "q": "negative_quantity", "yes": false, "text": "The export writes one row per trace.", "rule": null, "mode": "post", "orig": false}
+{"id": "modal_hedge-67", "q": "modal_hedge", "yes": true, "text": "It can help reduce costs.", "rule": "hedges/modal-hedge", "mode": "post", "orig": true}
+{"id": "modal_hedge-68", "q": "modal_hedge", "yes": true, "text": "This could potentially help you cut costs.", "rule": "hedges/modal-hedge", "mode": "post", "orig": false}
+{"id": "modal_hedge-69", "q": "modal_hedge", "yes": true, "text": "It may be able to reduce costs for some teams.", "rule": "hedges/modal-hedge", "mode": "post", "orig": false}
+{"id": "modal_hedge-70", "q": "modal_hedge", "yes": true, "text": "Costs might come down with it.", "rule": "hedges/modal-hedge", "mode": "post", "orig": false}
+{"id": "modal_hedge-71", "q": "modal_hedge", "yes": true, "text": "It's designed to help lower your bill.", "rule": "hedges/modal-hedge", "mode": "post", "orig": false}
+{"id": "modal_hedge-72", "q": "modal_hedge", "yes": false, "text": "It cut our bill by a third in the first month.", "rule": null, "mode": "post", "orig": false}
+{"id": "modal_hedge-73", "q": "modal_hedge", "yes": false, "text": "You can export traces as CSV.", "rule": null, "mode": "post", "orig": false}
+{"id": "modal_hedge-74", "q": "modal_hedge", "yes": false, "text": "If the cache misses, the request goes to the model.", "rule": null, "mode": "post", "orig": false}
+{"id": "modal_hedge-75", "q": "modal_hedge", "yes": false, "text": "The run may take up to a minute on large projects.", "rule": null, "mode": "post", "orig": false}
+{"id": "modal_hedge-76", "q": "modal_hedge", "yes": false, "text": "It reduces costs by caching repeated prompts.", "rule": null, "mode": "post", "orig": false}
+{"id": "modal_hedge-77", "q": "modal_hedge", "yes": false, "text": "We can't promise a date yet.", "rule": null, "mode": "post", "orig": false}
+{"id": "signpost-78", "q": "signpost", "yes": true, "text": "Here's what happened to us.", "rule": "narrator/signpost", "mode": "post", "orig": true}
+{"id": "signpost-79", "q": "signpost", "yes": true, "text": "Let me tell you what happened to us.", "rule": "narrator/signpost", "mode": "post", "orig": false}
+{"id": "signpost-80", "q": "signpost", "yes": true, "text": "What happened next is worth walking through.", "rule": "narrator/signpost", "mode": "post", "orig": false}
+{"id": "signpost-81", "q": "signpost", "yes": true, "text": "Let's break down what went wrong.", "rule": "narrator/signpost", "mode": "post", "orig": false}
+{"id": "signpost-82", "q": "signpost", "yes": true, "text": "I want to walk you through what we found.", "rule": "narrator/signpost", "mode": "post", "orig": false}
+{"id": "signpost-83", "q": "signpost", "yes": true, "text": "Which leaves the obvious question: can you trust it?", "rule": "narrator/self-answered-bridge", "mode": "post", "orig": true}
+{"id": "signpost-84", "q": "signpost", "yes": true, "text": "That raises an obvious question: can you trust it?", "rule": "narrator/self-answered-bridge", "mode": "post", "orig": false}
+{"id": "signpost-85", "q": "signpost", "yes": true, "text": "The strange part is that the model can do it.", "rule": "script/staged-reveal", "mode": "script", "orig": true}
+{"id": "signpost-86", "q": "signpost", "yes": true, "text": "And here's the weird thing: the model can do it.", "rule": "script/staged-reveal", "mode": "script", "orig": false}
+{"id": "signpost-87", "q": "signpost", "yes": true, "text": "What surprised us most was that the model can do it.", "rule": "script/staged-reveal", "mode": "script", "orig": false}
+{"id": "signpost-88", "q": "signpost", "yes": false, "text": "The deploy failed at 3 a.m. because the migration locked the table.", "rule": null, "mode": "post", "orig": false}
+{"id": "signpost-89", "q": "signpost", "yes": false, "text": "Can you trust it? On our 133 labelled cases it agreed with people on 130.", "rule": null, "mode": "post", "orig": false}
+{"id": "signpost-90", "q": "signpost", "yes": false, "text": "The model can do it when you give it the reader's question.", "rule": null, "mode": "post", "orig": false}
+{"id": "signpost-91", "q": "signpost", "yes": false, "text": "We found the bug in retrieval: long queries returned an empty context.", "rule": null, "mode": "post", "orig": false}
+{"id": "signpost-92", "q": "signpost", "yes": false, "text": "Next, the judge reads every paragraph.", "rule": null, "mode": "post", "orig": false}
+{"id": "signpost-93", "q": "signpost", "yes": false, "text": "This guide builds an evaluation pipeline for a support agent.", "rule": null, "mode": "post", "orig": false}
+{"id": "fake_epiphany-94", "q": "fake_epiphany", "yes": true, "text": "That's when we realized retrieval was broken.", "rule": "narrator/fake-epiphany", "mode": "post", "orig": true}
+{"id": "fake_epiphany-95", "q": "fake_epiphany", "yes": true, "text": "It was then that it hit us: retrieval was broken.", "rule": "narrator/fake-epiphany", "mode": "post", "orig": false}
+{"id": "fake_epiphany-96", "q": "fake_epiphany", "yes": true, "text": "And suddenly it all made sense, retrieval had been broken the whole time.", "rule": "narrator/fake-epiphany", "mode": "post", "orig": false}
+{"id": "fake_epiphany-97", "q": "fake_epiphany", "yes": true, "text": "Only then did we understand that retrieval was the problem.", "rule": "narrator/fake-epiphany", "mode": "post", "orig": false}
+{"id": "fake_epiphany-98", "q": "fake_epiphany", "yes": true, "text": "The lesson that changed everything: retrieval was broken.", "rule": "narrator/fake-epiphany", "mode": "post", "orig": false}
+{"id": "fake_epiphany-99", "q": "fake_epiphany", "yes": false, "text": "The retrieval span showed contexts: [] for every long query.", "rule": null, "mode": "post", "orig": false}
+{"id": "fake_epiphany-100", "q": "fake_epiphany", "yes": false, "text": "We found the bug on Tuesday, after reading forty traces.", "rule": null, "mode": "post", "orig": false}
+{"id": "fake_epiphany-101", "q": "fake_epiphany", "yes": false, "text": "Retrieval was broken for queries over 2,000 characters.", "rule": null, "mode": "post", "orig": false}
+{"id": "fake_epiphany-102", "q": "fake_epiphany", "yes": false, "text": "Once we fixed retrieval, handoffs dropped by half.", "rule": null, "mode": "post", "orig": false}
+{"id": "fake_epiphany-103", "q": "fake_epiphany", "yes": false, "text": "We realised the cache key ignored the user id, so we added it.", "rule": null, "mode": "post", "orig": false}
+{"id": "fake_epiphany-104", "q": "fake_epiphany", "yes": false, "text": "The logs showed the timeout before the tool call.", "rule": null, "mode": "post", "orig": false}
+{"id": "closer-105", "q": "closer", "yes": true, "text": "Most setups throw the context away after every task and start again. Ours stays.", "rule": "structure/gravitas-closer", "mode": "post", "orig": true}
+{"id": "closer-106", "q": "closer", "yes": true, "text": "Every other setup throws the context away after each task. Ours keeps it. Always.", "rule": "structure/gravitas-closer", "mode": "post", "orig": false}
+{"id": "closer-107", "q": "closer", "yes": true, "text": "Other tools reset after each task and start from nothing. Not this one.", "rule": "structure/gravitas-closer", "mode": "post", "orig": false}
+{"id": "closer-108", "q": "closer", "yes": true, "text": "The agent reads the ticket, checks the order and writes the reply. That's the workflow.", "rule": "narrator/brand-closer", "mode": "post", "orig": true}
+{"id": "closer-109", "q": "closer", "yes": true, "text": "The agent reads the ticket, checks the order and writes the reply. And that, right there, is the whole workflow.", "rule": "narrator/brand-closer", "mode": "post", "orig": false}
+{"id": "closer-110", "q": "closer", "yes": true, "text": "It reads, it checks, it replies. That is what we built.", "rule": "narrator/brand-closer", "mode": "post", "orig": false}
+{"id": "closer-111", "q": "closer", "yes": true, "text": "Say a customer writes in. You ask the model for a reply. It writes about the billing retries. It just doesn't ask itself.", "rule": "script/punchline-closer", "mode": "script", "orig": true}
+{"id": "closer-112", "q": "closer", "yes": true, "text": "You ask the model for a reply and it writes about the billing retries. It simply never stops to ask.", "rule": "script/punchline-closer", "mode": "script", "orig": false}
+{"id": "closer-113", "q": "closer", "yes": false, "text": "Other setups throw the context away after each task; ours keeps it, so the next task starts with what the last one learned.", "rule": null, "mode": "post", "orig": false}
+{"id": "closer-114", "q": "closer", "yes": false, "text": "The agent reads the ticket, checks the order and writes the reply, and a person reviews it before it goes out.", "rule": null, "mode": "post", "orig": false}
+{"id": "closer-115", "q": "closer", "yes": false, "text": "The ticket closed itself an hour later.", "rule": null, "mode": "post", "orig": false}
+{"id": "closer-116", "q": "closer", "yes": false, "text": "The code is on GitHub.", "rule": null, "mode": "post", "orig": false}
+{"id": "closer-117", "q": "closer", "yes": false, "text": "We kept the old prompt for a week in case the new one regressed, and it didn't.", "rule": null, "mode": "post", "orig": false}
+{"id": "closer-118", "q": "closer", "yes": false, "text": "Run it on your own traces and compare the handoff rate.", "rule": null, "mode": "post", "orig": false}
+{"id": "engagement_bait-119", "q": "engagement_bait", "yes": true, "text": "Stop waiting. Start building.", "rule": "narrator/imperative-signoff", "mode": "post", "orig": true}
+{"id": "engagement_bait-120", "q": "engagement_bait", "yes": true, "text": "Every team will run agents soon. What do you think?", "rule": "narrator/imperative-signoff", "mode": "post", "orig": false}
+{"id": "engagement_bait-121", "q": "engagement_bait", "yes": true, "text": "Quit waiting and start shipping.", "rule": "narrator/imperative-signoff", "mode": "post", "orig": false}
+{"id": "engagement_bait-122", "q": "engagement_bait", "yes": true, "text": "Every team will run agents soon. Would love to hear your take below.", "rule": "narrator/imperative-signoff", "mode": "post", "orig": false}
+{"id": "engagement_bait-123", "q": "engagement_bait", "yes": true, "text": "Agree or disagree? Let me know in the comments.", "rule": "narrator/imperative-signoff", "mode": "post", "orig": false}
+{"id": "engagement_bait-124", "q": "engagement_bait", "yes": true, "text": "Drop a comment if you've seen this too.", "rule": "narrator/imperative-signoff", "mode": "post", "orig": false}
+{"id": "engagement_bait-125", "q": "engagement_bait", "yes": false, "text": "The code is on GitHub, and the README has the setup.", "rule": null, "mode": "post", "orig": false}
+{"id": "engagement_bait-126", "q": "engagement_bait", "yes": false, "text": "If you run it on your traces, send us the handoff rate; we're collecting them for the next post.", "rule": null, "mode": "post", "orig": false}
+{"id": "engagement_bait-127", "q": "engagement_bait", "yes": false, "text": "Try it on one agent first.", "rule": null, "mode": "post", "orig": false}
+{"id": "engagement_bait-128", "q": "engagement_bait", "yes": false, "text": "We'll publish the eval set next week.", "rule": null, "mode": "post", "orig": false}
+{"id": "engagement_bait-129", "q": "engagement_bait", "yes": false, "text": "What would you ask your agents if you could ask all of them at once? That's what the query box is for.", "rule": null, "mode": "post", "orig": false}
+{"id": "engagement_bait-130", "q": "engagement_bait", "yes": false, "text": "Sign up and send your first trace.", "rule": null, "mode": "post", "orig": false}
+{"id": "vague_group-131", "q": "vague_group", "yes": true, "text": "Most teams skip evals.", "rule": "narrator/vague-majority", "mode": "post", "orig": true}
+{"id": "vague_group-132", "q": "vague_group", "yes": true, "text": "The majority of teams skip evals.", "rule": "narrator/vague-majority", "mode": "post", "orig": false}
+{"id": "vague_group-133", "q": "vague_group", "yes": true, "text": "Almost every team skips evals at first.", "rule": "narrator/vague-majority", "mode": "post", "orig": false}
+{"id": "vague_group-134", "q": "vague_group", "yes": true, "text": "Teams skip evals, as everyone knows.", "rule": "narrator/vague-majority", "mode": "post", "orig": false}
+{"id": "vague_group-135", "q": "vague_group", "yes": true, "text": "Many companies already do this.", "rule": "narrator/vague-attribution", "mode": "post", "orig": true}
+{"id": "vague_group-136", "q": "vague_group", "yes": true, "text": "Plenty of companies already work this way.", "rule": "narrator/vague-attribution", "mode": "post", "orig": false}
+{"id": "vague_group-137", "q": "vague_group", "yes": true, "text": "Lots of people already do this.", "rule": "narrator/vague-attribution", "mode": "post", "orig": false}
+{"id": "vague_group-138", "q": "vague_group", "yes": true, "text": "Countless engineers have told us the same thing.", "rule": "narrator/vague-attribution", "mode": "post", "orig": false}
+{"id": "vague_group-139", "q": "vague_group", "yes": false, "text": "Of the 40 teams we asked, 31 had no evals.", "rule": null, "mode": "post", "orig": false}
+{"id": "vague_group-140", "q": "vague_group", "yes": false, "text": "The most common failure is a timeout.", "rule": null, "mode": "post", "orig": false}
+{"id": "vague_group-141", "q": "vague_group", "yes": false, "text": "Two of our customers already do this.", "rule": null, "mode": "post", "orig": false}
+{"id": "vague_group-142", "q": "vague_group", "yes": false, "text": "It retries at most twice.", "rule": null, "mode": "post", "orig": false}
+{"id": "vague_group-143", "q": "vague_group", "yes": false, "text": "Every project gets one free key.", "rule": null, "mode": "post", "orig": false}
+{"id": "vague_group-144", "q": "vague_group", "yes": false, "text": "Our support team reads every handoff.", "rule": null, "mode": "post", "orig": false}
+{"id": "personified_abstraction-145", "q": "personified_abstraction", "yes": true, "text": "Who does your AI spend answer to?", "rule": "narrator/personified-abstraction", "mode": "post", "orig": true}
+{"id": "personified_abstraction-146", "q": "personified_abstraction", "yes": true, "text": "Your AI spend answers to nobody.", "rule": "narrator/personified-abstraction", "mode": "post", "orig": false}
+{"id": "personified_abstraction-147", "q": "personified_abstraction", "yes": true, "text": "The budget quietly decides who gets to experiment.", "rule": "narrator/personified-abstraction", "mode": "post", "orig": false}
+{"id": "personified_abstraction-148", "q": "personified_abstraction", "yes": true, "text": "Your token bill is telling you a story.", "rule": "narrator/personified-abstraction", "mode": "post", "orig": false}
+{"id": "personified_abstraction-149", "q": "personified_abstraction", "yes": true, "text": "The trace names the layer that broke it.", "rule": "docs/artifact-verb", "mode": "docs", "orig": true}
+{"id": "personified_abstraction-150", "q": "personified_abstraction", "yes": true, "text": "The trace knows which layer broke.", "rule": "docs/artifact-verb", "mode": "docs", "orig": false}
+{"id": "personified_abstraction-151", "q": "personified_abstraction", "yes": true, "text": "Each span remembers what the tool returned.", "rule": "docs/artifact-verb", "mode": "docs", "orig": false}
+{"id": "personified_abstraction-152", "q": "personified_abstraction", "yes": false, "text": "No one on the team owns the AI spend.", "rule": null, "mode": "post", "orig": false}
+{"id": "personified_abstraction-153", "q": "personified_abstraction", "yes": false, "text": "The trace shows which layer failed.", "rule": null, "mode": "post", "orig": false}
+{"id": "personified_abstraction-154", "q": "personified_abstraction", "yes": false, "text": "Each span records what the tool returned.", "rule": null, "mode": "post", "orig": false}
+{"id": "personified_abstraction-155", "q": "personified_abstraction", "yes": false, "text": "The budget caps spend at 100 USD a month.", "rule": null, "mode": "post", "orig": false}
+{"id": "personified_abstraction-156", "q": "personified_abstraction", "yes": false, "text": "The agent decides which tool to call.", "rule": null, "mode": "post", "orig": false}
+{"id": "personified_abstraction-157", "q": "personified_abstraction", "yes": false, "text": "The judge reads every paragraph.", "rule": null, "mode": "post", "orig": false}
+{"id": "training_tense-158", "q": "training_tense", "yes": true, "text": "Another issue is that AI is trained to concede.", "rule": "narrator/training-tense", "mode": "post", "orig": true}
+{"id": "training_tense-159", "q": "training_tense", "yes": true, "text": "RLHF teaches models to hedge.", "rule": "narrator/training-tense", "mode": "post", "orig": true}
+{"id": "training_tense-160", "q": "training_tense", "yes": true, "text": "Models get rewarded for hedging during training.", "rule": "narrator/training-tense", "mode": "post", "orig": false}
+{"id": "training_tense-161", "q": "training_tense", "yes": true, "text": "Training keeps pushing the model toward safe answers.", "rule": "narrator/training-tense", "mode": "post", "orig": false}
+{"id": "training_tense-162", "q": "training_tense", "yes": true, "text": "Reinforcement learning is teaching these models to agree with you.", "rule": "narrator/training-tense", "mode": "post", "orig": false}
+{"id": "training_tense-163", "q": "training_tense", "yes": true, "text": "The model learns to concede because human raters reward it.", "rule": "narrator/training-tense", "mode": "post", "orig": false}
+{"id": "training_tense-164", "q": "training_tense", "yes": false, "text": "Another issue is that AI was trained to concede.", "rule": null, "mode": "post", "orig": false}
+{"id": "training_tense-165", "q": "training_tense", "yes": false, "text": "The model predicts the next word.", "rule": null, "mode": "post", "orig": false}
+{"id": "training_tense-166", "q": "training_tense", "yes": false, "text": "Training rewarded the model for passing tests.", "rule": null, "mode": "post", "orig": false}
+{"id": "training_tense-167", "q": "training_tense", "yes": false, "text": "We train a small classifier on our own labels every week.", "rule": null, "mode": "post", "orig": false}
+{"id": "training_tense-168", "q": "training_tense", "yes": false, "text": "The model hedges when you ask it for an opinion.", "rule": null, "mode": "post", "orig": false}
+{"id": "training_tense-169", "q": "training_tense", "yes": false, "text": "During training, raters preferred balanced answers.", "rule": null, "mode": "post", "orig": false}
+{"id": "concession-170", "q": "concession", "yes": true, "text": "Sandboxes are great, but your team needs more.", "rule": "pitch/concession", "mode": "ads", "orig": true}
+{"id": "concession-171", "q": "concession", "yes": true, "text": "Sure, a sandbox runs your agent. Your team needs more than that.", "rule": "pitch/concession", "mode": "ads", "orig": false}
+{"id": "concession-172", "q": "concession", "yes": true, "text": "Sandboxes have their place; your team needs more.", "rule": "pitch/concession", "mode": "ads", "orig": false}
+{"id": "concession-173", "q": "concession", "yes": true, "text": "A sandbox is a fine start, though your team will outgrow it.", "rule": "pitch/concession", "mode": "ads", "orig": false}
+{"id": "concession-174", "q": "concession", "yes": true, "text": "There's nothing wrong with a sandbox, but it won't onboard your team.", "rule": "pitch/concession", "mode": "ads", "orig": false}
+{"id": "concession-175", "q": "concession", "yes": false, "text": "Your team needs more than a sandbox: a place to talk to the agent.", "rule": null, "mode": "ads", "orig": false}
+{"id": "concession-176", "q": "concession", "yes": false, "text": "Your agent keeps working when your laptop is shut.", "rule": null, "mode": "ads", "orig": false}
+{"id": "concession-177", "q": "concession", "yes": false, "text": "Laze runs your agent on its own computer, ready for the whole team in minutes.", "rule": null, "mode": "ads", "orig": false}
+{"id": "concession-178", "q": "concession", "yes": false, "text": "You don't need an agent sandbox.", "rule": null, "mode": "ads", "orig": false}
+{"id": "concession-179", "q": "concession", "yes": false, "text": "Self-hosted works in your own cloud, airgapped.", "rule": null, "mode": "ads", "orig": false}
+{"id": "concession-180", "q": "concession", "yes": false, "text": "The free plan covers two people.", "rule": null, "mode": "ads", "orig": false}
+{"id": "clipped_condition-181", "q": "clipped_condition", "yes": true, "text": "Give the model your notes and it writes about the ticket names.", "rule": "structure/clipped-condition", "mode": "script", "orig": true}
+{"id": "clipped_condition-182", "q": "clipped_condition", "yes": true, "text": "Hand the model your notes and out comes a reply about ticket names.", "rule": "structure/clipped-condition", "mode": "script", "orig": false}
+{"id": "clipped_condition-183", "q": "clipped_condition", "yes": true, "text": "Paste the notes in, and it writes about ticket names.", "rule": "structure/clipped-condition", "mode": "script", "orig": false}
+{"id": "clipped_condition-184", "q": "clipped_condition", "yes": true, "text": "Feed it a PDF, and the reader skims the first page.", "rule": "structure/clipped-condition", "mode": "script", "orig": false}
+{"id": "clipped_condition-185", "q": "clipped_condition", "yes": true, "text": "Ask it for a headline, and the headline comes out weak.", "rule": "structure/clipped-condition", "mode": "script", "orig": false}
+{"id": "clipped_condition-186", "q": "clipped_condition", "yes": false, "text": "If you give the model your notes, it will write about the ticket names.", "rule": null, "mode": "script", "orig": false}
+{"id": "clipped_condition-187", "q": "clipped_condition", "yes": false, "text": "When I gave it my notes, it wrote about the ticket names.", "rule": null, "mode": "script", "orig": false}
+{"id": "clipped_condition-188", "q": "clipped_condition", "yes": false, "text": "If you ask it for a headline, it usually comes out weak.", "rule": null, "mode": "script", "orig": false}
+{"id": "clipped_condition-189", "q": "clipped_condition", "yes": false, "text": "Give the model your notes. Then read what it wrote.", "rule": null, "mode": "script", "orig": false}
+{"id": "clipped_condition-190", "q": "clipped_condition", "yes": false, "text": "You can paste the notes in and see what happens.", "rule": null, "mode": "script", "orig": false}
+{"id": "clipped_condition-191", "q": "clipped_condition", "yes": false, "text": "The model writes about the ticket names because that's what the notes are full of.", "rule": null, "mode": "script", "orig": false}
+{"id": "staccato-192", "q": "staccato", "yes": true, "text": "Sam gave up on it first. Overhead was high. Handoffs failed silently.", "rule": "structure/staccato", "mode": "post", "orig": true}
+{"id": "staccato-193", "q": "staccato", "yes": true, "text": "It works. It scales. It ships.", "rule": "structure/staccato", "mode": "post", "orig": true}
+{"id": "staccato-194", "q": "staccato", "yes": true, "text": "The build broke. Nobody noticed. Users did.", "rule": "structure/staccato", "mode": "post", "orig": false}
+{"id": "staccato-195", "q": "staccato", "yes": true, "text": "It worked, it scaled, it shipped.", "rule": "structure/staccato", "mode": "post", "orig": false}
+{"id": "staccato-196", "q": "staccato", "yes": true, "text": "Fast. Cheap. Done.", "rule": "structure/staccato", "mode": "post", "orig": false}
+{"id": "staccato-197", "q": "staccato", "yes": false, "text": "Sam gave up on it first, because the overhead was high and handoffs failed without telling anyone.", "rule": null, "mode": "post", "orig": false}
+{"id": "staccato-198", "q": "staccato", "yes": false, "text": "We deployed at 9. At 10 the alerts fired. By 11 we had rolled back.", "rule": null, "mode": "post", "orig": false}
+{"id": "staccato-199", "q": "staccato", "yes": false, "text": "It works on Python and TypeScript, and the Go SDK lands next month.", "rule": null, "mode": "post", "orig": false}
+{"id": "staccato-200", "q": "staccato", "yes": false, "text": "The run failed. We fixed the timeout and ran it again, and it passed.", "rule": null, "mode": "post", "orig": false}
+{"id": "staccato-201", "q": "staccato", "yes": false, "text": "Install it, add the key and send a trace.", "rule": null, "mode": "post", "orig": false}
+{"id": "staccato-202", "q": "staccato", "yes": false, "text": "The agent answered in under a second, which surprised us.", "rule": null, "mode": "post", "orig": false}
+{"id": "stating_priors-203", "q": "stating_priors", "yes": true, "text": "I went in expecting the cache to win.", "rule": "narrator/stating-priors", "mode": "post", "orig": true}
+{"id": "stating_priors-204", "q": "stating_priors", "yes": true, "text": "Going in, I was sure the cache would win.", "rule": "narrator/stating-priors", "mode": "post", "orig": false}
+{"id": "stating_priors-205", "q": "stating_priors", "yes": true, "text": "My bet before the test was on the cache.", "rule": "narrator/stating-priors", "mode": "post", "orig": false}
+{"id": "stating_priors-206", "q": "stating_priors", "yes": true, "text": "I'd assumed the cache would come out on top.", "rule": "narrator/stating-priors", "mode": "post", "orig": false}
+{"id": "stating_priors-207", "q": "stating_priors", "yes": false, "text": "The cache lost: it saved 2% and cost a day of work.", "rule": null, "mode": "post", "orig": false}
+{"id": "stating_priors-208", "q": "stating_priors", "yes": false, "text": "We tested the cache against a smaller model.", "rule": null, "mode": "post", "orig": false}
+{"id": "stating_priors-209", "q": "stating_priors", "yes": false, "text": "If the cache wins, the bill drops by a third.", "rule": null, "mode": "post", "orig": false}
+{"id": "stating_priors-210", "q": "stating_priors", "yes": false, "text": "The cache won on short prompts and lost on long ones.", "rule": null, "mode": "post", "orig": false}
+{"id": "stating_priors-211", "q": "stating_priors", "yes": false, "text": "I expected the build to take five minutes and it took four.", "rule": null, "mode": "post", "orig": false}
+{"id": "stating_priors-212", "q": "stating_priors", "yes": false, "text": "We picked the cache because it needed no new model.", "rule": null, "mode": "post", "orig": false}
+{"id": "slogan_equation-213", "q": "slogan_equation", "yes": true, "text": "The audience is the spec.", "rule": "slogan/x-is-the-y", "mode": "post", "orig": true}
+{"id": "slogan_equation-214", "q": "slogan_equation", "yes": true, "text": "Your audience becomes the spec.", "rule": "slogan/x-is-the-y", "mode": "post", "orig": false}
+{"id": "slogan_equation-215", "q": "slogan_equation", "yes": true, "text": "In the end, your draft is the test.", "rule": "slogan/x-is-the-y", "mode": "post", "orig": false}
+{"id": "slogan_equation-216", "q": "slogan_equation", "yes": true, "text": "The reader? That's your spec.", "rule": "slogan/x-is-the-y", "mode": "post", "orig": false}
+{"id": "slogan_equation-217", "q": "slogan_equation", "yes": false, "text": "The spec lists what the audience must take away.", "rule": null, "mode": "post", "orig": false}
+{"id": "slogan_equation-218", "q": "slogan_equation", "yes": false, "text": "The test is a file of questions a reader must answer.", "rule": null, "mode": "post", "orig": false}
+{"id": "slogan_equation-219", "q": "slogan_equation", "yes": false, "text": "The draft is 800 words long.", "rule": null, "mode": "post", "orig": false}
+{"id": "slogan_equation-220", "q": "slogan_equation", "yes": false, "text": "The default is the production label.", "rule": null, "mode": "post", "orig": false}
+{"id": "slogan_equation-221", "q": "slogan_equation", "yes": false, "text": "The goal is a sign-up from a founder who read the post.", "rule": null, "mode": "post", "orig": false}
+{"id": "slogan_equation-222", "q": "slogan_equation", "yes": false, "text": "The first draft is the one we talked through out loud.", "rule": null, "mode": "post", "orig": false}
+{"id": "instruction_register-223", "q": "instruction_register", "yes": true, "text": "Then you paste the notes into the chat.", "rule": "narrator/instruction-register", "mode": "post", "orig": true}
+{"id": "instruction_register-224", "q": "instruction_register", "yes": true, "text": "Next, paste your notes into the chat.", "rule": "narrator/instruction-register", "mode": "post", "orig": false}
+{"id": "instruction_register-225", "q": "instruction_register", "yes": true, "text": "You'll want to paste the notes into the chat now.", "rule": "narrator/instruction-register", "mode": "post", "orig": false}
+{"id": "instruction_register-226", "q": "instruction_register", "yes": true, "text": "After that you open a fresh model and hand it the text.", "rule": "narrator/instruction-register", "mode": "post", "orig": false}
+{"id": "instruction_register-227", "q": "instruction_register", "yes": false, "text": "I usually paste the notes into a fresh chat.", "rule": null, "mode": "post", "orig": false}
+{"id": "instruction_register-228", "q": "instruction_register", "yes": false, "text": "You can start a fresh model with zero context.", "rule": null, "mode": "post", "orig": false}
+{"id": "instruction_register-229", "q": "instruction_register", "yes": false, "text": "If you paste your notes in, the reply is full of ticket names.", "rule": null, "mode": "post", "orig": false}
+{"id": "instruction_register-230", "q": "instruction_register", "yes": false, "text": "Try it.", "rule": null, "mode": "post", "orig": false}
+{"id": "instruction_register-231", "q": "instruction_register", "yes": false, "text": "We paste the notes in and read what comes back.", "rule": null, "mode": "post", "orig": false}
+{"id": "instruction_register-232", "q": "instruction_register", "yes": false, "text": "1. Open a fresh chat.\n2. Paste the notes.", "rule": null, "mode": "post", "orig": false}

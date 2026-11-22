@@ -40,6 +40,33 @@ These replaced regex rules, because widening a pattern only covers the phrasings
 
 `undefined_subject` stays a warning: an approved line sits 0.03 under its threshold, inside the run-to-run drift. Its regex, `narrator/undefined-subject` in `inkling check`, stays too: it caught 5 positives Jev scored under 0.8, with no false flag on an approved line. The other two regexes caught nothing Jev missed and were deleted.
 
+## Construct questions
+
+In every mode but legal, Jev also answers one question per construct for each paragraph, all in the same call: mirrored pairs, rule-of-three punchlines, claims defined by how little something does, modal hedges, signposts, fake epiphanies, closers, sign-off bait, vague groups, personified abstractions, present tense for finished training, concessions, clipped conditions, stated priors, `The X is the Y` taglines and orders in explaining prose. They replaced or back up regex rules that missed the same shape in another tense, word order or synonym; [the rule audit](../research/rule-audit.md) has the probes and says which regex went.
+
+Calibration on `calibration/jev-constructs.jsonl` with 32 approved paragraphs, 2026-11-22, with `judges/jev/calibrate_constructs.py calibration/jev-constructs.jsonl --approved calibration/regression.jsonl --approved docs/voice/reference.md --approved test/fixtures/script/pass.md`:
+
+| Question | Severity | Threshold | Precision | Recall | Positives | Highest approved |
+| --- | --- | --- | --- | --- | --- | --- |
+| `mirrored_pair` | error | 0.45 | 0.90 | 0.90 | 10 | 0.27 |
+| `rule_of_three` | error | 0.7 | 1.00 | 0.80 | 5 | 0.60 |
+| `negative_quantity` | error | 0.9 | 1.00 | 1.00 | 5 | 0.77 |
+| `modal_hedge` | error | 0.5 | 1.00 | 1.00 | 5 | 0.29 |
+| `signpost` | warning | 0.9 | 1.00 | 0.70 | 10 | 0.88 |
+| `fake_epiphany` | error | 0.35 | 1.00 | 1.00 | 5 | 0.21 |
+| `closer` | error | 0.5 | 0.89 | 1.00 | 8 | 0.39 |
+| `engagement_bait` | warning | 0.95 | 1.00 | 0.67 | 6 | 0.90 |
+| `vague_group` | error | 0.95 | 1.00 | 0.62 | 8 | 0.83 |
+| `personified_abstraction` | error | 0.7 | 1.00 | 0.71 | 7 | 0.52 |
+| `training_tense` | error | 0.45 | 1.00 | 1.00 | 6 | 0.34 |
+| `concession` | warning | 0.9 | 1.00 | 0.80 | 5 | 0.85 |
+| `clipped_condition` | error | 0.75 | 1.00 | 0.60 | 5 | 0.63 |
+| `stating_priors` | error | 0.85 | 1.00 | 1.00 | 4 | 0.11 |
+| `slogan_equation` | error | 0.65 | 1.00 | 1.00 | 4 | 0.54 |
+| `instruction_register` | warning | 0.8 | 1.00 | 0.50 | 4 | 0.77 |
+
+A question is an error only with no false flag on an approved paragraph and a threshold at least 0.1 over the highest approved score; with a smaller margin it warns. A contrast-formula question ("not X, but Y" in any wording) found no such threshold, because approved talk uses the same turn: the `contrast` regexes stay in the lint.
+
 ## Cost and accuracy
 
 Jev costs 0.042 USD per million input tokens, about 0.0003 USD per paragraph. It is the only paid call in inkling.

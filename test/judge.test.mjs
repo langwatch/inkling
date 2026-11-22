@@ -88,3 +88,36 @@ print(json.dumps({"out": out, "seen": seen}))`;
   assert.deepEqual(out[0].unnamed_source, { p: 0.9, quote: "A customer told his team it was useless.", fix: "" });
   assert.equal(out[0]._narrator.length, 2);
 });
+
+test("construct flags fail or warn by severity, and every one has a threshold and a rewrite", () => {
+  const report = { paragraphs: [{ n: 1, text: "Policies attest. Evidence proves.", tics: {}, regex: [], checks: {
+    mirrored_pair: { p: 0.8, quote: "Policies attest. Evidence proves." },
+    signpost: { p: 0.95, quote: "Policies attest. Evidence proves." },
+    closer: { p: 0.2, quote: "Policies attest. Evidence proves." },
+  } }] };
+  const v = verdict(report);
+  assert.deepEqual(v.fails.map((f) => f.flag), ["mirrored_pair"]);
+  assert.deepEqual(v.advisory.map((f) => [f.flag, f.why]), [["signpost", "warning"]]);
+  for (const flag of ["mirrored_pair", "rule_of_three", "negative_quantity", "modal_hedge", "signpost", "fake_epiphany", "closer", "engagement_bait", "vague_group", "personified_abstraction", "training_tense", "concession", "clipped_condition", "stating_priors", "slogan_equation", "instruction_register"])
+    assert.ok(REWRITES[flag] && THRESHOLDS[flag], flag);
+});
+
+test("jev_slop asks every construct question of a paragraph in one call, with its thresholds in step with the judge's", () => {
+  const py = `
+import importlib.util, json, sys
+sp = importlib.util.spec_from_file_location("v2", sys.argv[1]); v2 = importlib.util.module_from_spec(sp); sp.loader.exec_module(v2)
+calls = []
+def fake(state, qs, key):
+    calls.append(sorted(qs))
+    return {"answers": {k: {"noul": 0.9 if k == "mirrored_pair" else 0.1} for k in qs}, "usage": {"input_tokens": 1}}
+v2.v1.ask_jev = fake
+out, _ = v2.construct_checks([{"text": "Policies attest. Evidence proves."}, {"text": "The export takes 40 seconds."}], "k")
+print(json.dumps({"calls": calls, "out": out, "thresholds": v2.CONSTRUCT_THRESHOLDS}))`;
+  const r = spawnSync("python3", ["-c", py, new URL("../judges/jev/jev_slop_v2.py", import.meta.url).pathname], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  const { calls, out, thresholds } = JSON.parse(r.stdout);
+  assert.equal(calls.length, 2, "one call per paragraph");
+  assert.deepEqual(calls[0], Object.keys(thresholds).sort());
+  assert.equal(out[0].mirrored_pair.p, 0.9);
+  for (const [k, t] of Object.entries(thresholds)) assert.equal(THRESHOLDS[k], t, k);
+});

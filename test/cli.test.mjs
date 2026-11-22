@@ -38,12 +38,12 @@ test("check says what it leaves to the judge", () => {
 });
 
 test("judge asks the narrator questions in every mode but legal", () => {
-  for (const mode of ["post", "script", "ads", "docs", "deck"]) assert.ok(judgeArgs({ file: "a.md", mode }).includes("--narrator"), mode);
-  assert.ok(!judgeArgs({ file: "a.md", mode: "legal" }).includes("--narrator"));
+  for (const mode of ["post", "script", "ads", "docs", "deck"]) assert.ok(judgeArgs({ file: "a.md", mode }).includes("--narrator") && judgeArgs({ file: "a.md", mode }).includes("--constructs"), mode);
+  assert.ok(!judgeArgs({ file: "a.md", mode: "legal" }).some((a) => a === "--narrator" || a === "--constructs"));
 });
 
 test("judge maps modes onto jev_slop flags", () => {
-  assert.deepEqual(judgeArgs({ file: "a.md", mode: "ads", audience: "VCs" }).slice(1), ["a.md", "--checks", "jev", "--copy", "--narrator", "--audience", "VCs"]);
+  assert.deepEqual(judgeArgs({ file: "a.md", mode: "ads", audience: "VCs" }).slice(1), ["a.md", "--checks", "jev", "--copy", "--narrator", "--constructs", "--audience", "VCs"]);
   assert.ok(judgeArgs({ file: "a.md", mode: "docs" }).includes("--docs"));
   assert.deepEqual(judgeArgs({ file: "a.md", mode: "proposal", lang: "pt-BR" }).slice(-2), ["--lang", "pt"]);
   assert.ok(!judgeArgs({ file: "a.md", mode: "post", lang: "en-GB" }).includes("--lang"));

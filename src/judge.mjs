@@ -20,7 +20,7 @@ export function judgeArgs({ file, mode, audience, context, json, copy = false, l
   if (copy || mode === "ads" || mode === "deck" || mode === "x") args.push("--copy");
   if (mode === "docs") args.push("--docs");
   if (mode === "script") args.push("--script");
-  if (mode !== "legal") args.push("--narrator");
+  if (mode !== "legal") args.push("--narrator", "--constructs");
   const who = [audience, context && `context: ${context}`].filter(Boolean).join("; ");
   if (who) args.push("--audience", who);
   if (lang && languageOf(lang) !== "en") args.push("--lang", languageOf(lang));
@@ -52,16 +52,18 @@ export function judgeInput(text) {
 
 /** Per-flag thresholds. A draft passes only when no named flag is over its threshold. */
 // The narrator questions are asked per sentence in every mode but legal; thresholds from calibration/jev-narrator.jsonl (docs/tools/judge.md).
-export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75, wrong_register: 0.8, dramatic_never: 0.5, invented_scene: 0.4, unnamed_source: 0.8, undefined_subject: 0.8 };
-/** Flags that warn: over threshold, they are reported but never fail the draft. undefined_subject sits 0.03 above an approved line. */
-export const WARN = new Set(["undefined_subject"]);
+export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75, wrong_register: 0.8, dramatic_never: 0.5, invented_scene: 0.4, unnamed_source: 0.8, undefined_subject: 0.8,
+  // Construct questions, one Jev call per paragraph; thresholds from calibration/jev-constructs.jsonl (docs/research/rule-audit.md).
+  mirrored_pair: 0.45, rule_of_three: 0.7, negative_quantity: 0.9, modal_hedge: 0.5, signpost: 0.9, fake_epiphany: 0.35, closer: 0.5, engagement_bait: 0.95, vague_group: 0.95, personified_abstraction: 0.7, training_tense: 0.45, concession: 0.9, clipped_condition: 0.75, stating_priors: 0.85, slogan_equation: 0.65, instruction_register: 0.8 };
+/** Flags that warn: over threshold, they are reported but never fail the draft, because an approved line scores within 0.1 of the threshold. */
+export const WARN = new Set(["undefined_subject", "signpost", "engagement_bait", "concession", "instruction_register"]);
 /** The checks a run without a Jev key leaves undone, named so the gap is never silent. */
-export const KEYLESS_GAP = "invented scenes, unnamed sources, undefined subjects, dramatic \"never\" and the copy and prose checks";
+export const KEYLESS_GAP = "invented scenes, unnamed sources, undefined subjects, dramatic \"never\", the construct questions and the copy and prose checks";
 /** A score this close to its threshold gets a second run; a split between the runs is advisory. */
 export const NEAR = 0.05;
 const NAMED = new Set(["unsurprising", "concedes_or_hedges", "writer_side", "formula_shape", "crammed_claims", "wrong_register",
   "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register", "weak_opening", "weak_ending", "dramatic_never",
-  "invented_scene", "unnamed_source", "undefined_subject"]);
+  "invented_scene", "unnamed_source", "undefined_subject", ...Object.keys(THRESHOLDS).filter((k) => !["default", "unsurprising", "writer_side", "wrong_register", "dramatic_never"].includes(k))]);
 
 /** How to rewrite a line each flag hit. Shown as the fix under every Jev finding. */
 export const REWRITES = {
@@ -81,6 +83,22 @@ export const REWRITES = {
   invented_scene: "Use a real case with the person named and the date, or ask the plain question the reader would ask. A made-up moment with an unnamed person reads as a fabricated specific.",
   unnamed_source: "Use a named, public case, or say the claim yourself.",
   undefined_subject: "Name who it was, or make the reader, the writer or the product the subject.",
+  mirrored_pair: "Say the idea once, as one plain sentence. Two mirrored halves read as a slogan.",
+  rule_of_three: "Keep the item that matters and say it as a sentence, or give a real list its real items.",
+  negative_quantity: "Say what it does, not how little it does.",
+  modal_hedge: "Commit to the claim and bound it with a number or a condition: \"cut our bill by a third\", not \"can help reduce costs\".",
+  signpost: "Delete the announcement and start with the content.",
+  fake_epiphany: "Show the detail that flipped it and let the reader see it.",
+  closer: "End on the last real fact, or cut the closer.",
+  engagement_bait: "End on the last real point, or ask for one concrete thing.",
+  vague_group: "Give the real count, name the group, or state the claim directly.",
+  personified_abstraction: "Make the person or the software that acts the subject: \"no one owns the spend\", \"the trace shows\".",
+  training_tense: "Use the past tense for training (\"was trained to\", \"training rewarded\"); keep the present for what the model does now.",
+  concession: "Take our side and drop the half that grants the other option its case.",
+  clipped_condition: "Keep the connector and the real tense: \"if you give it your notes, it will write about the ticket names\".",
+  stating_priors: "State the finding, not what you expected.",
+  slogan_equation: "Say the checkable claim the equation stands for.",
+  instruction_register: "Say \"you can...\", or what you do (\"I usually...\"); keep orders for a numbered how-to list.",
   dramatic_never: "Say it plainly: \"cases it didn't look at\", not \"cases it never looked at\". Keep \"never\" for a real, lasting rule (\"the key never leaves the vault\"). See \"No unpacking\" in step 6.",
 };
 
