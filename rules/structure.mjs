@@ -249,31 +249,6 @@ export default [
     },
   },
   {
-    id: "gravitas-closer",
-    scope: "paragraph",
-    modes: ["post", "ads", "investor"],
-    check: (unit) => {
-      const s = unit.sentences;
-      if (s.length < 2) return [];
-      const last = words(s.at(-1).clean).length;
-      const before = words(s.at(-2).clean).length;
-      // "They allow for:" leads into a list; it closes nothing.
-      if (/:\s*$/.test(s.at(-1).clean)) return [];
-      // A link or doc path closing the paragraph is a reference, not a closer.
-      if (/^(?:https?:\/\/\S+|(?:www\.)?[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}(?:\/\S*)?|\/?[\w.-]+(?:\/[\w.#-]+)+\/?)\.?$/i.test(s.at(-1).clean.trim())) return [];
-      // A long sentence that builds, then a short one that lands a concrete time or number, is the approved move.
-      if (before >= 20 && (TIME_MARKER.test(s.at(-1).clean) || /\d/.test(s.at(-1).clean))) return [];
-      return last <= 3 && before >= 8 ? [{ index: s.at(-1).start - unit.start }] : [];
-    },
-    message: "Short gravitas closer at the end of a paragraph.",
-    fix: "Cut it, or fold it into the sentence before and end on the concrete consequence.",
-    source: "Nexus writing-rules, Watch the short gravitas closer",
-    examples: {
-      fail: ["Most setups throw the context away after every task and start again. Ours stays."],
-      pass: ["The context stays between tasks, so the agent remembers last week's fix.", "Simulations run the whole conversation against a simulated user and a judge. They allow for:", "The handler caught the exception and returned an empty list instead of raising, so every query silently retrieved nothing and the model answered from its own guesses. For eighteen hours.", "O cenário pode nascer no código ou na plataforma, onde quem conhece o negócio revisa e roda. langwatch.ai/docs/agent-testing/voice-agents", "Each scenario runs in CI on every pull request and fails the build when a criterion breaks. docs/scenario/ci-cd-integration"],
-    },
-  },
-  {
     id: "unintroduced-name",
     scope: "document",
     modes: ["post"],

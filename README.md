@@ -87,11 +87,6 @@ inkling check examples/sandbox-titles/titles.md --mode ads \
 ```
 
 ```text
-examples/sandbox-titles/titles.md:1:3  contrast/mirrored-pair
-  > A sandbox runs your agent. ACME puts it to work for your team
-  why: "X does A. Y does B." mirrored pair: one idea dressed as two.
-  fix: Keep the one claim the reader did not expect.
-
 examples/sandbox-titles/titles.md:1:3  pitch/crammed-headline
   > A sandbox runs your agent. ACME puts it to work for your team
   why: Headline crams more than one claim. 13 words.
@@ -107,7 +102,7 @@ examples/sandbox-titles/titles.md:5:24  numbers/number-in-title
   why: A bare count in the title reads as a listicle.
   fix: Title the claim; carry the count in the body with its comparison.
 
-4 findings from 4 rules.
+3 findings from 3 rules.
 ```
 
 The fourth title, "You don't need an agent sandbox", gets no finding. The full output is in [output.txt](examples/sandbox-titles/output.txt), and the Jev judge on the same titles is in [judge-output.txt](examples/sandbox-titles/judge-output.txt).

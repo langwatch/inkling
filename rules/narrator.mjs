@@ -70,17 +70,6 @@ export default [
     },
   },
   {
-    id: "fake-epiphany",
-    pattern: /\bthat'?s when (?:we|i|they) (?:realized|realised|knew|saw)\b|\bwhat became clear\b|\bthe real (?:lesson|unlock|insight)\b|\band that'?s the real\b|\bthat shift is\b/i,
-    message: "Fake epiphany marker. Labels a revelation the prose has not earned.",
-    fix: "Show the detail that flipped it and let the reader see it.",
-    source: "Nexus writing-rules, Fake-epiphany markers; Enact the turn, do not announce it",
-    examples: {
-      fail: ["That's when we realized retrieval was broken.", "What became clear was the cache."],
-      pass: ["The retrieval span above it showed contexts: []."],
-    },
-  },
-  {
     id: "pseudo-precision",
     pattern: /\bnot metaphorically\b|\byes, this (?:actually|really) happened\b|\bthat is deliberate\b|\bthis is by design\b/i,
     message: "Pseudo-precision emphasis. Insists on authenticity instead of showing it.",
@@ -89,17 +78,6 @@ export default [
     examples: {
       fail: ["Not metaphorically, literally."],
       pass: ["The agent ran for 10.7 hours."],
-    },
-  },
-  {
-    id: "brand-closer",
-    pattern: /^(?:[Tt]hat'?s|[Tt]his is|[Aa]nd that'?s) (?:the [\w-]+|[A-Z][\w-]+)\s*[.!]?\s*$/,
-    message: "Declarative brand closer: names what was just described.",
-    fix: "End on the concrete consequence instead.",
-    source: "Nexus writing-rules, Declarative brand closers",
-    examples: {
-      fail: ["That's the workflow.", "That's ACME."],
-      pass: ["The ticket closed itself an hour later."],
     },
   },
   {
@@ -123,17 +101,6 @@ export default [
     examples: {
       fail: ["The shape of the workflow changed."],
       pass: ["We review every PR within an hour now."],
-    },
-  },
-  {
-    id: "stating-priors",
-    pattern: /\bI went in expecting\b|\bI expected to (?:write|find)\b|\bI set out to (?:prove|show)\b/i,
-    message: "Stating your priors. The reader wants the finding.",
-    fix: "State the finding.",
-    source: "Nexus writing-rules, Stating your priors",
-    examples: {
-      fail: ["I went in expecting the cache to win."],
-      pass: ["The cache lost: it saved 2% and cost a day of work."],
     },
   },
   {
@@ -341,17 +308,6 @@ export default [
     examples: {
       fail: ["The root cause is that code has a judge, and writing doesn't. Without that judge, our research found six main ways AI writing goes wrong."],
       pass: ["The first reason, and the root of the others, is that code has a judge. Our research found six main ways AI writing goes wrong.", "The root cause is a missing index."],
-    },
-  },
-  {
-    id: "training-tense",
-    pattern: /\btraining (?:rewards|teaches|punishes|pushes)\b|\b(?:RLHF|fine-tuning) (?:teaches|rewards|punishes|trains)\b|\b(?:AI|LLMs?|(?:language )?models?|agents?|chatbots?) (?:is|are|gets|get) (?:rewarded|trained|taught|punished) (?:for|to)\b/i,
-    message: "Present tense for finished training. The training is over; what the model does now is its habit.",
-    fix: "Use the past tense: \"was trained to\", \"training rewarded\". Present tense stays right for what the model does now: \"the model predicts the next word\".",
-    source: "Founder review of lesson script v12, 2026-11-08; Nexus writing-rules, Why LLM copy fails (\"Training rewarded being fair and safe\")",
-    examples: {
-      fail: ["When a model writes code, the tests pass or fail, and training rewards the model for passing.", "Another issue is that AI is trained to concede.", "RLHF teaches models to hedge."],
-      pass: ["When a model writes code, the tests pass or fail, and training rewarded the model for passing.", "Another issue is that AI was trained to concede.", "The model predicts the next word."],
     },
   },
   {

@@ -22,8 +22,6 @@ inkling check script.md --mode script --minutes 3
 | `stiff-logic` (warning) | follows from, it follows that, ergo, thereby, consequently, which implies | say the link the way you would to a friend |
 | `step-label` (warning) | tutorial step labels: next comes, next up, subsequently, following that, lastly, last but not least | say "then" or "and then"; repeating then and and is fine |
 | `instruction-register` (warning, posts too) | a step said as an order outside a list: "You start a fresh model.", "Open a new chat." | "you can start...", "you could...", or what you do: "I usually..." |
-| `punchline-closer` (warning) | a short last line that sums up the paragraph's example: "It just doesn't ask itself." | delete it, or carry on into the next thought |
-| `balanced-line` (warning) | two matching halves: "that's what it knows, so that's what it writes", "the more X, the more Y", "and, at the same time," | say the halves as two plain thoughts |
 | `staged-reveal` (warning) | "The strange part is...", "The funny thing is..." | say the surprising thing and let it surprise |
 | `colon-list` (warning) | a colon followed by parallel items: "you picture what's in their head: what they know, what they want and what they care about" | show the one item that matters in a moment, or give each its own sentence |
 | `elegant-variation` (warning) | one thing or one step word rotated through synonyms within 4 sentences: the model, the AI, the system; then, next, after that | pick one word and repeat it |
@@ -40,7 +38,7 @@ inkling check script.md --mode script --minutes 3
 | `aside-jump` | a new term dropped in as ", which statisticians call..." | give the name its own sentence after the thing it names |
 | `writer-side-opener` (warning) | lines about the material, such as "fits on one screen" or "a problem with a name"; runs in every mode but legal | say why the reader should care |
 
-The narrator rules that run in every mode include two written for scripts: `narrator/overclaim` (warning) flags "the root cause" or "the real reason" in a part that lists several causes, and `narrator/training-tense` fails present-tense claims about finished training, such as "training rewards" or "the model is trained to".
+The narrator rules that run in every mode include one written for scripts: `narrator/overclaim` (warning) flags "the root cause" or "the real reason" in a part that lists several causes. Present tense for finished training ("training rewards", "the model is trained to"), punchline closers and balanced lines ("the more X, the more Y") are [judge](judge.md#construct-questions) questions: `training_tense`, `closer` and `mirrored_pair`.
 
 `narrator/tense-match` (warning, every mode but legal) checks tense against the kind of claim from both sides: a general claim told in the past ("text that models wrote"), and a paragraph that names the piece or a date ("this video", "today", "8 Nov") and then narrates one run in the present ("my agent starts a writer... it goes back").
 

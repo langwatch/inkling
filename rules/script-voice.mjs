@@ -10,40 +10,6 @@ const sentencesOf = (doc) => spokenBlocks(doc).flatMap((b) => b.sentences);
 
 export default [
   {
-    id: "punchline-closer",
-    modes: SCRIPT,
-    scope: "document",
-    severity: "warning",
-    check: (_u, { doc }) =>
-      spokenBlocks(doc)
-        .filter((b) => b.type !== "list-item" && b.sentences.length >= 3)
-        .flatMap((b) => {
-          const last = b.sentences[b.sentences.length - 1];
-          const t = last.clean.trim();
-          return t.split(/\s+/).length <= 9 && CLOSER.test(t) ? [{ block: last.block, index: last.start }] : [];
-        }),
-    message: "A short closing line that sums up the paragraph's example (\"It just doesn't ask itself.\", \"It knew, and it still wrote about retries.\"). Every blind listener in three test runs heard this line as the machine's.",
-    fix: "Delete it; the example already made the point. Or carry on into the next thought in the same breath: \"...and that's where the curse of context comes back in.\"",
-    source: "Blind listener tests of the lesson's theory of mind section, runs 3 to 5, 2026-11-08",
-    examples: {
-      fail: [{ text: "Say a customer writes in. You ask the model for a reply. It writes about the billing retries. It just doesn't ask itself.", mode: "script" }, { text: "Ask it how the customer feels and it knows. But the reply was about retries. It knew, and it still wrote about retries.", mode: "script" }],
-      pass: [{ text: "Say a customer writes in. You ask the model for a reply. It writes about the billing retries, and the customer still doesn't know when the money comes back.", mode: "script" }, { text: "I tried it on our own posts. The judge agreed with me most of the time. Why would it?", mode: "script" }],
-    },
-  },
-  {
-    id: "balanced-line",
-    modes: SCRIPT,
-    severity: "warning",
-    pattern: /\bthat'?s what \w+ [^,.;]{1,40},?\s+so that'?s what\b|\b(?:and|but|while),?\s+at the same time,\s|\bthe (?:more|less|fewer|better|worse) [^,.;]{1,40},\s+the (?:more|less|fewer|better|worse)\b|\b(?:holding|knowing|keeping)\b[^.;]{3,60}\bwhile\s+(?:reading|being|seeing|thinking|acting)\b/i,
-    message: "A line built in two matching halves (\"that's what it knows, so that's what it writes\", \"the more you paste, the more leaks\", \"knowing X and, at the same time, Y\"). Listeners hear the symmetry as a written, composed line.",
-    fix: "Say the two halves as two plain thoughts, in the order they happen: \"It knows about the billing change. That's why it writes about the billing change.\" Or keep the half that carries the point.",
-    source: "Blind listener tests of the lesson's theory of mind section, runs 3 and 4, 2026-11-08",
-    examples: {
-      fail: [{ text: "That's what the model knows about, so that's what it writes.", mode: "script" }, { text: "The hard part is knowing everything and, at the same time, reading it fresh.", mode: "script" }, { text: "The more you paste in, the more leaks out.", mode: "script" }, { text: "Catching it means holding everything it knows while reading as someone who knows none of it.", mode: "script" }],
-      pass: [{ text: "It knows about the billing change, so it writes about it.", mode: "script" }, { text: "You paste more in, and more of it ends up in the reply.", mode: "script" }],
-    },
-  },
-  {
     id: "staged-reveal",
     modes: SCRIPT,
     severity: "warning",

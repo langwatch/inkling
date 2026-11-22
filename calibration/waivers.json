@@ -25,13 +25,13 @@
   },
   {
     "expect": "reject",
-    "rule": "gravitas-closer",
+    "rule": { "id": "closer", "message": "The paragraph ends on a short line that exists for weight, not information.", "fix": "End on the last real fact, or cut the closer." },
     "line": "Ours stays.",
     "reason": "Sounds better as an ending."
   },
   {
     "expect": "reject",
-    "rule": "mirrored-pair",
+    "rule": { "id": "mirrored-pair", "message": "\"X does A. Y does B.\" mirrored pair: one idea dressed as two.", "fix": "Say the idea once, as one plain sentence." },
     "line": "The old tool gave us the idea. The new one made it real.",
     "reason": "Style. I like the rhythm."
   },

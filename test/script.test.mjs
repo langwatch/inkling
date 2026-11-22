@@ -85,11 +85,10 @@ test("an earlier v12 draft: the root cause among six, present-tense training, an
   const f = check(text);
   const by = (id) => f.filter((x) => x.rule === id);
   assert.equal(by("narrator/overclaim")[0]?.severity, "warning");
-  assert.equal(by("narrator/training-tense")[0]?.severity, "error");
   assert.equal(by("script/list-no-preview")[0]?.severity, "warning");
   const fixed = text.replace("The root cause is", "The first reason, and the root of the others, is").replace("training rewards", "training rewarded").replace("goes wrong.", "goes wrong: no judge, predictable words, conceding, the curse of context, formula punch and cramming.");
   const g = check(fixed);
-  assert.ok(!g.some((x) => ["narrator/overclaim", "narrator/training-tense", "script/list-no-preview"].includes(x.rule)), JSON.stringify(g.map((x) => x.rule)));
+  assert.ok(!g.some((x) => ["narrator/overclaim", "script/list-no-preview"].includes(x.rule)), JSON.stringify(g.map((x) => x.rule)));
 });
 
 test("a verbless fragment is an error; one marked on purpose is kept, a second marked one is not", () => {

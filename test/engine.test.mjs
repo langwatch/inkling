@@ -7,10 +7,10 @@ import { MODE_NAMES } from "../src/modes.mjs";
 const rules = selectRules();
 const ids = (text, mode = "post") => lint({ text, mode, rules }).map((f) => f.rule);
 
-test("flags the example sentence for negation and hedge", () => {
+test("flags the example sentence for its hedge; the negative quantity is a judge question", () => {
   const found = ids("The agent's main session plans and talks to people, and does almost none of the work itself.");
-  assert.ok(found.includes("negation/negative-quantity"));
   assert.ok(found.includes("hedges/softener"));
+  assert.ok(!found.includes("negation/negative-quantity"));
 });
 
 test("the fixed sentence is clean in every mode", () => {
@@ -32,7 +32,6 @@ test("approved lines raise no errors as ads", () => {
 });
 
 test("rejected lines fail as ads", () => {
-  assert.ok(ids("# A sandbox runs your agent. ACME puts it to work for your team", "ads").includes("contrast/mirrored-pair"));
   assert.ok(ids("# Your agent doesn't need a sandbox. It needs a team.", "ads").includes("contrast/doesnt-need-needs"));
   assert.ok(ids("# Dashboards come with 77 ready-made questions", "ads").includes("numbers/number-in-title"));
 });

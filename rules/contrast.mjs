@@ -88,18 +88,6 @@ export default [
     },
   },
   {
-    id: "mirrored-pair",
-    scope: "headline",
-    check: (unit) => mirroredPairs(unit),
-    message: "\"X does A. Y does B.\" mirrored pair: one idea dressed as two.",
-    fix: "Keep the one claim the reader did not expect.",
-    source: "Rejected title, \"A sandbox runs your agent. ACME puts it to work for your team\"; aphorism pairs",
-    examples: {
-      fail: ["# A sandbox runs your agent. ACME puts it to work for your team", "# Policies attest. Evidence proves."],
-      pass: ["# Laptop shut? It still works", "# You don't need an agent sandbox"],
-    },
-  },
-  {
     id: "mirrored-pair-copy",
     modes: PITCH,
     scope: "block",
@@ -114,17 +102,6 @@ export default [
         { text: "- **Retenção sob controle.** Prazo de retenção definido por organização, time ou projeto.", mode: "proposal", lang: "pt" },
         { text: "- **Annual pentest.** Done by an outside firm, with every finding fixed and retested.", mode: "ads" },
       ],
-    },
-  },
-  {
-    id: "rule-of-three",
-    pattern: /\b(too|more|less|fewer|zero)\s+[^,.;]{1,30},\s+\1\s+[^,.;]{1,30},?\s+(?:and\s+)?\1\b/i,
-    message: "Rule-of-three anaphora as a punchline.",
-    fix: "Keep the one item that carries the point, or make each item distinct.",
-    source: "Nexus writing-rules, Rule-of-three anaphora",
-    examples: {
-      fail: ["Too much overhead, too many handoffs, too much silent failure."],
-      pass: ["Handoffs failed silently, so tickets sat for days.", "No heavy gradients, no 3D kitsch, no glowing neon."],
     },
   },
 ];

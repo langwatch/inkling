@@ -35,27 +35,6 @@ export default [
     },
   },
   {
-    id: "chiasmus",
-    scope: "block",
-    modes: ALL_BUT_LEGAL,
-    check: (unit) => {
-      const clauses = unit.clean.split(/[,;:]\s+|\.\s+/).map((c) => c.trim()).filter(Boolean);
-      for (let i = 0; i + 1 < clauses.length; i++) {
-        const a = clauses[i];
-        const b = clauses[i + 1];
-        if (words(a).length <= 6 && words(b).length <= 6 && chiastic(a, b)) return [{ index: unit.clean.indexOf(a), match: `${a}, ${b}` }];
-      }
-      return [];
-    },
-    message: "Chiasmus: two short clauses that swap their words (\"test the writing, write the tests\"). A slogan shape.",
-    fix: "Say the one thing it means in a plain sentence.",
-    source: "Founder review 2026-11-07 (slogan-shaped lines); Nexus writing-rules, two-beat aphorism pairs",
-    examples: {
-      fail: ["Write the tests, test the writing.", "Read like a writer. Write like a reader."],
-      pass: ["Write the reader tests first, then the draft.", "The writer reads the report and fixes the draft."],
-    },
-  },
-  {
     id: "fragment-tagline",
     scope: "block",
     modes: ALL_BUT_LEGAL,
@@ -73,22 +52,6 @@ export default [
     examples: {
       fail: ["Less noise. More signal.", "# Draft. Test. Ship.", "Stop guessing. Start writing."],
       pass: ["The panel reads the draft, and the report lists where readers stopped.", "# Write the reader tests first", "# Laptop shut? It still works", "First line here. It worked well enough.", "### 1. Ask Langy"],
-    },
-  },
-  {
-    id: "x-is-the-y",
-    modes: ALL_BUT_LEGAL,
-    check: (unit) => {
-      const m = unit.clean.match(/^(?:the |your |a )?([a-z]+) is the (?:new )?([a-z]+)\.?$/i);
-      const pronoun = /^(?:this|that|it|here|there|what|which|who)$/i;
-      return m && !pronoun.test(m[1]) && m[1].toLowerCase() !== m[2].toLowerCase() && words(unit.clean).length <= 7 ? [{ index: 0, match: m[0] }] : [];
-    },
-    message: "\"The X is the Y\" equation tagline (\"The audience is the spec\"). It sounds deep and states nothing checkable.",
-    fix: "Say what the X does or contains: \"The readers file lists who reads and what they must take away.\"",
-    source: "Founder review 2026-11-07 (slogan-shaped lines); Nexus writing-rules, grand reframe claims",
-    examples: {
-      fail: ["The audience is the spec.", "Your draft is the test."],
-      pass: ["The readers file lists who reads the draft and what they must take away.", "This is the README."],
     },
   },
   {

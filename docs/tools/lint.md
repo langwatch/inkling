@@ -34,18 +34,20 @@ Today one rule warns: `narrator/question-opener`, a piece that opens with a ques
 | --- | --- |
 | punctuation | em dashes, spaced dashes, arrow calls to action, ellipsis shrugs, a second exclamation mark |
 | banned-words | mannered words such as `load-bearing` and `seam`, vibe phrases, marketing words, price as a verb, written-only connectors (otherwise, thus, whereas, therefore) in every mode but legal |
-| negation | claims defined by what something does not do; headlines that say what a thing is not |
-| hedges | softeners such as `almost` and `fairly`, casual hedges outside posts, modal hedges such as `can help` |
-| contrast | `not X, but Y`, `it wasn't X. It was Y.`, `X, not Y` closers, mirrored pairs, rule-of-three anaphora |
+| negation | headlines that say what a thing is not |
+| hedges | softeners such as `almost` and `fairly`, casual hedges outside posts |
+| contrast | `not X, but Y`, `it wasn't X. It was Y.`, `X, not Y` closers, mirrored pairs in copy |
 | numbers | sentences and titles that open with a number, over-precise figures |
-| narrator | signposts, question openers (warning), fake epiphanies, brand closers, vague majorities, vague attribution, undefined subjects such as `A founder rejected...` or `Teams ship...`, sentences that open with `So` (invented scenes and unnamed sources are [judge](judge.md#narrator-questions) questions), tense that does not match the claim (general fact in the past, one event in the present) |
-| structure | the same connective opening paragraph after paragraph (warning), headline shorthand in posts and docs ("Evals without the guesswork", "A flywheel, not a checklist": write a sentence with a verb; regex, 11 of 11 real hits were shorthand), long paragraphs, one-line barrages, staccato (short sentences that move time forward pass), gravitas closers, unintroduced names, clipped conditions ("ask it for copy, and it comes out weak") |
+| narrator | signposts, question openers (warning), vague majorities, vague attribution, undefined subjects such as `A founder rejected...` or `Teams ship...`, sentences that open with `So` (invented scenes and unnamed sources are [judge](judge.md#narrator-questions) questions), tense that does not match the claim (general fact in the past, one event in the present) |
+| structure | the same connective opening paragraph after paragraph (warning), headline shorthand in posts and docs ("Evals without the guesswork", "A flywheel, not a checklist": write a sentence with a verb; regex, 11 of 11 real hits were shorthand), long paragraphs, one-line barrages, staccato (short sentences that move time forward pass), unintroduced names, clipped conditions ("ask it for copy, and it comes out weak") |
 | docs | rollout flags, future tense, artifacts as subjects of thinking verbs, title rules |
 | deck | slide titles, bullet counts and lengths, prose on slides |
 | pitch | headlines from the writer's side, concessions, worry lines, crammed headlines, investor and legal precision |
 | blog | in `post` mode: made-up placeholder companies (ACME, Contoso, Northwind, frontmatter included), `Short answer:` labels under a title that asks nothing, contest headings such as `Where each improver broke`, `We gave three models...` framing, the audience's own terms missing or swapped for stand-ins (`--terms "evals=measurements|scores"`), code blocks over 8 lines or more than 3 of them. Without a term list, nothing checks for one thing named several ways: a Jev check on whole posts (2026-11-13) scored two approved posts 0.55 and 0.62 and three flawed ones 0.58 to 0.84, too close to use. A blog lede over 28 words (two lines) is an error from `pitch/long-subtitle` |
-| slogan | taglines such as `Fail your copy before your readers do`, chiasmus, clipped fragments, `The X is the Y`, `more than a X` |
+| slogan | taglines such as `Fail your copy before your readers do`, clipped fragments, `more than a X` |
 | house-langwatch | LangWatch product names, only with `--house langwatch` |
+
+Meaning-level shapes that a pattern only approximates are [judge](judge.md#construct-questions) questions, not rules: mirrored pairs and chiasmus, rule-of-three punchlines, claims defined by how little something does, modal hedges, fake epiphanies, closers, present tense for finished training, stated priors, `The X is the Y` taglines, invented scenes and unnamed sources. [The rule audit](../research/rule-audit.md) says which rule went where and why.
 
 `inkling rules --mode <mode>` lists every rule with its message.
 

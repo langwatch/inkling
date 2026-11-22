@@ -28,18 +28,6 @@ export default [
     },
   },
   {
-    id: "modal-hedge",
-    modes: ["docs", "ads", "deck", "investor", "post"],
-    pattern: /\b(?:may|might|could) (?:help|be able to|potentially|possibly|want to|wish to)\b|\bcan help\b|\bhelps? (?:you |teams |to )?(?:improve|reduce|make|get|boost|ensure)\b|\bcould potentially\b|\btends? to\b/i,
-    message: "Modal hedge. \"Can help\" and \"may\" promise nothing.",
-    fix: "Say what it does, in the present tense.",
-    source: "jev_slop copy check concedes_or_hedges; docs-writing-rules rule 4",
-    examples: {
-      fail: ["It can help reduce costs.", "You might want to run the migration."],
-      pass: ["It cut the bill by a third.", "Run the migration."],
-    },
-  },
-  {
     id: "you-may-wish",
     modes: ["docs"],
     pattern: /\byou may wish to\b|\byou might want to\b|\bone can\b|\byou may want to\b/i,
