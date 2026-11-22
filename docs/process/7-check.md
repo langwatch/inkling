@@ -3,7 +3,7 @@
 Once the draft exists, check it against what reviewers rejected before. There are two checks:
 
 - **Rules.** Each rule is a phrasing a reviewer rejected, such as "not X, but Y", a hedge, a slogan or a number in a title. The agent runs them, reads each finding with its reason and fix, and rewrites the line. They run in under a second and cost nothing. See the [lint tool](../tools/lint.md).
-- **A second model.** Some problems have no fixed phrasing: a headline written from your side, a concession, a line the reader would not believe. A small paid model answers one yes or no question per line for those. See the [judge tool](../tools/judge.md).
+- **A second model.** Some problems have no fixed phrasing: a headline written from your side, a concession, an invented scene, a quote from an unnamed customer. A small paid model answers one yes or no question per line or sentence for those. See the [judge tool](../tools/judge.md). Both checks are required: the lint leaves these to the judge, and the judge exits 3 with `NOT RUN` when it has no key, so a missing key never reads as a pass.
 
 Neither check sees two things, so look at them yourself before the reader test:
 

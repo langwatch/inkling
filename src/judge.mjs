@@ -20,6 +20,7 @@ export function judgeArgs({ file, mode, audience, context, json, copy = false, l
   if (copy || mode === "ads" || mode === "deck" || mode === "x") args.push("--copy");
   if (mode === "docs") args.push("--docs");
   if (mode === "script") args.push("--script");
+  if (mode !== "legal") args.push("--narrator");
   const who = [audience, context && `context: ${context}`].filter(Boolean).join("; ");
   if (who) args.push("--audience", who);
   if (lang && languageOf(lang) !== "en") args.push("--lang", languageOf(lang));
@@ -50,11 +51,17 @@ export function judgeInput(text) {
 }
 
 /** Per-flag thresholds. A draft passes only when no named flag is over its threshold. */
-export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75, wrong_register: 0.8, dramatic_never: 0.5 };
+// The narrator questions are asked per sentence in every mode but legal; thresholds from calibration/jev-narrator.jsonl (docs/tools/judge.md).
+export const THRESHOLDS = { default: 0.7, unsurprising: 0.75, writer_side: 0.75, wrong_register: 0.8, dramatic_never: 0.5, invented_scene: 0.4, unnamed_source: 0.8, undefined_subject: 0.8 };
+/** Flags that warn: over threshold, they are reported but never fail the draft. undefined_subject sits 0.03 above an approved line. */
+export const WARN = new Set(["undefined_subject"]);
+/** The checks a run without a Jev key leaves undone, named so the gap is never silent. */
+export const KEYLESS_GAP = "invented scenes, unnamed sources, undefined subjects, dramatic \"never\" and the copy and prose checks";
 /** A score this close to its threshold gets a second run; a split between the runs is advisory. */
 export const NEAR = 0.05;
 const NAMED = new Set(["unsurprising", "concedes_or_hedges", "writer_side", "formula_shape", "crammed_claims", "wrong_register",
-  "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register", "weak_opening", "weak_ending", "dramatic_never"]);
+  "numbers_no_takeaway", "overprecise_number", "results_list_no_perspective", "tells_what_visuals_show", "written_register", "weak_opening", "weak_ending", "dramatic_never",
+  "invented_scene", "unnamed_source", "undefined_subject"]);
 
 /** How to rewrite a line each flag hit. Shown as the fix under every Jev finding. */
 export const REWRITES = {
@@ -71,6 +78,9 @@ export const REWRITES = {
   written_register: "Say it the way you would when talking: \"on its own\" for \"left alone\", \"so\" for \"thus\" or \"therefore\", \"to\" for \"in order to\".",
   weak_opening: "The opening is a windup: background, a claim about the world or a line about the piece. Start on what the reader came for.",
   weak_ending: "End on the last fact or cut the closer. No moral, summary or product aside.",
+  invented_scene: "Use a real case with the person named and the date, or ask the plain question the reader would ask. A made-up moment with an unnamed person reads as a fabricated specific.",
+  unnamed_source: "Use a named, public case, or say the claim yourself.",
+  undefined_subject: "Name who it was, or make the reader, the writer or the product the subject.",
   dramatic_never: "Say it plainly: \"cases it didn't look at\", not \"cases it never looked at\". Keep \"never\" for a real, lasting rule (\"the key never leaves the vault\"). See \"No unpacking\" in step 6.",
 };
 
@@ -82,7 +92,11 @@ export function scores(report) {
     const s = {};
     for (const [k, v] of Object.entries(p.probs ?? {})) if (NAMED.has(k)) s[k] = v;
     for (const [k, v] of Object.entries(p.checks ?? {})) if (NAMED.has(k) && !(k in s)) s[k] = v.p;
-    return { n: p.n, text: p.text, scores: s };
+    const quotes = {};
+    for (const [k, v] of Object.entries(p.checks ?? {})) if (v?.quote && !/^point \d/.test(v.quote)) quotes[k] = v.quote;
+    // A copy line's narrator flag carries the 1.0 marker in checks; its raw score is in probs, its sentence in narrator.
+    for (const row of p.narrator ?? []) for (const [k, v] of Object.entries(row.probs ?? {})) if (v === s[k] && !quotes[k]) quotes[k] = row.quote;
+    return { n: p.n, text: p.text, scores: s, quotes };
   });
 }
 
@@ -102,7 +116,11 @@ export function verdict(first, second = null, lines = null) {
       const hit = p >= thr;
       const near = Math.abs(p - thr) <= NEAR;
       const p2 = b?.[i]?.scores[flag];
-      const item = { n: line.n, line: lines?.[line.n - 1] ?? line.n, text: line.text, flag, p, threshold: thr, fix: REWRITES[flag] };
+      const item = { n: line.n, line: lines?.[line.n - 1] ?? line.n, text: line.quotes?.[flag] ?? line.text, flag, p, threshold: thr, fix: REWRITES[flag] };
+      if (hit && WARN.has(flag)) {
+        advisory.push({ ...item, why: "warning" });
+        continue;
+      }
       if (near && p2 != null) {
         item.p2 = p2;
         if (hit !== p2 >= thr) advisory.push({ ...item, why: "split between two runs" });
@@ -116,7 +134,7 @@ export function verdict(first, second = null, lines = null) {
 export function formatVerdict(v) {
   const out = [];
   for (const f of v.fails) out.push(`line ${f.line ?? f.n}  jev/${f.flag}  ${f.p.toFixed(2)}${f.p2 != null ? `, rerun ${f.p2.toFixed(2)}` : ""} (threshold ${f.threshold})`, `  > ${f.text}`, `  fix: ${f.fix}`);
-  for (const f of v.advisory) out.push(`line ${f.line ?? f.n}  jev/${f.flag}  advisory: ${f.why} (${f.p.toFixed(2)}, ${f.p2.toFixed(2)}; threshold ${f.threshold})`, `  > ${f.text}`, `  fix: ${f.fix}`);
+  for (const f of v.advisory) out.push(`line ${f.line ?? f.n}  ${f.why === "warning" ? "warning " : ""}jev/${f.flag}  ${f.why === "warning" ? `${f.p.toFixed(2)} (threshold ${f.threshold})` : `advisory: ${f.why} (${f.p.toFixed(2)}, ${f.p2.toFixed(2)}; threshold ${f.threshold})`}`, `  > ${f.text}`, `  fix: ${f.fix}`);
   out.push(v.pass ? `PASS: no named flag over its threshold${v.advisory.length ? `, ${v.advisory.length} advisory` : ""}${v.reran ? " (reran lines near a threshold)" : ""}.` : `FAIL: ${v.fails.length} flag(s) over threshold.`);
   return out.join("\n") + "\n";
 }
@@ -150,10 +168,10 @@ export function runJudge({ file, mode, audience, context, json, stdin, firstScre
   const key = jevKey();
   if (!key) {
     process.stderr.write(
-      "inkling judge: skipped. The judge step needs a Jev key: set TYPESAFE_API_KEY or JEV_SLOP_API_KEY.\n" +
-        "The lint step needs no key: run inkling check.\n",
+      `inkling judge: NOT RUN. No Jev key, so these checks did not run: ${KEYLESS_GAP}.\n` +
+        "Set TYPESAFE_API_KEY or JEV_SLOP_API_KEY and run it again; the draft is not checked until it passes.\n",
     );
-    return 0;
+    return 3;
   }
   const raw = file === "-" ? stdin() : readFileSync(file, "utf8");
   const json5 = file.endsWith(".json");

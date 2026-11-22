@@ -38,6 +38,9 @@ function format(findings, { color }) {
     .join("\n\n");
 }
 
+/** What the lint leaves to the judge: meaning-level checks a pattern only approximates. */
+export const JUDGE_NOTE = "Not checked by the lint: invented scenes, unnamed sources and the other meaning-level checks. Run `inkling judge` (needs a Jev key) before you ship.";
+
 export function runCheck({ paths, mode, page, audience, terms, lang, house, only, skip, json, stdin, color, minutes }) {
   const rules = selectRules({ house, only, skip });
   const files = expand(paths.length ? paths : ["-"]);
@@ -66,6 +69,7 @@ export function runCheck({ paths, mode, page, audience, terms, lang, house, only
       out.push("");
     }
     out.push(all.length ? `${all.length} finding${all.length === 1 ? "" : "s"} from ${rulesHit} rule${rulesHit === 1 ? "" : "s"}${tail}.` : "clean: no findings.");
+    if (mode !== "legal") out.push(JUDGE_NOTE);
     process.stdout.write(out.join("\n") + "\n");
   }
   return all.some((f) => f.severity !== "warning") ? 1 : 0;

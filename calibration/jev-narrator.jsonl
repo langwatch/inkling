@@ -1,0 +1,112 @@
+// Sentences labelled for the narrator questions (inkling judge). `labels` lists the questions that should say yes; every other question should say no. `inkling`'s judges/jev/calibrate_narrator.py scores Jev on them.
+{"id": "is-01", "sentence": "Picture this: the deploy is red and support is calling.", "labels": ["invented_scene"]}
+{"id": "is-02", "sentence": "On Tuesday your team ships a new agent, and by Friday someone from finance asks why the bill doubled.", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-03", "sentence": "Your CTO pings you about the bill on a Sunday night.", "labels": ["invented_scene"]}
+{"id": "is-04", "sentence": "Sooner or later a director stops by with a screenshot.", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-05", "sentence": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call.", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-06", "sentence": "Imagine it's Friday afternoon and the eval dashboard suddenly turns red.", "labels": ["invented_scene"]}
+{"id": "is-07", "sentence": "It's Monday morning, you open your laptop, and three hundred tickets are waiting for a human.", "labels": ["invented_scene"]}
+{"id": "is-08", "sentence": "Then your head of sales walks over and asks which deals the agent lost.", "labels": ["invented_scene"]}
+{"id": "is-09", "sentence": "One day a manager forwards you a chat log with the subject line 'why did it say this?'.", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-10", "sentence": "So you're in the quarterly review, and the board wants to know what the agents actually do.", "labels": ["invented_scene"]}
+{"id": "is-11", "sentence": "By Thursday a teammate leans over and says the agent is answering in the wrong language.", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-12", "sentence": "And then, at the end of the sprint, a stakeholder messages you: is the agent worth what we pay?", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-13", "sentence": "Last week a product lead at a big retailer slacked me a single question about refunds.", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-14", "sentence": "It's late, the release went out an hour ago, and your phone starts buzzing with complaints.", "labels": ["invented_scene"]}
+{"id": "is-15", "sentence": "Your boss shows up at your desk holding a printout of the agent's worst answer.", "labels": ["invented_scene"]}
+{"id": "is-16", "sentence": "Every Friday, somebody from the business asks the same thing: are customers happier?", "labels": ["invented_scene", "undefined_subject"]}
+{"id": "is-17", "sentence": "Now imagine your support lead opening the dashboard on Monday and seeing handoffs doubled.", "labels": ["invented_scene"]}
+{"id": "is-18", "sentence": "OK, so it's demo day, and the agent freezes in front of the whole company.", "labels": ["invented_scene"]}
+{"id": "is-n01", "sentence": "On Tuesday 4 November we shipped the new agent, and by Friday Priya, our billing lead, asked why the bill doubled.", "labels": []}
+{"id": "is-n02", "sentence": "In the Monday meeting on 3 November, Priya, our billing lead, asked how often the agent gives up.", "labels": []}
+{"id": "is-n03", "sentence": "Ask your agent for its last ten failed tool calls and read them one by one.", "labels": []}
+{"id": "is-n04", "sentence": "Try it on your own traces: pick a day after a release and count the handoffs.", "labels": []}
+{"id": "is-n05", "sentence": "If the bill doubles after a release, the alert fires within the hour.", "labels": []}
+{"id": "is-n06", "sentence": "How often does the agent give up after a failed tool call?", "labels": []}
+{"id": "is-n07", "sentence": "The weekly review shows every failed tool call.", "labels": []}
+{"id": "is-n08", "sentence": "By Friday the eval had read every conversation.", "labels": []}
+{"id": "is-n09", "sentence": "We ran the eval again on Monday, after the fix went out.", "labels": []}
+{"id": "is-n10", "sentence": "On 12 October I sat with our support team and we read fifty handoffs together.", "labels": []}
+{"id": "is-n11", "sentence": "When a release changes the prompt, the handoff rate is the first number to move.", "labels": []}
+{"id": "is-n12", "sentence": "You can ask the same question every Monday and chart the answer by week.", "labels": []}
+{"id": "is-n13", "sentence": "Netflix's engineering blog described a Friday deploy freeze in 2023.", "labels": []}
+{"id": "is-n14", "sentence": "Open the trace from yesterday's failed run and look at the tool call before the handoff.", "labels": []}
+{"id": "is-n15", "sentence": "Last Thursday our on-call engineer, Tom, rolled the prompt back in four minutes.", "labels": []}
+{"id": "is-n16", "sentence": "Support teams usually look at handoffs once a week.", "labels": ["undefined_subject"]}
+{"id": "is-n17", "sentence": "If you run evals only on Fridays, a Monday regression waits four days.", "labels": []}
+{"id": "is-n18", "sentence": "The meeting notes from 3 November list every question the finance team asked.", "labels": []}
+{"id": "us-01", "sentence": "A customer told his team the dashboards were useless.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-02", "sentence": "One of our customers said the export was slow.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-03", "sentence": "A firm that certifies AI systems told us the audit takes a week.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-04", "sentence": "A user once said the agent felt rude.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-05", "sentence": "An engineer at a big bank once told me they read only one percent of their traces.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-06", "sentence": "Studies show that teams with evals ship twice as often.", "labels": ["unnamed_source"]}
+{"id": "us-07", "sentence": "As one CTO put it to me, observability is just numbers until you read the text.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-08", "sentence": "We heard from several enterprise buyers that they want everything in one place.", "labels": ["unnamed_source"]}
+{"id": "us-09", "sentence": "A partner of ours reported that the agent handled refunds better after the change.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-10", "sentence": "Experts agree that LLM judges need calibration.", "labels": ["unnamed_source"]}
+{"id": "us-11", "sentence": "Someone on a support team wrote to us that the chart saved her a week of reading.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-12", "sentence": "A head of AI at a large insurer told us he would never buy a tool that only shows metrics.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-13", "sentence": "Research suggests that most agents fail silently.", "labels": ["unnamed_source"]}
+{"id": "us-14", "sentence": "A Fortune 500 company we work with found that a third of its handoffs were avoidable.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-15", "sentence": "Analysts say the market for agent tooling will triple.", "labels": ["unnamed_source"]}
+{"id": "us-16", "sentence": "One founder I spoke to said evals were the first thing they cut.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-17", "sentence": "Our biggest customer complained that the alerts came too late.", "labels": ["unnamed_source"]}
+{"id": "us-18", "sentence": "A reviewer at a security vendor mentioned that the agent leaked a key once.", "labels": ["unnamed_source", "undefined_subject"]}
+{"id": "us-n01", "sentence": "Meta's 2025 paper found that LLM judges prefer model text over human text.", "labels": []}
+{"id": "us-n02", "sentence": "We think the export is too slow: it takes 40 seconds for a thousand rows.", "labels": []}
+{"id": "us-n03", "sentence": "Dashboards that only show token counts don't help the business decide.", "labels": []}
+{"id": "us-n04", "sentence": "We ran the judge on 133 labelled cases and it agreed with us on 130.", "labels": []}
+{"id": "us-n05", "sentence": "GitHub's public write-up of its Copilot rollout said acceptance rates rose after the first month.", "labels": []}
+{"id": "us-n06", "sentence": "Priya, our billing lead, told the team the alerts came too late.", "labels": []}
+{"id": "us-n07", "sentence": "In its public case study, Cloudflare's support team said it reads every escalated conversation.", "labels": []}
+{"id": "us-n08", "sentence": "The customer table holds one row per account.", "labels": []}
+{"id": "us-n09", "sentence": "Our own logs show that a third of handoffs happen after a failed tool call.", "labels": []}
+{"id": "us-n10", "sentence": "OpenAI's documentation says the model may return an empty tool call.", "labels": []}
+{"id": "us-n11", "sentence": "I told my co-founder the dashboard was useless without the text.", "labels": []}
+{"id": "us-n12", "sentence": "When a customer says the export broke, the agent opens a ticket.", "labels": []}
+{"id": "us-n13", "sentence": "Customers can export their traces as CSV.", "labels": []}
+{"id": "us-n14", "sentence": "Ask a customer what they want to know, and write it down in their words.", "labels": []}
+{"id": "us-n15", "sentence": "Stack Overflow's 2024 developer survey found that most respondents use AI tools at work.", "labels": []}
+{"id": "us-n16", "sentence": "The judge said yes on 9 of the 12 dramatic sentences.", "labels": []}
+{"id": "us-n17", "sentence": "Andrej Karpathy wrote in a public post that he reads his model's outputs every day.", "labels": []}
+{"id": "us-n18", "sentence": "The agent told the customer the refund was on its way.", "labels": []}
+{"id": "ud-01", "sentence": "A founder rejected this landing page title from his agent.", "labels": ["undefined_subject"]}
+{"id": "ud-02", "sentence": "Someone asked us for a dark mode.", "labels": ["undefined_subject", "unnamed_source"]}
+{"id": "ud-03", "sentence": "Teams ship faster when they review traces.", "labels": ["undefined_subject"]}
+{"id": "ud-04", "sentence": "A developer connects the agent once.", "labels": ["undefined_subject"]}
+{"id": "ud-05", "sentence": "Companies switch to self-hosting after the first audit.", "labels": ["undefined_subject"]}
+{"id": "ud-06", "sentence": "Small startups adopt it in a week.", "labels": ["undefined_subject"]}
+{"id": "ud-07", "sentence": "A big team switched last month.", "labels": ["undefined_subject"]}
+{"id": "ud-08", "sentence": "A human writer learned punchy from watching people react.", "labels": ["undefined_subject"]}
+{"id": "ud-09", "sentence": "An engineer spent two days reading traces before finding the bug.", "labels": ["undefined_subject"]}
+{"id": "ud-10", "sentence": "Product managers open the dashboard every morning.", "labels": ["undefined_subject"]}
+{"id": "ud-11", "sentence": "A support lead rewrote the prompt and the handoffs dropped by half.", "labels": ["undefined_subject"]}
+{"id": "ud-12", "sentence": "Somebody on the platform team turned the alert off.", "labels": ["undefined_subject"]}
+{"id": "ud-13", "sentence": "Enterprises buy the self-hosted version first.", "labels": ["undefined_subject"]}
+{"id": "ud-14", "sentence": "One of the engineers deleted the eval set by accident.", "labels": ["undefined_subject"]}
+{"id": "ud-15", "sentence": "Data scientists hate reading raw JSON traces.", "labels": ["undefined_subject"]}
+{"id": "ud-16", "sentence": "A CTO at a fintech moved all their agents onto one gateway.", "labels": ["undefined_subject"]}
+{"id": "ud-17", "sentence": "Marketers write the prompts, and engineers fix them later.", "labels": ["undefined_subject"]}
+{"id": "ud-18", "sentence": "A customer churned after the agent kept looping.", "labels": ["undefined_subject"]}
+{"id": "ud-c1", "before": "Are your customers happy? Do they get answers fast?", "sentence": "A customer told his team the dashboards were useless.", "labels": ["undefined_subject", "unnamed_source"]}
+{"id": "ud-n01", "sentence": "A developer is anyone with a project key.", "labels": []}
+{"id": "ud-n02", "sentence": "If a user asks for a refund, the agent hands off to a person.", "labels": []}
+{"id": "ud-n03", "sentence": "A rule blocks a draft only after calibration.", "labels": []}
+{"id": "ud-n04", "before": "We met a founder at the conference in Lisbon.", "sentence": "The founder rejected the first title there.", "labels": []}
+{"id": "ud-n05", "sentence": "You can connect the agent once and forget about it.", "labels": []}
+{"id": "ud-n06", "sentence": "Our founder rejected this landing page title from his agent.", "labels": []}
+{"id": "ud-n07", "sentence": "Developers are the main audience of these docs.", "labels": []}
+{"id": "ud-n08", "sentence": "The teams that ship fastest in our own data review traces daily.", "labels": []}
+{"id": "ud-n09", "sentence": "LangWatch connects every agent in the company to one place.", "labels": []}
+{"id": "ud-n10", "sentence": "A small paid model answers one question per line.", "labels": []}
+{"id": "ud-n11", "sentence": "A model left alone writes the most likely words.", "labels": []}
+{"id": "ud-n12", "before": "Our customers in Europe run it on their own servers.", "sentence": "Customers there ask for audit logs.", "labels": []}
+{"id": "ud-n13", "sentence": "When an engineer opens a trace, the first span shows the user's question.", "labels": []}
+{"id": "ud-n14", "sentence": "I rewrote the prompt, and the handoffs dropped by half.", "labels": []}
+{"id": "ud-n15", "sentence": "Tom, our on-call engineer, turned the alert off at 3 a.m.", "labels": []}
+{"id": "ud-n16", "sentence": "Each team gets its own budget and its own key.", "labels": []}
+{"id": "ud-n17", "sentence": "A trace holds every span of one run.", "labels": []}
+{"id": "ud-n18", "sentence": "If you're building the AI platform in your company, come talk to us.", "labels": []}
+{"id": "ud-n19", "before": "Priya leads support at our company.", "sentence": "She rewrote the prompt, and the handoffs dropped by half.", "labels": []}
+{"id": "ud-n20", "sentence": "Every engineer has their own coding agent now, and every team is shipping one.", "labels": []}

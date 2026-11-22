@@ -26,14 +26,24 @@ test("check --json is machine readable", () => {
   assert.equal(out.findings[0].rule, "pitch/writer-side-headline");
 });
 
-test("judge skips with a clear message without a Jev key", () => {
+test("judge without a Jev key fails loudly and names what did not run", () => {
   const r = run(["judge", "-", "--mode", "post"], "text", { TYPESAFE_API_KEY: "", JEV_SLOP_API_KEY: "", JEV_API_KEY: "" });
-  assert.equal(r.status, 0);
-  assert.match(r.stderr, /skipped/);
+  assert.equal(r.status, 3);
+  assert.match(r.stderr, /NOT RUN/);
+  assert.match(r.stderr, /invented scenes, unnamed sources/);
+});
+
+test("check says what it leaves to the judge", () => {
+  assert.match(run(["check", "-", "--mode", "post"], "The export takes 40 seconds.").stdout, /Run `inkling judge`/);
+});
+
+test("judge asks the narrator questions in every mode but legal", () => {
+  for (const mode of ["post", "script", "ads", "docs", "deck"]) assert.ok(judgeArgs({ file: "a.md", mode }).includes("--narrator"), mode);
+  assert.ok(!judgeArgs({ file: "a.md", mode: "legal" }).includes("--narrator"));
 });
 
 test("judge maps modes onto jev_slop flags", () => {
-  assert.deepEqual(judgeArgs({ file: "a.md", mode: "ads", audience: "VCs" }).slice(1), ["a.md", "--checks", "jev", "--copy", "--audience", "VCs"]);
+  assert.deepEqual(judgeArgs({ file: "a.md", mode: "ads", audience: "VCs" }).slice(1), ["a.md", "--checks", "jev", "--copy", "--narrator", "--audience", "VCs"]);
   assert.ok(judgeArgs({ file: "a.md", mode: "docs" }).includes("--docs"));
   assert.deepEqual(judgeArgs({ file: "a.md", mode: "proposal", lang: "pt-BR" }).slice(-2), ["--lang", "pt"]);
   assert.ok(!judgeArgs({ file: "a.md", mode: "post", lang: "en-GB" }).includes("--lang"));

@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { verdict, nearThreshold, formatVerdict, REWRITES, THRESHOLDS } from "../src/judge.mjs";
 
 // Shaped like jev_slop_v2.py --json: copy lines carry raw probs, prose paragraphs carry checks with p.
@@ -50,4 +51,40 @@ test("--first-screen skips the partner note and a subtitle repeated in the body,
   const { firstScreen } = await import("../src/judge.mjs");
   const md = "---\nintro: The short intro.\n---\n*Written with ACME.*\n\nThe short intro.\n\nOne.\n\nTwo.\n\nThree.\n\nFour.\n";
   assert.deepEqual(firstScreen(md).text.trim().split("\n\n"), ["The short intro.", "One.", "Two.", "Three."]);
+});
+
+test("narrator flags print their sentence; unnamed_source fails, undefined_subject only warns", () => {
+  const report = { paragraphs: [{ n: 1, text: "We shipped. A customer told his team it was useless.", tics: {}, regex: [], checks: {
+    unnamed_source: { p: 0.92, quote: "A customer told his team it was useless." },
+    undefined_subject: { p: 0.88, quote: "A customer told his team it was useless." },
+    invented_scene: { p: 0.1, quote: "We shipped." },
+  } }] };
+  const v = verdict(report);
+  assert.equal(v.pass, false);
+  assert.deepEqual(v.fails.map((f) => [f.flag, f.text]), [["unnamed_source", "A customer told his team it was useless."]]);
+  assert.deepEqual(v.advisory.map((f) => [f.flag, f.why]), [["undefined_subject", "warning"]]);
+  assert.match(formatVerdict(v), /warning jev\/undefined_subject {2}0\.88/);
+  assert.equal(verdict({ paragraphs: [{ ...report.paragraphs[0], checks: { undefined_subject: { p: 0.95, quote: "x" } } }] }).pass, true);
+  for (const flag of ["invented_scene", "unnamed_source", "undefined_subject"]) assert.ok(REWRITES[flag] && THRESHOLDS[flag], flag);
+});
+
+test("jev_slop asks the narrator questions per sentence with the text before, and keeps each sentence as the quote", () => {
+  const py = `
+import importlib.util, json, sys
+sp = importlib.util.spec_from_file_location("v2", sys.argv[1]); v2 = importlib.util.module_from_spec(sp); sp.loader.exec_module(v2)
+seen = []
+def fake(state, qs, key):
+    seen.append(state)
+    yes = "A customer told" in state.split("Sentence:")[-1]
+    return {"answers": {k: {"noul": 0.9 if yes else 0.1} for k in qs}, "usage": {"input_tokens": 1}}
+v2.v1.ask_jev = fake
+out, tokens = v2.narrator_checks([{"text": "Are your customers happy? A customer told his team it was useless."}], "k")
+print(json.dumps({"out": out, "seen": seen}))`;
+  const r = spawnSync("python3", ["-c", py, new URL("../judges/jev/jev_slop_v2.py", import.meta.url).pathname], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  const { out, seen } = JSON.parse(r.stdout);
+  assert.equal(seen.length, 2);
+  assert.match(seen[1], /^Context before: Are your customers happy\?\n\nSentence: A customer told/);
+  assert.deepEqual(out[0].unnamed_source, { p: 0.9, quote: "A customer told his team it was useless.", fix: "" });
+  assert.equal(out[0]._narrator.length, 2);
 });

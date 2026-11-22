@@ -8,7 +8,7 @@ inkling judge draft.md --mode post --audience "engineers on Hacker News" --conte
 inkling judge titles.md --mode ads --audience "founders who searched for an agent sandbox"
 ```
 
-Without a key, `inkling judge` prints that it skipped and exits 0. The lint tool needs no key.
+Without a key, `inkling judge` prints `NOT RUN`, names the checks that did not run and exits 3: a draft is not checked until the judge passes. The lint tool needs no key, and every `inkling check` run ends with a line saying what it left to the judge.
 
 Inkling blanks YAML front matter (a leading `---` block such as `minutes: 4.5`) before Jev reads the draft, so the first paragraph Jev judges is the first one a reader sees. Each finding is reported at the source line where its paragraph starts. `--mode script` also turns on the check for narration that describes what the visuals show.
 
@@ -19,6 +19,26 @@ Inkling blanks YAML front matter (a leading `---` block such as `minutes: 4.5`) 
 - `--mode ads`, `--mode deck` and `--mode x` turn on copy checks, one flag per point of the analysis in [origin.md](../research/origin.md): unsurprising, concedes or hedges, writer side, formula shape, crammed claims, wrong register.
 - `--mode docs` adds the docs questions: indefinite event openers, artifacts with thinking verbs, statement stacks.
 - `--audience` and `--context` are joined and passed as the reader Jev judges as. A line can pass for the reader it was written for and fail for a lawyer or an investor, because questions such as wrong register are judged against that reader.
+
+## Narrator questions
+
+In every mode but legal, Jev reads each sentence with the text before it and answers three questions. A flag prints the sentence it found:
+
+| Flag | Yes for | No for | Severity |
+| --- | --- | --- | --- |
+| `invented_scene` | a made-up moment with an unnamed person or a stock time of the week: "Picture this", "On Tuesday your team ships..., and by Friday someone asks" | a real, dated event with the person named; asking the reader to try something; a plain question or condition | error at 0.4 |
+| `unnamed_source` | a claim backed by what an unnamed person or organisation said or found: "A customer told his team", "a firm that certifies AI systems told us", "studies show" | a named, public source; the writer's own claim; our own run | error at 0.8 |
+| `undefined_subject` | an unnamed person or group doing something: "A founder rejected", "Someone asked", "Companies switch" | a definition, a role in a condition, the reader or product as subject, a person introduced earlier | warning at 0.8 |
+
+These replaced regex rules, because widening a pattern only covers the phrasings already seen. Calibration on 245 sentences (`calibration/jev-narrator.jsonl`, the approved lines of `calibration/regression.jsonl`, the reference voice, and three launch-video scripts kept out of the repo), 2026-11-22, with `judges/jev/calibrate_narrator.py calibration/jev-narrator.jsonl --approved calibration/regression.jsonl --approved docs/voice/reference.md`:
+
+| Question | Threshold | Precision | Recall | False flags on approved lines | Regex it replaced: precision, recall |
+| --- | --- | --- | --- | --- | --- |
+| `invented_scene` | 0.4 | 0.90 | 0.95 | 0 (highest approved 0.33) | 1.00, 0.65 |
+| `unnamed_source` | 0.8 | 0.95 | 0.95 | 0 (highest approved 0.74) | 1.00, 0.38 |
+| `undefined_subject` | 0.8 | 1.00 | 0.60 | 0 (highest approved 0.77) | 0.96, 0.55 |
+
+`undefined_subject` stays a warning: an approved line sits 0.03 under its threshold, inside the run-to-run drift. Its regex, `narrator/undefined-subject` in `inkling check`, stays too: it caught 5 positives Jev scored under 0.8, with no false flag on an approved line. The other two regexes caught nothing Jev missed and were deleted.
 
 ## Cost and accuracy
 

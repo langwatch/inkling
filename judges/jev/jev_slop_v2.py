@@ -64,7 +64,8 @@ NAMED = ["numbers_no_takeaway", "overprecise_number", "results_list_no_perspecti
 SCORE_WEIGHTS = {"numbers_no_takeaway": 2.0, "overprecise_number": 1.0, "results_list_no_perspective": 2.0,
                  "tells_what_visuals_show": 1.0, "written_register": 1.0, "weak_opening": 2.0, "weak_ending": 2.0, "tic": 0.5, "regex": 0.5,
                  "unsurprising": 2.0, "concedes_or_hedges": 2.0, "writer_side": 2.0, "formula_shape": 2.0,
-                 "crammed_claims": 2.0, "wrong_register": 2.0, "dramatic_never": 1.0}
+                 "crammed_claims": 2.0, "wrong_register": 2.0, "dramatic_never": 1.0,
+                 "invented_scene": 1.0, "unnamed_source": 1.0, "undefined_subject": 1.0}
 
 # ---- definitions shared by both backends. His rules in his words, with made-up examples: no text from the
 # validation sets (tmp/xar-judge/v2/checkset.jsonl) is quoted here.
@@ -126,6 +127,65 @@ def never_checks(units, key, lang="en"):
             tokens += t
             if pr > out[i].get("dramatic_never", {}).get("p", -1):
                 out[i]["dramatic_never"] = {"p": pr, "quote": sent, "fix": ""}
+    return out, tokens
+
+# Narrator questions: one Jev call per sentence, the sentence before it as context, so each flag carries its quote.
+# Every mode but legal (inkling judge leaves --narrator off there). Thresholds from calibration/jev-narrator.jsonl.
+NARRATOR_DEFS = {
+    "invented_scene": "The sentence invents a scene to dramatise a point: a made-up moment, told as if it happened or "
+        "will happen, with an unnamed person or a stock time of the week. Yes: 'Picture this: the deploy is red and "
+        "support is calling'; 'On Tuesday your team ships a new agent, and by Friday someone from finance asks why "
+        "the bill doubled'; 'Your CTO pings you about the bill'; 'Sooner or later a director stops by with a "
+        "screenshot'. No when the event is real and dated with the person named ('On 4 November Priya, our billing "
+        "lead, asked why the bill doubled'); when the reader is asked to try something themselves ('Ask your agent "
+        "for its last ten failures and read them'); for a plain question, a condition ('If the bill doubles, the "
+        "alert fires') or a general statement.",
+    "unnamed_source": "The sentence backs a claim with what an unnamed person or organisation said, told, wrote or "
+        "found, so the reader can't check it: a testimonial or a finding with no name. A product, an agent, a model "
+        "or a judge saying something is not a source, and neither is someone asking a question in a story. Yes: 'A customer told his team the dashboards were useless'; 'One of our users said "
+        "the export broke'; 'A firm that certifies AI systems told us the audit takes a week'; 'An engineer at a big "
+        "bank once said...'; 'Studies show...'. No when the source is named and public ('Meta's 2025 paper found "
+        "that judges prefer model text'; 'In its public case study, the support lead at Northwind said...'); when "
+        "the writer states the claim himself ('We think the export is too slow'); or when 'we' report our own run.",
+    "undefined_subject": "The sentence's subject is an unnamed person or group of people doing something, and the "
+        "text never says who: 'a founder', 'someone', 'a customer', 'an engineer at a bank', or a bare plural group "
+        "stated as a habit ('Companies switch...', 'Marketers write...', 'Enterprises buy...'). Yes: 'A founder "
+        "rejected this title'; 'A customer told his team the dashboards were useless'; 'Someone asked us for a dark "
+        "mode'; 'Teams ship faster when they review traces'; 'A developer connects the agent once'. No for a definition ('A developer "
+        "is anyone with a project key'); a role in a rule or a condition ('If a user asks for a refund, the agent "
+        "hands off'); the reader, the writer or the product as the subject; or a person the text before already "
+        "introduced ('We met a founder at the conference. The founder rejected the title').",
+}
+NARRATOR_THRESHOLDS = {"invented_scene": 0.4, "unnamed_source": 0.8, "undefined_subject": 0.8}
+NARRATOR_Q = {k: "The text has the context before, then the sentence to judge. Judge only the sentence after "
+              f"'Sentence:'. Answer yes only if it has this problem. {d}" for k, d in NARRATOR_DEFS.items()}
+SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[\"'(A-Z0-9])")
+
+
+def narrator_state(before, sentence):
+    return (f"Context before: {before[-600:]}\n\n" if before else "") + f"Sentence: {sentence}"
+
+
+def narrator_checks(units, key, questions=None):
+    """Per unit: {flag: {"p": max score, "quote": the sentence}} plus "_narrator": every sentence's scores."""
+    qs = questions or NARRATOR_Q
+    jobs, before = [], ""
+    for i, u in enumerate(units):
+        for s in SENTENCE.split(u["text"].replace("\n", " ").strip()):
+            s = s.strip()
+            if len(s.split()) >= 3: jobs.append((i, s, before))
+            before = (before + " " + s).strip()
+    def one(job):
+        r = v1.ask_jev(narrator_state(job[2], job[1]), qs, key)
+        return job, {k: round(v.get("noul", 0.0), 3) for k, v in r["answers"].items()}, r.get("usage", {}).get("input_tokens", 0)
+    out = [{"_narrator": []} for _ in units]
+    tokens = 0
+    with ThreadPoolExecutor(4) as ex:
+        for (i, sent, _), probs, t in ex.map(one, jobs):
+            tokens += t
+            out[i]["_narrator"].append({"quote": sent, "probs": probs})
+            for k, pr in probs.items():
+                if pr > out[i].get(k, {}).get("p", -1): out[i][k] = {"p": pr, "quote": sent, "fix": ""}
     return out, tokens
 
 CLAUDE_SYS = ("You are the founder's line editor at LangWatch. He likes casual, spoken, opinionated writing: "
@@ -483,7 +543,7 @@ def v2_score(report, threshold):
 
 
 def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=False, xar_task=None, docs=False,
-        copy=None, copy_backend="jev", audience=None, lang="en"):
+        copy=None, copy_backend="jev", audience=None, lang="en", narrator=False):
     units, script = load_units(path, script)
     copy = is_copy(units) and not script if copy is None else copy
     if copy:  # titles and ad lines: one per line, even without blank lines between them
@@ -502,6 +562,7 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
         # Jev's prose tics (gravitas_closer, rhetorical_question_hook...) misfire on one-line titles: off in copy mode
         ft = ex.submit(jev_tics, units, key, with_ai) if jev and not copy else None
         fn = ex.submit(never_checks, units, key, lang) if key else None
+        fr = ex.submit(narrator_checks, units, key) if key and narrator else None
         named = fc.result()
         if isinstance(named, tuple): named, t = named; tokens += t
         if fn:
@@ -513,14 +574,22 @@ def run(path, script=False, checks="claude", jev=True, threshold=0.5, with_ai=Fa
                 else: named[i].update(n)
         tics = [{} for _ in units]
         if ft: tics, t = ft.result(); tokens += t
+        if fr:
+            found, t = fr.result(); tokens += t
+            for i, n in enumerate(found):
+                if copy:
+                    named[i].setdefault("_probs", {}).update({k: v["p"] for k, v in n.items() if not k.startswith("_")})
+                    named[i].update({k: {**v, "p": 1.0} for k, v in n.items() if not k.startswith("_") and v["p"] >= NARRATOR_THRESHOLDS[k]})
+                else: named[i].update({k: v for k, v in n.items() if not k.startswith("_")})
+                named[i]["_narrator"] = n["_narrator"]
     report = []
     for i, u in enumerate(units):
         report.append({"n": i + 1, "text": u["text"], "cue": u["cue"],
                        "role": "copy" if copy else "opening" if i in op else "ending" if i == end else "body",
                        "checks": {k: v for k, v in named[i].items() if not k.startswith("_")},
-                       "extract": named[i].get("_extract"), "probs": named[i].get("_probs"),
+                       "extract": named[i].get("_extract"), "probs": named[i].get("_probs"), "narrator": named[i].get("_narrator"),
                        "tics": tics[i], "regex": v1.regex_hits(u["text"])})
-    names = (COPY if copy else NAMED) + ["dramatic_never"]
+    names = (COPY if copy else NAMED) + ["dramatic_never"] + (list(NARRATOR_DEFS) if narrator else [])
     if copy:  # per line: 10 minus 2 per copy flag, so lines can be ranked against each other
         for it in report:
             it["line_score"] = max(0.0, 10.0 - sum(SCORE_WEIGHTS[k] for k in it["checks"]) - 0.5 * len(it["regex"]))
@@ -556,10 +625,11 @@ def main():
     ap.add_argument("--xar", action="store_true", help="also score with the XAR rubric judge (needs --task)")
     ap.add_argument("--task", help="for --xar: genre, sender, reader and the facts the text must carry")
     ap.add_argument("--lang", default="en", help="text language base code (en, pt): picks the word the dramatic_never prefilter looks for")
+    ap.add_argument("--narrator", action="store_true", help="ask the narrator questions (invented scene, unnamed source, undefined subject) per sentence, with the quote")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
     if a.xar and not a.task: ap.error("--xar needs --task")
-    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience, a.lang)
+    r = run(a.file, a.script, a.checks, not a.no_jev, a.threshold, a.show_ai, a.task if a.xar else None, a.docs, a.copy, a.copy_backend, a.audience, a.lang, a.narrator)
     if a.json:
         print(json.dumps(r, indent=1, ensure_ascii=False)); return
     clean = 0

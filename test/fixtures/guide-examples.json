@@ -31,8 +31,6 @@
     { "mode": "ads", "rule": "banned-words/in-plain-words", "text": "They ask in plain words." },
     { "mode": "post", "rule": "structure/staccato", "text": "Sam gave up on it first. Overhead was high. Handoffs failed silently." },
     { "mode": "post", "rule": "narrator/undefined-subject", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
-    { "mode": "post", "rule": "narrator/invented-scene", "text": "Someone asks in the Monday meeting how often the agent gives up after a failed tool call." },
-    { "mode": "post", "rule": "narrator/invented-scene", "text": "Sooner or later a director stops by with a screenshot." },
     { "mode": "docs", "rule": "docs/indefinite-event-opener", "text": "A developer connects the agent to the platform." },
     { "mode": "post", "rule": "narrator/undefined-subject", "text": "A developer connects the agent to the platform." },
     { "mode": "post", "rule": "narrator/vague-attribution", "text": "Many companies already run their agents this way." },
