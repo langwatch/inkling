@@ -21,7 +21,8 @@ if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
 fi
 echo '{"hasCompletedOnboarding":true,"autoUpdates":false}' > "$CFG/.claude.json"
 echo '{}' > "$CFG/settings.json"
-clean() { env -u ANTHROPIC_API_KEY -u ANTHROPIC_BASE_URL -u OPENAI_API_KEY CLAUDE_CONFIG_DIR="$CFG" "$@"; }
+# INKLING_NO_UPDATE: a run pins the Inkling it copied, so no update notice.
+clean() { env -u ANTHROPIC_API_KEY -u ANTHROPIC_BASE_URL -u OPENAI_API_KEY INKLING_NO_UPDATE=1 CLAUDE_CONFIG_DIR="$CFG" "$@"; }
 
 one() { # scenario run
   local s=$1 k=$2 sd="$REPO/scenarios/$1"

@@ -20,9 +20,14 @@ import { parse } from "./markdown.mjs";
 import { judgeWaivers, waiverItems, formatWaivers } from "./waivers.mjs";
 import { predict, formatPrediction } from "./predict.mjs";
 import { unseen, markSeen, formatWhatsnew, whatsnewNotice } from "./whatsnew.mjs";
+import { docsCommand } from "./docs.mjs";
 import { directionsStart, directionsPick, directionsEvolve, directionsFinal, answerWithClaude } from "./directions.mjs";
 
 const USAGE = `inkling: content writing framework for agents
+
+  inkling docs [page]
+      print a page of the docs that ship with Inkling (README, process/README, process/message-mode...);
+      with no page, list them. Links in a page name other pages: docs/process/6-draft.md is process/6-draft
 
   inkling whatsnew
       what changed in how to drive Inkling since you last ran it (CHANGELOG.md); check, readers run and
@@ -155,6 +160,8 @@ export function main(argv) {
   const entry = command === "check" || (command === "readers" && positionals[0] === "run") || (command === "directions" && positionals[0] === "start");
   if (entry) process.stderr.write(whatsnewNotice());
   switch (command) {
+    case "docs":
+      return docsCommand(positionals);
     case "whatsnew": {
       const fresh = unseen();
       process.stdout.write(formatWhatsnew(fresh));

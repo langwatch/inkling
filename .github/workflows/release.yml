@@ -1,0 +1,95 @@
+# Publish @langwatch/inkling to npm when main changes what the package ships.
+#
+# Version: the next patch after the newest published one (package.json's version on the first
+# publish), set only inside this run and never committed back, so a release makes no commit of its
+# own. A clone tracks main through git; an install learns of a new version from the npm registry.
+#
+# Needs the NPM_API_TOKEN repo secret. After the first publish, a Trusted Publisher on npmjs.com
+# (GitHub Actions, langwatch/inkling, release.yml) lets npm mint the token from id-token instead.
+
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "bin/**"
+      - "src/**"
+      - "rules/**"
+      - "modes/**"
+      - "judges/**"
+      - "data/**"
+      - "docs/**"
+      - "README.md"
+      - "CHANGELOG.md"
+      - "package.json"
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write # the v<version> tag
+  id-token: write # npm provenance and Trusted Publishers
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Test
+        run: npm test
+
+      - name: Resolve the version
+        id: version
+        run: |
+          set -e
+          name="$(node -p "require('./package.json').name")"
+          base="$(node -p "require('./package.json').version")"
+          published="$(npm view "$name" version 2>/dev/null || true)"
+          if [ -z "$published" ]; then
+            next="$base"
+          else
+            next="$(node -e '
+              const [a, b] = process.argv.slice(1).map((v) => v.split(".").map(Number));
+              const newer = a[0] !== b[0] ? a[0] > b[0] : a[1] !== b[1] ? a[1] > b[1] : a[2] > b[2];
+              const top = newer ? a : b;
+              console.log(newer ? top.join(".") : `${top[0]}.${top[1]}.${top[2] + 1}`);
+            ' "$base" "$published")"
+          fi
+          echo "published: ${published:-none}, package.json: $base, releasing: $next"
+          npm version "$next" --no-git-tag-version --allow-same-version
+          echo "version=$next" >> "$GITHUB_OUTPUT"
+
+      - name: Check the package contents
+        run: |
+          set -e
+          npm pack --dry-run --json > pack.json
+          node -e '
+            const files = require("./pack.json")[0].files.map((f) => f.path);
+            const bad = files.filter((f) => /^(test|calibration|tools|scenarios|examples|runs)\/|\.claude\/|__pycache__|corpus/.test(f));
+            if (bad.length) { console.error("refusing to publish:", bad.join(", ")); process.exit(1); }
+            console.log(files.length + " files");
+          '
+
+      - name: Publish to npm with provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}
+        run: npm publish --access public --provenance
+
+      - name: Tag the release
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git tag "v$VERSION"
+          git push origin "v$VERSION"

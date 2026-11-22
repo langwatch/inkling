@@ -29,7 +29,8 @@ mkdir -p "$CFG" "$ROOT/briefs" "$ROOT/baselines"
 [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && ln -sfn "$(readlink -f "$SRC_CFG/.credentials.json")" "$CFG/.credentials.json"
 echo '{"hasCompletedOnboarding":true,"autoUpdates":false}' > "$CFG/.claude.json"
 echo '{}' > "$CFG/settings.json"
-clean() { env -u ANTHROPIC_API_KEY -u ANTHROPIC_BASE_URL -u OPENAI_API_KEY CLAUDE_CONFIG_DIR="$CFG" "$@"; }
+# INKLING_NO_UPDATE: a run pins the Inkling it copied, so no update notice.
+clean() { env -u ANTHROPIC_API_KEY -u ANTHROPIC_BASE_URL -u OPENAI_API_KEY INKLING_NO_UPDATE=1 CLAUDE_CONFIG_DIR="$CFG" "$@"; }
 ask() { (cd "$ROOT" && clean claude -p --model "$MODEL" --tools ""); }
 
 one() { # piece split

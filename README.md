@@ -48,6 +48,8 @@ Point your agent at this repo. In Claude Code or another coding agent, paste thi
 Follow the writing process at https://github.com/langwatch/inkling to write
 ```
 
+An agent that can run commands reads the same process without the repo: `npx -y @langwatch/inkling@latest docs` lists the pages, and `inkling docs process/README` prints one.
+
 The line only teaches your agent the process. Then tell it what you want written. If you already said it earlier in the chat, the agent works from that; if it still can't tell who will read the piece, it asks you before it drafts.
 
 ## Tools
@@ -68,12 +70,14 @@ The agent can pick these up at any step. None of them is required to follow the 
 Run them from any folder. They need Node 22 or newer:
 
 ```sh
-npx -y github:langwatch/inkling check draft.md --mode ads --audience "founders who just searched for an agent sandbox"
-npx -y github:langwatch/inkling judge draft.md --mode ads        # needs TYPESAFE_API_KEY and Python 3
-npx -y github:langwatch/inkling readers panel start draft.md draft.readers.yaml --out runs/launch
+npx -y @langwatch/inkling@latest check draft.md --mode ads --audience "founders who just searched for an agent sandbox"
+npx -y @langwatch/inkling@latest judge draft.md --mode ads        # needs TYPESAFE_API_KEY and Python 3
+npx -y @langwatch/inkling@latest readers panel start draft.md draft.readers.yaml --out runs/launch
 ```
 
-The reader panel runs on a Claude subscription, through Claude Code subagents or `claude -p`, and refuses to start when a paid model provider key is set. The judge is the only tool that needs a paid key. For a local install: `git clone https://github.com/langwatch/inkling && cd inkling && npm link`, then `inkling --help`.
+The reader panel runs on a Claude subscription, through Claude Code subagents or `claude -p`, and refuses to start when a paid model provider key is set. The judge is the only tool that needs a paid key.
+
+Use `@latest` so each run gets the newest rules. Once an hour Inkling also checks for a newer version and prints one line on stderr when there is one, then `inkling whatsnew` tells you what changed; `INKLING_NO_UPDATE=1` turns the check off. For a clone instead (`git clone https://github.com/langwatch/inkling && cd inkling && npm link`), the line says when origin/main is ahead, and you pull.
 
 A reviewer rejected the first three of these four titles:
 

@@ -1,18 +1,37 @@
 {
-  "name": "inkling",
+  "name": "@langwatch/inkling",
   "version": "0.1.0",
-  "private": true,
   "description": "Content writing framework for agents: goal and audience, reader tests written first, lints, a rule judge, a reader panel and clean eyes.",
   "license": "UNLICENSED",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langwatch/inkling.git"
+  },
   "bin": {
     "inkling": "./bin/inkling.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "rules",
+    "modes",
+    "judges",
+    "data",
+    "docs",
+    "README.md",
+    "CHANGELOG.md",
+    "!**/__pycache__"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
+    "test": "INKLING_NO_UPDATE=1 node --test test/*.test.mjs",
     "inkling": "node bin/inkling.mjs"
   }
 }
