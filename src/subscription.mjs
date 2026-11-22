@@ -9,6 +9,9 @@ import { join, delimiter } from "node:path";
 const PAID = /^(?:ANTHROPIC|OPENAI|AZURE_OPENAI|AZURE_API|GEMINI|GOOGLE_GENERATIVE_AI|GOOGLE|MISTRAL|COHERE|GROQ|TOGETHER|OPENROUTER|DEEPSEEK|XAI|FIREWORKS)_(?:API_KEY|BASE_URL|AUTH_TOKEN)$|^AWS_BEARER_TOKEN_BEDROCK$|^CLAUDE_CODE_USE_(?:BEDROCK|VERTEX)$/;
 
 /** Names of set environment variables that would route a call to a paid API. */
+// Telemetry a run turned on (docs/tools/langwatch.md) reaches each claude -p, so its spans join the run's trace.
+const TELEMETRY = /^CLAUDE_CODE_(?:ENABLE_TELEMETRY|ENHANCED_TELEMETRY_BETA)$/;
+
 export function paidKeys(env = process.env) {
   return Object.keys(env).filter((k) => PAID.test(k) && env[k]);
 }
@@ -102,7 +105,7 @@ export class ClaudeCli {
       writeFileSync(join(cfg, ".claude.json"), JSON.stringify({ hasCompletedOnboarding: true }));
     }
     this.env = Object.fromEntries(
-      Object.entries(process.env).filter(([k]) => !/^(?:ANTHROPIC_|CLAUDE_CODE_|CLAUDECODE|OPENAI_|LANGWATCH_)/.test(k)),
+      Object.entries(process.env).filter(([k]) => TELEMETRY.test(k) || !/^(?:ANTHROPIC_|CLAUDE_CODE_|CLAUDECODE|OPENAI_|LANGWATCH_)/.test(k)),
     );
     // The own-config fallback keeps HOME and CLAUDE_CONFIG_DIR, so claude finds its login where it keeps it.
     if (this.login.kind !== "own") Object.assign(this.env, { HOME: this.home, CLAUDE_CONFIG_DIR: cfg });

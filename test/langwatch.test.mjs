@@ -186,3 +186,24 @@ test("the eval command logs its run when the key is set, and sends nothing witho
     assert.ok(lw.calls.some((c) => c.url === "/api/v1/experiment/init" && c.body.experiment_slug === "inkling-regression"));
   } finally { await lw.close(); }
 });
+
+test("claude -p keeps the telemetry switches a run turned on, and still drops keys", async () => {
+  const { ClaudeCli } = await import("../src/subscription.mjs");
+  const dir = mkdtempSync(join(tmpdir(), "lw-cli-env-"));
+  const saved = { ...process.env };
+  try {
+    const bin = join(dir, "claude");
+    writeFileSync(bin, "#!/bin/sh\n", { mode: 0o755 });
+    Object.assign(process.env, { PROOF_CLAUDE_BIN: bin, CLAUDE_CODE_OAUTH_TOKEN: "t", CLAUDE_CODE_ENABLE_TELEMETRY: "1", CLAUDE_CODE_ENHANCED_TELEMETRY_BETA: "1", TRACEPARENT: "00-a-b-01", CLAUDE_CODE_OTHER: "x", ANTHROPIC_API_KEY: "k" });
+    const cli = new ClaudeCli({ workdir: dir });
+    assert.equal(cli.env.CLAUDE_CODE_ENABLE_TELEMETRY, "1");
+    assert.equal(cli.env.CLAUDE_CODE_ENHANCED_TELEMETRY_BETA, "1");
+    assert.equal(cli.env.TRACEPARENT, "00-a-b-01");
+    assert.equal(cli.env.CLAUDE_CODE_OTHER, undefined);
+    assert.equal(cli.env.ANTHROPIC_API_KEY, undefined);
+  } finally {
+    for (const k of Object.keys(process.env)) if (!(k in saved)) delete process.env[k];
+    Object.assign(process.env, saved);
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
