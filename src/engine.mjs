@@ -107,7 +107,6 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
     if (!ruleApplies(rule, mode, kind)) continue;
     const fileWaiver = waiverFor(doc.fileIgnore, rule);
     for (const unit of unitsFor(rule.scope ?? "sentence", doc)) {
-      const waiver = waiverFor(unit.block?.ignore, rule) ?? fileWaiver;
       const hits = [];
       // A word-list rule may give one pattern per language ({ en, pt }); with none for the text's language it stays quiet.
       const pattern = rule.pattern instanceof RegExp ? rule.pattern : rule.pattern?.[ctx.lang];
@@ -122,6 +121,8 @@ export function lint({ text, file = "-", mode = "post", page, rules, audience, m
       for (const hit of hits) {
         const block = hit.block ?? unit.block;
         const at = block ? (hit.block ? hit.index : unit.start + hit.index) : 0;
+        // A document-scope rule names the block it found; the waiver above that block covers it.
+        const waiver = waiverFor(block?.ignore, rule) ?? fileWaiver;
         const why = waiver ?? (block ? founderDecision(block, at) : null);
         const pos = block ? block.pos(at) : { line: 1, col: 1 };
         const base = hit.block ? { block, sentences: block.sentences, start: 0 } : unit;

@@ -120,3 +120,15 @@ test("message mode keeps the hedges people talk with and allows a long run of th
   assert.ok(!ids(run, "message").includes("structure/long-paragraph"));
   assert.ok(ids(run, "post").includes("structure/long-paragraph"));
 });
+
+test("a waiver above a block covers a document-scope finding on that block, and only that block", () => {
+  const ids = (text) => lint({ text, mode: "script", rules: RULES }).map((f) => f.rule);
+  const agenda = "---\nminutes: 1\n---\n\n<!-- inkling-waive script/no-agenda: a short video opens on a scene -->\nLook at the dashboard. It shows every conversation the agent had.\n\n" + "And the chart moves when the release lands, because the agent hands more tickets to a person. ".repeat(24) + "\n";
+  assert.ok(ids(agenda.replace(/<!--.*-->\n/, "")).includes("script/no-agenda"));
+  assert.ok(!ids(agenda).includes("script/no-agenda"));
+  assert.ok(lint({ text: agenda, mode: "script", rules: RULES }).waived.some((f) => f.rule === "script/no-agenda"));
+  const paras = ["And the agent reads the ticket.", "And it writes a reply.", "And the judge grades it.", "The score lands in the dashboard."];
+  const at = (k) => paras.map((p, i) => (i === k ? `<!-- inkling-waive structure/repeated-opener: a list said out loud -->\n${p}` : p)).join("\n\n");
+  assert.ok(!ids(at(2)).includes("structure/repeated-opener"), "waiver on the flagged paragraph");
+  assert.ok(ids(at(0)).includes("structure/repeated-opener"), "a waiver on another paragraph does not cover it");
+});

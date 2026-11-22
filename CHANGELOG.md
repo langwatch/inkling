@@ -10,6 +10,7 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 - Don't quote an unnamed third party ("a customer told us", "a firm that certifies AI systems told us"): `narrator/unnamed-source` fails it. Use a named, public case, or say the claim yourself. See [lint](docs/tools/lint.md#rule-families).
 - When the same connective opens 3 or more paragraphs and more than a third of them, `structure/repeated-opener` warns. Vary or drop the connective; a paragraph can usually start on the subject itself. See [script rules](docs/tools/script-rules.md).
 - `narrator/invented-scene` now catches a scene behind a connective ("So, picture this") and a time of the week with a stranger later in the sentence ("On Tuesday ... by Friday someone asks"). `narrator/undefined-subject` no longer treats "a customer" as introduced because "your customers" came earlier.
+- A waiver above a block now covers rules that look at the whole piece, such as `script/no-agenda` on the first paragraph; before, only a file waiver did. See [waivers](docs/tools/waivers.md).
 
 ## 2026-11-17
 
