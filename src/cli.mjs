@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { runCheck } from "./check.mjs";
 import { runJudge } from "./judge.mjs";
@@ -8,6 +8,10 @@ import { refuseIfPaid } from "./subscription.mjs";
 import { writePrompts, grade, runWithClaude } from "./readers.mjs";
 import { readerReport, reportProblems } from "./report.mjs";
 import { writePreferPrompts, gradePrefer } from "./prefer.mjs";
+import { writeTitles, gradeTitles, writeCalibration, finishCalibration, formatCalibration, UNCALIBRATED_EXIT } from "./owner-judge.mjs";
+import { ClaudeCli } from "./subscription.mjs";
+import { mkdtempSync, rmSync, readdirSync as listDir, writeFileSync as writeOut } from "node:fs";
+import { homedir } from "node:os";
 import { panelStart, panelRound, panelStatus, holdout, stopRun } from "./panel.mjs";
 import { BUDGETS, BUDGET_NAMES, describeBudgets, startPlan, recordTiming, timingsSummary, topicPaths, topicInit } from "./budget.mjs";
 import { calibrate, evaluate, formatEval, readReference, uncalibrated } from "./calibrate.mjs";
@@ -95,6 +99,13 @@ ${LANGWATCH_USAGE}
   inkling prefer prompts <comparisons.yaml> --out <dir>
   inkling prefer grade <dir>
       preference judge, advisory: two lines for one brief, judged in both orders
+  inkling titles prompts <lines.txt> --product <laze|langwatch|path> [--segments a,b] [--brief <brief.md>] [--kind title] --out <dir> [--backend claude]
+  inkling titles grade <dir>
+      the owner judge: approve or reject each line the way the person who signs off copy would, few-shot on his
+      verdicts (calibration/owner-lines.jsonl). Until it is calibrated nothing passes: exit 5, marked unverified
+  inkling titles calibrate --out <dir> [--backend claude]
+      score the owner judge on the held-out verdicts; it counts only at 15+ held-out, 80% agreement and at most
+      20% of his rejected lines approved. Any change to its prompt or training verdicts needs a new calibration
   inkling rules [--mode <mode>]          list rules by family
   inkling modes                          list modes
 
@@ -157,6 +168,9 @@ export function main(argv) {
       root: { type: "string" },
       stamp: { type: "string" },
       all: { type: "boolean" },
+      product: { type: "string" },
+      segments: { type: "string" },
+      kind: { type: "string" },
     },
   });
   if (values.mode && !MODES[values.mode]) {
@@ -237,6 +251,8 @@ export function main(argv) {
       return directionsCommand(positionals, values);
     case "prefer":
       return prefer(positionals, values);
+    case "titles":
+      return titles(positionals, values);
     case "rules": {
       for (const [family, rules] of Object.entries(FAMILIES)) {
         const shown = rules.filter((r) => !values.mode || !r.modes || r.modes.includes(values.mode));
@@ -298,7 +314,8 @@ function panel([sub, ...pos], values) {
       const [draft, file] = pos;
       const readersFile = file ?? (values.topic ? topicPaths({ topic: values.topic, topicsDir: values["topics-dir"] ?? "topics" }).readers : null);
       if (!draft || !readersFile || !values.out) return usage("inkling readers panel start <draft> [<readers.yaml>] --out <run> [--topic <topic>]");
-      const { prompts, next } = panelStart({ draft, readersFile, out: values.out });
+      const { prompts: personaPrompts, jargon, next } = panelStart({ draft, readersFile, out: values.out });
+      const prompts = [...personaPrompts, ...jargon];
       process.stdout.write(pendingMessage(prompts, "reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade ${values.out}/round-1. Next edit may change whole ${next}.`));
       return 0;
     }
@@ -319,7 +336,7 @@ function panel([sub, ...pos], values) {
       }
       if (r.warning) process.stdout.write(`warning (--force): ${r.warning}\n`);
       process.stdout.write(`round edit size ${r.allowed}: ${r.size.headings} headings, ${r.size.paragraphs} paragraphs, ${r.size.sentences} sentences changed.\n`);
-      process.stdout.write(pendingMessage(r.prompts, "A/B reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade on that round directory. Next edit may change ${r.nextAllowed}.`));
+      process.stdout.write(pendingMessage([...r.prompts, ...(r.jargon ?? [])], "A/B reader prompts", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade on that round directory. Next edit may change ${r.nextAllowed}.`));
       return 0;
     }
     if (sub === "status") {
@@ -490,7 +507,9 @@ function readers([sub, ...pos], values) {
   if (sub === "prompts" || sub === "run") {
     const [draft, file] = pos;
     if (!draft || !file || !values.out) return usage(`inkling readers ${sub} <draft> <readers.yaml> --out <dir>`);
-    const { prompts, textChecks } = writePrompts({ draft, readersFile: file, out: values.out, runs: values.runs ? Number(values.runs) : 1 });
+    const written = writePrompts({ draft, readersFile: file, out: values.out, runs: values.runs ? Number(values.runs) : 1 });
+    const { textChecks } = written;
+    const prompts = [...written.prompts, ...written.jargon];
     for (const c of textChecks) process.stdout.write(`${c.pass ? "PASS" : "FAIL"} ${c.id} (text check)${c.evidence ? `: ${c.evidence}` : ""}\n`);
     if (sub === "prompts") {
       process.stdout.write(pendingMessage(prompts, "reader prompts", "<persona>.answer.md"));
@@ -505,7 +524,9 @@ function readers([sub, ...pos], values) {
   if (sub === "holdout") {
     if (!pos[0]) return usage("inkling readers holdout <run> [--draft <file>]");
     try {
-      const { prompts, dir } = holdout({ out: pos[0], draft: values.draft, force: values.force });
+      const held = holdout({ out: pos[0], draft: values.draft, force: values.force });
+      const { dir } = held;
+      const prompts = [...held.prompts, ...held.jargon];
       process.stdout.write(pendingMessage(prompts, "clean-eyes prompts (fresh subagents, used once)", "<persona>.answer.md").replace("Then run grade again.", `Then run inkling readers grade ${dir}. If core passes, stop. Otherwise make one small adjustment and stop.`));
       return 0;
     } catch (e) {
@@ -567,4 +588,60 @@ function prefer([sub, ...pos], values) {
     return 0;
   }
   return usage("inkling prefer prompts|grade");
+}
+
+/** Answer every unanswered prompt in a directory with claude -p on the subscription; verdicts go beside them. */
+function answerDir(dir, model = "opus") {
+  const base = join(homedir(), ".cache", "inkling");
+  mkdirSyncSafe(base);
+  const workdir = mkdtempSync(join(base, "titles-"));
+  try {
+    const cli = new ClaudeCli({ model, workdir });
+    for (const f of listDir(dir).filter((x) => x.endsWith(".prompt.md"))) {
+      const v = join(dir, f.replace(/\.prompt\.md$/, ".verdict.json"));
+      if (!existsSync(v)) writeOut(v, cli.ask("You predict a founder's verdict on copy. Reply with JSON only.", readFileSync(join(dir, f), "utf8")) + "\n");
+    }
+  } finally {
+    rmSync(workdir, { recursive: true, force: true });
+  }
+}
+
+function mkdirSyncSafe(d) {
+  if (!existsSync(d)) mkdirSync(d, { recursive: true });
+}
+
+function titles([sub, ...pos], values) {
+  const refused = refuseIfPaid(`titles ${sub ?? ""}`.trim());
+  if (refused) {
+    process.stderr.write(refused + "\n");
+    return 2;
+  }
+  const claude = values.backend === "claude";
+  const say = (s) => process.stdout.write(s);
+  if (sub === "calibrate") {
+    if (!values.out) return usage("inkling titles calibrate --out <dir> [--backend claude]");
+    if (!existsSync(join(values.out, "manifest.json"))) writeCalibration({ out: values.out });
+    if (claude) answerDir(values.out, values.judge ?? "opus");
+    const r = finishCalibration({ dir: values.out });
+    if (r.pending) return say(pendingMessage(r.pending, "owner judge prompts", "<id>.verdict.json").replace("Then run grade again.", `Then run inkling titles calibrate --out ${values.out} again.`)), 3;
+    say(formatCalibration(r));
+    return r.pass ? 0 : UNCALIBRATED_EXIT;
+  }
+  if (sub === "prompts") {
+    if (!pos[0] || !values.out || !values.product) return usage("inkling titles prompts <lines.txt> --product <name|path> [--segments a,b] [--brief <brief.md>] --out <dir>");
+    const brief = values.brief ? readFileSync(values.brief, "utf8").trim().slice(0, 2000) : "";
+    const prompts = writeTitles({ file: pos[0], out: values.out, product: values.product, segments: list(values.segments), brief, kind: values.kind ?? "title" });
+    if (!claude) return say(pendingMessage(prompts, "owner judge prompts", "line-<n>.verdict.json").replace("Then run grade again.", `Then run inkling titles grade ${values.out}.`)), 3;
+    answerDir(values.out, values.judge ?? "opus");
+    sub = "grade";
+    pos = [values.out];
+  }
+  if (sub === "grade") {
+    if (!pos[0]) return usage("inkling titles grade <dir>");
+    const r = gradeTitles({ dir: pos[0] });
+    if (r.pending) return say(pendingMessage(r.pending, "owner judge prompts", "line-<n>.verdict.json")), 3;
+    say(r.report);
+    return r.exit;
+  }
+  return usage("inkling titles prompts|grade|calibrate");
 }

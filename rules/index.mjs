@@ -16,6 +16,7 @@ import script from "./script.mjs";
 import scriptVoice from "./script-voice.mjs";
 import landing from "./landing.mjs";
 import blog from "./blog.mjs";
+import headline from "./headline.mjs";
 
 export const FAMILIES = {
   punctuation,
@@ -31,6 +32,7 @@ export const FAMILIES = {
   pitch,
   landing,
   blog,
+  headline,
   slogan,
   script: [...script, ...scriptVoice],
   "house-langwatch": houseLangwatch,

@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { writePrompts, grade, skimView, readReadersFile, asRendered } from "../src/readers.mjs";
 import { paidKeys, refuseIfPaid } from "../src/subscription.mjs";
+import { clearJargon } from "./jargon-helper.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const draft = join(FIX, "draft.md");
@@ -53,11 +54,11 @@ test("skim view keeps title, subtitle, headings and first sentences", () => {
 test("grade asks for answers, then verdicts, then reports with doubt classes", () => {
   const out = fresh();
   writePrompts({ draft, readersFile: file, out });
-  let state = grade(out);
+  let state = grade(clearJargon(out));
   assert.equal(state.stage, "answers");
   writeFileSync(join(out, "engineer.answer.md"), "1. A VM per agent.\n5. How was the wake time measured?");
   writeFileSync(join(out, "skimmer.answer.md"), "1. Agents without a sandbox.\n5. Reads like an ad.");
-  state = grade(out);
+  state = grade(clearJargon(out));
   assert.equal(state.stage, "verdicts");
   assert.ok(existsSync(join(out, "engineer.judge.prompt.md")));
   const judge = readFileSync(join(out, "engineer.judge.prompt.md"), "utf8");
@@ -71,7 +72,7 @@ test("grade asks for answers, then verdicts, then reports with doubt classes", (
     grades: [{ id: "what_is_it", pass: true, evidence: "Agents without a sandbox" }],
     doubts: [],
   }) + "\n```");
-  state = grade(out);
+  state = grade(clearJargon(out));
   assert.equal(state.failed, 0, state.report);
   assert.match(state.report, /0 trust-breaking, 1 skepticism, 1 content gaps/);
   assert.match(state.report, /content gaps \(evidence to collect, not draft failures\)/);
@@ -86,7 +87,7 @@ test("a missed nice-to-have still says stop editing when core passes", () => {
     writeFileSync(join(out, `${id}.answer.md`), "1. A VM per agent.");
     writeFileSync(join(out, `${id}.verdict.json`), JSON.stringify({ grades: [{ id: "what_is_it", pass: true }, { id: "favourite_line", pass: false }], doubts: [] }));
   }
-  const state = grade(out);
+  const state = grade(clearJargon(out));
   assert.equal(state.failed, 2);
   assert.equal(state.coreFailed, 0);
   assert.match(state.report, /core expectations pass: stop editing/);
@@ -99,7 +100,7 @@ test("a trust-breaking doubt fails the run", () => {
     writeFileSync(join(out, `${id}.answer.md`), "1. Something.");
     writeFileSync(join(out, `${id}.verdict.json`), JSON.stringify({ grades: [], doubts: id === "skimmer" ? [{ quote: "Reads like an ad", class: "trust_breaking" }] : [] }));
   }
-  const state = grade(out);
+  const state = grade(clearJargon(out));
   assert.equal(state.failed, 1);
   assert.match(state.report, /FAIL doubt \(trust_breaking\)/);
   assert.doesNotMatch(state.report, /stop editing/);
@@ -151,7 +152,7 @@ test("a warm audience reads generously", () => {
 test("an unknown stance is refused", () => {
   const dir = fresh();
   const bad = join(dir, "bad.readers.yaml");
-  writeFileSync(bad, "stance: friendly\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(bad, "audience:\n  product: acme\nstance: friendly\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   assert.throws(() => readReadersFile(bad), /unknown stance friendly/);
 });
 
@@ -172,7 +173,7 @@ test("competitors without the search they came from are refused", () => {
   const dir = fresh();
   writeFileSync(join(dir, "c.txt"), "x");
   const bad = join(dir, "bad.readers.yaml");
-  writeFileSync(bad, "competitors:\n  - name: X\n    file: c.txt\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(bad, "audience:\n  product: acme\ncompetitors:\n  - name: X\n    file: c.txt\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   assert.throws(() => readReadersFile(bad), /context.search/);
 });
 
@@ -180,7 +181,7 @@ test("the grader sees what a skim reader saw and asks for a quoted line", () => 
   const out = fresh();
   writePrompts({ draft, readersFile: file, out });
   for (const id of ["engineer", "skimmer"]) writeFileSync(join(out, `${id}.answer.md`), "1. A thing.\n");
-  grade(out);
+  grade(clearJargon(out));
   const skim = readFileSync(join(out, "skimmer.judge.prompt.md"), "utf8");
   assert.match(skim, /This reader only skimmed\. Everything they saw:/);
   assert.match(skim, /beyond the skim view/);
@@ -200,7 +201,7 @@ test("--runs reads each persona N times and fails only what at least half the ru
     writeFileSync(join(out, `${id}.answer.md`), "1. A thing.\n");
     writeFileSync(join(out, `${id}.verdict.json`), verdict(pass, doubt));
   }
-  const { report } = grade(out);
+  const { report } = grade(clearJargon(out));
   assert.match(report, /## engineer \(3 runs\)/);
   assert.match(report, /FAIL next_action \(2\/3\)/);
   assert.match(report, /note doubt \(trust_breaking, in 1\/3 runs, below half: noise\)/);
@@ -211,7 +212,7 @@ test("--runs reads each persona N times and fails only what at least half the ru
 test("a voice persona sees the author's samples, is asked for any line the author would not write and is graded on it", () => {
   const dir = fresh();
   const rf = join(dir, "voice.readers.yaml");
-  writeFileSync(rf, "personas:\n  - id: friend\n    voice: true\n    background: Someone who knows how the author talks.\n  - id: other\n    background: b\nexpectations: []\n");
+  writeFileSync(rf, "audience:\n  product: acme\npersonas:\n  - id: friend\n    segment: reader\n    voice: true\n    background: Someone who knows how the author talks.\n  - id: other\n    segment: reader\n    background: b\nexpectations: []\n");
   const spec = readReadersFile(rf);
   assert.deepEqual(spec.expectations.map((e) => [e.id, e.applies_to]), [["sounds_like_author", ["friend"]], ["names_explained", undefined]]);
   const out = fresh();
@@ -251,7 +252,7 @@ test("result: adds a skim expectation the skimmer must carry from a visual", () 
 test("engineering: true asks the engineer personas the engineering-voice question and grades it as core", () => {
   const dir = fresh();
   const rf = join(dir, "eng.readers.yaml");
-  writeFileSync(rf, "engineering: true\npersonas:\n  - id: builder\n    engineer: true\n    background: A platform engineer.\n  - id: buyer\n    background: A product lead.\nexpectations: []\n");
+  writeFileSync(rf, "audience:\n  product: acme\nengineering: true\npersonas:\n  - id: builder\n    segment: reader\n    engineer: true\n    background: A platform engineer.\n  - id: buyer\n    segment: reader\n    background: A product lead.\nexpectations: []\n");
   const spec = readReadersFile(rf);
   const eng = spec.expectations.find((e) => e.id === "engineering_voice");
   assert.ok(eng?.core);
@@ -265,7 +266,7 @@ test("engineering: true asks the engineer personas the engineering-voice questio
 test("engineering: true with no marked engineer asks every full reader, never a skimmer", () => {
   const dir = fresh();
   const rf = join(dir, "eng2.readers.yaml");
-  writeFileSync(rf, "engineering: true\npersonas:\n  - id: a\n    background: An engineer.\n  - id: s\n    view: skim\n    background: A skimmer.\nexpectations: []\n");
+  writeFileSync(rf, "audience:\n  product: acme\nengineering: true\npersonas:\n  - id: a\n    segment: reader\n    background: An engineer.\n  - id: s\n    segment: reader\n    view: skim\n    background: A skimmer.\nexpectations: []\n");
   assert.deepEqual(readReadersFile(rf).expectations.find((e) => e.id === "engineering_voice").applies_to, ["a"]);
 });
 
@@ -279,7 +280,7 @@ test("MDX: imports vanish and components render as figures, with their caption w
 test("an expectation with ask: puts its question to the personas it applies to", () => {
   const dir = mkdtempSync(join(tmpdir(), "inkling-ask-"));
   const file = join(dir, "r.yaml");
-  writeFileSync(file, "personas:\n  - id: eng\n    background: An engineer.\n  - id: buyer\n    background: A buyer.\nexpectations:\n  - id: where_measured\n    applies_to: [eng]\n    ask: Where is the change measured, and why there?\n    expect: The reader says where and why.\n");
+  writeFileSync(file, "audience:\n  product: acme\npersonas:\n  - id: eng\n    segment: reader\n    background: An engineer.\n  - id: buyer\n    segment: reader\n    background: A buyer.\nexpectations:\n  - id: where_measured\n    segment: reader\n    applies_to: [eng]\n    ask: Where is the change measured, and why there?\n    expect: The reader says where and why.\n");
   const spec = readReadersFile(file);
   const eng = spec.personas.find((p) => p.id === "eng");
   const buyer = spec.personas.find((p) => p.id === "buyer");
@@ -291,7 +292,7 @@ test("figures hand the reader screenshots to open with Read, and only those", ()
   const dir = fresh();
   writeFileSync(join(dir, "shot.png"), "png");
   const spec = join(dir, "r.yaml");
-  writeFileSync(spec, "figures:\n  - file: shot.png\n    where: the experiment view\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(spec, "audience:\n  product: acme\nfigures:\n  - file: shot.png\n    where: the experiment view\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   const out = join(dir, "out");
   writePrompts({ draft, readersFile: spec, out });
   const prompt = readFileSync(join(out, "a.prompt.md"), "utf8");
@@ -304,14 +305,14 @@ test("figures hand the reader screenshots to open with Read, and only those", ()
 test("a figure file that does not exist is refused", () => {
   const dir = fresh();
   const spec = join(dir, "r.yaml");
-  writeFileSync(spec, "figures:\n  - file: missing.png\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(spec, "audience:\n  product: acme\nfigures:\n  - file: missing.png\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   assert.throws(() => readReadersFile(spec), /figure missing.png not found/);
 });
 
 test("a long draft gets holds_attention for every full reader; a short one does not", () => {
   const dir = fresh();
   const spec = join(dir, "r.yaml");
-  writeFileSync(spec, "personas:\n  - id: a\n    background: b\n  - id: s\n    view: skim\n    background: b\nexpectations: []\n");
+  writeFileSync(spec, "audience:\n  product: acme\npersonas:\n  - id: a\n    segment: reader\n    background: b\n  - id: s\n    segment: reader\n    view: skim\n    background: b\nexpectations: []\n");
   const long = join(dir, "long.md");
   writeFileSync(long, "# T\n\n" + "The agent reads the trace and changes the prompt. ".repeat(100));
   writePrompts({ draft: long, readersFile: spec, out: join(dir, "l") });
@@ -324,7 +325,7 @@ test("a long draft gets holds_attention for every full reader; a short one does 
 test("every full reader is asked about unpacking, and a miss is a note that never fails the run", () => {
   const dir = fresh();
   const spec = join(dir, "r.yaml");
-  writeFileSync(spec, "personas:\n  - id: a\n    background: b\n  - id: s\n    view: skim\n    background: b\nexpectations:\n  - id: what_is_it\n    core: true\n    expect: says what it is\n");
+  writeFileSync(spec, "audience:\n  product: acme\npersonas:\n  - id: a\n    segment: reader\n    background: b\n  - id: s\n    segment: reader\n    view: skim\n    background: b\nexpectations:\n  - id: what_is_it\n    segment: reader\n    core: true\n    expect: says what it is\n");
   const out = join(dir, "o");
   writePrompts({ draft, readersFile: spec, out });
   const manifest = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8"));
@@ -334,7 +335,7 @@ test("every full reader is asked about unpacking, and a miss is a note that neve
     writeFileSync(join(out, `${id}.answer.md`), "1. A VM per agent.");
     writeFileSync(join(out, `${id}.verdict.json`), JSON.stringify({ grades: [{ id: "what_is_it", pass: true }, ...(id === "a" ? [{ id: "no_unpacking", pass: false, evidence: "A PR only on a measured win" }] : [])], doubts: [] }));
   }
-  const state = grade(out);
+  const state = grade(clearJargon(out));
   assert.equal(state.failed, 0);
   assert.equal(state.coreFailed, 0);
   assert.match(state.report, /- note no_unpacking: advisory miss \("A PR only on a measured win"\)/);
@@ -344,7 +345,7 @@ test("every full reader is asked about unpacking, and a miss is a note that neve
 test("unpacking: false drops the question and the note", () => {
   const dir = fresh();
   const spec = join(dir, "r.yaml");
-  writeFileSync(spec, "unpacking: false\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(spec, "audience:\n  product: acme\nunpacking: false\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   const out = join(dir, "o");
   writePrompts({ draft, readersFile: spec, out });
   const manifest = JSON.parse(readFileSync(join(out, "manifest.json"), "utf8"));
@@ -355,7 +356,7 @@ test("unpacking: false drops the question and the note", () => {
 test("page: proposal reads warm, asks for the total and grades can_name_total as core", () => {
   const dir = fresh();
   const spec = join(dir, "r.yaml");
-  writeFileSync(spec, "page: proposal\nlanguage: pt-BR\npersonas:\n  - id: buyer\n    background: Head of sales at a company that builds voice agents.\nexpectations: []\n");
+  writeFileSync(spec, "audience:\n  product: acme\npage: proposal\nlanguage: pt-BR\npersonas:\n  - id: buyer\n    segment: reader\n    background: Head of sales at a company that builds voice agents.\nexpectations: []\n");
   const r = readReadersFile(spec);
   assert.ok(r.expectations.some((e) => e.id === "can_name_total" && e.core));
   assert.ok(r.questions.some((q) => /pay in total, per month or per year/.test(q)));
@@ -366,7 +367,7 @@ test("page: proposal reads warm, asks for the total and grades can_name_total as
   assert.match(prompt, /You already know who wrote this/);
   assert.match(prompt, /Answer in pt-BR\./);
   writeFileSync(join(out, "buyer.answer.md"), "1. Um teste de voz.");
-  grade(out);
+  grade(clearJargon(out));
   const judge = readFileSync(join(out, "buyer.judge.prompt.md"), "utf8");
   assert.match(judge, /write each note in pt-BR/);
   assert.match(judge, /could not say what they would pay/);
@@ -375,15 +376,15 @@ test("page: proposal reads warm, asks for the total and grades can_name_total as
 test("price: true adds can_name_total to any piece; price: false turns it off for a proposal", () => {
   const dir = fresh();
   const on = join(dir, "on.yaml");
-  writeFileSync(on, "price: true\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(on, "audience:\n  product: acme\nprice: true\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   assert.ok(readReadersFile(on).expectations.some((e) => e.id === "can_name_total"));
   const off = join(dir, "off.yaml");
-  writeFileSync(off, "page: proposal\nprice: false\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(off, "audience:\n  product: acme\npage: proposal\nprice: false\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   const r = readReadersFile(off);
   assert.ok(!r.expectations.some((e) => e.id === "can_name_total"));
   assert.ok(!r.questions.some((q) => /pay in total/.test(q)));
   const plain = join(dir, "plain.yaml");
-  writeFileSync(plain, "personas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(plain, "audience:\n  product: acme\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   assert.ok(!readReadersFile(plain).expectations.some((e) => e.id === "can_name_total"));
 });
 
@@ -418,6 +419,6 @@ test("page: message and page: talk ask whether a known term got explained and gr
   writeFileSync(off, "page: talk\nknown_terms: false\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
   assert.ok(!readReadersFile(off).expectations.some((e) => e.id === "known_terms_left_alone"));
   const post = join(dir, "post.yaml");
-  writeFileSync(post, "personas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(post, "audience:\n  product: acme\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   assert.ok(!readReadersFile(post).expectations.some((e) => e.id === "known_terms_left_alone"));
 });

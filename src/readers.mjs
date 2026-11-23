@@ -8,6 +8,8 @@ import { homedir } from "node:os";
 import { parseYaml } from "./yaml.mjs";
 import { blankFrontmatter } from "./markdown.mjs";
 import { ClaudeCli, claudeLogin } from "./subscription.mjs";
+import { resolveAudience, checkPersonas } from "./audience.mjs";
+import { writeJargon, gradeJargon, formatJargon } from "./jargon.mjs";
 
 /**
  * The curse of knowledge: the reader is a model that knows every tool on GitHub, so it has to be told
@@ -236,6 +238,8 @@ export function readReadersFile(path) {
   const personas = data.personas ?? [];
   const expectations = data.expectations ?? data.expect ?? [];
   if (!personas.length) throw new Error(`${path}: no personas`);
+  const audience = resolveAudience(data, path);
+  checkPersonas(personas, audience, path);
   for (const p of personas) {
     if (!p.id || !p.background) throw new Error(`${path}: every persona needs id and background`);
     p.view ??= "full";
@@ -290,7 +294,7 @@ export function readReadersFile(path) {
   const always = [priced && PRICE_QUESTION, data.unpacking !== false && UNPACK_QUESTION, data.names !== false && NAMES_QUESTION, PURPOSE_QUESTION].filter((q) => q && !withPage.includes(q));
   const asked = [...(data.feeling !== false ? [FEEL_QUESTION] : []), ...withPage.filter((q) => q !== FEEL_QUESTION), ...always];
   const questions = competitors.length ? [...asked, ...compareQuestions(context.search)] : asked;
-  return { ...data, context, competitors, figures, personas, expectations, questions };
+  return { ...data, audience, context, competitors, figures, personas, expectations, questions };
 }
 
 const blocksOf = (md) => md.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
@@ -420,7 +424,7 @@ export function readerPrompt({ persona, text, questions: shared, context, compet
   const view = persona.view === "skim" ? skimView(text) : asRendered(text);
   const skimNote = persona.view === "skim" ? "\n\nYou only skimmed: below is everything you read (the title, the subtitle, the headings, the first sentence of each section, and the images, charts and tables you glanced at; an image shows as its description). Judge only from it." : "";
   return [
-    `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${skimNote}`,
+    `You are a real person reading something online. Stay in this persona:\n\n${persona.background.trim()}${persona.knows?.length ? `\n\nWords and tools you use every week: ${persona.knows.join(", ")}. Anything else you would have to guess or look up.` : ""}${skimNote}`,
     contextLines({ context, persona }),
     voiceBlock(persona),
     `Here is what you read:\n\n<text>\n${view}\n</text>`,
@@ -480,7 +484,8 @@ export function parseVerdict(text) {
 export function grade(dir) {
   const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
   const { personas, expectations, questions, context, failOn = ["trust_breaking"] } = manifest;
-  const missingAnswers = personas.filter((p) => !existsSync(join(dir, `${p.id}.answer.md`)));
+  const jargon = manifest.jargon ?? [];
+  const missingAnswers = [...personas, ...jargon].filter((p) => !existsSync(join(dir, `${p.id}.answer.md`)));
   if (missingAnswers.length)
     return { pending: missingAnswers.map((p) => join(dir, `${p.id}.prompt.md`)), stage: "answers" };
   const pendingJudge = [];
@@ -500,6 +505,17 @@ export function grade(dir) {
   const core = new Set(expectations.filter((e) => e.core).map((e) => e.id));
   const advisory = new Set(expectations.filter((e) => e.advisory).map((e) => e.id));
   let coreFailed = 0;
+  if (jargon.length) {
+    lines.push("## first screen jargon (title, subtitle, lede, one reader per audience segment)");
+    for (const entry of jargon) {
+      const g = gradeJargon({ entry, answer: readFileSync(join(dir, `${entry.id}.answer.md`), "utf8") });
+      failed += !g.pass;
+      coreFailed += !g.pass;
+      lines.push(formatJargon(g));
+      if (g.dropped.length) lines.push(`  note: ignored, not in the text or longer than a short name: ${g.dropped.join(", ")}`);
+    }
+    lines.push("");
+  }
   const checks = manifest.textChecks ?? [];
   if (checks.length) {
     lines.push("## text checks (no model)");
@@ -623,7 +639,11 @@ export function writePrompts({ draft, readersFile, out, runs = 1 }) {
     writeFileSync(file, readerPrompt({ persona, text, questions: spec.questions, context: spec.context, competitors: spec.competitors, figures: spec.figures }));
     return file;
   });
-  return { prompts, textChecks };
+  const { jargon, prompts: jargonPrompts } = writeJargon({ audience: spec.audience, text, dir: out });
+  manifest.jargon = jargon;
+  manifest.audience = spec.audience;
+  writeFileSync(join(out, "manifest.json"), JSON.stringify(manifest, null, 1));
+  return { prompts, jargon: jargonPrompts, textChecks };
 }
 
 /** The claude -p backend: answer and judge every prompt in a run directory. */

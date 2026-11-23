@@ -24,6 +24,12 @@ inkling readers panel status runs/launch
 
 Every round directory is an ordinary run directory, so `inkling readers grade` and both backends work on it. The [budget](budget.md) sets how many rounds you get.
 
+## First-screen jargon
+
+With `audience:` in the readers file, `readers prompts`, `panel start`, every panel round and the holdout also write `jargon-<segment>.prompt.md`, one per segment. That reader sees only the title, the subtitle and the first paragraph, with no author, no source and nothing from the body, and answers in JSON with every word it would not know. `grade` fails `first_screen_jargon` as core when it names a word that is on the first screen, or when a word from the segment's `unknown:` list is there. Words it names that the text doesn't contain are ignored and listed.
+
+The reader is a model that knows every acronym, so the prompt tells it the words the segment uses every week and asks it to count anything it would only half guess. The segment's own list is the floor that holds even when the model plays the persona too well.
+
 ## Backends, both on the subscription
 
 Reader tests never use a paid API model. `inkling readers` refuses to start when `ANTHROPIC_API_KEY`, `ANTHROPIC_BASE_URL` or another provider key or base URL is set, and prints the `env -u` line to run it without them.

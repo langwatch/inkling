@@ -6,6 +6,25 @@ Start from the moment the reader arrives instead of from what you built. A reade
 
 Name every reader the piece has to work for. A product page read by a buyer and by the engineer the buyer forwards it to has two readers, and each gets a line.
 
+## The product's audience
+
+A piece is read by the people who buy and use the product, not by whoever is easiest to imagine. Each product declares them once in an audience file: `audiences/laze.yaml`, `audiences/langwatch.yaml`, or your own file in the same shape. Each segment has a background, the words it uses every week (`knows:`) and words it would not know (`unknown:`).
+
+The readers file names the product and the segments this piece is for:
+
+```yaml
+audience:
+  product: laze
+  segments: [vibe-founder, team-dev]
+personas:
+  - id: founder
+    segment: vibe-founder
+```
+
+Every persona plays one of those segments, or carries `outside: "<why this reader matters>"`, and at least half the full readers come from the audience. A panel of engineers and a skimming CTO for a product sold to non-technical founders is refused before it runs.
+
+The first-screen jargon check comes from the same file: a reader per segment sees only the title, subtitle and first paragraph and lists the words they would not know. A setting or label only insiders use ("no retention", "egress") fails in a title, even when the body explains it, because the reader leaves before the explanation.
+
 ## Who has a stake
 
 The readers are not the only side. Every piece has at least two: the people who read it and us, the business that puts it out. Some have more: the person whose name is on it, a customer it mentions, a partner who will forward it.

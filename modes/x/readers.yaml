@@ -4,34 +4,43 @@ context:
   size: an early product, no famous customers
   arrived_from: the For You timeline or a reply under a bigger account's post
   attention: one or two seconds unless the first line stops them
+audience:
+  product: acme   # the product whose buyers read this: audiences/<name>.yaml or a path
 personas:
   - id: scroller
+    segment: reader
     view: skim
     attention: under two seconds per post while scrolling
     background: >
       An engineer or founder scrolling tech X on a phone between tasks. Reads the
       first line, maybe the second. Stops only for something they did not expect.
   - id: replier
+    segment: reader
     view: full
     background: >
       Someone who replies to posts in their field to be seen. Reads the whole post
       looking for a point to agree with, add to or push back on.
   - id: quote-tweeter
+    segment: reader
     view: full
     background: >
       Someone with a following who quotes posts to their own audience. Shares a post
       only when it says one sharp thing they would put their name next to.
 expectations:
   - id: stops_scroll
+    segment: reader
     core: true
     expect: The reader stops on the first line and can say why.
     applies_to: [scroller]
   - id: one_claim
+    segment: reader
     core: true
     expect: The reader repeats the post's single claim in their own words.
   - id: would_engage
+    segment: reader
     expect: The reader names a reply, a like or a quote they would actually post.
     applies_to: [replier, quote-tweeter]
   - id: no_ad_smell
+    segment: reader
     core: true
     expect: The reader does not read it as an ad or a product plug.

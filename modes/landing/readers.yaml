@@ -6,27 +6,35 @@ context:
   search: the query the visitor typed
   arrived_from: a Google search ad
   attention: a minute at most, other results open in tabs
+audience:
+  product: acme   # the product whose buyers read this: audiences/<name>.yaml or a path
 personas:
   - id: searcher
+    segment: reader
     view: full
     background: >
       A developer who pays for the tool the page is about and searched because the problem
       cost them work this week. Reads the hero, then scrolls looking for the fix.
   - id: skimmer
+    segment: reader
     view: skim
     background: >
       The same searcher in a hurry: reads the title, the headings and the first line of each
       section, then decides between this tab and the next one.
 expectations:
   - id: names_gain
+    segment: reader
     core: true
     expect: The reader names a concrete gain they would get, in their own words, not a list of features.
   - id: not_told_what_they_know
+    segment: reader
     core: true
     expect: The reader does not say the page explained their own problem to them or talked down to them.
   - id: no_repeats
+    segment: reader
     expect: The reader does not say the page repeats itself.
   - id: next_step
+    segment: reader
     core: true
     expect: The reader names signing up, or says exactly what would make them.
     applies_to: [searcher]

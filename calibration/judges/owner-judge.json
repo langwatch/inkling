@@ -1,0 +1,21 @@
+{
+ "judge": "owner",
+ "version": "49bb48bfa39f7fc5",
+ "at": "2026-11-23T17:35:13.274Z",
+ "heldout": 17,
+ "agree": 12,
+ "accuracy": 0.7058823529411765,
+ "rejected": 9,
+ "rejectedApproved": 0,
+ "pass": false,
+ "why": [
+  "agrees on 12/17 (71%), the bar is 80%"
+ ],
+ "misses": [
+  "sandbox-seo",
+  "team-sport",
+  "vault-companies",
+  "launch-opening",
+  "token-counts"
+ ]
+}

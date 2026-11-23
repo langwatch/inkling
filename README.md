@@ -30,7 +30,7 @@ A narrated video (6:50) on the six ways AI writing goes wrong and how this proce
 
 When your agent writes something people will read, it goes through nine steps:
 
-1. **[Who reads.](docs/process/1-who-reads.md)** A line on the reader: who they are, where they come from, what they know, what they are deciding.
+1. **[Who reads.](docs/process/1-who-reads.md)** A line on the reader: who they are, where they come from, what they know, what they are deciding. Readers come from the product's declared audience, and a reader file without one is refused.
 2. **[Which mind.](docs/process/2-which-mind.md)** Pick the mind the reader needs: a seller, an engineer, a lawyer, an investor, or more than one.
 3. **[The claim.](docs/process/3-one-claim.md)** The one thing the piece has to land, and what this reader would not expect.
 4. **[Reader tests first.](docs/process/4-reader-tests.md)** Before any draft, write what each reader must take away.
@@ -65,6 +65,7 @@ The agent can pick these up at any step. None of them is required to follow the 
 | [Waivers](docs/tools/waivers.md) | checks each deliberate rule break: a fresh judge must accept the reason, and readers must notice the line working | Claude subscription |
 | [Predict](docs/tools/predict.md) | flags a headline or lead that a model with only the brief would write too | Claude subscription |
 | [Budget](docs/tools/budget.md) | sets the time, stops at the best version, lists what is open | free |
+| [Owner judge](docs/tools/owner-judge.md) | approves or rejects a title the way the person who signs off copy would, and passes nothing until it agrees with his held-out verdicts | Claude subscription |
 | [Calibration](docs/tools/calibration.md) | measures the rules on lines people already approved and rejected | free |
 
 Run them from any folder. They need Node 22 or newer:

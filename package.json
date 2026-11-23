@@ -18,6 +18,8 @@
     "modes",
     "judges",
     "data",
+    "audiences",
+    "calibration",
     "docs",
     "README.md",
     "CHANGELOG.md",

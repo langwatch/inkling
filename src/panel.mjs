@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, statS
 import { join, resolve, dirname } from "node:path";
 import { homedir } from "node:os";
 import { readReadersFile, readerPrompt, readerRules, runTextChecks, grade, DEFAULT_QUESTIONS } from "./readers.mjs";
+import { writeJargon } from "./jargon.mjs";
 import { BUDGETS, budgetStop, recordTiming, readPlan, recordOpen, openItems } from "./budget.mjs";
 
 export const EDIT_SIZES = ["sections", "paragraphs", "lines"];
@@ -66,7 +67,7 @@ export function fundamental(roundDir) {
   const reasons = [];
   let readers = 0;
   let failing = 0;
-  for (const section of report.split(/\n(?=## )/).filter((x) => x.startsWith("## ") && !x.startsWith("## text checks") && !x.startsWith("## content gaps"))) {
+  for (const section of report.split(/\n(?=## )/).filter((x) => x.startsWith("## ") && !x.startsWith("## text checks") && !x.startsWith("## content gaps") && !x.startsWith("## first screen jargon"))) {
     readers += 1;
     const fails = [...section.matchAll(/^- FAIL ([\w-]+)[^:]*: (.*)$/gm)].filter(([, id]) => !LINE_LEVEL.has(id) && (all || core.has(id) || id === "doubt"));
     if (fails.length) failing += 1;
@@ -134,15 +135,19 @@ export function panelStart({ draft, readersFile, out }) {
     context: spec.context ?? {},
     competitors: spec.competitors ?? [],
     textChecks: runTextChecks(text, spec.expectations),
+    audience: spec.audience,
   };
+  const first = writeJargon({ audience: spec.audience, text, dir: roundDir });
+  manifest.jargon = first.jargon;
   writeFileSync(join(roundDir, "manifest.json"), JSON.stringify(manifest, null, 1));
   const prompts = spec.personas.map((p) => {
     const f = join(roundDir, `${p.id}.prompt.md`);
     writeFileSync(f, readerPrompt({ persona: p, text, questions: manifest.questions, context: manifest.context, competitors: manifest.competitors }));
     return f;
   });
+
   saveState(out, { draft: resolve(draft), readersFile: resolve(readersFile), round: 1, mappings: {}, holdout: null, emitted: { "round-1": Date.now() }, timed: [] });
-  return { prompts, next: allowedEdit(2) };
+  return { prompts, jargon: first.prompts, next: allowedEdit(2) };
 }
 
 /** Next round: snapshot the edited draft, check the edit size, emit A/B prompts with memory. */
@@ -176,13 +181,14 @@ export function panelRound({ out, draft, force = false, random = Math.random }) 
     writeFileSync(f, comparePrompt({ persona: p, context: prevManifest.context, older, newer, flip, questions: prevManifest.questions, memory: memoryOf(out, state, p) }));
     return f;
   });
-  const manifest = { ...prevManifest, textChecks: runTextChecks(newer, prevManifest.expectations), mapping, round: next };
+  const again = writeJargon({ audience: prevManifest.audience, text: newer, dir: roundDir });
+  const manifest = { ...prevManifest, textChecks: runTextChecks(newer, prevManifest.expectations), jargon: again.jargon, mapping, round: next };
   writeFileSync(join(roundDir, "manifest.json"), JSON.stringify(manifest, null, 1));
   state.round = next;
   state.mappings[next] = mapping;
   state.emitted[`round-${next}`] = Date.now();
   saveState(out, state);
-  return { prompts, size, allowed, nextAllowed: allowedEdit(next + 1), warning: tooBig };
+  return { prompts, jargon: again.prompts, size, allowed, nextAllowed: allowedEdit(next + 1), warning: tooBig };
 }
 
 /** The absolute answer under the A/B pick: would the reader finish, and where would they skip. */
@@ -283,7 +289,10 @@ export function holdout({ out, draft, force = false }) {
     failOn: spec.doubts?.fail_on ?? ["trust_breaking"],
     context: spec.context ?? {},
     textChecks: runTextChecks(text, spec.expectations),
+    audience: spec.audience,
   };
+  const fresh = writeJargon({ audience: spec.audience, text, dir });
+  manifest.jargon = fresh.jargon;
   writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 1));
   const prompts = personas.map((p) => {
     const f = join(dir, `${p.id}.prompt.md`);
@@ -295,7 +304,7 @@ export function holdout({ out, draft, force = false }) {
   writeFileSync(registryPath(), JSON.stringify([...readRegistry(), { key, run: resolve(out), at: new Date().toISOString(), forced: earlier.length > 0 }], null, 1));
   state.emitted.holdout = Date.now();
   saveState(out, state);
-  return { prompts, dir };
+  return { prompts, jargon: fresh.prompts, dir };
 }
 
 /** Write a timing line for every round whose report now exists, once. */

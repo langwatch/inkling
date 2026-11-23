@@ -1,0 +1,22 @@
+# LangWatch: the platform to test, evaluate and monitor AI agents.
+product: LangWatch
+who: engineers and product people who build AI agents and need them to work in production
+segments:
+  - id: ai-engineer
+    background: >
+      An engineer who builds an LLM agent in production at a startup or a scale-up, writes Python
+      or TypeScript, has tried an eval tool or two and reads traces when something breaks.
+    knows: [LLM, prompt, agent, evals, traces, OpenTelemetry, LangChain, OpenAI, Anthropic, RAG, LLM-as-a-judge, dataset, regression, CI, GitHub, Python, TypeScript]
+    unknown: [LWQL, Langy, Instant Evals, Jev, OCSF]
+  - id: product-lead
+    background: >
+      A product manager or head of AI who owns an agent's quality and cost, reads dashboards,
+      does not write code, and has to explain to the business why the agent misbehaved.
+    knows: [ChatGPT, LLM, prompt, agent, dashboard, A/B test, Jira, Slack, cost, evals]
+    unknown: [OpenTelemetry, span, LWQL, LLM-as-a-judge, regression suite, CI, OCSF]
+  - id: platform-lead
+    background: >
+      An engineering lead or platform engineer at a larger company putting together the AI
+      platform: gateway, governance, self-hosting, security review.
+    knows: [LLM, gateway, OpenTelemetry, Kubernetes, SSO, self-hosted, audit log, traces, evals, AWS, Azure]
+    unknown: [LWQL, Langy, Jev, Instant Evals]

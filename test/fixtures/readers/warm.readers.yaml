@@ -1,9 +1,13 @@
 stance: warm
 context:
   arrived_from: our newsletter
+audience:
+  product: acme   # the product whose buyers read this: audiences/<name>.yaml or a path
 personas:
   - id: subscriber
+    segment: reader
     background: A subscriber who has read the newsletter for months.
 expectations:
   - id: what_is_it
+    segment: reader
     expect: The reader can say in one line what is offered.

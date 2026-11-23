@@ -6,10 +6,14 @@ competitors:
   - name: Acme Remote Agents
     url: https://acme.example/claude-code
     file: competitor-acme.txt
+audience:
+  product: acme   # the product whose buyers read this: audiences/<name>.yaml or a path
 personas:
   - id: dev
+    segment: reader
     background: A developer who pays for Claude Code Max and wants it running while the laptop is shut.
 expectations:
   - id: picks_us
+    segment: reader
     core: true
     expect: The reader would sign up on this page over the other results.

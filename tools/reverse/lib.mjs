@@ -22,7 +22,7 @@ else if (cmd === "judge-prompt") {
 } else if (cmd === "readers") {
   const brief = read(args[0]);
   const audience = field(brief, "audience") || "a person the piece is meant for";
-  out(`stance: warm\nnames: false\nholds: false\nfeeling: false\npersonas:\n  - id: reader\n    view: full\n    background: ${JSON.stringify(audience)}\nexpectations: []\n`);
+  out(`audience:\n  product: reverse brief\n  segments:\n    - id: reader\n      background: ${JSON.stringify(audience)}\nstance: warm\nnames: false\nholds: false\nfeeling: false\npersonas:\n  - id: reader\n    segment: reader\n    view: full\n    background: ${JSON.stringify(audience)}\nexpectations: []\n`);
 } else if (cmd === "verdict") {
   // verdict <judge output> <which draft was A: inkling|baseline>
   const v = json(read(args[0]));

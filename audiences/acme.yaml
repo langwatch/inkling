@@ -1,0 +1,12 @@
+# ACME: the made-up product the tests and examples use. Swap in your own product's file.
+product: ACME
+who: people who might use, buy or recommend ACME
+segments:
+  - id: reader
+    background: Someone who might use, buy or recommend ACME, reading the page cold.
+    knows: []
+    unknown: []
+  - id: buyer
+    background: The person who decides whether the company pays for ACME.
+    knows: []
+    unknown: []

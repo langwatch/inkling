@@ -8,6 +8,7 @@ import { grade } from "../src/readers.mjs";
 import { allowedEdit, editSize, editTooBig, panelStart, panelRound, panelStatus, holdout, keeps, stopRun, loadState, bestVersion, holdoutsFor, holdoutKey, ABSOLUTE } from "../src/panel.mjs";
 import { startPlan, budgetStop, timingsSummary, topicInit, openItems } from "../src/budget.mjs";
 import { evaluate, calibrate, uncalibrated } from "../src/calibrate.mjs";
+import { clearJargon } from "./jargon-helper.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const BIN = new URL("../bin/inkling.mjs", import.meta.url).pathname;
@@ -18,11 +19,12 @@ const DRAFT = readFileSync(join(FIX, "draft.md"), "utf8");
 
 /** Answer and judge every reader in a round directory, the way subagents would. */
 function answerRound(dir, { keep = "A", trust = false, skip = "none" } = {}) {
+  clearJargon(dir);
   for (const id of ["engineer", "skimmer"].concat(existsSync(join(dir, "engineer-fresh.prompt.md")) ? ["engineer-fresh", "skimmer-fresh"] : [])) {
     if (!existsSync(join(dir, `${id}.prompt.md`))) continue;
     writeFileSync(join(dir, `${id}.answer.md`), `Keep: ${keep}\nIt says what it is sooner.\nNo, that is gone.\nFinish: yes\nSkip: ${skip}\n1. A VM per agent.`);
   }
-  assert.equal(grade(dir).stage, "verdicts");
+  assert.equal(grade(clearJargon(dir)).stage, "verdicts");
   for (const id of ["engineer", "skimmer", "engineer-fresh", "skimmer-fresh"]) {
     if (!existsSync(join(dir, `${id}.prompt.md`))) continue;
     writeFileSync(join(dir, `${id}.verdict.json`), JSON.stringify({
@@ -30,7 +32,7 @@ function answerRound(dir, { keep = "A", trust = false, skip = "none" } = {}) {
       doubts: trust && id === "skimmer" ? [{ quote: "Reads like an ad", class: "trust_breaking" }] : [{ quote: "Which teams run this?", class: "content_gap" }],
     }));
   }
-  return grade(dir);
+  return grade(clearJargon(dir));
 }
 
 const lineEdit = (text) => text.replace("Each agent gets its own small VM", "Each agent gets its own small virtual machine");

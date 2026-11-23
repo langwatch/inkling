@@ -4,27 +4,35 @@ context:
   size: small, launched this year, no famous customers yet
   arrived_from: a link in a Hacker News comment
   attention: a few minutes between tasks
+audience:
+  product: acme   # the product whose buyers read this: audiences/<name>.yaml or a path
 personas:
   - id: engineer
+    segment: reader
     view: full
     background: >
       A senior engineer who builds agents and reads Hacker News.
   - id: skimmer
+    segment: reader
     view: skim
     arrived_from: a post shared on X
     attention: under a minute while scrolling
     background: An engineer scrolling between meetings.
 expectations:
   - id: what_is_it
+    segment: reader
     core: true
     expect: The reader can say in one line what is offered.
   - id: next_action
+    segment: reader
     core: true
     expect: The reader names a next action.
     applies_to: [engineer]
   - id: favourite_line
+    segment: reader
     expect: The reader quotes, word for word, a line they liked.
   - id: no_hedge_headline
+    segment: reader
     core: true
     expect: Headings carry no hedge words.
     forbid: '\b(almost|mostly|maybe|probably)\b'

@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { lint } from "../src/engine.mjs";
 import { selectRules } from "../rules/index.mjs";
 import { readReadersFile, writePrompts } from "../src/readers.mjs";
+import { clearJargon } from "./jargon-helper.mjs";
 
 const rules = selectRules();
 const EX = new URL("../examples/claude-code-pages/", import.meta.url).pathname;
@@ -68,6 +69,6 @@ test("a readers file with page: gives the reader that visitor's state and one mo
   const prompt = readFileSync(join(dir, "searcher.prompt.md"), "utf8");
   assert.match(prompt, /know why it happens: that is why you searched/);
   const bad = join(dir, "bad.readers.yaml");
-  writeFileSync(bad, "page: brochure\npersonas:\n  - id: a\n    background: b\nexpectations: []\n");
+  writeFileSync(bad, "audience:\n  product: acme\npage: brochure\npersonas:\n  - id: a\n    segment: reader\n    background: b\nexpectations: []\n");
   assert.throws(() => readReadersFile(bad), /unknown page kind brochure/);
 });

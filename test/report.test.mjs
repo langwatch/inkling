@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { writePrompts } from "../src/readers.mjs";
 import { readerReport, runDirs, REPORT_RULES, reportProblems } from "../src/report.mjs";
+import { clearJargon } from "./jargon-helper.mjs";
 
 const FIX = new URL("./fixtures/readers/", import.meta.url).pathname;
 const draft = join(FIX, "draft.md");

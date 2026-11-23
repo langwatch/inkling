@@ -1,0 +1,25 @@
+# Laze: a team workspace where people and AI agents work together.
+# Who buys and uses it. Pieces about Laze pick their readers from these segments.
+product: Laze
+who: people at small AI-native companies who use AI agents at work, most of them not engineers
+segments:
+  - id: vibe-founder
+    background: >
+      A commercial founder of a small startup (sales or product background, not an engineer) who
+      vibe codes with Claude Code and ChatGPT. Has pasted API keys and passwords into Claude Code
+      when it asked for them, and lets agents use Gmail, Stripe and the CRM.
+    knows: [ChatGPT, Claude, Claude Code, Slack, Gmail, Google Docs, Notion, Stripe, HubSpot, GitHub, API key, password, prompt, AI agent, LinkedIn]
+    unknown: [zero data retention, ZDR, no retention, data retention, egress, egress proxy, IAM, env var, environment variable, plaintext, canary token, canaries, inference provider, router, SSH, S3, Bedrock, secrets manager, parameter store, exfiltration]
+  - id: ops
+    background: >
+      An operations, sales or project lead at a ten to fifty person company who uses ChatGPT and
+      Claude every day, set up a couple of agents for the team, and has never opened a terminal.
+    knows: [ChatGPT, Claude, Slack, Gmail, Google Sheets, Notion, Stripe, HubSpot, Zapier, password, AI agent, API key]
+    unknown: [zero data retention, ZDR, no retention, egress, proxy, IAM, env var, environment variable, plaintext, canary token, CLI, terminal, SSH, Claude Code plugin, router, inference]
+  - id: team-dev
+    background: >
+      The one developer at a small AI-native team who sets agents up for everyone else: runs
+      Claude Code and Codex daily with real API keys in .env files, ships fast, has never worked
+      in security.
+    knows: [Claude Code, Codex, ChatGPT, GitHub, API key, .env, AWS, Stripe, OpenAI, Anthropic, SSH, proxy, terminal, Docker, Postgres, OpenRouter]
+    unknown: [zero data retention, ZDR, canary token, egress proxy, inference provider, IAM user, parameter store, exfiltration]

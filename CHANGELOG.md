@@ -3,6 +3,13 @@
 <!-- inkling-waive-file numbers/number-opener: the section headings are dates, the way a changelog is read -->
 What changed in how an agent drives Inkling, newest first, so you can run `inkling whatsnew` and see only the entries you haven't seen yet.
 
+## 2026-11-23
+
+- Every readers file now needs `audience:`: the product whose buyers read the piece (`audiences/laze.yaml`, `audiences/langwatch.yaml`, or a path to your own) and which of its segments this piece is for. Each persona plays one segment (`segment: <id>`) or says why it reads from outside (`outside: "<why>"`), and at least half the full readers must come from the audience. `inkling readers` refuses a file without it, except `page: message` and `page: talk`. See [who reads](docs/process/1-who-reads.md#the-products-audience).
+- The reader test adds a first-screen jargon reader per segment: it sees only the title, subtitle and first paragraph, knows nothing about the author, and lists every word it would not know. One such word fails the run as core, and so does any word from the segment's own `unknown:` list, with no model. Run the `jargon-<segment>.prompt.md` files with the others; `grade` waits for them. See [reader panel](docs/tools/panel.md#first-screen-jargon).
+- `headline/your-past-negation` fails a title, subtitle or heading that tells the reader in the past tense that something of theirs failed ("Your X didn't Y"). `headline/past-negation` warns on any past-tense negation in a headline, and `headline/mirrored-pair` warns on "X does A. Y does B." in one.
+- `inkling titles` is the owner judge: it predicts whether the person who signs off copy approves each title or line, few-shot on his own verdicts in `calibration/owner-lines.jsonl`. Nothing it approves passes until `inkling titles calibrate` shows it agrees with him on the held-out verdicts (15 or more, 80% agreement, at most 20% of his rejected lines approved); until then `titles grade` marks every verdict unverified and exits 5. Add each new verdict he gives to that file, with its reason and source. See [owner judge](docs/tools/owner-judge.md).
+
 ## 2026-11-22
 
 - With `LANGWATCH_API_KEY` set, the judge calibrators, `inkling eval` and `tools/reverse/run.sh` log each run as a LangWatch experiment with a trace per row, Jev and Claude Code calls included; `inkling langwatch sync` loads the labelled sets as datasets. Unset, nothing is sent, and a LangWatch error never fails a run. See [LangWatch](docs/tools/langwatch.md).

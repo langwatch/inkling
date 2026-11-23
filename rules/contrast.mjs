@@ -5,7 +5,7 @@ import { PITCH } from "../src/modes.mjs";
 const NOT_SUBJECT = /^(?:it|this|that|these|those|they|we|i|you|he|she|so|but|and|then|which|or|if|when|then|now|today|yesterday|next|after|before|first|later)$/i;
 
 /** Two short adjacent statements with different subjects: "X does A. Y does B." */
-function mirroredPairs(unit) {
+export function mirroredPairs(unit) {
   const hits = [];
   const s = unit.sentences;
   // "**Label.** Body." is a list label and its text, not two claims.
