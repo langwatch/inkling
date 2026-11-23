@@ -97,7 +97,8 @@ test("no lint error fires on a line the owner approved", () => {
   const rules = selectRules();
   for (const it of items.filter((i) => i.label === "approved")) {
     const text = ["title", "heading"].includes(it.kind) ? `# ${it.text}` : it.text;
-    for (const mode of it.kind === "lede" ? ["post"] : ["post", "ads"]) {
+    const inPost = it.kind === "lede" || /blog post|video|newsletter|changelog/i.test(it.moment ?? "");
+    for (const mode of /\bdeck\b/i.test(it.moment ?? "") ? ["deck"] : inPost ? ["post"] : ["post", "ads"]) {
       const errors = lint({ text, mode, rules }).filter((f) => f.severity !== "warning");
       assert.deepEqual(errors.map((f) => f.rule), [], `${it.id} in ${mode}`);
     }

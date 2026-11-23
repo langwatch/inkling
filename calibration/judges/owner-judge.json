@@ -1,21 +1,29 @@
 {
  "judge": "owner",
- "version": "49bb48bfa39f7fc5",
- "at": "2026-11-23T17:35:13.274Z",
- "heldout": 17,
- "agree": 12,
- "accuracy": 0.7058823529411765,
- "rejected": 9,
- "rejectedApproved": 0,
+ "version": "c374775d99b48066",
+ "at": "2026-11-23T18:07:52.661Z",
+ "heldout": 36,
+ "agree": 23,
+ "accuracy": 0.6388888888888888,
+ "rejected": 18,
+ "rejectedApproved": 2,
  "pass": false,
  "why": [
-  "agrees on 12/17 (71%), the bar is 80%"
+  "agrees on 23/36 (64%), the bar is 80%"
  ],
  "misses": [
   "sandbox-seo",
   "team-sport",
   "vault-companies",
+  "dot-compare",
   "launch-opening",
-  "token-counts"
+  "token-counts",
+  "business-asks-me",
+  "changelog-decision-model",
+  "trust-judge",
+  "never-looked",
+  "users-already-did",
+  "agents-complex",
+  "one-playbook"
  ]
 }

@@ -39,6 +39,8 @@ export default [
       if (/^\s*one$/i.test(m[0]) && next && (isPastAction(next) || /^[a-z]{3,}s$/.test(next))) return [];
       // "One dataset." as a list label means "a single", not a count to show off.
       if (/^\s*one$/i.test(m[0]) && words(unit.clean).length <= 3) return [];
+      // "One endpoint for every LLM call": one thing in place of many is a claim, not a count.
+      if (/^\s*one$/i.test(m[0]) && /^\s+\w+(?:\s+\w+)?\s+for\s+(?:every|all|each)\b/i.test(unit.clean.slice(m.index + m[0].length))) return [];
       return [{ index: 0, match: m[0] }];
     },
     message: "Opens with a number. A count as the first thing read is a status flex, not a reason to care.",
@@ -46,20 +48,20 @@ export default [
     source: "Rejected line, \"Dashboards come with 77 ready-made questions\"; founder note 2026-10-31",
     examples: {
       fail: ["77 ready-made questions come with every dashboard.", "# 10 ways to cut your agent bill", { text: "Three of the four measurements agree.", mode: "ads" }],
-      pass: [{ text: "Three of the four measurements point to the same place.", mode: "post" }, { text: "1.\n\nAgents become the main interface.", mode: "post" },"Every dashboard starts with the questions teams ask most often, 77 of them.", "- One dataset. The prompts and the answers live in the same table.", "Neither stopped. One lived 10.7 hours and made 1,301 API calls.", { text: "Two things are going on here, and one makes the other worse.", mode: "script" }],
+      pass: [{ text: "Three of the four measurements point to the same place.", mode: "post" }, { text: "1.\n\nAgents become the main interface.", mode: "post" },"Every dashboard starts with the questions teams ask most often, 77 of them.", "- One dataset. The prompts and the answers live in the same table.", "Neither stopped. One lived 10.7 hours and made 1,301 API calls.", { text: "Two things are going on here, and one makes the other worse.", mode: "script" }, { text: "One endpoint for every LLM call in your company", mode: "ads" }],
     },
   },
   {
     id: "number-in-title",
     scope: "headline",
     modes: ["ads", "deck", "post"],
-    pattern: /\b(?!(?:19|20)\d{2}\b)\d{2,}[\d,.]*\b(?!\s*(?:USD|EUR|%))/,
+    pattern: /(?<!\b[A-Z]{2,}\s+Top\s)\b(?!(?:19|20)\d{2}\b)\d{2,}[\d,.]*\b(?!\s*(?:USD|EUR|%))/,
     message: "A bare count in the title reads as a listicle.",
     fix: "Title the claim; carry the count in the body with its comparison.",
     source: "Founder note 2026-10-31 (\"never start the sentence with a number\", counts as headlines)",
     examples: {
-      fail: ["# Dashboards come with 77 ready-made questions", "# Intro\n\n## Dashboards come with 77 ready-made questions"],
-      pass: ["# Ask your traces anything", "# Cut the bill by 40%", "# Predictions for AI in 2025"],
+      fail: ["# Dashboards come with 77 ready-made questions", "# Intro\n\n## Dashboards come with 77 ready-made questions", "# Top 10 ways to cut your agent bill"],
+      pass: ["# Ask your traces anything", "# Cut the bill by 40%", "# Predictions for AI in 2025", "# Red Team Your Agent Against the OWASP Top 10"],
     },
   },
   {
