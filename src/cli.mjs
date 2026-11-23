@@ -8,7 +8,7 @@ import { refuseIfPaid } from "./subscription.mjs";
 import { writePrompts, grade, runWithClaude } from "./readers.mjs";
 import { readerReport, reportProblems } from "./report.mjs";
 import { writePreferPrompts, gradePrefer } from "./prefer.mjs";
-import { writeTitles, gradeTitles, writeCalibration, finishCalibration, formatCalibration, UNCALIBRATED_EXIT } from "./owner-judge.mjs";
+import { writeTitles, gradeTitles, writeCalibration, finishCalibration, formatCalibration, UNCALIBRATED_EXIT, DEFAULT_METHOD } from "./owner-judge.mjs";
 import { ClaudeCli } from "./subscription.mjs";
 import { mkdtempSync, rmSync, readdirSync as listDir, writeFileSync as writeOut } from "node:fs";
 import { homedir } from "node:os";
@@ -99,13 +99,15 @@ ${LANGWATCH_USAGE}
   inkling prefer prompts <comparisons.yaml> --out <dir>
   inkling prefer grade <dir>
       preference judge, advisory: two lines for one brief, judged in both orders
-  inkling titles prompts <lines.txt> --product <laze|langwatch|path> [--segments a,b] [--brief <brief.md>] [--kind title] --out <dir> [--backend claude]
+  inkling titles prompts <lines.txt> --product <laze|langwatch|path> [--segments a,b] [--brief <brief.md>] [--kind title] [--moment <where>] [--method fewshot|nearest] --out <dir> [--backend claude]
   inkling titles grade <dir>
-      the owner judge: approve or reject each line the way the person who signs off copy would, few-shot on his
-      verdicts (calibration/owner-lines.jsonl). Until it is calibrated nothing passes: exit 5, marked unverified
-  inkling titles calibrate --out <dir> [--backend claude]
+      the owner judge: approve or reject each line the way the person who signs off copy would, from his verdicts
+      (calibration/owner-lines.jsonl): fewshot shows all of them, nearest only his closest ones. Until the
+      judge is calibrated nothing passes: exit 5, marked unverified
+  inkling titles calibrate --out <dir> [--method fewshot|nearest] [--split heldout|train] [--backend claude]
       score the owner judge on the held-out verdicts; it counts only at 15+ held-out, 80% agreement and at most
-      20% of his rejected lines approved. Any change to its prompt or training verdicts needs a new calibration
+      20% of his rejected lines approved. Any change to its prompt, retrieval or training verdicts needs a new
+      calibration. --split train is leave-one-out on the training verdicts, for tuning; it never calibrates
   inkling rules [--mode <mode>]          list rules by family
   inkling modes                          list modes
 
@@ -171,6 +173,9 @@ export function main(argv) {
       product: { type: "string" },
       segments: { type: "string" },
       kind: { type: "string" },
+      method: { type: "string" },
+      split: { type: "string" },
+      moment: { type: "string" },
     },
   });
   if (values.mode && !MODES[values.mode]) {
@@ -590,17 +595,18 @@ function prefer([sub, ...pos], values) {
   return usage("inkling prefer prompts|grade");
 }
 
-/** Answer every unanswered prompt in a directory with claude -p on the subscription; verdicts go beside them. */
-function answerDir(dir, model = "opus") {
+/** Answer every unanswered prompt in a directory with claude -p on the subscription, four at a time; verdicts go beside them. */
+async function answerDir(dir, model = "opus") {
   const base = join(homedir(), ".cache", "inkling");
   mkdirSyncSafe(base);
   const workdir = mkdtempSync(join(base, "titles-"));
   try {
     const cli = new ClaudeCli({ model, workdir });
-    for (const f of listDir(dir).filter((x) => x.endsWith(".prompt.md"))) {
-      const v = join(dir, f.replace(/\.prompt\.md$/, ".verdict.json"));
-      if (!existsSync(v)) writeOut(v, cli.ask("You predict a founder's verdict on copy. Reply with JSON only.", readFileSync(join(dir, f), "utf8")) + "\n");
-    }
+    const todo = listDir(dir).filter((x) => x.endsWith(".prompt.md")).map((f) => [join(dir, f), join(dir, f.replace(/\.prompt\.md$/, ".verdict.json"))]).filter(([, v]) => !existsSync(v));
+    const next = async () => {
+      for (let job = todo.shift(); job; job = todo.shift()) writeOut(job[1], (await cli.askAsync("You predict a founder's verdict on copy. Reply with JSON only.", readFileSync(job[0], "utf8"))) + "\n");
+    };
+    await Promise.all(Array.from({ length: 4 }, next));
   } finally {
     rmSync(workdir, { recursive: true, force: true });
   }
@@ -610,7 +616,7 @@ function mkdirSyncSafe(d) {
   if (!existsSync(d)) mkdirSync(d, { recursive: true });
 }
 
-function titles([sub, ...pos], values) {
+async function titles([sub, ...pos], values) {
   const refused = refuseIfPaid(`titles ${sub ?? ""}`.trim());
   if (refused) {
     process.stderr.write(refused + "\n");
@@ -618,21 +624,22 @@ function titles([sub, ...pos], values) {
   }
   const claude = values.backend === "claude";
   const say = (s) => process.stdout.write(s);
+  const method = values.method ?? DEFAULT_METHOD;
   if (sub === "calibrate") {
-    if (!values.out) return usage("inkling titles calibrate --out <dir> [--backend claude]");
-    if (!existsSync(join(values.out, "manifest.json"))) writeCalibration({ out: values.out });
-    if (claude) answerDir(values.out, values.judge ?? "opus");
+    if (!values.out) return usage("inkling titles calibrate --out <dir> [--method fewshot|nearest] [--split heldout|train] [--backend claude]");
+    if (!existsSync(join(values.out, "manifest.json"))) writeCalibration({ out: values.out, method, split: values.split ?? "heldout" });
+    if (claude) await answerDir(values.out, values.judge ?? "opus");
     const r = finishCalibration({ dir: values.out });
     if (r.pending) return say(pendingMessage(r.pending, "owner judge prompts", "<id>.verdict.json").replace("Then run grade again.", `Then run inkling titles calibrate --out ${values.out} again.`)), 3;
     say(formatCalibration(r));
-    return r.pass ? 0 : UNCALIBRATED_EXIT;
+    return r.split === "train" ? 0 : r.pass ? 0 : UNCALIBRATED_EXIT;
   }
   if (sub === "prompts") {
     if (!pos[0] || !values.out || !values.product) return usage("inkling titles prompts <lines.txt> --product <name|path> [--segments a,b] [--brief <brief.md>] --out <dir>");
     const brief = values.brief ? readFileSync(values.brief, "utf8").trim().slice(0, 2000) : "";
-    const prompts = writeTitles({ file: pos[0], out: values.out, product: values.product, segments: list(values.segments), brief, kind: values.kind ?? "title" });
+    const prompts = writeTitles({ file: pos[0], out: values.out, product: values.product, segments: list(values.segments), brief, moment: values.moment, kind: values.kind ?? "title", method });
     if (!claude) return say(pendingMessage(prompts, "owner judge prompts", "line-<n>.verdict.json").replace("Then run grade again.", `Then run inkling titles grade ${values.out}.`)), 3;
-    answerDir(values.out, values.judge ?? "opus");
+    await answerDir(values.out, values.judge ?? "opus");
     sub = "grade";
     pos = [values.out];
   }

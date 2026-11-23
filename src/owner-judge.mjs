@@ -7,10 +7,26 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadProduct } from "./audience.mjs";
+import { retriever, nearestPrompt } from "./owner-nearest.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const OWNER_LINES = join(ROOT, "calibration", "owner-lines.jsonl");
 export const STATUS = join(ROOT, "calibration", "judges", "owner-judge.json");
+const NEAREST_SOURCE = join(ROOT, "src", "owner-nearest.mjs");
+/**
+ * Two judges. fewshot: every training verdict as an example. nearest: only the owner's closest training
+ * verdicts by words and shape (src/owner-nearest.mjs). Each has its own calibration status file.
+ */
+export const METHODS = {
+  fewshot: { status: STATUS },
+  nearest: { status: join(ROOT, "calibration", "judges", "owner-judge-nearest.json") },
+};
+/** The judge `inkling titles` uses without --method. It moves to nearest only once nearest clears the bar. */
+export const DEFAULT_METHOD = "fewshot";
+const methodOf = (method) => {
+  if (!METHODS[method]) throw new Error(`owner judge method must be one of ${Object.keys(METHODS).join(", ")}, got ${method}`);
+  return METHODS[method];
+};
 /** Held-out agreement the judge needs before any of its approvals count. Raise as the labels grow. */
 export const BAR = { minHeldout: 15, minAccuracy: 0.8, maxRejectedApproved: 0.2 };
 export const UNCALIBRATED_EXIT = 5;
@@ -43,9 +59,28 @@ Reply with JSON only:
 
 const trainShots = (items) => items.filter((i) => i.split === "train");
 
-/** What the calibration covers: the prompt template and the training verdicts. A change to either needs a new calibration. */
-export function judgeVersion(items = loadOwnerLines()) {
-  return createHash("sha256").update(ownerPrompt.toString()).update(JSON.stringify(trainShots(items))).digest("hex").slice(0, 16);
+/**
+ * What the calibration covers: the prompt, the retrieval (nearest: the whole of src/owner-nearest.mjs) and
+ * the training verdicts. A change to any of them needs a new calibration.
+ */
+export function judgeVersion(items = loadOwnerLines(), method = DEFAULT_METHOD) {
+  methodOf(method);
+  const h = createHash("sha256");
+  if (method === "fewshot") h.update(ownerPrompt.toString());
+  else h.update("nearest\n").update(readFileSync(NEAREST_SOURCE, "utf8"));
+  return h.update(JSON.stringify(trainShots(items))).digest("hex").slice(0, 16);
+}
+
+/**
+ * The prompt for one line. Examples and neighbours come from the training split only, never the line
+ * itself, so a training line is judged leave-one-out and a held-out line never sees another held-out one.
+ */
+export function promptFor({ method = DEFAULT_METHOD, line, id, kind, product, brief, moment, items, near }) {
+  methodOf(method);
+  const train = trainShots(items).filter((s) => s.id !== id);
+  if (method === "fewshot") return ownerPrompt({ line, kind, product, brief, moment, shots: train });
+  const neighbours = (near ?? retriever(train)).neighbours({ id, text: line, kind, product, moment });
+  return nearestPrompt({ line, kind, product, brief, moment, neighbours });
 }
 
 export function parseVerdict(text) {
@@ -57,17 +92,17 @@ export function parseVerdict(text) {
 }
 
 /** Null when the judge is calibrated for its current version, else why its verdicts don't count. */
-export function uncalibrated({ status = STATUS, items = loadOwnerLines() } = {}) {
-  if (!existsSync(status)) return "the owner judge was never calibrated: run inkling titles calibrate --out <dir>";
+export function uncalibrated({ method = DEFAULT_METHOD, status = methodOf(method).status, items = loadOwnerLines() } = {}) {
+  if (!existsSync(status)) return `the ${method} owner judge was never calibrated: run inkling titles calibrate --method ${method} --out <dir>`;
   const s = JSON.parse(readFileSync(status, "utf8"));
-  if (s.version !== judgeVersion(items)) return "the owner judge changed (prompt or training verdicts) since it was calibrated: run inkling titles calibrate again";
+  if (s.version !== judgeVersion(items, method)) return "the owner judge changed (prompt or training verdicts) since it was calibrated: run inkling titles calibrate again";
   return s.pass ? null : `the owner judge is below the bar on held-out verdicts: ${s.why.join("; ")}`;
 }
 
-/** Score held-out answers against the owner's labels. */
-export function score({ verdicts, items }) {
-  const held = items.filter((i) => i.split === "heldout");
-  let agree = 0, rejectedApproved = 0, rejected = 0;
+/** Score answers against the owner's labels on one split: held-out for the bar, train for leave-one-out tuning. */
+export function score({ verdicts, items, split = "heldout" }) {
+  const held = items.filter((i) => i.split === split);
+  let agree = 0, rejectedApproved = 0, rejected = 0, approvedRejected = 0;
   const misses = [];
   for (const it of held) {
     const v = verdicts[it.id];
@@ -76,6 +111,7 @@ export function score({ verdicts, items }) {
     if (said === it.label) agree += 1;
     else misses.push({ id: it.id, label: it.label, text: it.text });
     if (it.label === "rejected" && said === "approved") rejectedApproved += 1;
+    if (it.label === "approved" && said === "rejected") approvedRejected += 1;
   }
   const n = held.length;
   const accuracy = n ? agree / n : 0;
@@ -84,43 +120,53 @@ export function score({ verdicts, items }) {
   if (n < BAR.minHeldout) why.push(`${n} held-out verdicts, the bar is ${BAR.minHeldout}`);
   if (accuracy < BAR.minAccuracy) why.push(`agrees on ${agree}/${n} (${Math.round(accuracy * 100)}%), the bar is ${BAR.minAccuracy * 100}%`);
   if (rejectedApprovedRate > BAR.maxRejectedApproved) why.push(`approved ${rejectedApproved} of ${rejected} lines he rejected, the bar is ${BAR.maxRejectedApproved * 100}%`);
-  return { heldout: n, agree, accuracy, rejected, rejectedApproved, misses, pass: why.length === 0, why };
+  return { split, heldout: n, agree, accuracy, rejected, rejectedApproved, approved: n - rejected, approvedRejected, misses, pass: why.length === 0, why };
 }
 
-/** One prompt per held-out verdict, label hidden, few-shot from the training split. */
-export function writeCalibration({ out, items = loadOwnerLines() }) {
+/**
+ * One prompt per verdict of the split, label hidden. split heldout scores the bar; split train is
+ * leave-one-out (each line left out of its own examples), for tuning only, and never writes the status.
+ */
+export function writeCalibration({ out, items = loadOwnerLines(), method = DEFAULT_METHOD, split = "heldout" }) {
+  if (!["train", "heldout"].includes(split)) throw new Error(`split must be train or heldout, got ${split}`);
   mkdirSync(out, { recursive: true });
-  const shots = trainShots(items);
-  const prompts = items.filter((i) => i.split === "heldout").map((it) => {
+  const near = method === "nearest" ? retriever(trainShots(items)) : undefined;
+  const prompts = items.filter((i) => i.split === split).map((it) => {
     const f = join(out, `${it.id}.prompt.md`);
-    writeFileSync(f, ownerPrompt({ line: it.text, kind: it.kind, product: it.product, moment: it.moment, shots }));
+    writeFileSync(f, promptFor({ method, line: it.text, id: it.id, kind: it.kind, product: it.product, moment: it.moment, items, near }));
     return f;
   });
-  writeFileSync(join(out, "manifest.json"), JSON.stringify({ kind: "calibration", version: judgeVersion(items) }, null, 1));
+  writeFileSync(join(out, "manifest.json"), JSON.stringify({ kind: "calibration", method, split, version: judgeVersion(items, method) }, null, 1));
   return prompts;
 }
 
 const pendingIn = (dir) => readdirSync(dir).filter((f) => f.endsWith(".prompt.md")).map((f) => join(dir, f)).filter((p) => !existsSync(p.replace(/\.prompt\.md$/, ".verdict.json")));
 
 /** Score a calibration run and write the status the other commands read. */
-export function finishCalibration({ dir, items = loadOwnerLines(), status = STATUS }) {
+export function finishCalibration({ dir, items = loadOwnerLines(), status }) {
   const pending = pendingIn(dir);
   if (pending.length) return { pending };
   const manifest = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
-  if (manifest.version !== judgeVersion(items)) throw new Error("this calibration run was written for an older judge version: run inkling titles calibrate again");
+  const method = manifest.method ?? "fewshot";
+  const split = manifest.split ?? "heldout";
+  if (manifest.version !== judgeVersion(items, method)) throw new Error("this calibration run was written for an older judge version: run inkling titles calibrate again");
   const verdicts = {};
-  for (const it of items.filter((i) => i.split === "heldout")) verdicts[it.id] = parseVerdict(readFileSync(join(dir, `${it.id}.verdict.json`), "utf8")).verdict;
-  const result = score({ verdicts, items });
-  mkdirSync(dirname(status), { recursive: true });
+  for (const it of items.filter((i) => i.split === split)) verdicts[it.id] = parseVerdict(readFileSync(join(dir, `${it.id}.verdict.json`), "utf8")).verdict;
+  const result = { method, ...score({ verdicts, items, split }) };
+  if (split !== "heldout") return result;
+  const target = status ?? methodOf(method).status;
+  mkdirSync(dirname(target), { recursive: true });
   const { misses, ...summary } = result;
-  writeFileSync(status, JSON.stringify({ judge: "owner", version: manifest.version, at: new Date().toISOString(), ...summary, misses: misses.map((m) => m.id) }, null, 1) + "\n");
+  writeFileSync(target, JSON.stringify({ judge: "owner", version: manifest.version, at: new Date().toISOString(), ...summary, misses: misses.map((m) => m.id) }, null, 1) + "\n");
   return result;
 }
 
 export function formatCalibration(r) {
-  const lines = [`owner judge on ${r.heldout} held-out verdicts: agrees on ${r.agree} (${Math.round(r.accuracy * 100)}%), approved ${r.rejectedApproved} of ${r.rejected} rejected lines`];
+  const where = r.split === "train" ? "training verdicts, each left out of its own examples" : "held-out verdicts";
+  const lines = [`${r.method ?? "fewshot"} owner judge on ${r.heldout} ${where}: agrees on ${r.agree} (${Math.round(r.accuracy * 100)}%), approved ${r.rejectedApproved} of ${r.rejected} rejected lines, rejected ${r.approvedRejected} of ${r.approved} approved lines`];
   if (r.misses.length) lines.push("disagreed on:", ...r.misses.map((m) => `  ${m.id} (he ${m.label}): ${JSON.stringify(m.text)}`));
-  lines.push(r.pass ? "CALIBRATED: its approvals count." : `UNCALIBRATED: ${r.why.join("; ")}. No line passes this judge until it clears the bar.`);
+  if (r.split === "train") lines.push("TUNING ONLY: a leave-one-out run on the training split never calibrates the judge.");
+  else lines.push(r.pass ? "CALIBRATED: its approvals count." : `UNCALIBRATED: ${r.why.join("; ")}. No line passes this judge until it clears the bar.`);
   return lines.join("\n") + "\n";
 }
 
@@ -135,27 +181,28 @@ export function productLine({ product, segments }) {
   return `${p.product}: ${p.who}. This piece is for: ${segs.map((s) => s.background.trim().replace(/\s+/g, " ")).join(" / ")}`;
 }
 
-export function writeTitles({ file, out, product, segments, brief, moment, kind = "title", items = loadOwnerLines() }) {
+/** Prompts for new lines; examples or neighbours come from the training split, the same as the calibrated judge saw. */
+export function writeTitles({ file, out, product, segments, brief, moment, kind = "title", items = loadOwnerLines(), method = DEFAULT_METHOD }) {
   mkdirSync(out, { recursive: true });
-  const shots = items; // every verdict he gave is an example when judging new lines
   const lines = readCandidates(file);
   const who = productLine({ product, segments });
+  const near = method === "nearest" ? retriever(trainShots(items)) : undefined;
   const prompts = lines.map((line, i) => {
     const f = join(out, `line-${i + 1}.prompt.md`);
-    writeFileSync(f, ownerPrompt({ line, kind, product: who, brief, moment, shots: trainShots(shots) }));
+    writeFileSync(f, promptFor({ method, line, kind, product: who, brief, moment, items, near }));
     return f;
   });
-  writeFileSync(join(out, "manifest.json"), JSON.stringify({ kind: "titles", version: judgeVersion(items), lines }, null, 1));
+  writeFileSync(join(out, "manifest.json"), JSON.stringify({ kind: "titles", method, version: judgeVersion(items, method), lines }, null, 1));
   return prompts;
 }
 
 /** Verdicts on new lines. While the judge is uncalibrated nothing passes: the report says so and exits 5. */
-export function gradeTitles({ dir, items = loadOwnerLines(), status = STATUS }) {
+export function gradeTitles({ dir, items = loadOwnerLines(), status }) {
   const pending = pendingIn(dir);
   if (pending.length) return { pending };
-  const { lines } = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
-  const gap = uncalibrated({ status, items });
-  const out = ["# owner judge", ""];
+  const { lines, method = "fewshot", version } = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8"));
+  const gap = version !== judgeVersion(items, method) ? "these prompts were written for an older judge version: run inkling titles prompts again" : uncalibrated({ method, status: status ?? methodOf(method).status, items });
+  const out = [`# owner judge (${method})`, ""];
   if (gap) out.push(`UNCALIBRATED: ${gap}. These verdicts are shown for reference only; no line passes.`, "");
   let approved = 0;
   lines.forEach((line, i) => {

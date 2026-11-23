@@ -1,0 +1,36 @@
+{
+ "judge": "owner",
+ "version": "0767033c429ae5f3",
+ "at": "2026-11-23T18:18:07.567Z",
+ "method": "nearest",
+ "split": "heldout",
+ "heldout": 36,
+ "agree": 21,
+ "accuracy": 0.5833333333333334,
+ "rejected": 18,
+ "rejectedApproved": 8,
+ "approved": 18,
+ "approvedRejected": 7,
+ "pass": false,
+ "why": [
+  "agrees on 21/36 (58%), the bar is 80%",
+  "approved 8 of 18 lines he rejected, the bar is 20%"
+ ],
+ "misses": [
+  "sandbox-seo",
+  "team-sport",
+  "cc-cloud",
+  "vault-stand-in",
+  "dot-compare",
+  "launch-opening",
+  "business-asks-me",
+  "changelog-decision-model",
+  "sso-login",
+  "one-bar",
+  "two-weeks",
+  "82-less",
+  "never-looked",
+  "agents-complex",
+  "no-granola"
+ ]
+}

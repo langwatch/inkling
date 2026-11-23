@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadOwnerLines, BAR, writeCalibration, finishCalibration, writeTitles, gradeTitles, score, judgeVersion, uncalibrated, UNCALIBRATED_EXIT } from "../src/owner-judge.mjs";
+import { existsSync } from "node:fs";
+import { loadOwnerLines, BAR, writeCalibration, finishCalibration, writeTitles, gradeTitles, score, judgeVersion, uncalibrated, parseVerdict, promptFor, METHODS, DEFAULT_METHOD, UNCALIBRATED_EXIT } from "../src/owner-judge.mjs";
+import { retriever, shape, shapeSimilarity, nearestPrompt, RETRIEVAL } from "../src/owner-nearest.mjs";
 import { lint } from "../src/engine.mjs";
 import { selectRules } from "../rules/index.mjs";
 
@@ -108,4 +110,112 @@ test("no lint error fires on a line the owner approved", () => {
 test("the lint fails the rejected vault title on its shape", () => {
   const hits = lint({ text: '# Your "no retention" setting didn\'t protect the keys in your prompts', mode: "post", rules: selectRules() });
   assert.ok(hits.some((h) => h.rule === "headline/your-past-negation" && h.severity !== "warning"));
+});
+
+const train = items.filter((i) => i.split === "train");
+const heldout = items.filter((i) => i.split === "heldout");
+
+test("nearest retrieval returns the closest training verdicts of each label, never the line itself, the same every time", () => {
+  const near = retriever(train);
+  const line = { id: "q", text: "Keep your Claude Code working when the laptop is shut", kind: "title", product: train[0].product };
+  const first = near.neighbours(line);
+  assert.deepEqual(first, near.neighbours(line));
+  assert.equal(first.filter((n) => n.label === "approved").length, RETRIEVAL.perLabel);
+  assert.equal(first.filter((n) => n.label === "rejected").length, RETRIEVAL.perLabel);
+  assert.equal(first[0].id, "cc-keep");
+  for (let i = 1; i < first.length; i++) assert.ok(first[i - 1].similarity >= first[i].similarity);
+  const self = train.find((i) => i.id === "measure-ci");
+  assert.ok(!near.neighbours(self).some((n) => n.id === self.id));
+});
+
+test("the shape of a line notes person, question, tense, negation, numbers and length", () => {
+  const s = shape({ text: "Your agent didn't need 3 sandboxes?", kind: "title", product: "Laze, a team workspace" });
+  assert.deepEqual({ ...s }, { kind: "title", product: "laze", person: "you", length: 6, question: true, past: true, negation: true, number: true, colon: false, twoSentences: false });
+  assert.equal(shape({ text: "And the business keeps asking me the same things:", kind: "line" }).person, "i");
+  assert.equal(shapeSimilarity(s, s), 1);
+  assert.ok(shapeSimilarity(s, shape({ text: "We ship evals. They run in CI.", kind: "line", product: "LangWatch" })) < 0.5);
+});
+
+test("nearest prompts show his neighbours with label and reason, from training only, and hide the line's own verdict", () => {
+  const out = tmp();
+  writeCalibration({ out, method: "nearest" });
+  const heldTexts = heldout.map((h) => JSON.stringify(h.text));
+  for (const it of heldout) {
+    const p = readFileSync(join(out, `${it.id}.prompt.md`), "utf8");
+    assert.ok(!p.includes(it.reason), `${it.id} leaks its reason`);
+    assert.ok(p.includes(`Line: ${JSON.stringify(it.text)}`));
+    assert.equal(heldTexts.filter((h) => p.includes(h)).length, 1, `${it.id} shows a held-out line as a neighbour`);
+    assert.equal((p.match(/^- \[(APPROVED|REJECTED)\]/gm) ?? []).length, 2 * RETRIEVAL.perLabel);
+    assert.match(p, /his reason: /);
+  }
+  const loo = tmp();
+  writeCalibration({ out: loo, method: "nearest", split: "train" });
+  for (const it of train) {
+    const p = readFileSync(join(loo, `${it.id}.prompt.md`), "utf8");
+    assert.ok(!p.includes(`] (${it.moment ?? `${it.kind}, ${it.product.split(",")[0]}`}) ${JSON.stringify(it.text)}`), `${it.id} is its own neighbour`);
+  }
+});
+
+test("the nearest prompt carries the brief, the kind and where the reader meets the line", () => {
+  const p = nearestPrompt({ line: "Run the evals in your own CI", kind: "heading", product: "LangWatch readers", brief: "a blog post", moment: "a section heading", neighbours: train.slice(0, 2) });
+  assert.match(p, /What the piece is: a blog post/);
+  assert.match(p, /Kind of line: heading\nWhere the reader meets it: a section heading/);
+  assert.match(p, /He lets small flaws pass/);
+  assert.equal(promptFor({ method: "nearest", line: "x", kind: "title", product: "p", items }).includes("Line: \"x\""), true);
+});
+
+test("a verdict is read from the reply even with prose around it, and a reply without one fails", () => {
+  assert.deepEqual(parseVerdict('Here: {"verdict": "approve", "reason": "plain"} done'), { verdict: "approve", reason: "plain" });
+  assert.throws(() => parseVerdict("I would approve it"), /no JSON/);
+  assert.throws(() => parseVerdict('{"verdict": "maybe"}'), /approve or reject/);
+});
+
+test("a leave-one-out run on the training split scores the judge but never writes its status", () => {
+  const out = tmp();
+  const status = join(tmp(), "status.json");
+  writeCalibration({ out, method: "nearest", split: "train" });
+  const label = Object.fromEntries(items.map((i) => [i.id, i.label === "approved" ? "approve" : "reject"]));
+  answerAll(out, (id) => label[id]);
+  const r = finishCalibration({ dir: out, status });
+  assert.equal(r.split, "train");
+  assert.equal(r.agree, train.length);
+  assert.equal(existsSync(status), false);
+});
+
+test("the nearest judge has its own version and status: a calibrated nearest judge does not calibrate the few-shot one", () => {
+  assert.notEqual(judgeVersion(items, "nearest"), judgeVersion(items, "fewshot"));
+  const out = tmp();
+  const status = join(tmp(), "nearest.json");
+  writeCalibration({ out, method: "nearest" });
+  const label = Object.fromEntries(items.map((i) => [i.id, i.label === "approved" ? "approve" : "reject"]));
+  answerAll(out, (id) => label[id]);
+  assert.equal(finishCalibration({ dir: out, status }).pass, true);
+  assert.equal(uncalibrated({ method: "nearest", status }), null);
+  assert.match(uncalibrated({ method: "fewshot", status }), /changed .* since it was calibrated/);
+  const titles = tmp();
+  writeFileSync(join(titles, "lines.txt"), "Keep API keys out of your agent's prompts\n");
+  writeTitles({ file: join(titles, "lines.txt"), out: titles, product: "laze", method: "nearest" });
+  assert.match(readFileSync(join(titles, "line-1.prompt.md"), "utf8"), /his reason: /);
+  answerAll(titles, () => "approve");
+  assert.equal(gradeTitles({ dir: titles, status }).exit, 0);
+});
+
+test("the shipped nearest calibration matches the shipped nearest judge, and the default judge is calibrated whenever the nearest one is", () => {
+  const status = JSON.parse(readFileSync(METHODS.nearest.status, "utf8"));
+  assert.equal(status.version, judgeVersion(items, "nearest"), "run inkling titles calibrate --method nearest after changing src/owner-nearest.mjs or the training verdicts");
+  assert.equal(status.pass, uncalibrated({ method: "nearest" }) === null);
+  if (status.pass) assert.equal(DEFAULT_METHOD, "nearest");
+  if (DEFAULT_METHOD === "nearest") assert.equal(status.pass, true);
+});
+
+test("the bar counts approving his rejected lines separately from rejecting his approved ones", () => {
+  const held = Array.from({ length: 20 }, (_, i) => ({ id: `y${i}`, label: i < 10 ? "approved" : "rejected", split: "heldout" }));
+  const verdicts = Object.fromEntries(held.map((h, i) => [h.id, i < 7 || i >= 18 ? "approve" : "reject"]));
+  const r = score({ verdicts, items: held });
+  assert.equal(r.approvedRejected, 3);
+  assert.equal(r.rejectedApproved, 2);
+  assert.equal(r.agree, 15);
+  assert.equal(r.pass, false);
+  assert.ok(r.why.some((w) => /agrees on 15\/20/.test(w)));
+  assert.ok(!r.why.some((w) => /lines he rejected/.test(w)));
 });
