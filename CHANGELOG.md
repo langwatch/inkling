@@ -5,7 +5,7 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 
 ## 2026-11-24
 
-- `calibration/owner-lines.jsonl` has 2 more owner verdicts on a blog title (78 in all), both in the training split by the hash rule. Recalibrated: few-shot agrees on 23 of 36 held-out lines (64%), nearest on 25 of 36 (69%) and approves 6 of his 18 rejected lines; both stay uncalibrated.
+- `calibration/owner-lines.jsonl` has 2 more owner verdicts on a blog title (78 in all; the approved one is his plural 'with your AI agents'), both in the training split by the hash rule. Recalibrated: few-shot agrees on 23 of 36 held-out lines (64%), nearest on 25 of 36 (69%) and approves 6 of his 18 rejected lines; both stay uncalibrated.
 
 ## 2026-11-23
 
