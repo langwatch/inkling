@@ -1,12 +1,16 @@
 {
  "judge": "owner",
- "version": "c374775d99b48066",
- "at": "2026-11-23T18:07:52.661Z",
+ "version": "cde9819b500ae34b",
+ "at": "2026-11-24T14:40:59.686Z",
+ "method": "fewshot",
+ "split": "heldout",
  "heldout": 36,
  "agree": 23,
  "accuracy": 0.6388888888888888,
  "rejected": 18,
  "rejectedApproved": 2,
+ "approved": 18,
+ "approvedRejected": 11,
  "pass": false,
  "why": [
   "agrees on 23/36 (64%), the bar is 80%"

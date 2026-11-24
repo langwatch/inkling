@@ -3,6 +3,10 @@
 <!-- inkling-waive-file numbers/number-opener: the section headings are dates, the way a changelog is read -->
 What changed in how an agent drives Inkling, newest first, so you can run `inkling whatsnew` and see only the entries you haven't seen yet.
 
+## 2026-11-24
+
+- `calibration/owner-lines.jsonl` has 2 more owner verdicts on a blog title (78 in all), both in the training split by the hash rule. Recalibrated: few-shot agrees on 23 of 36 held-out lines (64%), nearest on 25 of 36 (69%) and approves 6 of his 18 rejected lines; both stay uncalibrated.
+
 ## 2026-11-23
 
 - `inkling titles --method nearest` is a second owner judge: it shows the model only his closest past verdicts (four approved, four rejected, by words and shape, no embedding service) and asks whether he would judge the line the way he judged them. It agrees on 21 of 36 held-out lines (58%) and approves 8 of his 18 rejected lines, below the bar, so it stays uncalibrated and `fewshot` stays the default. `inkling titles calibrate --split train` scores a judge leave-one-out on the training verdicts, for tuning, without touching its status. See [owner judge](docs/tools/owner-judge.md#where-it-stands).
