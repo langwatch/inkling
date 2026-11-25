@@ -281,9 +281,9 @@ export class ClaudeCliJudge extends AgentAdapter {
     const parsed = parseJson(raw);
     const model = criteria.map((c, i) => {
       const v = parsed?.criteria?.find((x) => x.n === i + 1);
-      return { requirement: c, status: v?.status === "pass" ? "passed" : v?.status === "fail" ? "failed" : "inconclusive", reasoning: v?.reasoning ?? "no verdict" };
+      return { criterion: c, requirement: c, status: v?.status === "pass" ? "passed" : v?.status === "fail" ? "failed" : "inconclusive", reasoning: v?.reasoning ?? "no verdict" };
     });
-    const det = this.checks().map((k) => ({ requirement: k.criterion, status: k.pass ? "passed" : "failed", reasoning: k.why }));
+    const det = this.checks().map((k) => ({ criterion: k.criterion, requirement: k.criterion, status: k.pass ? "passed" : "failed", reasoning: k.why }));
     const all = [...det, ...model];
     const met = all.filter((c) => c.status === "passed").map((c) => c.requirement);
     const unmet = all.filter((c) => c.status !== "passed").map((c) => c.requirement);
