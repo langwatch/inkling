@@ -38,6 +38,10 @@ export const BUDGETS = {
 };
 export const BUDGET_NAMES = Object.keys(BUDGETS);
 
+/** Quick for a short message: one draft, check, judge and one reader run, no calibration needed. */
+export const QUICK_MESSAGE_WORDS = 80;
+export const quickMessage = (plan) => plan?.budget === "quick" && plan?.mode === "message";
+
 /** Initial per-layer estimates in minutes; `inkling timings` shows how real runs compare. */
 export const ESTIMATES = { directions: 6, check: 0.1, judge: 1, "panel-round": 5, holdout: 4 };
 
@@ -52,10 +56,10 @@ const planPath = (dir) => join(dir, "plan.json");
 export const readPlan = (dir) => (existsSync(planPath(dir)) ? JSON.parse(readFileSync(planPath(dir), "utf8")) : null);
 
 /** Start a run: write the plan with its deadline. */
-export function startPlan({ out, budget, topic = null, topicsDir = "topics", now = Date.now() }) {
+export function startPlan({ out, budget, mode = null, topic = null, topicsDir = "topics", now = Date.now() }) {
   if (!BUDGETS[budget]) throw new Error(`unknown budget ${budget}; one of ${BUDGET_NAMES.join(", ")}`);
   mkdirSync(out, { recursive: true });
-  const plan = { budget, topic, topicsDir, startedAt: now, deadline: now + BUDGETS[budget].minutes * 60_000 };
+  const plan = { budget, mode, topic, topicsDir, startedAt: now, deadline: now + BUDGETS[budget].minutes * 60_000 };
   writeFileSync(planPath(out), JSON.stringify(plan, null, 1));
   return plan;
 }

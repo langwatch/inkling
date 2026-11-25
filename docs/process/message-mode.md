@@ -4,7 +4,7 @@
 
 That covers a chat or Slack message, a reply in a thread, an email to a teammate, an internal note, or a talk to people who know you (`--mode script --page talk`, which keeps the time budget): any piece whose reader already knows the people, the project and what was said before.
 
-A message still goes through the [nine steps](README.md), only shorter: a line on who reads it and what you want from them, a readers file with `page: message` written before the draft, then the draft, `inkling check --mode message`, `inkling judge --mode message` and a reader run. A quick reply keeps the judge and the reader run too. `inkling plan --budget quick` drops readers only for a mode whose lints passed calibration, and message mode hasn't yet.
+A message still goes through the [nine steps](README.md), only shorter: a line on who reads it and what you want from them, a readers file with `page: message` written before the draft, then the draft, `inkling check --mode message`, `inkling judge --mode message` and a reader run. For a reply under about 80 words, `inkling plan --budget quick --mode message --out <run>` fits: you write one draft with no directions, run check and judge, then one reader run with `inkling readers panel start`, and stop when it passes. A longer message takes standard.
 
 The rest of the process assumes a reader who arrives cold, and a message isn't read that way. When those habits reach a message, it comes out as a memo: tidier, longer and further from the person who sent it. In the [reverse brief](../tools/reverse.md) runs, every message Inkling lost to a plain model lost for the reasons below, so this mode turns them around.
 

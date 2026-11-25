@@ -277,3 +277,20 @@ test("claude login: a config dir token, then CLAUDE_CODE_OAUTH_TOKEN, then the p
     Object.assign(process.env, saved);
   }
 });
+
+test("quick in message mode keeps one reader run for a reply under 80 words", () => {
+  const r = spawnSync(process.execPath, [BIN, "plan", "--budget", "quick", "--mode", "message"], { encoding: "utf8" });
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /one reader run/);
+  const out = fresh();
+  startPlan({ out, budget: "quick", mode: "message" });
+  const short = join(out, "reply.md");
+  writeFileSync(short, "it unblocks the two trials stuck on security review, both need it before they can sign\n");
+  panelStart({ draft: short, readersFile, out });
+  assert.ok(existsSync(join(out, "round-1")));
+  const long = fresh();
+  startPlan({ out: long, budget: "quick", mode: "message" });
+  const big = join(long, "reply.md");
+  writeFileSync(big, `${"word ".repeat(81)}\n`);
+  assert.throws(() => panelStart({ draft: big, readersFile, out: long }), /under about 80 words and this one has 81/);
+});

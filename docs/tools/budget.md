@@ -22,6 +22,8 @@ These estimates are initial. `inkling timings` prints what real runs took, and t
 
 Quick runs only the lints and Jev, with no reader in the loop. That is safe only for a mode whose lints already passed on a reference set of approved and rejected lines, so `inkling plan --budget quick` refuses an uncalibrated mode and says why. See [calibration](calibration.md).
 
+Message mode is the exception. With `--mode message`, quick fits a reply under about 80 words: one draft, check, judge and one reader run, with no A/B rounds. `inkling readers panel start` refuses a longer draft under that plan, so pick standard for it.
+
 ## When the budget runs out
 
 `inkling readers panel round` checks the plan first. Past the deadline, or past the rounds the budget allows, it does not start a round. It prints:

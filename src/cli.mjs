@@ -13,7 +13,7 @@ import { ClaudeCli } from "./subscription.mjs";
 import { mkdtempSync, rmSync, readdirSync as listDir, writeFileSync as writeOut } from "node:fs";
 import { homedir } from "node:os";
 import { panelStart, panelRound, panelStatus, holdout, stopRun } from "./panel.mjs";
-import { BUDGETS, BUDGET_NAMES, describeBudgets, startPlan, recordTiming, timingsSummary, topicPaths, topicInit } from "./budget.mjs";
+import { BUDGETS, BUDGET_NAMES, QUICK_MESSAGE_WORDS, describeBudgets, startPlan, recordTiming, timingsSummary, topicPaths, topicInit } from "./budget.mjs";
 import { calibrate, evaluate, formatEval, readReference, uncalibrated } from "./calibrate.mjs";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -88,7 +88,7 @@ const USAGE = `inkling: content writing framework for agents
       the best one or two grow into full drafts, readers pick the one that goes to the panel; the
       budget sets how many (quick 1, standard 3, deep 5); --restart after fundamental feedback
   inkling plan --budget <quick|standard|deep> --mode <mode> [--out <run>] [--topic <topic>]
-      pick a time budget up front; quick needs a calibrated mode
+      pick a time budget up front; quick needs a calibrated mode, or message mode for a reply under about 80 words
   inkling timings [<run dirs>...]        real minutes per layer against the estimates
   inkling calibrate <mode>               score the lints on modes/<mode>/reference.jsonl
 ${LANGWATCH_USAGE}
@@ -304,7 +304,7 @@ function plan(values) {
   if (!budget || !BUDGETS[budget]) return usage(`inkling plan --budget <${BUDGET_NAMES.join("|")}> --mode <mode>`);
   if (!values.mode) return usage("inkling plan needs --mode: quick is allowed only for a calibrated mode");
   process.stdout.write(`budgets (estimates are initial; inkling timings shows real runs):\n${describeBudgets(budget)}\n\n`);
-  const why = budget === "quick" ? uncalibrated(values.mode) : null;
+  const why = budget === "quick" && values.mode !== "message" ? uncalibrated(values.mode) : null;
   if (why) {
     process.stderr.write(`inkling: quick needs a calibrated mode, and ${why}. Quick trusts the lints and Jev alone, which is safe only after they passed on the mode's reference set. Pick standard, or calibrate the mode first (modes/<mode>/README.md).\n`);
     return 2;
@@ -317,10 +317,14 @@ function plan(values) {
     if (existsSync(p.lessons)) process.stdout.write(`lessons so far (${p.lessons}):\n${readFileSync(p.lessons, "utf8")}\n`);
   }
   if (values.out) {
-    const p = startPlan({ out: values.out, budget, topic: values.topic ?? null, topicsDir });
+    const p = startPlan({ out: values.out, budget, mode: values.mode, topic: values.topic ?? null, topicsDir });
     process.stdout.write(`plan saved in ${values.out}/plan.json; stop by ${new Date(p.deadline).toLocaleTimeString()}. Pass --run ${values.out} to check and judge so their time is recorded.\n`);
   }
   const b = BUDGETS[budget];
+  if (budget === "quick" && values.mode === "message") {
+    process.stdout.write(`steps: one draft under about ${QUICK_MESSAGE_WORDS} words -> check (lints) -> judge (Jev) -> one reader run (inkling readers panel start), no A/B rounds. A longer message takes standard.\n`);
+    return 0;
+  }
   process.stdout.write(`steps: ${b.steps.join(" -> ")}\nwhen the time runs out: stop at the best version so far and list what is still open (inkling readers panel stop <run>).\n`);
   return 0;
 }

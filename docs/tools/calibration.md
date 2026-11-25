@@ -33,7 +33,7 @@ A mode is calibrated once Inkling passes on its own reference set, in `modes/<mo
 
 The bar: at least 20 approved and 10 rejected lines, false positives on at most 10% of the approved lines, and recall of at least 50% on the rejected ones. The numbers live in `src/calibrate.mjs` and will rise as the sets grow.
 
-`inkling plan --budget quick` refuses an uncalibrated mode. Standard and deep run readers, so they work on any mode.
+`inkling plan --budget quick` refuses an uncalibrated mode, except message mode, where quick keeps one reader run ([budgets](budget.md)). Standard and deep run readers, so they work on any mode.
 
 ## Mode x
 

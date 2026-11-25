@@ -7,7 +7,7 @@ import { join, resolve, dirname } from "node:path";
 import { homedir } from "node:os";
 import { readReadersFile, readerPrompt, readerRules, runTextChecks, grade, DEFAULT_QUESTIONS } from "./readers.mjs";
 import { writeJargon } from "./jargon.mjs";
-import { BUDGETS, budgetStop, recordTiming, readPlan, recordOpen, openItems } from "./budget.mjs";
+import { BUDGETS, QUICK_MESSAGE_WORDS, quickMessage, budgetStop, recordTiming, readPlan, recordOpen, openItems } from "./budget.mjs";
 
 export const EDIT_SIZES = ["sections", "paragraphs", "lines"];
 
@@ -119,7 +119,11 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
 /** Round 1: the panel reads the first version. */
 export function panelStart({ draft, readersFile, out }) {
   const plan = readPlan(out);
-  if (plan && !BUDGETS[plan.budget].panelRounds && !BUDGETS[plan.budget].holdout)
+  if (quickMessage(plan)) {
+    const words = readFileSync(draft, "utf8").split(/\s+/).filter(Boolean).length;
+    if (words > QUICK_MESSAGE_WORDS)
+      throw new Error(`quick covers a message under about ${QUICK_MESSAGE_WORDS} words and this one has ${words}: cut it, or start again with inkling plan --budget standard --mode message.`);
+  } else if (plan && !BUDGETS[plan.budget].panelRounds && !BUDGETS[plan.budget].holdout)
     throw new Error(`the ${plan.budget} budget runs no readers: lints and Jev only. Pick standard or deep for a panel.`);
   const spec = readReadersFile(readersFile);
   const roundDir = join(out, "round-1");
