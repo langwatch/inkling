@@ -85,8 +85,11 @@ jobs:
             console.log(files.length + " files");
           '
 
-      - name: Publish to npm with provenance
-        run: npm publish --access public --provenance
+      # npm refuses provenance from a private repository; it turns on once the repo is public.
+      - name: Publish to npm
+        env:
+          PROVENANCE: ${{ github.event.repository.private == false }}
+        run: npm publish --access public --provenance="$PROVENANCE"
 
       - name: Tag the release
         env:
