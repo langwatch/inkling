@@ -5,6 +5,8 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 
 ## 2026-11-25
 
+- A script's length goes in the brief before `inkling directions start` and stays as `minutes:` in each version's front matter. See [scripts](docs/process/script-mode.md).
+- A piece for a product other than LangWatch or Laze writes its audience segments inline in the readers file instead of borrowing a bundled one. See [who reads it](docs/process/1-who-reads.md#the-products-audience).
 - A chat reply under about 80 words can take `inkling plan --budget quick --mode message`: one draft, check, judge and one reader run. A longer draft under that plan is refused at `readers panel start`. See [budgets](docs/tools/budget.md).
 - `inkling <command> --help` prints that command's usage, and an unknown option exits 2 with a usage hint instead of a stack trace.
 

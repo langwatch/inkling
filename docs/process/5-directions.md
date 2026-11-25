@@ -32,6 +32,8 @@ The budget sets it, the same way it sets the review rounds:
 | standard, about 15 min | 3, readers pick one, it becomes the draft | 1 |
 | deep, 30 to 60 min | 5, readers pick one or two, those become full drafts, readers pick one | 2 |
 
+For a script, put its length (`minutes: 3`) in the brief before you start, or the directions come back at whatever length each writer picked.
+
 For a piece worth 30 minutes or more, spending a few of them on five first screens costs less than spending all of them on one draft that started in the wrong place. First screens are short, and the writers run at the same time.
 
 ## The loop

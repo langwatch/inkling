@@ -70,3 +70,14 @@ Each check and criterion quotes the docs page it comes from, so a failure points
 | `flow-waiver` | a short post that quotes a teammate word for word, em dash included | a reasoned waiver above the quote only, other findings fixed, `inkling waivers --readers` before shipping |
 
 `inkling judge` needs `TYPESAFE_API_KEY` or `JEV_SLOP_API_KEY` in the suite's environment; the agent gets it as `TYPESAFE_API_KEY`. With `LANGWATCH_API_KEY` and `LANGWATCH_ENDPOINT` set, the runs report to LangWatch under the set `inkling-flow` (Agent Testing, then Results, one batch per suite run, at `<project>/agent-testing/results/external:inkling-flow/<batch id>`), and the agent's Claude Code spans go to the same project, joined to each turn's trace. A case takes 10 to 45 minutes; `INKLING_FLOW_CONCURRENCY` (default 2) caps how many run at once.
+
+Run on 2026-11-25 (Inkling at 3aacfae, Opus):
+
+| Case | Result | What it caught |
+| --- | --- | --- |
+| `flow-message` | pass, 13/13 | quick budget in message mode, one draft, one reader run, under 2 minutes |
+| `flow-post` | pass, 15/15 | |
+| `flow-talk` | 11/12 | `--minutes 3` came only after the directions were drafted: the directions page didn't say a script's length goes in the brief |
+| `flow-waiver` | 14/16 | shipped with the waiver not counted (no reader quoted the line working) and a warning left without a reason |
+
+Earlier runs caught a message drafted without readers or the judge, a waiver stripped from the shipped file, a judge flag waived like a rule, and a piece about an unnamed product written for LangWatch's audience. Each led to a fix in the page it names.

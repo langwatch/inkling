@@ -12,7 +12,7 @@ In the readers file, `page: talk` makes the readers colleagues in the room and c
 
 ## Set the time budget first
 
-Decide the length before the first line: `minutes: 3` in the front matter, or `--minutes 3` on the command line. At about 150 spoken words a minute, three minutes is 450 words. Use the budget to decide how many parts and examples fit, before you draft: a part that explains something takes 45 to 90 seconds, so three minutes holds two or three of them.
+Decide the length before the first line: `minutes: 3` in the front matter, or `--minutes 3` on the command line. When you start with [directions](5-directions.md), put the line in the brief too, so every direction is written to that length, and keep `minutes: 3` in the front matter of each version you check. At about 150 spoken words a minute, three minutes is 450 words. Use the budget to decide how many parts and examples fit, before you draft: a part that explains something takes 45 to 90 seconds, so three minutes holds two or three of them.
 
 `script/over-time` warns on a script more than 10% over its budget. When it warns, cut a whole part or a whole example. Never squeeze the sentences inside a part to fit: a part cut to 40 words keeps its name and its claim and loses the "because" that explained it, and that is how a script turns into notes. Previews, signposts and recaps are worth some extra time too.
 
