@@ -34,13 +34,13 @@ test("versions compare by number, not as text", () => {
   assert.ok(!newer("0.1.0", "1.0.0"));
 });
 
-test("an install behind the registry gets one line naming npx, asked at most once an hour", async () => {
+test("an install behind the registry gets one line naming the upgrade, asked at most once an hour", async () => {
   const reg = await registry("0.2.0");
   const home = fresh(), root = installed("0.1.0");
   try {
     const now = Date.now();
     const line = await updateNotice({ home, root, registry: reg.url, now, env });
-    assert.equal(line, "Inkling 0.2.0 is out: run with npx -y @langwatch/inkling@latest, then inkling whatsnew.\n");
+    assert.equal(line, "Inkling 0.2.0 is out: run npm install -g @langwatch/inkling@latest (or use npx -y @langwatch/inkling@latest), then inkling whatsnew.\n");
     assert.equal(reg.hits[0], "/@langwatch%2finkling/latest");
     assert.equal(await updateNotice({ home, root, registry: reg.url, now: now + 60_000, env }), line);
     assert.equal(reg.hits.length, 1);
@@ -103,4 +103,17 @@ test("inkling docs finds a page by its docs path or a unique ending", () => {
   assert.equal(findDoc("message-mode").page, "process/message-mode");
   assert.equal(findDoc("docs/process/6-draft.md").page, "process/6-draft");
   assert.ok(!findDoc("no-such-page").file);
+});
+
+test("a copy run through npx is told to rerun npx with @latest", async () => {
+  const reg = await registry("0.2.0");
+  const root = join(fresh(), "_npx", "abc", "node_modules", "@langwatch", "inkling");
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, "package.json"), JSON.stringify({ name: "@langwatch/inkling", version: "0.1.0" }));
+  try {
+    const line = await updateNotice({ home: fresh(), root, registry: reg.url, env });
+    assert.equal(line, "Inkling 0.2.0 is out: run with npx -y @langwatch/inkling@latest, then inkling whatsnew.\n");
+  } finally {
+    reg.close();
+  }
 });

@@ -77,7 +77,10 @@ export async function updateNotice({ home, now = Date.now(), root = ROOT, versio
       latest = await npmLatest(registry).catch(() => null);
       writeCache(home, { checkedAt: now, latest });
     }
-    return latest && newer(latest, current) ? `Inkling ${latest} is out: run with npx -y ${PACKAGE}@latest, then inkling whatsnew.\n` : "";
+    if (!latest || !newer(latest, current)) return "";
+    // npx keeps its copies under _npx; anything else is an install (global or in a project).
+    const how = /[\\/]_npx[\\/]/.test(root) ? `run with npx -y ${PACKAGE}@latest` : `run npm install -g ${PACKAGE}@latest (or use npx -y ${PACKAGE}@latest)`;
+    return `Inkling ${latest} is out: ${how}, then inkling whatsnew.\n`;
   } catch {
     return "";
   }

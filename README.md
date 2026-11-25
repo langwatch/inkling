@@ -42,15 +42,21 @@ When your agent writes something people will read, it goes through nine steps:
 
 ## Start
 
-Point your agent at this repo. In Claude Code or another coding agent, paste this line. In a chat app such as Claude or ChatGPT, paste it and turn on web access so it can read the repo:
+In Claude Code, Codex or any agent that can run commands, paste this:
+
+```text
+Run npx -y @langwatch/inkling@latest docs process/README and follow that writing process to write
+```
+
+Then say what you want written. The agent reads the process from the package, and the same command gets it every page and tool it needs (`npx -y @langwatch/inkling@latest docs` lists them). It needs Node 22 or newer. If the agent can't tell who will read the piece, it asks you before it drafts.
+
+`@latest` means the agent always runs the newest Inkling. An agent that used an older version runs `inkling whatsnew` to see what changed. If you installed it with `npm install -g @langwatch/inkling`, Inkling checks npm at most once an hour and prints one line when a newer version is out; it says nothing if the check fails, and `INKLING_NO_UPDATE=1` turns it off.
+
+In a chat app such as Claude or ChatGPT, turn on web access and paste this instead:
 
 ```text
 Follow the writing process at https://github.com/langwatch/inkling to write
 ```
-
-An agent that can run commands reads the same process without the repo: `npx -y @langwatch/inkling@latest docs` lists the pages, and `inkling docs process/README` prints one.
-
-The line only teaches your agent the process. Then tell it what you want written. If you already said it earlier in the chat, the agent works from that; if it still can't tell who will read the piece, it asks you before it drafts.
 
 ## Tools
 
