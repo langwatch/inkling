@@ -32,7 +32,7 @@ import { directionsStart, directionsPick, directionsEvolve, directionsFinal, ans
 const USAGE = `inkling: content writing framework for agents
 
   inkling docs [page]
-      print a page of the docs that ship with Inkling (README, process/README, process/message-mode...);
+      print a page of the docs that ship with Inkling; start with process/README, the steps every piece goes through;
       with no page, list them. Links in a page name other pages: docs/process/6-draft.md is process/6-draft
 
   inkling whatsnew
@@ -128,7 +128,14 @@ export function main(argv) {
     process.stdout.write(USAGE);
     return 0;
   }
-  const { values, positionals } = parseArgs({
+  if (rest.includes("--help") || rest.includes("-h")) {
+    const lines = USAGE.split("\n").filter((l) => l.trim().startsWith(`inkling ${command}`));
+    process.stdout.write(lines.length ? `${lines.join("\n")}\n\nAll commands: inkling --help\n` : USAGE);
+    return 0;
+  }
+  let parsed;
+  try {
+    parsed = parseArgs({
     args: rest,
     allowPositionals: true,
     options: {
@@ -178,6 +185,11 @@ export function main(argv) {
       moment: { type: "string" },
     },
   });
+  } catch (err) {
+    process.stderr.write(`inkling ${command}: ${err.message}\nUsage: inkling ${command} --help\n`);
+    return 2;
+  }
+  const { values, positionals } = parsed;
   if (values.mode && !MODES[values.mode]) {
     process.stderr.write(`inkling: unknown mode ${values.mode}; one of ${MODE_NAMES.join(", ")}\n`);
     return 2;

@@ -69,3 +69,14 @@ test("check exits 1 when an error sits beside a warning", () => {
   assert.match(r.stdout, /warning narrator\/question-opener/);
   assert.match(r.stdout, /banned-words\/mannered-words/);
 });
+
+test("<command> --help prints that command's usage and an unknown option exits 2 with a hint", () => {
+  for (const cmd of ["plan", "directions"]) {
+    const r = run([cmd, "--help"]);
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, new RegExp(`inkling ${cmd} `));
+  }
+  const bad = run(["check", "--bogus"]);
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /Usage: inkling check --help/);
+});

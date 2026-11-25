@@ -19,6 +19,7 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 
 ## 2026-11-22
 
+- `inkling <command> --help` prints that command's usage, and an unknown option exits 2 with a usage hint instead of a stack trace.
 - A message still goes through the steps: a readers file with `page: message` before the draft, `check`, `judge` and a reader run, even for a quick reply. See [messages](docs/process/message-mode.md).
 - Leave a waiver in the file you ship; it doesn't render, and without it the next check fails the line again. A waiver covers `inkling check` rules only: the judge's `jev/...` questions don't read waivers, so say in your notes why a judge flag is wrong instead. Run `inkling waivers` after the reader test with `--readers <run dir>`, not before. See [waivers](docs/tools/waivers.md).
 - Use a house only when the request says the piece is for that company; Inkling shipping the LangWatch house doesn't make your piece about LangWatch. See [houses](docs/houses/README.md).
