@@ -2,7 +2,7 @@
   "name": "@langwatch/inkling",
   "version": "0.1.0",
   "description": "Content writing framework for agents: goal and audience, reader tests written first, lints, a rule judge, a reader panel and clean eyes.",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "repository": {
     "type": "git",

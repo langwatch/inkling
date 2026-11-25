@@ -77,7 +77,7 @@ jobs:
           npm pack --dry-run --json > pack.json
           node -e '
             const files = require("./pack.json")[0].files.map((f) => f.path);
-            const bad = files.filter((f) => /^(test|calibration|tools|scenarios|examples|runs)\/|\.claude\/|__pycache__|corpus/.test(f));
+            const bad = files.filter((f) => /^(test|tools|scenarios|examples|runs)\/|\.claude\/|__pycache__|corpus/.test(f));
             if (bad.length) { console.error("refusing to publish:", bad.join(", ")); process.exit(1); }
             console.log(files.length + " files");
           '
