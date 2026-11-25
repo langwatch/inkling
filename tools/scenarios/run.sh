@@ -10,7 +10,8 @@ MODEL="${INKLING_SCENARIO_MODEL:-opus}"
 RUNS=1
 if [ "${1:-}" = "--runs" ]; then RUNS="$2"; shift 2; fi
 NAMES=("$@")
-[ ${#NAMES[@]} -eq 0 ] && NAMES=($(ls "$REPO/scenarios"))
+# flow-* cases belong to the Scenario suite in tools/scenarios/lw; only folders with a prompt.md run here.
+[ ${#NAMES[@]} -eq 0 ] && NAMES=($(cd "$REPO/scenarios" && for d in */; do [ -f "$d/prompt.md" ] && echo "${d%/}"; done))
 
 # A clean Claude config: only the login, no CLAUDE.md, memory, hooks, plugins or settings.
 CFG="$ROOT/cfg"

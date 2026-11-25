@@ -1,0 +1,27 @@
+{
+  "name": "post: engineering blog post, full flow",
+  "description": "A returning agent with only the Inkling package writes an engineering blog post from raw notes. It should catch up with whatsnew, read the docs, set readers and reader tests before any draft, run directions, draft, check, judge and readers in post mode, and stop when the core expectations pass.",
+  "mode": "post",
+  "returning": true,
+  "final": "final.md",
+  "answer": "It's for backend engineers who run their own CI and find it on Hacker News or LinkedIn. I want them to think we're good engineers and try the template database trick. About 15 minutes. Go ahead with your best guess on anything else.",
+  "checks": [
+    "docs",
+    "whatsnew",
+    "readersBeforeDraft",
+    "directions",
+    "checkMode",
+    "judgeMode",
+    "readerTest",
+    "finalExists"
+  ],
+  "criteria": [
+    "The readers file names who reads and where they arrive from, and sets `purpose:` from the person's own words (step 4: \"Write `purpose:` from the words of the person who asked for the piece, quoted or as close as you can, never from your own summary of the draft\").",
+    "The readers file holds a test for what we want, not only for what readers learn: an expectation about what the reader believes about us or the product when they finish (step 1: \"Then write what we want from the piece\"; step 4: \"The goals from step 1 are tests too, ours as much as the readers'\").",
+    "The agent picked a budget that fits the person's 15 minutes and ran directions before the full draft (step 5: \"Before you draft, write several first screens that start from different places, let the readers pick\"; standard budget, about 15 min: 3 directions).",
+    "After the reader test, the agent fixed what stopped a reader or stopped because core expectations passed, and did not keep editing past that (step 9: \"Stop editing when the core expectations pass\").",
+    "The agent's last message, or a file it points to, lists what is still open or what readers still asked, rather than claiming the piece is perfect (step 9: \"ship the best version so far with a list of what is still open\"; \"Keep what readers still asked\").",
+    "The finished post leads with what the reader gets (the result or the trick) rather than the failure history, and leaves out side stories the claim doesn't need, such as the abandoned Rust rewrite (step 1: \"A reader deciding whether something is worth their time needs what it does for them first\"; step 3: \"Everything else in the piece supports this one claim or goes\").",
+    "The piece names no company or product the request didn't name, and runs no house the request didn't ask for (houses: \"Use a house only when the request says the piece is for that company\")."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "inkling-flow-scenarios",
+  "private": true,
+  "type": "module",
+  "description": "LangWatch Scenario tests: a fresh Claude Code agent with only the Inkling package works the writing process out on its own.",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@langwatch/scenario": "1.8.1",
+    "ai": "^6.0.0",
+    "vitest": "^4.0.14"
+  }
+}

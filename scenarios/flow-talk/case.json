@@ -1,0 +1,17 @@
+{
+  "name": "talk: 3-minute spoken script for a team that knows you",
+  "description": "A fresh agent with only the Inkling package writes a 3-minute talk for colleagues who know the speaker and the subject. It should pick script mode with page talk and a 3-minute budget, mark the readers file page: talk, and draft it like a message: no agenda, previews or part openers, names left as the team says them.",
+  "mode": "script",
+  "page": "talk",
+  "returning": false,
+  "final": "final.md",
+  "answer": "It's the 8 people on my team, they know everything about our CI. 3 minutes, read aloud. I want them to trust the quarantine label. Go with your best guess on anything else.",
+  "checks": ["docs", "readersBeforeDraft", "checkTalk", "judgeMode", "readerTest", "readersPageTalk", "finalExists"],
+  "criteria": [
+    "The agent set the time budget to 3 minutes before drafting, with `minutes: 3` in front matter or `--minutes 3` (script mode: \"Decide the length before the first line: `minutes: 3` in the front matter, or `--minutes 3` on the command line\").",
+    "The finished script has no agenda, no preview of its parts and no part openers or headings to read out (script mode, A talk to people who know you: \"The agenda, preview and part-opener checks turn off, and you draft it the way messages say: in the order you think, with the names and terms people use, ending where the thought ends\").",
+    "Names the team uses every day (Buildkite, the monorepo, CODEOWNERS, quarantine.yml, #flaky) are not defined, glossed or translated (step 1: \"For these readers, names, jargon and English loanwords stay as the audience says them\").",
+    "The script is about 3 minutes spoken (roughly 350 to 520 words of spoken text) and keeps the open doubt about the e2e threshold (script mode: \"At about 150 spoken words a minute, three minutes is 450 words\"; message mode: \"Leave open what is still open\").",
+    "The agent stopped once the reader test passed or the budget ran out, and did not keep polishing past it (step 9: \"Stop editing when the core expectations pass\")."
+  ]
+}

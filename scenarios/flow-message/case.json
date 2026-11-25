@@ -1,0 +1,16 @@
+{
+  "name": "message: Slack reply to a co-founder",
+  "description": "A fresh agent with only the Inkling package writes a Slack thread reply to a co-founder. It should pick message mode (not post), mark the readers file page: message, keep the reply in the channel's register, and not run a post-sized process.",
+  "mode": "message",
+  "returning": false,
+  "final": "final.md",
+  "answer": "It's just a Slack reply to Marta, she knows everything about the trials. I want her to see why the installer unblocks her deals. Keep it quick.",
+  "checks": ["docs", "readersBeforeDraft", "checkMode", "judgeMode", "readerTest", "readersPageMessage", "noPostMode", "finalExists"],
+  "criteria": [
+    "The readers file plays Marta as a warm reader who shares the context (message mode, Reader test: \"Put `page: message` in the readers file. Readers default to the warm stance, read it as a message from someone they work with\").",
+    "The reply reads as a Slack message from this person: lowercase, short, no headings, bullets or bold labels, no greeting or sign-off block (message mode, Draft: \"Write in the channel's register. Chat stays chat: lowercase if the person writes that way\"; \"One thought, one block\").",
+    "The reply leaves names as the two of them say them: the bank, the logistics trial, helm, VPC, security review are not glossed or explained (message mode, Draft: \"Leave names as they are. You both know the tools, people and projects you talk about\").",
+    "The reply keeps the open doubt about the week slipping instead of settling it, and adds no ask, moral or summary the points don't have (message mode, Draft: \"Leave open what is still open\"; \"End where the thought ends. Add an ask only when the brief has one\"; \"Say it once\").",
+    "The effort fits a quick Slack reply the person asked for: the agent did not run a deep budget, A/B panel rounds or more than one restart for it, and it stopped once the reader test passed (step 9: \"Decide the time before you start: about 5 minutes for a short piece\"; \"Stop editing when the core expectations pass\")."
+  ]
+}

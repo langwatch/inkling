@@ -1,6 +1,6 @@
 # LangWatch house
 
-Use this page for any piece about LangWatch or Laze, and run the check with `--house langwatch` to add the product-name rules.
+Use this page for any piece about LangWatch or Laze, and run the check with `--house langwatch` to add the product-name rules. When the request doesn't say the piece is about LangWatch or Laze, it isn't: don't name either one or use this house.
 
 ## Figures
 

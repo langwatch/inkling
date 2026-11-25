@@ -19,6 +19,9 @@ What changed in how an agent drives Inkling, newest first, so you can run `inkli
 
 ## 2026-11-22
 
+- A message still goes through the steps: a readers file with `page: message` before the draft, `check`, `judge` and a reader run, even for a quick reply. See [messages](docs/process/message-mode.md).
+- Leave a waiver in the file you ship; it doesn't render, and without it the next check fails the line again. A waiver covers `inkling check` rules only: the judge's `jev/...` questions don't read waivers, so say in your notes why a judge flag is wrong instead. Run `inkling waivers` after the reader test with `--readers <run dir>`, not before. See [waivers](docs/tools/waivers.md).
+- Use a house only when the request says the piece is for that company; Inkling shipping the LangWatch house doesn't make your piece about LangWatch. See [houses](docs/houses/README.md).
 - With `LANGWATCH_API_KEY` set, the judge calibrators, `inkling eval` and `tools/reverse/run.sh` log each run as a LangWatch experiment with a trace per row, Jev and Claude Code calls included; `inkling langwatch sync` loads the labelled sets as datasets. Unset, nothing is sent, and a LangWatch error never fails a run. See [LangWatch](docs/tools/langwatch.md).
 - For a message or a talk, names, jargon and English loanwords stay as the audience says them. `page: message` and `page: talk` in the readers file add `known_terms_left_alone`: a reader who knew a term must not find it explained or translated. See [messages](docs/process/message-mode.md#reader-test).
 - Run Inkling with `npx -y @langwatch/inkling@latest`, no clone needed. `inkling docs [page]` prints the bundled docs. Once an hour Inkling checks for a newer version (npm for an install, origin/main for a clone) and prints one line on stderr when you are behind; `INKLING_NO_UPDATE=1` turns it off. See [the README](README.md#tools).

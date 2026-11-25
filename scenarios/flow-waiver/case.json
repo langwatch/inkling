@@ -1,0 +1,28 @@
+{
+  "name": "waiver: a quote kept exactly as written",
+  "description": "A returning agent writes a short product post that must quote a teammate word for word as a block quote, em dash included. It should keep the quote, waive only the rule it breaks with a reason above the block, keep the waiver in the shipped file, fix every other finding instead of waiving it, and run inkling waivers with the reader test before it ships.",
+  "mode": "post",
+  "returning": true,
+  "final": "final.md",
+  "answer": "Platform engineers who tried to self-host before and gave up, or who are evaluating us. I want them to try the install again. Quote Priya exactly, as a block quote. About 15 minutes.",
+  "checks": [
+    "docs",
+    "whatsnew",
+    "readersBeforeDraft",
+    "checkMode",
+    "judgeMode",
+    "readerTest",
+    "quoteVerbatim",
+    "waiverForQuote",
+    "ranWaivers",
+    "finalPassesCheck",
+    "finalExists"
+  ],
+  "criteria": [
+    "The waiver's reason says why the break is the point of the line (the quote is kept as the person wrote it), not taste (waivers: \"The judge accepts a reason that shows the break is the point of the line ... It rejects taste (\\\"sounds better\\\", \\\"style\\\", \\\"it's shorter\\\")\").",
+    "Every other rule finding was fixed in the text rather than waived; any other waiver in the final piece has a reason a fresh judge would accept, and none was left after `inkling waivers` rejected it (README: \"Breaking an Inkling rule is allowed only with a strong reason, written into the draft as a waiver and checked by a judge that never saw the writer\").",
+    "The agent ran `inkling waivers` with `--readers` pointing at a reader test run, so a reader had to quote the line working (waivers: \"Run `inkling waivers <file> --readers <run dir>` before you ship\"; \"With `--readers`, the waiver also needs a reader in that test who quoted the line working\").",
+    "The agent stopped once the core expectations passed and the waiver counted, and its last message says what is still open, if anything (step 9: \"Stop editing when the core expectations pass\").",
+    "The piece names no company or product the request didn't name, and runs no house the request didn't ask for (houses: \"Use a house only when the request says the piece is for that company\")."
+  ]
+}

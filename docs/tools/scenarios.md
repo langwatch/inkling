@@ -44,3 +44,29 @@ First run, 2026-11-13 (Inkling at 585bea8, Opus, two runs each):
 | `human-text` | 4/5 | 4/5 | talks, human signals, clean check | a slogan or punchline closer survives in one run, one claim in the other |
 
 `AUDIENCE_TERMS` passes partly because step 1 uses the same four words as its example; the score shows the step is read, not that an agent finds an audience's words on its own. The weak spots match what the founder had to say by hand: dropping the failure story and naming the contrast.
+
+## The flow suite
+
+The flow suite checks how an agent drives Inkling, where the suite above checks what it concludes. A fresh Claude Code agent gets only the installed package and a writing task, and has to find the process from `inkling --help` and `inkling docs`. It runs as [LangWatch Scenario](https://github.com/langwatch/scenario) tests:
+
+```sh
+tools/scenarios/lw/run.sh                 # every case
+tools/scenarios/lw/run.sh flow-message    # one case
+```
+
+The suite packs this tree with `npm pack` and installs the tarball, so the agent runs what would ship. `INKLING_FLOW_PACKAGE=@langwatch/inkling@latest` runs the published package instead. The agent works in `INKLING_FLOW_ROOT/agents/<run>/work` (default `$TMPDIR/inkling-flow`), with its own HOME and a Claude config that holds only the login, every inherited variable removed and no API key. Its tool calls, the judge's prompt and the verdict go to `INKLING_FLOW_ROOT/runs/<run>/`, out of the agent's reach.
+
+Each case is a folder `scenarios/flow-<name>/` with `task.md` (the person's request), the source material, and `case.json`: the mode, whether the agent used Inkling before (then it starts with every changelog entry seen but the newest date's), an `answer` for when the agent asks who reads it, the checks and the criteria.
+
+The verdict has two parts. Checks read the agent's tool calls: which inkling commands it ran, in what order, with which mode, and whether the readers file was written before the first draft. Criteria go to a judge, Opus through `claude -p` on the subscription, with the tool calls, the readers file, the finished piece and `inkling check` on it.
+
+Each check and criterion quotes the docs page it comes from, so a failure points at the page to read or fix.
+
+| Case | Task | What it checks |
+| --- | --- | --- |
+| `flow-post` | an engineering post from raw notes, about 15 minutes, by an agent that used Inkling before | whatsnew, docs, readers file first, directions, check, judge and readers in post mode, stop with what is still open |
+| `flow-message` | a Slack reply to a co-founder, "quick one" | message mode and `page: message`, the channel's register, the judge and a reader run kept for a quick reply |
+| `flow-talk` | a 3-minute talk to the team | `--mode script --page talk` with `minutes: 3`, `page: talk` readers, no agenda, names kept as the team says them |
+| `flow-waiver` | a short post that quotes a teammate word for word, em dash included | a reasoned waiver above the quote only, other findings fixed, `inkling waivers --readers` before shipping |
+
+`inkling judge` needs `TYPESAFE_API_KEY` or `JEV_SLOP_API_KEY` in the suite's environment; the agent gets it as `TYPESAFE_API_KEY`. With `LANGWATCH_API_KEY` and `LANGWATCH_ENDPOINT` set, the runs report to LangWatch under the set `inkling-flow`, and the agent's Claude Code spans go to the same project, joined to each turn's trace. A case takes 10 to 45 minutes; `INKLING_FLOW_CONCURRENCY` (default 2) caps how many run at once.

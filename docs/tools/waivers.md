@@ -8,6 +8,10 @@ A rule break needs a reason. Write a waiver on the line before the block that br
 
 `<!-- inkling-waive-file <rule ids>: <reason> -->` covers the whole file. `inkling-ignore` is the older spelling and works the same way.
 
+Leave the waiver in the file you ship. An HTML comment doesn't show in rendered Markdown, and with it gone the next `inkling check` fails the line again and the next writer "fixes" it. Take it out only where the text is pasted as it is, such as a chat message, and keep the waived copy beside it.
+
+A waiver covers the rules of `inkling check`. The judge's questions (`jev/...`) don't read waivers, and `inkling waivers` doesn't list them. When you think a judge flag is wrong for a line, say why in your notes and check [known false positives](known-false-positives.md); don't write a waiver for it.
+
 ## What check does with it
 
 `inkling check` moves a reasoned waiver out of the findings and lists it under `waivers`, with its reason, so a reviewer sees every break. A waiver with no reason stays a finding and says why. Unwaived errors still make `check` exit 1.
@@ -22,7 +26,7 @@ For each waiver, a fresh Opus judge gets the rule, the line and the reason, and 
 
 The judge accepts a reason that shows the break is the point of the line: the break does something for the reader that the rule-following version can't. It rejects taste ("sounds better", "style", "it's shorter"), arguments that the rule is wrong in general, and reasons a rewrite would satisfy as well. A rejected waiver comes back with that rewrite.
 
-With `--readers`, the waiver also needs a reader in that test who quoted the line working. A line the judge accepts but no reader noticed is `NOT SEEN`. The command exits 1 when any waiver doesn't count.
+Run it after the reader test on the same draft and pass that run with `--readers`. The waiver then also needs a reader in that test who quoted the line working. Without `--readers`, only the judge looks at the waiver. Use that while drafting, never as the last run before you ship. A line the judge accepts but no reader noticed is `NOT SEEN`. The command exits 1 when any waiver doesn't count.
 
 Models skip rules they disagree with, so the writer's own reason is never enough. The judge runs on the Claude subscription, like the readers.
 
