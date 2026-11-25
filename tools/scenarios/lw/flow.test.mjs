@@ -105,8 +105,9 @@ function checksFor(c, ev) {
     finalExists: () => ({ criterion: "Saved the finished piece as final.md.", pass: ev.finalText != null && ev.finalText.trim().length > 0, why: ev.finalText == null ? "no final.md" : `${ev.finalText.split(/\s+/).length} words` }),
     quoteVerbatim: () => {
       const q = "Fresh cluster to first trace in 18 minutes — and I didn't open the docs once.";
-      const ok = (ev.finalText ?? "").replace(/[’]/g, "'").includes(q);
-      return { criterion: "Kept Priya's quote word for word, em dash included, as the person asked.", pass: ok, why: ok ? "quote present verbatim" : "quote changed or missing" };
+      const line = (ev.finalText ?? "").replace(/[’]/g, "'").split("\n").find((l) => l.includes(q));
+      const ok = Boolean(line) && /^>\s*Fresh/.test(line.trim());
+      return { criterion: "Kept Priya's quote word for word as a block quote, em dash included and no quote marks added, as the person asked.", pass: ok, why: line ? `quote line: ${line.trim().slice(0, 120)}` : "quote changed or missing" };
     },
     waiverForQuote: () => {
       const lines = (ev.finalText ?? "").split("\n");

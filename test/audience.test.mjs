@@ -55,3 +55,9 @@ test("a persona takes its segment's background and is told the words it uses eve
   writePrompts({ draft, readersFile: f, out });
   assert.match(readFileSync(join(out, "founder.prompt.md"), "utf8"), /Words and tools you use every week: ChatGPT, Claude, Claude Code/);
 });
+
+test("another product writes its segments inline, as docs/process/1-who-reads.md shows", () => {
+  const body = "audience:\n  product: our installer\n  segments:\n    - id: platform-eng\n      background: platform engineer who tried to self-host and gave up\n      knows: [helm, Kubernetes]\n      unknown: [our internal service names]\npersonas:\n  - id: returning\n    segment: platform-eng\nexpectations: []\n";
+  assert.ok(readReadersFile(readers(body)));
+  assert.throws(() => readReadersFile(readers("personas:\n  - id: a\n    background: b\nexpectations: []\n")), /give segments inline/);
+});

@@ -21,6 +21,21 @@ personas:
     segment: vibe-founder
 ```
 
+The bundled files are for LangWatch and Laze only. When the request is for another product, or doesn't name one, don't borrow theirs: write the segments inline from what the request says about its readers.
+
+```yaml
+audience:
+  product: our installer
+  segments:
+    - id: platform-eng
+      background: platform engineer at a mid-size company who tried to self-host and gave up
+      knows: [helm, Kubernetes, Postgres]
+      unknown: [our internal service names]
+personas:
+  - id: returning
+    segment: platform-eng
+```
+
 Every persona plays one of those segments, or carries `outside: "<why this reader matters>"`, and at least half the full readers come from the audience. A panel of engineers and a skimming CTO for a product sold to non-technical founders is refused before it runs.
 
 The first-screen jargon check comes from the same file: a reader per segment sees only the title, subtitle and first paragraph and lists the words they would not know. A setting or label only insiders use ("no retention", "egress") fails in a title, even when the body explains it, because the reader leaves before the explanation.

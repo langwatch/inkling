@@ -11,6 +11,7 @@ export const AUDIENCES_DIR = join(dirname(fileURLToPath(import.meta.url)), "..",
 export const AUDIENCE_REQUIRED =
   "needs audience: the product whose buyers read it and which of its segments this piece is for, e.g.\n" +
   "  audience:\n    product: laze            # audiences/laze.yaml, or a path to your own file\n    segments: [vibe-founder, team-dev]\n" +
+  "For any other product, give segments inline (id, background, knows, unknown); never borrow LangWatch's or Laze's audience.\n" +
   "Readers come from the product's audience, never from whoever is easiest to imagine. See docs/process/1-who-reads.md#the-products-audience.";
 
 /** A product audience: bundled name (audiences/<name>.yaml), a path, or an inline object with segments. */

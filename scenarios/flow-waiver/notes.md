@@ -3,6 +3,7 @@
 - preflight tells you what's missing (storage class, ingress, a Postgres it can't reach) before anything is installed
 - airgapped: images can come from your own registry, set one value
 - tested on EKS, GKE, AKS and k3s
-- Priya on our platform team ran it on a fresh cluster and wrote this in Slack, quote it exactly:
-  "Fresh cluster to first trace in 18 minutes — and I didn't open the docs once."
+- Priya on our platform team ran it on a fresh cluster and wrote this in Slack, quote it exactly (her message, as she typed it):
+
+  Fresh cluster to first trace in 18 minutes — and I didn't open the docs once.
 - upgrade is `helm upgrade`, the chart runs new migrations before the new pods take traffic
