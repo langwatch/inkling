@@ -4,8 +4,8 @@
 # publish), set only inside this run and never committed back, so a release makes no commit of its
 # own. A clone tracks main through git; an install learns of a new version from the npm registry.
 #
-# Needs the NPM_API_TOKEN repo secret. After the first publish, a Trusted Publisher on npmjs.com
-# (GitHub Actions, langwatch/inkling, release.yml) lets npm mint the token from id-token instead.
+# Publishes through npm Trusted Publishing (OIDC): npmjs.com trusts langwatch/inkling's release.yml,
+# so no npm token is stored anywhere. Needs npm 11.5.1 or later.
 
 name: release
 
@@ -47,6 +47,9 @@ jobs:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
 
+      - name: npm with Trusted Publishing support
+        run: npm install -g npm@11.6.2
+
       - name: Test
         run: npm test
 
@@ -83,8 +86,6 @@ jobs:
           '
 
       - name: Publish to npm with provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}
         run: npm publish --access public --provenance
 
       - name: Tag the release
