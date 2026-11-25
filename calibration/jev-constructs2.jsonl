@@ -144,7 +144,7 @@
 {"q": "number_no_meaning", "rule": "pitch/number-without-comparison", "mode": "investor", "yes": true, "text": "We now serve 2 million requests.", "before": "", "orig": false, "id": "number_no_meaning-142"}
 {"q": "number_no_meaning", "rule": "numbers/number-without-measure", "mode": "post", "yes": true, "text": "The new prompt is 40% better.", "before": "", "orig": false, "id": "number_no_meaning-143"}
 {"q": "number_no_meaning", "rule": "numbers/number-without-measure", "mode": "post", "yes": true, "text": "Handoffs dropped 3x.", "before": "", "orig": false, "id": "number_no_meaning-144"}
-{"q": "number_no_meaning", "rule": null, "mode": "investor", "yes": false, "text": "Revenue grew 3x over the last 12 months, from 60k to 180k EUR ARR.", "before": "", "orig": false, "id": "number_no_meaning-145"}
+{"q": "number_no_meaning", "rule": null, "mode": "investor", "yes": false, "text": "Revenue grew 3x over the last 12 months, from 40k to 120k EUR ARR.", "before": "", "orig": false, "id": "number_no_meaning-145"}
 {"q": "number_no_meaning", "rule": null, "mode": "investor", "yes": false, "text": "Swap the model and it costs 82% less per email.", "before": "", "orig": false, "id": "number_no_meaning-146"}
 {"q": "number_no_meaning", "rule": null, "mode": "investor", "yes": false, "text": "On the hard set both score 99% accuracy.", "before": "", "orig": false, "id": "number_no_meaning-147"}
 {"q": "number_no_meaning", "rule": null, "mode": "investor", "yes": false, "text": "It answers 3x faster, in under a second.", "before": "", "orig": false, "id": "number_no_meaning-148"}
